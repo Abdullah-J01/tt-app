@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Mail } from "lucide-react";
@@ -35,6 +36,14 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
           autoComplete="email"
         />
         <PasswordField id="login-password" autoComplete="current-password" />
+        <div className="-mt-1 flex justify-end">
+          <Link
+            href="/forgot-password"
+            className="text-sm font-semibold text-violet hover:text-violet-dark"
+          >
+            Forgot password?
+          </Link>
+        </div>
         <Button type="submit" block size="lg">
           Continue
         </Button>
