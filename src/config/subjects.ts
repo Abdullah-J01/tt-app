@@ -1,5 +1,6 @@
 import {
   Atom,
+  Baby,
   BookOpen,
   Briefcase,
   Calculator,
@@ -7,6 +8,8 @@ import {
   Church,
   FlaskConical,
   Globe2,
+  GraduationCap,
+  Landmark,
   Languages,
   Leaf,
   Music,
@@ -17,6 +20,7 @@ import {
   Trees,
   User,
   Users,
+  School,
   type LucideIcon,
 } from "lucide-react";
 
@@ -57,11 +61,22 @@ export const SUBJECTS: Subject[] = [
   { slug: "russian", name: "Russian language", icon: Languages, color: "text-amber", count: 604 },
 ];
 
-export const GRADES = [
+export interface Grade {
+  slug: string;
+  label: string;
+  /** Icon + subtitle drive the onboarding grade cards; absent on the "All" filter. */
+  icon?: LucideIcon;
+  subtitle?: string;
+}
+
+export const GRADES: Grade[] = [
   { slug: "all", label: "All" },
-  { slug: "preschool", label: "Preschool" },
-  { slug: "1-3", label: "Grades 1–3" },
-  { slug: "4-6", label: "Grades 4–6" },
-  { slug: "7-9", label: "Grades 7–9" },
-  { slug: "gymnasium", label: "Gymnasium" },
-] as const;
+  { slug: "preschool", label: "Preschool", icon: Baby, subtitle: "Ages 3–6" },
+  { slug: "1-3", label: "Grades 1–3", icon: School, subtitle: "Early primary" },
+  { slug: "4-6", label: "Grades 4–6", icon: School, subtitle: "Upper primary" },
+  { slug: "7-9", label: "Grades 7–9", icon: BookOpen, subtitle: "Middle school" },
+  { slug: "gymnasium", label: "Gymnasium", icon: GraduationCap, subtitle: "High school" },
+];
+
+/** Daily-goal presets (cards/day) offered in onboarding step 3. */
+export const DAILY_GOALS = [3, 5, 10] as const;

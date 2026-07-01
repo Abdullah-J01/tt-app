@@ -95,6 +95,26 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
     ],
   },
   {
+    id: "sb_14",
+    slug: "shapes-you-can-hold",
+    title: "Shapes You Can Hold: Circle, Triangle, Cube",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "math",
+    grade: "1-3",
+    category: "Study bite",
+    synopsis:
+      "Meet flat shapes (circle, triangle, square) and solid ones (sphere, cube), then measure everyday objects with simple units.",
+    priceEur: 1.9,
+    cards: [
+      {
+        id: "c_22",
+        heading: "A shape is a promise about edges.",
+        body: "Count the sides and corners before you name it. A triangle keeps its promise: three of each.",
+      },
+    ],
+  },
+  {
     id: "sb_4",
     slug: "forces-and-motion",
     title: "Forces & Motion",
@@ -119,6 +139,26 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
     ],
   },
   {
+    id: "sb_15",
+    slug: "how-estonia-defends-itself",
+    title: "How Does Estonia Defend Itself?",
+    author: "Bite",
+    year: 2026,
+    subjectSlug: "history",
+    grade: "gymnasium",
+    category: "Study bite",
+    synopsis:
+      "Understand national defence: who protects the country, the main security threats, and why defence is not only the army's job.",
+    priceEur: 3.9,
+    cards: [
+      {
+        id: "c_24",
+        heading: "Defence is everyone's job.",
+        body: "Total defence means civilians, institutions and the military all have a role — not just soldiers.",
+      },
+    ],
+  },
+  {
     id: "sb_5",
     slug: "light-and-colour",
     title: "Light & Colour",
@@ -134,6 +174,26 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
         id: "c_12",
         heading: "White light is a bundle of colours",
         body: "A prism spreads sunlight into a rainbow because each colour bends by a slightly different amount.",
+      },
+    ],
+  },
+  {
+    id: "sb_16",
+    slug: "reading-city-simplified-texts",
+    title: "Reading City: Simplified Texts for Grade 3",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "estonian",
+    grade: "1-3",
+    category: "Educational literature",
+    synopsis:
+      "Short, simplified stories that build reading confidence one page at a time — designed for early readers.",
+    priceEur: 6.9,
+    cards: [
+      {
+        id: "c_23",
+        heading: "Confidence compounds.",
+        body: "Each finished page makes the next one easier. Momentum, not length, is what keeps a young reader going.",
       },
     ],
   },
@@ -272,6 +332,26 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
         id: "c_20",
         heading: "The nines trick",
         body: "Multiply any number by 9 and its digits add up to 9 (or a multiple of it). A quick way to check your work.",
+      },
+    ],
+  },
+  {
+    id: "sb_13",
+    slug: "estonian-religious-landscape",
+    title: "Estonia's Religious Landscape",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "history",
+    grade: "gymnasium",
+    category: "Educational literature",
+    synopsis:
+      "A gymnasium-level survey of the beliefs and traditions that shaped Estonia — from folk religion to modern pluralism.",
+    priceEur: 6.9,
+    cards: [
+      {
+        id: "c_21",
+        heading: "Belief leaves marks on the map.",
+        body: "Place names, holidays and buildings all carry traces of what people once held sacred.",
       },
     ],
   },

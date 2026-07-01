@@ -20,6 +20,22 @@
   --color-surface: #ffffff;
   --color-amber: #f4a93b;
 
+  /* Tints (soft badge / pill backgrounds) paired with a contrast-safe text tone.
+     Reuse violet→lavender, and brand-green / amber as the strong ends. */
+  --color-green-tint: #e7f3ec; /* success / "Free plan" pill bg */
+  --color-green-dark: #2e7d50; /* text/icon on green-tint */
+  --color-amber-tint: #fef3e2; /* streak / reminder bg */
+  --color-amber-dark: #e8892b; /* text/icon on amber-tint */
+  --color-danger: #e5484d; /* destructive: log out */
+  --color-danger-tint: #fdecec; /* destructive row hover bg */
+
+  /* Neutrals beyond the single hairline (badges, tracks, low-emphasis icons) */
+  --color-lavender-soft: #f7f5fe; /* auth / onboarding screen background */
+  --color-mist: #f1f1f6; /* subtle grey surface: icon badges, tags, tracks */
+  --color-slate: #5b5766; /* icon/text sitting on --color-mist */
+  --color-faint: #c4c2d0; /* chevrons, low-emphasis icons */
+
+  /* Plum gradient used on feature cards & immersive feed backgrounds */
   /* Plum gradient stops (feature cards & immersive feed backgrounds) */
   --color-plum-start: #483666;
   --color-plum-end: #7a6a9e;
@@ -167,8 +183,112 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   Home / landing helpers (kept from the other branch)
+   Entrance / ambient animations (auth + onboarding polish).
+   Gated behind prefers-reduced-motion so motion-sensitive users
+   just see the static, fully-visible elements.
    ────────────────────────────────────────────────────────────── */
+@keyframes sb-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes sb-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sb-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+/* One horizontal period of a 45° / 22px hatch = 22·√2 ≈ 31.113px → seamless loop. */
+@keyframes sb-hatch {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 31.113px 0;
+  }
+}
+/* Direction-aware step transitions (onboarding wizard). */
+@keyframes sb-step-next {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes sb-step-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* Per-item entrance for staggered lists (e.g. onboarding grade cards). */
+@keyframes sb-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .anim-pop {
+    animation: sb-pop 0.5s ease-out both;
+  }
+  .anim-fade-up {
+    animation: sb-fade-up 0.5s ease-out both;
+  }
+  /* Pop in on entrance, then gently float forever. */
+  .anim-pop-float {
+    animation:
+      sb-pop 0.5s ease-out both,
+      sb-float 3.2s ease-in-out 0.55s infinite;
+  }
+  .anim-hatch {
+    animation: sb-hatch 6s linear infinite;
+  }
+  .anim-step-next {
+    animation: sb-step-next 0.35s ease-out both;
+  }
+  .anim-step-prev {
+    animation: sb-step-prev 0.35s ease-out both;
+  }
+  .anim-item-in {
+    animation: sb-item-in 0.4s ease-out both;
+  }
+}
+
 :root {
   --font-poppins: "Poppins", sans-serif;
   --font-inter: "Inter", sans-serif;

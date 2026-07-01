@@ -1,14 +1,19 @@
 import Link from "next/link";
-import { BookOpen, Layers, Smartphone } from "lucide-react";
+import { BookOpen, Layers, Smartphone, Sparkles } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
-import { SubjectCard } from "@/features/explore";
+// import { SubjectCard } from "@/features/explore";
+import { CardRail, ContentCard, SectionHeader, SubjectCard } from "@/components/ui";
+import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/home/Hero";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
+
+const formatPrice = (eur?: number) =>
+  eur != null ? `${eur.toFixed(2)}€` : undefined;
 
 const FEATURES = [
   {
@@ -29,7 +34,9 @@ const FEATURES = [
 ];
 
 /** Marketing landing page (UI brief §6.8). */
-export default function LandingPage() {
+export default async function LandingPage() {
+  const books = await listStudybooks();
+
   return (
     <main className="relative min-h-screen bg-white">
       <Navbar />
@@ -90,6 +97,82 @@ export default function LandingPage() {
           })}
         </section> */}
 
+        {/* Subject grid */}
+        <section className="mx-auto max-w-6xl px-4 pb-16">
+          <h2 className="text-2xl font-bold">Explore by subject</h2>
+          <p className="mt-1 text-muted">Pick a subject and start learning in seconds.</p>
+          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {SUBJECTS.map((s) => (
+              <SubjectCard key={s.slug} subject={s} />
+            ))}
+          </div>
+        </section>
+
+        {/* New study bites — horizontal (row) cards: media + title + description + meta.
+            Scrolls on mobile, becomes a 2-up grid on desktop. */}
+        <section className="mx-auto max-w-6xl px-4 pb-16">
+          <SectionHeader
+            title="New study bites"
+            subtitle="Study bites help you focus on one specific topic."
+            action={
+              <Link href="/explore">
+                <Button variant="secondary" size="sm">
+                  More bites
+                </Button>
+              </Link>
+            }
+          />
+          <CardRail columns={2} itemWidth="w-[86%] sm:w-96" label="New study bites">
+            {books.map((book) => (
+              <ContentCard
+                key={book.id}
+                layout="horizontal"
+                href={`/studybook/${book.slug}`}
+                title={book.title}
+                description={book.synopsis}
+                price={formatPrice(book.priceEur)}
+                pricePrefix="from"
+                tags={[
+                  { label: book.category, icon: <Sparkles aria-hidden />, variant: "ink" },
+                  { label: book.author },
+                ]}
+              />
+            ))}
+          </CardRail>
+        </section>
+
+        {/* Freshly digitized — vertical (tile) cards: no description. Stays a
+            horizontal scroll rail at every breakpoint. */}
+        <section className="mx-auto max-w-6xl px-4 pb-20">
+          <SectionHeader
+            title="Freshly digitized"
+            subtitle="Digital textbooks and workbooks — study anywhere, anytime."
+            action={
+              <Link href="/library">
+                <Button variant="secondary" size="sm">
+                  All e-books
+                </Button>
+              </Link>
+            }
+          />
+          <CardRail itemWidth="w-40 sm:w-48" label="Freshly digitized">
+            {books.map((book) => (
+              <ContentCard
+                key={book.id}
+                layout="vertical"
+                href={`/studybook/${book.slug}`}
+                title={book.title}
+                description={book.synopsis}
+                price={formatPrice(book.priceEur)}
+                tags={[
+                  { label: book.category, icon: <BookOpen aria-hidden /> },
+                  { label: book.author },
+                ]}
+              />
+            ))}
+          </CardRail>
+        </section>
+      
       {/* Subject grid */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <h2 className="text-2xl font-bold">Explore by subject</h2>
