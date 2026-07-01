@@ -15,10 +15,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          # Re-enable caching once a package-lock.json is committed:
+          # cache: npm
 
       - name: Install
-        run: npm ci
+        # Switch to `npm ci` once package-lock.json is committed (faster + reproducible).
+        run: npm install --no-audit --no-fund
 
       - name: Typecheck
         run: npm run typecheck
