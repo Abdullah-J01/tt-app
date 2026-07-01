@@ -5,7 +5,11 @@ import { motion } from "framer-motion";
 import { Globe } from "lucide-react";
 import SearchBar from "../home/SearchBar";
 
-const links = ["Home", "Explore", "Library"];
+const links = [
+  { label: "Home", href: "/" },
+  { label: "Explore", href: "/explore" },
+  { label: "Library", href: "/library" },
+];
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -34,20 +38,20 @@ export default function Navbar() {
             scrolled ? "shadow-soft border-border border" : "border border-transparent"
           }`}
         >
-          <a href="#" className="font-display text-ink text-lg font-semibold tracking-tight">
+          <a href="/" className="font-display text-ink text-lg font-semibold tracking-tight">
             StudyBooks
           </a>
 
           <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm md:flex">
             {links.map((link, i) => (
-              <li key={link}>
+              <li key={link.label}>
                 <a
-                  href="#"
+                  href={link.href}
                   className={`underline-anim ${
                     i === 0 ? "text-ink font-medium" : "hover:text-ink"
                   }`}
                 >
-                  {link}
+                  {link.label}
                 </a>
               </li>
             ))}

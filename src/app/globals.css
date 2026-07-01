@@ -166,7 +166,9 @@
   background-image: linear-gradient(160deg, var(--color-plum-1), var(--color-plum-2));
 }
 
-<<<<<<< HEAD
+/* ──────────────────────────────────────────────────────────────
+   Home / landing helpers (kept from the other branch)
+   ────────────────────────────────────────────────────────────── */
 :root {
   --font-poppins: "Poppins", sans-serif;
   --font-inter: "Inter", sans-serif;
@@ -258,7 +260,8 @@ body {
 }
 ::-webkit-scrollbar-track {
   background: transparent;
-=======
+}
+
 /* ──────────────────────────────────────────────────────────────
    3D-style motion — subtle depth on cards, pop-in modals, drawers.
    All disabled under prefers-reduced-motion.
@@ -489,5 +492,4 @@ body {
   .fade-in {
     animation: none;
   }
->>>>>>> ruhab-khan-tt1
 }

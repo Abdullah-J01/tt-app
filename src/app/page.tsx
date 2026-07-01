@@ -3,7 +3,7 @@ import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
-import { SubjectCard } from "@/components/ui/SubjectCard";
+import { SubjectCard } from "@/features/explore";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
 import Navbar from "@/components/layout/Navbar";
