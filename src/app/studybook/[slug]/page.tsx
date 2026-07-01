@@ -6,7 +6,6 @@ import type { Metadata } from "next";
 import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { BackButton } from "@/components/layout/BackButton";
 import { StudybookPreview, ShareButton, SaveButton } from "@/features/studybook";
@@ -115,17 +114,20 @@ export default async function StudybookPage({
 
           {/* Actions */}
           <div className="mt-6 space-y-3 md:max-w-md">
-            <Link href={`/studybook/${book.slug}/read`} className="block">
-              <Button size="lg" className="w-full">
-                Start learning
-                <Pill className="bg-white/20 text-white">{price}</Pill>
-              </Button>
+            <Link
+              href={`/studybook/${book.slug}/read`}
+              className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-violet font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-violet-dark active:scale-[0.98]"
+            >
+              Start learning
+              <Pill className="bg-white/20 text-white">{price}</Pill>
             </Link>
             <div className="grid grid-cols-2 gap-3">
-              <Link href={`/studybook/${book.slug}?preview=1`} scroll={false} className="block">
-                <Button variant="secondary" className="w-full">
-                  <PlayCircle className="h-5 w-5" /> Preview
-                </Button>
+              <Link
+                href={`/studybook/${book.slug}?preview=1`}
+                scroll={false}
+                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-hairline text-sm font-semibold text-ink transition-colors hover:bg-lavender"
+              >
+                <PlayCircle className="h-5 w-5" /> Preview
               </Link>
               <SaveButton full />
             </div>
