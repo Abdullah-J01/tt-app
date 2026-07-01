@@ -1,13 +1,15 @@
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
-type Variant = "default" | "solid" | "green" | "amber";
+type Variant = "default" | "solid" | "green" | "amber" | "mist" | "ink";
 
 const variants: Record<Variant, string> = {
   default: "bg-surface text-violet border border-lavender",
   solid: "bg-violet text-white",
   green: "bg-green-tint text-green-dark",
   amber: "bg-amber-tint text-amber-dark",
+  mist: "bg-mist text-slate", // neutral grey tag (publisher, category)
+  ink: "bg-ink text-white", // dark brand tag (e.g. a product label)
 };
 
 interface PillProps {
@@ -23,7 +25,7 @@ export function Pill({ children, icon, variant = "default", className }: PillPro
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold [&_svg]:h-3.5 [&_svg]:w-3.5",
+        "inline-flex items-center gap-1 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-bold [&_svg]:h-3.5 [&_svg]:w-3.5",
         variants[variant],
         className,
       )}

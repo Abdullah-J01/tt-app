@@ -60,6 +60,86 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
       },
     ],
   },
+  {
+    id: "sb_3",
+    slug: "shapes-you-can-hold",
+    title: "Shapes You Can Hold: Circle, Triangle, Cube",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "math",
+    grade: "1-3",
+    category: "Study bite",
+    synopsis:
+      "Meet flat shapes (circle, triangle, square) and solid ones (sphere, cube), then measure everyday objects with simple units.",
+    priceEur: 1.9,
+    cards: [
+      {
+        id: "c_6",
+        heading: "A shape is a promise about edges.",
+        body: "Count the sides and corners before you name it. A triangle keeps its promise: three of each.",
+      },
+    ],
+  },
+  {
+    id: "sb_4",
+    slug: "how-estonia-defends-itself",
+    title: "How Does Estonia Defend Itself?",
+    author: "Bite",
+    year: 2026,
+    subjectSlug: "history",
+    grade: "gymnasium",
+    category: "Study bite",
+    synopsis:
+      "Understand national defence: who protects the country, the main security threats, and why defence is not only the army's job.",
+    priceEur: 3.9,
+    cards: [
+      {
+        id: "c_7",
+        heading: "Defence is everyone's job.",
+        body: "Total defence means civilians, institutions and the military all have a role — not just soldiers.",
+      },
+    ],
+  },
+  {
+    id: "sb_5",
+    slug: "reading-city-simplified-texts",
+    title: "Reading City: Simplified Texts for Grade 3",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "estonian",
+    grade: "1-3",
+    category: "Educational literature",
+    synopsis:
+      "Short, simplified stories that build reading confidence one page at a time — designed for early readers.",
+    priceEur: 6.9,
+    cards: [
+      {
+        id: "c_8",
+        heading: "Confidence compounds.",
+        body: "Each finished page makes the next one easier. Momentum, not length, is what keeps a young reader going.",
+      },
+    ],
+  },
+  {
+    id: "sb_6",
+    slug: "estonian-religious-landscape",
+    title: "Estonia's Religious Landscape",
+    author: "Maurus",
+    year: 2026,
+    subjectSlug: "history",
+    grade: "gymnasium",
+    category: "Educational literature",
+    synopsis:
+      "A gymnasium-level survey of the beliefs and traditions that shaped Estonia — from folk religion to modern pluralism.",
+    priceEur: 6.9,
+    cards: [
+      {
+        id: "c_9",
+        heading: "Belief leaves marks on the map.",
+        body: "Place names, holidays and buildings all carry traces of what people once held sacred.",
+      },
+    ],
+  },
 ];
 
 export function getStudybookBySlug(slug: string): Studybook | undefined {
