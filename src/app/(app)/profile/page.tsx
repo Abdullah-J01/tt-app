@@ -1,64 +1,62 @@
 import type { Metadata } from "next";
-import { Flame, Settings, Bell, Globe, CreditCard, LogOut } from "lucide-react";
+import { Award, Bell, Flame, Globe, Settings, User } from "lucide-react";
+import { Pill } from "@/components/ui/Pill";
+import { ProfileHeader } from "@/components/account/ProfileHeader";
+import { StatGrid, type Stat } from "@/components/account/StatGrid";
+import { PremiumBanner } from "@/components/account/PremiumBanner";
+import { SettingsList } from "@/components/account/SettingsList";
+import { SettingsRow } from "@/components/account/SettingsRow";
+import { LogoutButton } from "@/components/account/LogoutButton";
 
 export const metadata: Metadata = { title: "Profile" };
 
-const STATS = [
-  { label: "Cards learned", value: "128" },
-  { label: "Day streak", value: "5" },
-  { label: "Studybooks", value: "3" },
+// TODO(team): replace placeholders with the current user + streak/stats from TT
+// (docs/TT_API_ENDPOINTS.md §B/§C).
+const USER = { name: "Mia Lepik", handle: "@mialepik · Grade 7", streakDays: 7 };
+const STATS: Stat[] = [
+  { label: "Cards learned", value: 428 },
+  { label: "Day streak", value: 7, accent: true },
+  { label: "Completed", value: 6 },
 ];
 
-const SETTINGS = [
-  { icon: Bell, label: "Notifications" },
-  { icon: Globe, label: "Language" },
-  { icon: CreditCard, label: "Premium" },
-  { icon: Settings, label: "Account settings" },
-  { icon: LogOut, label: "Log out" },
-];
-
-/** Profile + streak/stats (UI brief §6.7). Static placeholder data. */
+/** Profile + streak/stats + settings (UI brief §6.7). */
 export default function ProfilePage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 pb-24 md:py-10 md:pb-12">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <div className="h-16 w-16 rounded-full bg-lavender" />
-        <div>
-          <h1 className="text-xl font-bold">Your Name</h1>
-          <p className="flex items-center gap-1 text-sm text-muted">
-            <Flame className="h-4 w-4 text-amber" /> 5-day streak
-          </p>
+    <div className="mx-auto max-w-2xl px-4 py-6 pb-24 md:py-8 md:pb-12">
+      <div className="flex items-center justify-between">
+        <h1 className="font-display text-2xl font-bold">Profile</h1>
+        <button
+          type="button"
+          aria-label="Settings"
+          className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-lavender hover:text-ink"
+        >
+          <Settings className="h-5 w-5" aria-hidden />
+        </button>
+      </div>
+
+      <div className="mt-5 flex flex-col gap-5">
+        <ProfileHeader name={USER.name} handle={USER.handle} />
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Pill variant="amber" icon={<Flame />}>
+            {USER.streakDays}-day streak
+          </Pill>
+          <Pill variant="green" icon={<Award />}>
+            Free plan
+          </Pill>
         </div>
-      </div>
 
-      {/* Stats */}
-      <div className="mt-6 grid grid-cols-3 gap-3">
-        {STATS.map((s) => (
-          <div
-            key={s.label}
-            className="rounded-card border border-hairline bg-surface p-4 text-center"
-          >
-            <p className="text-2xl font-bold text-violet">{s.value}</p>
-            <p className="text-xs text-muted">{s.label}</p>
-          </div>
-        ))}
-      </div>
+        <StatGrid stats={STATS} />
 
-      {/* Settings list */}
-      <ul className="mt-8 divide-y divide-hairline overflow-hidden rounded-card border border-hairline">
-        {SETTINGS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <li key={item.label}>
-              <button className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-lavender/50">
-                <Icon className="h-5 w-5 text-muted" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            </li>
-          );
-        })}
-      </ul>
+        <PremiumBanner />
+
+        <SettingsList>
+          <SettingsRow icon={User} label="Account" />
+          <SettingsRow icon={Bell} label="Notifications" />
+          <SettingsRow icon={Globe} label="Language" value="English" />
+          <LogoutButton />
+        </SettingsList>
+      </div>
     </div>
   );
 }

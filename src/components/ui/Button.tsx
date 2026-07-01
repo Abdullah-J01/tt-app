@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Loader2 } from "lucide-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 
 type Variant = "primary" | "secondary" | "ghost";
@@ -19,6 +20,14 @@ const sizes: Record<Size, string> = {
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: Variant;
   size?: Size;
+  /** Full-width button. */
+  block?: boolean;
+  /** Shows a spinner, disables the button, and sets `aria-busy`. */
+  loading?: boolean;
+  /** Optional icon before the label (replaced by the spinner while loading). */
+  leadingIcon?: ReactNode;
+  /** Optional icon after the label. */
+  trailingIcon?: ReactNode;
   children: ReactNode;
 }
 
@@ -26,6 +35,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function Button({
   variant = "primary",
   size = "md",
+  block = false,
+  loading = false,
+  leadingIcon,
+  trailingIcon,
+  disabled,
   className,
   children,
   ...props
@@ -35,13 +49,22 @@ export function Button({
       className={cn(
         "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet/40 disabled:opacity-50",
+        block && "w-full",
         variants[variant],
         sizes[size],
         className,
       )}
+      disabled={disabled || loading}
+      aria-busy={loading || undefined}
       {...props}
     >
+      {loading ? (
+        <Loader2 className="h-4 w-4 animate-spin" aria-hidden />
+      ) : (
+        leadingIcon && <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{leadingIcon}</span>
+      )}
       {children}
+      {trailingIcon && <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{trailingIcon}</span>}
     </button>
   );
 }

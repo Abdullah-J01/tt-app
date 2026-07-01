@@ -16,6 +16,21 @@
   --color-hairline: #e7e7ee;
   --color-amber: #f4a93b;
 
+  /* Tints (soft badge / pill backgrounds) paired with a contrast-safe text tone.
+     Reuse violet→lavender, and brand-green / amber as the strong ends. */
+  --color-green-tint: #e7f3ec; /* success / "Free plan" pill bg */
+  --color-green-dark: #2e7d50; /* text/icon on green-tint */
+  --color-amber-tint: #fef3e2; /* streak / reminder bg */
+  --color-amber-dark: #e8892b; /* text/icon on amber-tint */
+  --color-danger: #e5484d; /* destructive: log out */
+  --color-danger-tint: #fdecec; /* destructive row hover bg */
+
+  /* Neutrals beyond the single hairline (badges, tracks, low-emphasis icons) */
+  --color-lavender-soft: #f7f5fe; /* auth / onboarding screen background */
+  --color-mist: #f1f1f6; /* subtle grey surface: icon badges, tags, tracks */
+  --color-slate: #5b5766; /* icon/text sitting on --color-mist */
+  --color-faint: #c4c2d0; /* chevrons, low-emphasis icons */
+
   /* Plum gradient used on feature cards & immersive feed backgrounds */
   --color-plum-1: #4b3b66;
   --color-plum-2: #7a6a9e;
