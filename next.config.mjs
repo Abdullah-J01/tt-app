@@ -14,6 +14,12 @@ const nextConfig = {
   // See docs/MOBILE_PACKAGING.md for the full flow.
   // ──────────────────────────────────────────────────────────────
 
+  // Temporary: dummy studybook covers come from Open Library (see
+  // src/lib/openlibrary.ts). Remove once real covers come from the TT API.
+  images: {
+    remotePatterns: [{ protocol: "https", hostname: "covers.openlibrary.org" }],
+  },
+
   experimental: {
     // typedRoutes: true,
   },

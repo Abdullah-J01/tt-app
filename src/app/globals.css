@@ -64,3 +64,235 @@
 .bg-plum {
   background-image: linear-gradient(160deg, var(--color-plum-1), var(--color-plum-2));
 }
+
+/* ──────────────────────────────────────────────────────────────
+   3D-style motion — subtle depth on cards, pop-in modals, drawers.
+   All disabled under prefers-reduced-motion.
+   ────────────────────────────────────────────────────────────── */
+
+/* Cover tiles: tilt + lift toward the pointer on hover. */
+.card-3d {
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+.card-3d:hover {
+  transform: perspective(900px) rotateX(6deg) rotateY(-7deg) translateY(-6px) scale(1.03);
+  box-shadow: 0 22px 40px rgba(30, 26, 46, 0.22);
+}
+/* Glossy light sweep across the cover on hover. */
+.card-3d::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.28) 45%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+.card-3d:hover::after {
+  transform: translateX(130%);
+}
+
+/* Animated "snake" gradient border that runs around a card on hover. */
+@property --snake-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+.snake-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  border-radius: inherit;
+  padding: 2px;
+  background: conic-gradient(
+    from var(--snake-angle),
+    transparent 0deg,
+    transparent 250deg,
+    var(--color-violet) 300deg,
+    #cbb8ff 330deg,
+    var(--color-violet) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+.snake-border:hover::before {
+  opacity: 1;
+  animation: snake-run 1.4s linear infinite;
+}
+@keyframes snake-run {
+  to {
+    --snake-angle: 360deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .snake-border:hover::before {
+    animation: none;
+  }
+}
+
+/* ── 404 / decorative motion ─────────────────────────────────── */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-16px);
+  }
+}
+@keyframes floaty-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-26px);
+  }
+}
+@keyframes orbit-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes tilt3d {
+  0%,
+  100% {
+    transform: perspective(900px) rotateX(0deg) rotateY(-10deg);
+  }
+  50% {
+    transform: perspective(900px) rotateX(10deg) rotateY(10deg);
+  }
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+.animate-floaty {
+  animation: floaty 4s ease-in-out infinite;
+}
+.animate-floaty-slow {
+  animation: floaty-slow 6s ease-in-out infinite;
+}
+.animate-orbit {
+  animation: orbit-spin 22s linear infinite;
+}
+.animate-tilt3d {
+  animation: tilt3d 7s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+.animate-twinkle {
+  animation: twinkle 2.6s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-floaty,
+  .animate-floaty-slow,
+  .animate-orbit,
+  .animate-tilt3d,
+  .animate-twinkle {
+    animation: none;
+  }
+}
+
+/* Generic hover lift for list cards (studybites, etc.). */
+.hover-lift {
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.25s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Subject tiles: lighter lift + subtle tilt. */
+.tile-3d {
+  transition:
+    transform 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.3s ease;
+}
+.tile-3d:hover {
+  transform: perspective(700px) translateY(-4px) rotateX(4deg);
+}
+
+/* Modal / preview entrance. */
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: perspective(1000px) rotateX(8deg) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: perspective(1000px) rotateX(0) scale(1);
+  }
+}
+.pop-in {
+  animation: pop-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Bottom-sheet / drawer slide up. */
+@keyframes drawer-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+.drawer-up {
+  animation: drawer-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.fade-in {
+  animation: fade-in 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-3d,
+  .card-3d:hover,
+  .tile-3d,
+  .tile-3d:hover,
+  .hover-lift,
+  .hover-lift:hover {
+    transform: none;
+    transition: box-shadow 0.2s ease;
+  }
+  .card-3d::after {
+    display: none;
+  }
+  .pop-in,
+  .drawer-up,
+  .fade-in {
+    animation: none;
+  }
+}

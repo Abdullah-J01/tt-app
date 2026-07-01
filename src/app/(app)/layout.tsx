@@ -1,5 +1,6 @@
 import { TopNav } from "@/components/layout/TopNav";
 import { BottomNav } from "@/components/layout/BottomNav";
+import { Footer } from "@/components/layout/Footer";
 
 /**
  * Shell for the authenticated app (feed, explore, library, profile).
@@ -14,6 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <TopNav />
       </div>
       {children}
+      <div className="hidden md:block">
+        <Footer />
+      </div>
       <BottomNav />
     </div>
   );
