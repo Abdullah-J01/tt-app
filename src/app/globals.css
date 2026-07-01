@@ -79,3 +79,110 @@
 .bg-plum {
   background-image: linear-gradient(160deg, var(--color-plum-1), var(--color-plum-2));
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Entrance / ambient animations (auth + onboarding polish).
+   Gated behind prefers-reduced-motion so motion-sensitive users
+   just see the static, fully-visible elements.
+   ────────────────────────────────────────────────────────────── */
+@keyframes sb-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes sb-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sb-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+/* One horizontal period of a 45° / 22px hatch = 22·√2 ≈ 31.113px → seamless loop. */
+@keyframes sb-hatch {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 31.113px 0;
+  }
+}
+/* Direction-aware step transitions (onboarding wizard). */
+@keyframes sb-step-next {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes sb-step-prev {
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+/* Per-item entrance for staggered lists (e.g. onboarding grade cards). */
+@keyframes sb-item-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .anim-pop {
+    animation: sb-pop 0.5s ease-out both;
+  }
+  .anim-fade-up {
+    animation: sb-fade-up 0.5s ease-out both;
+  }
+  /* Pop in on entrance, then gently float forever. */
+  .anim-pop-float {
+    animation:
+      sb-pop 0.5s ease-out both,
+      sb-float 3.2s ease-in-out 0.55s infinite;
+  }
+  .anim-hatch {
+    animation: sb-hatch 6s linear infinite;
+  }
+  .anim-step-next {
+    animation: sb-step-next 0.35s ease-out both;
+  }
+  .anim-step-prev {
+    animation: sb-step-prev 0.35s ease-out both;
+  }
+  .anim-item-in {
+    animation: sb-item-in 0.4s ease-out both;
+  }
+}

@@ -19,28 +19,30 @@ export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
       </div>
 
       <div role="group" aria-label="Grade" className="flex flex-col gap-3">
-        {grades.map((g) => {
+        {grades.map((g, i) => {
           const Icon = g.icon;
           const isSelected = selected === g.slug;
           return (
-            <SelectableCard
-              key={g.slug}
-              orientation="horizontal"
-              title={g.label}
-              subtitle={g.subtitle}
-              selected={isSelected}
-              onSelect={() => onSelect(g.slug)}
-              media={
-                Icon ? (
-                  <IconBadge
-                    icon={<Icon />}
-                    shape="rounded"
-                    variant={isSelected ? "violet" : "grey"}
-                    className={isSelected ? "bg-surface" : undefined}
-                  />
-                ) : undefined
-              }
-            />
+            // Staggered entrance: each card rises in ~70ms after the previous.
+            <div key={g.slug} className="anim-item-in" style={{ animationDelay: `${i * 70}ms` }}>
+              <SelectableCard
+                orientation="horizontal"
+                title={g.label}
+                subtitle={g.subtitle}
+                selected={isSelected}
+                onSelect={() => onSelect(g.slug)}
+                media={
+                  Icon ? (
+                    <IconBadge
+                      icon={<Icon />}
+                      shape="rounded"
+                      variant={isSelected ? "violet" : "grey"}
+                      className={isSelected ? "bg-surface" : undefined}
+                    />
+                  ) : undefined
+                }
+              />
+            </div>
           );
         })}
       </div>
