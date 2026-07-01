@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { SubjectCard } from "@/components/ui/SubjectCard";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/home/Hero";
+import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 
 const FEATURES = [
   {
@@ -28,12 +31,15 @@ const FEATURES = [
 /** Marketing landing page (UI brief §6.8). */
 export default function LandingPage() {
   return (
-    <>
-      <TopNav />
+    <main className="relative min-h-screen bg-white">
+      <Navbar />
+      <Hero />
+      <FeatureCardsLoader />
 
-      <main>
-        {/* Hero */}
-        <section className="bg-lavender">
+      {/* <TopNav /> */}
+
+      {/* Hero */}
+      {/* <section className="bg-lavender">
           <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:py-24">
             <div>
               <h1 className="text-4xl font-bold leading-tight md:text-5xl">{SITE.tagline}</h1>
@@ -48,10 +54,10 @@ export default function LandingPage() {
                   </Button>
                 </Link>
               </div>
-            </div>
+            </div> */}
 
-            {/* Phone mock showing the vertical feed */}
-            <div className="justify-self-center">
+      {/* Phone mock showing the vertical feed */}
+      {/* <div className="justify-self-center">
               <div className="flex h-[520px] w-[260px] flex-col justify-between rounded-[2.5rem] border-8 border-ink bg-plum p-5 text-white shadow-soft">
                 <div className="flex gap-1">
                   <span className="h-1 flex-1 rounded-full bg-white" />
@@ -68,10 +74,10 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
-        {/* Feature cards */}
-        <section className="mx-auto grid max-w-6xl gap-6 px-4 py-16 md:grid-cols-3">
+      {/* Feature cards */}
+      {/* <section className="mx-auto grid max-w-6xl gap-6 px-4 py-16 md:grid-cols-3">
           {FEATURES.map((f) => {
             const Icon = f.icon;
             return (
@@ -82,21 +88,20 @@ export default function LandingPage() {
               </div>
             );
           })}
-        </section>
+        </section> */}
 
-        {/* Subject grid */}
-        <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="text-2xl font-bold">Explore by subject</h2>
-          <p className="mt-1 text-muted">Pick a subject and start learning in seconds.</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {SUBJECTS.map((s) => (
-              <SubjectCard key={s.slug} subject={s} />
-            ))}
-          </div>
-        </section>
-      </main>
+      {/* Subject grid */}
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <h2 className="text-2xl font-bold">Explore by subject</h2>
+        <p className="text-muted mt-1">Pick a subject and start learning in seconds.</p>
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SUBJECTS.map((s) => (
+            <SubjectCard key={s.slug} subject={s} />
+          ))}
+        </div>
+      </section>
 
       <Footer />
-    </>
+    </main>
   );
 }

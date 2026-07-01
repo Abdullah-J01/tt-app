@@ -1,14 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Poppins } from "next/font/google";
+import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "@/components/home/SmoothScroll";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
-
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["500", "600", "700"],
   variable: "--font-poppins",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -26,11 +33,14 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${poppins.variable}`}>
-      <body className="antialiased">
-        <Providers>{children}</Providers>
+    <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
+      <body className="font-body antialiased">
+        <Providers>
+          <SmoothScroll>{children}</SmoothScroll>
+        </Providers>
+        <div className="noise-overlay" aria-hidden="true" />
       </body>
     </html>
   );
