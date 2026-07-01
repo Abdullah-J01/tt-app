@@ -287,6 +287,8 @@
   .anim-item-in {
     animation: sb-item-in 0.4s ease-out both;
   }
+}
+
 :root {
   --font-poppins: "Poppins", sans-serif;
   --font-inter: "Inter", sans-serif;

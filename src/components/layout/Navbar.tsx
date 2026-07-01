@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 import { Globe } from "lucide-react";
 import SearchBar from "../home/SearchBar";
@@ -62,9 +63,12 @@ export default function Navbar() {
               <Globe size={16} />
               EN
             </button>
-            <button className="bg-ink hover:bg-violet rounded-full px-5 py-2 text-sm font-medium text-white transition-colors duration-300">
+            <Link
+              href="/login"
+              className="bg-ink hover:bg-violet rounded-full px-5 py-2 text-sm font-medium text-white transition-colors duration-300"
+            >
               Log in
-            </button>
+            </Link>
           </div>
         </nav>
       </div>

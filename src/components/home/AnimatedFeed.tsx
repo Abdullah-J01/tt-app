@@ -63,6 +63,7 @@ export default function AnimatedFeed() {
   }, []);
 
   const card = cards[index];
+  if (!card) return null;
 
   return (
     <div className="relative w-full h-full overflow-hidden">
