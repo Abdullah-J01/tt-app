@@ -1,0 +1,52 @@
+{
+  "name": "tt-app",
+  "version": "0.1.0",
+  "private": true,
+  "description": "StudyBooks — bite-sized, TikTok-style learning from studybooks. MVP scaffold.",
+  "packageManager": "npm@10.9.0",
+  "engines": {
+    "node": ">=20 <23"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "cap:sync": "next build && cap sync",
+    "cap:ios": "cap open ios",
+    "cap:android": "cap open android"
+  },
+  "dependencies": {
+    "next": "^16.2.9",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "next-auth": "^4.24.14",
+    "@tanstack/react-query": "^5.101.2",
+    "zustand": "^5.0.14",
+    "zod": "^4.4.3",
+    "stripe": "^22.3.0",
+    "lucide-react": "^1.22.0",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^3.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "@types/node": "^22.10.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tailwindcss": "^4.3.2",
+    "@tailwindcss/postcss": "^4.3.2",
+    "eslint": "^9.0.0",
+    "@eslint/eslintrc": "^3.1.0",
+    "eslint-config-next": "^16.2.9",
+    "prettier": "^3.9.4",
+    "prettier-plugin-tailwindcss": "^0.8.0",
+    "@capacitor/core": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/ios": "^8.4.1",
+    "@capacitor/android": "^8.4.1"
+  }
+}

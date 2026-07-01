@@ -1,0 +1,66 @@
+@import "tailwindcss";
+
+/* ──────────────────────────────────────────────────────────────
+   Design tokens — matched to TaskuTark (see docs/UI_DESIGN_BRIEF.md §2)
+   In Tailwind v4 these @theme vars generate utilities automatically,
+   e.g. --color-violet → bg-violet / text-violet / border-violet.
+   ────────────────────────────────────────────────────────────── */
+@theme {
+  --color-violet: #6c4ce3;
+  --color-violet-dark: #5a3ed0;
+  --color-lavender: #f1eefb;
+  --color-brand-green: #43a863;
+  --color-ink: #1e1a2e;
+  --color-muted: #6e6e7a;
+  --color-surface: #ffffff;
+  --color-hairline: #e7e7ee;
+  --color-amber: #f4a93b;
+
+  /* Plum gradient used on feature cards & immersive feed backgrounds */
+  --color-plum-1: #4b3b66;
+  --color-plum-2: #7a6a9e;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: 1rem; /* rounded-card = 16px */
+
+  --shadow-soft: 0 8px 24px rgba(30, 26, 46, 0.08);
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+  body {
+    background-color: var(--color-surface);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────
+   TikTok-style vertical snap feed helpers (see UI brief §4)
+   ────────────────────────────────────────────────────────────── */
+.snap-feed {
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.snap-card {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Reusable plum gradient */
+.bg-plum {
+  background-image: linear-gradient(160deg, var(--color-plum-1), var(--color-plum-2));
+}
