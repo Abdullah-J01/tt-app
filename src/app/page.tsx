@@ -3,8 +3,8 @@ import { BookOpen, Layers, Smartphone, Sparkles } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
-// import { SubjectCard } from "@/features/explore";
-import { CardRail, ContentCard, SectionHeader, SubjectCard } from "@/components/ui";
+import { SubjectCard } from "@/features/explore";
+import { CardRail, ContentCard, SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
@@ -173,17 +173,6 @@ export default async function LandingPage() {
           </CardRail>
         </section>
       
-      {/* Subject grid */}
-      <section className="mx-auto max-w-6xl px-4 pb-16">
-        <h2 className="text-2xl font-bold">Explore by subject</h2>
-        <p className="text-muted mt-1">Pick a subject and start learning in seconds.</p>
-        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SUBJECTS.map((s) => (
-            <SubjectCard key={s.slug} subject={s} />
-          ))}
-        </div>
-      </section>
-
       <Footer />
     </main>
   );
