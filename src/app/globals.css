@@ -139,6 +139,10 @@
 .bg-violet-gradient {
   background-image: linear-gradient(160deg, #5a3ed0 0%, #6c4ce3 55%, #9c85f0 100%);
 }
+.bg-amber-gradient {
+  /* built from --color-amber (#f4a93b) */
+  background-image: linear-gradient(160deg, #d98a1f 0%, #f4a93b 60%, #ffc76b 100%);
+}
 .bg-mesh-light {
   background-image:
     radial-gradient(60% 50% at 15% 10%, rgba(108, 76, 227, 0.1) 0%, rgba(108, 76, 227, 0) 60%),
@@ -330,7 +334,9 @@ body {
 .glass {
   background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+
+  /* -webkit-backdrop-filter: blur(20px) saturate(160%); */
+  will-change: backdrop-filter;
 }
 
 .text-gradient-violet {

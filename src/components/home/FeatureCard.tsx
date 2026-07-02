@@ -62,7 +62,7 @@ export default function FeatureCard({
         rotateY: springY,
         transformPerspective: 800,
       }}
-      className={`rounded-xl3 relative overflow-hidden p-6 sm:p-7 ${gradient} shadow-soft transition-shadow duration-500 ${
+      className={`rounded-xl3 xl:w-[32rem]overflow-hidden relative w-[82vw] p-6 sm:w-[46vw] sm:p-7 lg:w-[30vw] ${gradient} shadow-soft transition-shadow duration-500 ${
         hovered ? "shadow-lift" : ""
       }`}
     >
@@ -87,9 +87,9 @@ export default function FeatureCard({
         <Scene>{illustration}</Scene>
       </div>
 
-      <button className="relative z-10 mt-6 w-full rounded-full bg-white/15 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/25">
+      {/* <button className="relative z-10 mt-6 w-full rounded-full bg-white/15 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/25">
         Preview
-      </button>
+      </button> */}
     </motion.div>
   );
 }
