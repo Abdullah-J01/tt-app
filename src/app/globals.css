@@ -166,6 +166,17 @@
     font-weight: 700;
     color: var(--color-ink);
   }
+  /* Tailwind v4 preflight drops the default button cursor — restore it so all
+     interactive controls show the pointer. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+  :disabled {
+    cursor: not-allowed;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────

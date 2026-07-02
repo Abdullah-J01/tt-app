@@ -2,6 +2,8 @@ import { cn } from "@/lib/utils";
 import { ActionRail } from "./ActionRail";
 
 interface StudyCardProps {
+  /** Stable card id — keys the persisted like/save state on the rail. */
+  id: string;
   heading: string;
   body: string;
   subjectLabel: string;
@@ -17,6 +19,7 @@ interface StudyCardProps {
  * Full-height, snap target, plum gradient background, right-side action rail.
  */
 export function StudyCard({
+  id,
   heading,
   body,
   subjectLabel,
@@ -62,7 +65,9 @@ export function StudyCard({
 
       {/* Right: action rail */}
       <div className="absolute bottom-24 right-4">
-        <ActionRail likeCount={128} />
+        {/* No base counts yet (no API) — starts at 0, the user's own tap makes it 1.
+            When real data arrives, pass saveCount/likeCount and they add on top. */}
+        <ActionRail id={id} shareTitle={bookTitle} />
       </div>
     </article>
   );

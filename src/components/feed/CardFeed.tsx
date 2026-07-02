@@ -21,6 +21,7 @@ export function CardFeed({ items }: { items: FeedItem[] }) {
       {items.map(({ card, book, index, total }) => (
         <StudyCard
           key={card.id}
+          id={card.id}
           heading={card.heading}
           body={card.body}
           subjectLabel={book.category}
