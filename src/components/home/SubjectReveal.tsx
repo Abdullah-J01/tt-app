@@ -166,13 +166,13 @@ export function SubjectReveal() {
         { scale: 7, opacity: 0, filter: "blur(4px)", duration: 1.1, ease: "power2.in" },
         ">",
       );
-      // Echo circles emerge from behind (50% opacity) and grow with the zoom.
+      // Echo circles fade in AND out only during the zoom — never before/after.
       tl.fromTo(
         rippleRefs.current.filter(Boolean),
-        { scale: 1, opacity: 0.5 },
+        { scale: 1, opacity: 0 },
         {
           scale: (i: number) => 4 + i * 3,
-          opacity: 0,
+          keyframes: { opacity: [0, 0.5, 0] },
           duration: 1.2,
           ease: "power2.out",
           stagger: 0.12,
@@ -307,7 +307,7 @@ export function SubjectReveal() {
           <div
             ref={glowRef}
             aria-hidden
-            className="absolute inset-0 m-auto h-[42rem] w-[42rem] rounded-full blur-[90px]"
+            className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
             style={{
               background:
                 "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
@@ -318,7 +318,7 @@ export function SubjectReveal() {
             ref={dashRef}
             viewBox="0 0 200 200"
             aria-hidden
-            className="absolute inset-0 m-auto h-[46rem] w-[46rem]"
+            className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
           >
             <defs>
               <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -342,7 +342,7 @@ export function SubjectReveal() {
             ref={eggRef}
             viewBox="0 0 200 200"
             aria-hidden
-            className="absolute inset-0 m-auto h-[38rem] w-[38rem]"
+            className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
           >
             <defs>
               <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
@@ -361,7 +361,10 @@ export function SubjectReveal() {
             />
           </svg>
           {/* orbiting dot riding the dashed ring */}
-          <div aria-hidden className="absolute inset-0 m-auto h-[46rem] w-[46rem]">
+          <div
+            aria-hidden
+            className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+          >
             <div ref={orbitSpinRef} className="relative h-full w-full">
               <span className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
             </div>
@@ -373,8 +376,8 @@ export function SubjectReveal() {
           >
             <div>
               <h2 className="font-display font-extrabold uppercase leading-[0.82] tracking-tight">
-                <span className="block text-5xl text-ink sm:text-7xl md:text-8xl">Learn</span>
-                <span className="-mt-2 block text-5xl text-violet/25 sm:-mt-4 sm:text-7xl md:text-8xl">
+                <span className="block text-4xl text-ink sm:text-6xl md:text-8xl">Learn</span>
+                <span className="-mt-1 block text-4xl text-violet/25 sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
                   Something New
                 </span>
               </h2>
