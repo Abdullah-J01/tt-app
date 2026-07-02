@@ -44,6 +44,12 @@ export async function getStudybites(limit = 6): Promise<Studybite[]> {
   return toStudybites(books).slice(0, limit);
 }
 
+/** The full catalog for the Explore landing: every studybook + every bite. */
+export async function getCatalog(): Promise<{ books: Studybook[]; studybites: Studybite[] }> {
+  const books = await listStudybooks();
+  return { books, studybites: toStudybites(books) };
+}
+
 /**
  * Catalog search grouped into subjects, studybooks and studybites (UI brief §6.4).
  * TODO(team): call ttApi.search() and group server-side once TT exposes it.
