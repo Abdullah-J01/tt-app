@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { AppCta } from "@/components/layout/AppCta";
+import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { SubjectCard } from "@/features/explore";
 import { SectionHeader } from "@/components/ui";
@@ -141,7 +141,7 @@ export default async function LandingPage() {
           <UniverseCarousel books={books} />
         </section>
       
-      <AppCta />
+      <Footer />
     </main>
   );
 }
