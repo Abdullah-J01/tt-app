@@ -1,24 +1,21 @@
-import { TopNav } from "@/components/layout/TopNav";
-import { BottomNav } from "@/components/layout/BottomNav";
+import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 
 /**
  * Shell for the authenticated app (feed, explore, library, profile).
- * Desktop shows the TT-style TopNav; mobile shows the BottomNav.
+ * Uses the shared site header (Navbar) — the same one as the marketing pages —
+ * which brings the desktop top bar and the mobile bottom bar with it.
  *
  * TODO(team): gate this layout behind an auth check (redirect to /login).
  */
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-[100svh] bg-surface">
-      <div className="hidden md:block">
-        <TopNav />
-      </div>
-      {children}
-      <div className="hidden md:block">
-        <Footer />
-      </div>
-      <BottomNav />
+      <Navbar />
+      {/* Spacer so content clears the fixed header — pages needn't add their own
+          top margin. Immersive pages (feed) opt out with a negative margin. */}
+      <div className="pt-20 md:pt-24">{children}</div>
+      <Footer />
     </div>
   );
 }

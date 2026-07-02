@@ -1,4 +1,5 @@
 import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
 /**
@@ -15,6 +16,20 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
+    // Demo/stub sign-in — accepts any email so the login flow works without a
+    // backend. TODO(team): replace `authorize` with a real TT login call.
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const email = credentials?.email?.trim();
+        if (!email) return null;
+        return { id: email, email, name: email.split("@")[0] || "You" };
+      },
+    }),
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({

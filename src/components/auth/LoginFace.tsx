@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +9,9 @@ import { OrDivider } from "./OrDivider";
 
 /** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up. */
 export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
-  const router = useRouter();
+  // Desktop lands on the home page; mobile goes straight to the app feed.
+  const landingUrl = () =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches ? "/" : "/feed";
 
   return (
     <div>
@@ -23,8 +24,12 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
         className="mt-6 flex flex-col gap-4"
         onSubmit={(e) => {
           e.preventDefault();
-          // TODO(team): signIn("credentials", …). Dummy: go straight to the feed.
-          router.push("/feed");
+          const form = e.currentTarget;
+          const email = (form.querySelector("#login-email") as HTMLInputElement | null)?.value ?? "";
+          const password =
+            (form.querySelector("#login-password") as HTMLInputElement | null)?.value ?? "";
+          // Demo: creates a real session via the credentials stub, then redirects.
+          signIn("credentials", { email, password, callbackUrl: landingUrl() });
         }}
       >
         <Input
@@ -56,7 +61,7 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
         block
         size="lg"
         leadingIcon={<GoogleIcon />}
-        onClick={() => signIn("google", { callbackUrl: "/feed" })}
+        onClick={() => signIn("google", { callbackUrl: landingUrl() })}
       >
         Continue with Google
       </Button>

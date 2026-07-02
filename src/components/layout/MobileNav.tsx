@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -12,6 +13,7 @@ import {
   Home,
   MoreHorizontal,
   Search,
+  User,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -38,6 +40,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
  * Desktop is untouched — this whole tree is `md:hidden`.
  */
 export default function MobileNav() {
+  const { status } = useSession();
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -212,6 +215,18 @@ export default function MobileNav() {
                 </li>
               );
             })}
+
+            {status === "authenticated" && (
+              <li className="flex-1">
+                <Link
+                  href="/profile"
+                  className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-ink/60 transition-transform hover:text-ink active:scale-95"
+                >
+                  <User className="h-[22px] w-[22px]" aria-hidden />
+                  Profile
+                </Link>
+              </li>
+            )}
 
             <li className="flex-1">
               <button

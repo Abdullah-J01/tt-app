@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
-import { Globe } from "lucide-react";
+import { Globe, User } from "lucide-react";
 import SearchBar from "../home/SearchBar";
 import { Logo } from "./Logo";
 import MobileNav from "./MobileNav";
@@ -11,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const { status } = useSession();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -66,6 +68,15 @@ export default function Navbar() {
                 <Globe size={16} />
                 EN
               </button>
+              {status === "authenticated" && (
+                <a
+                  href="/profile"
+                  aria-label="Profile"
+                  className="text-ink/80 hover:text-ink hidden items-center gap-1.5 text-sm transition-colors md:inline-flex"
+                >
+                  <User size={18} />
+                </a>
+              )}
               {/* <Link href="/login" className="hidden md:inline-flex"> */}
               <a href="/login">
                 <Button className="shadow-soft hover:shadow-glow hidden rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300 md:inline-flex">

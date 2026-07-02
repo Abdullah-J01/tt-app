@@ -12,7 +12,7 @@ export default async function FeedPage() {
   const items = await getForYouFeed();
 
   return (
-    <div className="mx-auto max-w-md md:max-w-lg">
+    <div className="mx-auto -mt-20 max-w-md md:-mt-24 md:max-w-lg">
       <CardFeed items={items} />
     </div>
   );

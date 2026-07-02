@@ -4,7 +4,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
-import { TopNav } from "@/components/layout/TopNav";
+import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Pill } from "@/components/ui/Pill";
 import { BackButton } from "@/components/layout/BackButton";
@@ -56,9 +56,9 @@ export default async function StudybookPage({
 
   return (
     <>
-      {/* Desktop nav */}
+      {/* Desktop nav — shared site header */}
       <div className="hidden md:block">
-        <TopNav />
+        <Navbar />
       </div>
 
       {/* Mobile top bar */}
