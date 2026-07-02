@@ -58,7 +58,7 @@ const sections = [
 ];
 
 export default function PrivacyPage() {
-  const [active, setActive] = useState(sections[0].id);
+  const [active, setActive] = useState(sections[0]?.id ?? "");
   const refs = useRef<Record<string, HTMLElement | null>>({});
 
   useEffect(() => {
