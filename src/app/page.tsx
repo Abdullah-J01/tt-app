@@ -1,19 +1,18 @@
 import Link from "next/link";
-import { BookOpen, Layers, Smartphone, Sparkles } from "lucide-react";
+import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { AppCta } from "@/components/layout/AppCta";
 import { Button } from "@/components/ui/Button";
 import { SubjectCard } from "@/features/explore";
-import { CardRail, ContentCard, SectionHeader } from "@/components/ui";
+import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
+import { StackingStudyBites } from "@/components/home/StackingStudyBites";
+import { UniverseCarousel } from "@/components/home/UniverseCarousel";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/home/Hero";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
-
-const formatPrice = (eur?: number) =>
-  eur != null ? `${eur.toFixed(2)}€` : undefined;
 
 const FEATURES = [
   {
@@ -108,8 +107,8 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* New study bites — horizontal (row) cards: media + title + description + meta.
-            Scrolls on mobile, becomes a 2-up grid on desktop. */}
+        {/* New study bites — a scroll-stacked deck of horizontal cards. Each card
+            pins near the top and recedes as the next scrolls up to cover it. */}
         <section className="mx-auto max-w-6xl px-4 pb-16">
           <SectionHeader
             title="New study bites"
@@ -122,27 +121,11 @@ export default async function LandingPage() {
               </Link>
             }
           />
-          <CardRail columns={2} itemWidth="w-[86%] sm:w-96" label="New study bites">
-            {books.map((book) => (
-              <ContentCard
-                key={book.id}
-                layout="horizontal"
-                href={`/studybook/${book.slug}`}
-                title={book.title}
-                description={book.synopsis}
-                price={formatPrice(book.priceEur)}
-                pricePrefix="from"
-                tags={[
-                  { label: book.category, icon: <Sparkles aria-hidden />, variant: "ink" },
-                  { label: book.author },
-                ]}
-              />
-            ))}
-          </CardRail>
+          <StackingStudyBites />
         </section>
 
-        {/* Freshly digitized — vertical (tile) cards: no description. Stays a
-            horizontal scroll rail at every breakpoint. */}
+        {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
+            flat, focused center as you scroll; neighbors tilt away in perspective. */}
         <section className="mx-auto max-w-6xl px-4 pb-20">
           <SectionHeader
             title="Freshly digitized"
@@ -155,22 +138,7 @@ export default async function LandingPage() {
               </Link>
             }
           />
-          <CardRail itemWidth="w-40 sm:w-48" label="Freshly digitized">
-            {books.map((book) => (
-              <ContentCard
-                key={book.id}
-                layout="vertical"
-                href={`/studybook/${book.slug}`}
-                title={book.title}
-                description={book.synopsis}
-                price={formatPrice(book.priceEur)}
-                tags={[
-                  { label: book.category, icon: <BookOpen aria-hidden /> },
-                  { label: book.author },
-                ]}
-              />
-            ))}
-          </CardRail>
+          <UniverseCarousel books={books} />
         </section>
       
       <AppCta />
