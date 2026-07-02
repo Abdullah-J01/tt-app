@@ -66,13 +66,19 @@ export function CoverCard({ book }: { book: Studybook }) {
           </div>
 
           {/* Footer */}
-          <div className="bg-black/35 p-4">
-            <p className="line-clamp-1 font-bold leading-snug">{book.title}</p>
-            <p className="line-clamp-1 text-sm text-white/70">{book.author}</p>
-            <div className="mt-3 flex items-center justify-between gap-2 text-[11px] text-white/70">
-              <span className="flex items-center gap-1.5">
-                <BookOpen className="h-3.5 w-3.5" />
-                {cards} cards <span className="text-white/40">·</span> ~ {minutes} min
+          <div className="bg-black/35 p-3 sm:p-4">
+            <p className="line-clamp-1 text-sm font-bold leading-snug sm:text-base">{book.title}</p>
+            <p className="line-clamp-1 text-xs text-white/70 sm:text-sm">{book.author}</p>
+            <div className="mt-2 flex items-center justify-between gap-1.5 text-[11px] text-white/70 sm:mt-3 sm:gap-2">
+              <span className="flex min-w-0 items-center gap-1 sm:gap-1.5">
+                <BookOpen className="h-3.5 w-3.5 shrink-0" />
+                <span className="truncate whitespace-nowrap">
+                  {cards} cards
+                  <span className="hidden sm:inline">
+                    {" "}
+                    <span className="text-white/40">·</span> ~ {minutes} min
+                  </span>
+                </span>
               </span>
               <span className="shrink-0 font-bold uppercase tracking-wide text-white">{price}</span>
             </div>
