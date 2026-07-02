@@ -3,8 +3,6 @@
 import { motion, useMotionValue, useSpring, useTransform, useInView } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Sparkles, Target, Users, BookOpenCheck, Quote } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 
 const stats = [
@@ -83,8 +81,6 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 export default function AboutPage() {
   return (
     <main className="relative min-h-screen bg-white">
-      <Navbar />
-
       {/* Hero */}
       <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-24 sm:px-8 sm:pt-48">
         <BackgroundGradient />
@@ -235,7 +231,6 @@ export default function AboutPage() {
         </motion.div>
       </section>
 
-      <Footer />
     </main>
   );
 }
