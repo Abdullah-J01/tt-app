@@ -1,21 +1,18 @@
 import Link from "next/link";
-import Image from "next/image";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { SubjectCard } from "@/features/explore";
-import { CardRail, ContentCard, SectionHeader } from "@/components/ui";
+import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
 import { SUBJECTS } from "@/config/subjects";
 import { StackingStudyBites } from "@/components/home/StackingStudyBites";
+import { UniverseCarousel } from "@/components/home/UniverseCarousel";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/home/Hero";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
-
-const formatPrice = (eur?: number) =>
-  eur != null ? `${eur.toFixed(2)}€` : undefined;
 
 const FEATURES = [
   {
@@ -127,8 +124,8 @@ export default async function LandingPage() {
           <StackingStudyBites />
         </section>
 
-        {/* Freshly digitized — vertical (tile) cards: no description. Stays a
-            horizontal scroll rail at every breakpoint. */}
+        {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
+            flat, focused center as you scroll; neighbors tilt away in perspective. */}
         <section className="mx-auto max-w-6xl px-4 pb-20">
           <SectionHeader
             title="Freshly digitized"
@@ -141,30 +138,7 @@ export default async function LandingPage() {
               </Link>
             }
           />
-          <CardRail itemWidth="w-40 sm:w-48" label="Freshly digitized">
-            {books.map((book, i) => (
-              <ContentCard
-                key={book.id}
-                layout="vertical"
-                href={`/studybook/${book.slug}`}
-                title={book.title}
-                description={book.synopsis}
-                price={formatPrice(book.priceEur)}
-                media={
-                  <Image
-                    src={`/images/demoData/cardImage${(i % 5) + 1}.jpg`}
-                    alt={book.title}
-                    fill
-                    sizes="192px"
-                  />
-                }
-                tags={[
-                  { label: book.category, icon: <BookOpen aria-hidden /> },
-                  { label: book.author },
-                ]}
-              />
-            ))}
-          </CardRail>
+          <UniverseCarousel books={books} />
         </section>
       
       <Footer />
