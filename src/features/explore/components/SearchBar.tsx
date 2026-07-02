@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Search, X } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 /**
  * Full-screen search input (UI brief §6.4). Seeds from ?q=, debounces edits
@@ -33,35 +35,38 @@ export function SearchBar() {
   }, [value, params, router]);
 
   return (
-    <div className="sticky top-0 z-10 flex items-center gap-2 bg-surface/95 py-3 backdrop-blur md:top-16">
-      <button
+    <div className="bg-surface/95 sticky top-0 z-10 flex items-center gap-2 py-3 backdrop-blur md:top-16">
+      <Button
+        unstyled
         type="button"
         aria-label="Back"
         onClick={() => router.push("/explore")}
-        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-ink hover:bg-lavender active:scale-95"
+        className="text-ink hover:bg-lavender grid h-10 w-10 shrink-0 place-items-center rounded-full active:scale-95"
       >
         <ArrowLeft className="h-5 w-5" />
-      </button>
+      </Button>
 
       <div className="relative flex-1">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-        <input
+        <Search className="text-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+        <Input
+          unstyled
           ref={inputRef}
           type="search"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder="Search studybooks, subjects…"
-          className="h-11 w-full rounded-full border border-hairline bg-lavender/50 pl-9 pr-9 text-sm outline-none focus:border-violet"
+          className="border-hairline bg-lavender/50 focus:border-violet h-11 w-full rounded-full border pr-9 pl-9 text-sm outline-none"
         />
         {value && (
-          <button
+          <Button
+            unstyled
             type="button"
             aria-label="Clear search"
             onClick={() => setValue("")}
-            className="absolute right-2 top-1/2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full text-muted hover:bg-hairline"
+            className="text-muted hover:bg-hairline absolute top-1/2 right-2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full"
           >
             <X className="h-4 w-4" />
-          </button>
+          </Button>
         )}
       </div>
     </div>

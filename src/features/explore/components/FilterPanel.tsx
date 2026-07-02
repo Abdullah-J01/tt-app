@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { FACETS, type FilterOption } from "../filters";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
 interface FilterPanelProps {
@@ -22,7 +24,12 @@ function matchOptions(options: FilterOption[], q: string): FilterOption[] {
     const matchedChildren = option.children ? matchOptions(option.children, q) : undefined;
     const selfMatches = option.label.toLowerCase().includes(q);
     if (!selfMatches && !matchedChildren?.length) return [];
-    return [{ ...option, children: selfMatches && !matchedChildren?.length ? option.children : matchedChildren }];
+    return [
+      {
+        ...option,
+        children: selfMatches && !matchedChildren?.length ? option.children : matchedChildren,
+      },
+    ];
   });
 }
 
@@ -59,42 +66,49 @@ export function FilterPanel({
     : FACETS;
 
   return (
-    <div className={cn("overflow-hidden rounded-card border border-hairline bg-surface", className)}>
+    <div
+      className={cn("rounded-card border-hairline bg-surface overflow-hidden border", className)}
+    >
       <div className="flex items-center justify-between gap-3 px-4 pt-4">
         <h2 className="text-lg font-bold">Filter materials</h2>
         {/* keyed so the badge re-pops whenever the count changes */}
-        <span key={resultCount} className="pill-in rounded-full bg-lavender px-2.5 py-1 text-xs font-semibold text-ink">
+        <span
+          key={resultCount}
+          className="pill-in bg-lavender text-ink rounded-full px-2.5 py-1 text-xs font-semibold"
+        >
           {resultCount} results
         </span>
       </div>
 
       {searchable && (
         <div className="relative mx-4 mt-3">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-          <input
+          <Search className="text-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          <Input
+            unstyled
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search filters…"
             aria-label="Search filters"
-            className="h-10 w-full rounded-full border border-hairline bg-lavender/40 pl-9 pr-4 text-sm outline-none transition-colors placeholder:text-muted focus:border-violet"
+            className="border-hairline bg-lavender/40 placeholder:text-muted focus:border-violet h-10 w-full rounded-full border pr-4 pl-9 text-sm transition-colors outline-none"
           />
         </div>
       )}
 
       {selected.size > 0 && (
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={onClear}
-          className="pill-in px-4 pb-1 pt-3 text-sm font-semibold text-violet hover:underline"
+          className="pill-in text-violet px-4 pt-3 pb-1 text-sm font-semibold hover:underline"
         >
           Clear all ({selected.size})
-        </button>
+        </Button>
       )}
 
       <div className="mt-3">
         {facets.length === 0 && (
-          <p className="border-t border-hairline px-4 py-6 text-center text-sm text-muted">
+          <p className="border-hairline text-muted border-t px-4 py-6 text-center text-sm">
             No filters match “{query.trim()}”.
           </p>
         )}
@@ -105,19 +119,22 @@ export function FilterPanel({
           return (
             <div
               key={facet.key}
-              className="anim-item-in border-t border-hairline"
+              className="anim-item-in border-hairline border-t"
               style={{ animationDelay: `${i * 40}ms` }}
             >
-              <button
+              <Button
+                unstyled
                 type="button"
                 onClick={() => flip(openSections, setOpenSections, facet.key)}
                 aria-expanded={open}
-                className="group flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-lavender/30"
+                className="group hover:bg-lavender/30 flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors"
               >
                 <span
                   className={cn(
                     "grid h-8 w-8 shrink-0 place-items-center rounded-full transition-colors",
-                    open ? "bg-lavender text-violet" : "bg-mist text-slate group-hover:bg-lavender group-hover:text-violet",
+                    open
+                      ? "bg-lavender text-violet"
+                      : "bg-mist text-slate group-hover:bg-lavender group-hover:text-violet",
                   )}
                 >
                   <Icon className="h-4 w-4" aria-hidden />
@@ -126,18 +143,18 @@ export function FilterPanel({
                 {checkedCount > 0 && (
                   <span
                     key={checkedCount}
-                    className="pill-in grid h-5 min-w-5 place-items-center rounded-full bg-violet px-1.5 text-xs font-semibold text-white"
+                    className="pill-in bg-violet grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-xs font-semibold text-white"
                   >
                     {checkedCount}
                   </span>
                 )}
                 <ChevronDown
                   className={cn(
-                    "h-4 w-4 shrink-0 text-muted transition-transform duration-300",
+                    "text-muted h-4 w-4 shrink-0 transition-transform duration-300",
                     open && "rotate-180",
                   )}
                 />
-              </button>
+              </Button>
 
               <div
                 className={cn("acc-body grid", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}
@@ -196,11 +213,12 @@ function OptionRow({
   return (
     <li>
       <div className="flex items-center">
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={() => onToggle(key)}
           className={cn(
-            "flex flex-1 items-center gap-3 py-2 pr-2 text-left text-sm transition-colors hover:bg-lavender/30",
+            "hover:bg-lavender/30 flex flex-1 items-center gap-3 py-2 pr-2 text-left text-sm transition-colors",
             checked && "bg-lavender/20",
           )}
           style={{ paddingLeft: 16 + depth * 20 }}
@@ -209,35 +227,41 @@ function OptionRow({
             className={cn(
               "grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-all duration-200",
               checked
-                ? "scale-105 border-violet bg-violet text-white shadow-soft"
+                ? "border-violet bg-violet shadow-soft scale-105 text-white"
                 : "border-hairline bg-surface",
             )}
           >
             {checked && <Check className="check-pop h-3.5 w-3.5" strokeWidth={3} />}
           </span>
-          <span className={cn("flex-1 text-ink", checked && "font-semibold")}>{option.label}</span>
+          <span className={cn("text-ink flex-1", checked && "font-semibold")}>{option.label}</span>
           {option.count != null && (
-            <span className="shrink-0 text-xs tabular-nums text-muted">
+            <span className="text-muted shrink-0 text-xs tabular-nums">
               {option.count.toLocaleString("en-US")}
             </span>
           )}
-        </button>
+        </Button>
 
         {hasChildren && (
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => onToggleOpen(key)}
             aria-expanded={open}
             aria-label={open ? "Collapse" : "Expand"}
-            className="mr-2 grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted transition-colors hover:bg-lavender"
+            className="text-muted hover:bg-lavender mr-2 grid h-8 w-8 shrink-0 place-items-center rounded-full transition-colors"
           >
-            <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", open && "rotate-180")} />
-          </button>
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform duration-300", open && "rotate-180")}
+            />
+          </Button>
         )}
       </div>
 
       {hasChildren && (
-        <div className={cn("acc-body grid", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")} inert={!open}>
+        <div
+          className={cn("acc-body grid", open ? "grid-rows-[1fr]" : "grid-rows-[0fr]")}
+          inert={!open}
+        >
           <div className="overflow-hidden">
             <ul>
               {option.children!.map((child) => (

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 export type Sort = "popular" | "newest" | "az";
@@ -30,40 +31,43 @@ export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort
 
   return (
     <div className="relative">
-      <button
+      <Button
+        unstyled
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="flex h-9 items-center gap-1 rounded-full border border-hairline px-3 text-sm font-medium hover:bg-lavender"
+        className="border-hairline hover:bg-lavender flex h-9 items-center gap-1 rounded-full border px-3 text-sm font-medium"
       >
         {SORTS.find((s) => s.key === sort)?.label}
         <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
-      </button>
+      </Button>
       {open && (
         <>
-          <button
+          <Button
+            unstyled
             type="button"
             aria-hidden
             tabIndex={-1}
             onClick={() => setOpen(false)}
             className="fixed inset-0 z-10 cursor-default"
           />
-          <ul className="pop-in absolute right-0 z-20 mt-1 w-36 overflow-hidden rounded-card border border-hairline bg-surface py-1 shadow-soft">
+          <ul className="pop-in rounded-card border-hairline bg-surface shadow-soft absolute right-0 z-20 mt-1 w-36 overflow-hidden border py-1">
             {SORTS.map((s) => (
               <li key={s.key}>
-                <button
+                <Button
+                  unstyled
                   type="button"
                   onClick={() => {
                     onChange(s.key);
                     setOpen(false);
                   }}
                   className={cn(
-                    "block w-full px-4 py-2 text-left text-sm hover:bg-lavender",
-                    s.key === sort ? "font-semibold text-violet" : "text-ink",
+                    "hover:bg-lavender block w-full px-4 py-2 text-left text-sm",
+                    s.key === sort ? "text-violet font-semibold" : "text-ink",
                   )}
                 >
                   {s.label}
-                </button>
+                </Button>
               </li>
             ))}
           </ul>

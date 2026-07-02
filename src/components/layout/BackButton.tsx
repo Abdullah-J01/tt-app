@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /**
@@ -20,7 +21,8 @@ export function BackButton({
   const router = useRouter();
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       aria-label={label || "Back"}
       onClick={() => {
@@ -28,12 +30,12 @@ export function BackButton({
         else router.push(fallbackHref);
       }}
       className={cn(
-        "inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink transition-colors hover:bg-lavender active:scale-95",
+        "text-ink hover:bg-lavender inline-flex h-10 items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors active:scale-95",
         className,
       )}
     >
       <ArrowLeft className="h-5 w-5" />
       <span className="hidden sm:inline">{label}</span>
-    </button>
+    </Button>
   );
 }

@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 /** iOS-style switch. Violet when on (brand). */
 export function Toggle({
@@ -16,7 +17,8 @@ export function Toggle({
   label?: string;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       role="switch"
       aria-checked={checked}
@@ -24,7 +26,7 @@ export function Toggle({
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet/40",
+        "focus-visible:ring-violet/40 relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none",
         checked ? "bg-violet" : "bg-hairline",
         disabled && "cursor-not-allowed opacity-40",
       )}
@@ -35,13 +37,13 @@ export function Toggle({
           checked ? "translate-x-[22px]" : "translate-x-0.5",
         )}
       />
-    </button>
+    </Button>
   );
 }
 
 /** Hairline-separated vertical list. */
 export function List({ children }: { children: ReactNode }) {
-  return <div className="divide-y divide-hairline border-y border-hairline">{children}</div>;
+  return <div className="divide-hairline border-hairline divide-y border-y">{children}</div>;
 }
 
 /** Setting row: bold title + optional subtitle on the left, control on the right. */
@@ -57,8 +59,8 @@ export function Row({
   return (
     <div className="flex items-start justify-between gap-4 py-4">
       <div className="min-w-0">
-        <p className="text-lg font-bold text-ink">{title}</p>
-        {subtitle && <p className="mt-1 text-sm leading-relaxed text-muted">{subtitle}</p>}
+        <p className="text-ink text-lg font-bold">{title}</p>
+        {subtitle && <p className="text-muted mt-1 text-sm leading-relaxed">{subtitle}</p>}
       </div>
       {right && <div className="shrink-0 pt-1">{right}</div>}
     </div>
@@ -68,12 +70,13 @@ export function Row({
 /** Bordered value chip (e.g. "9 AM", "1x"). Tapping cycles the value. */
 export function ValueChip({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={onClick}
-      className="rounded-lg border border-hairline px-4 py-1.5 text-sm font-bold text-ink transition-colors hover:bg-lavender"
+      className="border-hairline text-ink hover:bg-lavender rounded-lg border px-4 py-1.5 text-sm font-bold transition-colors"
     >
       {children}
-    </button>
+    </Button>
   );
 }

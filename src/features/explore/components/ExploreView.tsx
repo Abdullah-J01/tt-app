@@ -6,6 +6,7 @@ import Image from "next/image";
 import { LayoutGrid, List, Search, SlidersHorizontal } from "lucide-react";
 import { Chip } from "@/components/ui/Chip";
 import { Pill } from "@/components/ui/Pill";
+import { Button } from "@/components/ui/Button";
 import { GRADES, SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
 import {
@@ -112,13 +113,13 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
     <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 md:pb-12">
       {/* Sticky header on mobile — search lives in the TopNav on md+, so mobile
           only gets a compact shortcut to the full-screen search screen */}
-      <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-hairline bg-surface/95 px-4 pb-3 pt-6 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0 md:backdrop-blur-none">
+      <div className="border-hairline bg-surface/95 sticky top-0 z-30 -mx-4 flex items-center justify-between border-b px-4 pt-6 pb-3 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-0 md:backdrop-blur-none">
         <h1 className="text-2xl font-bold">Explore</h1>
 
         <Link
           href="/explore/search"
           aria-label="Search"
-          className="grid h-10 w-10 place-items-center rounded-full border border-hairline bg-lavender/50 text-muted transition-colors hover:border-violet md:hidden"
+          className="border-hairline bg-lavender/50 text-muted hover:border-violet grid h-10 w-10 place-items-center rounded-full border transition-colors md:hidden"
         >
           <Search className="h-4 w-4" />
         </Link>
@@ -156,7 +157,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
         )}
       >
         {/* Desktop: sticky TT-style filter sidebar */}
-        <aside className="hidden lg:col-start-1 lg:row-start-1 lg:row-span-2 lg:block lg:sticky lg:top-6">
+        <aside className="hidden lg:sticky lg:top-6 lg:col-start-1 lg:row-span-2 lg:row-start-1 lg:block">
           <FilterPanel
             resultCount={resultCount}
             selected={selected}
@@ -187,7 +188,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
           )}
         >
           {/* Tabs + toolbar */}
-          <div className="flex flex-wrap items-end justify-between gap-x-3 gap-y-2 border-b border-hairline">
+          <div className="border-hairline flex flex-wrap items-end justify-between gap-x-3 gap-y-2 border-b">
             <div role="tablist" aria-label="Catalog content" className="flex gap-5">
               <TabButton
                 label="Studybooks"
@@ -210,22 +211,23 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
             </div>
 
             <div className="mb-2 flex items-center gap-2">
-              <button
+              <Button
+                unstyled
                 type="button"
                 onClick={() => setFiltersOpen(true)}
-                className="flex h-9 items-center gap-2 rounded-full border border-hairline px-3 text-sm font-medium transition-colors hover:border-violet hover:bg-lavender active:scale-95 lg:hidden"
+                className="border-hairline hover:border-violet hover:bg-lavender flex h-9 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors active:scale-95 lg:hidden"
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden />
                 <span>Filters</span>
                 {selected.size > 0 && (
                   <span
                     key={selected.size}
-                    className="pill-in grid h-5 min-w-5 place-items-center rounded-full bg-violet px-1 text-xs font-semibold text-white"
+                    className="pill-in bg-violet grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs font-semibold text-white"
                   >
                     {selected.size}
                   </span>
                 )}
-              </button>
+              </Button>
 
               {tab === "books" && (
                 <>
@@ -236,7 +238,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                       setPage(1);
                     }}
                   />
-                  <div className="flex overflow-hidden rounded-full border border-hairline">
+                  <div className="border-hairline flex overflow-hidden rounded-full border">
                     <ViewButton
                       label="Grid view"
                       active={view === "grid"}
@@ -272,15 +274,28 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
             ) : tab === "bites" ? (
               <div className={cn("grid gap-3 sm:grid-cols-2", !showRail && "xl:grid-cols-3")}>
                 {pageBites.map((bite, i) => (
-                  <div key={bite.card.id} className="anim-item-in" style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}>
+                  <div
+                    key={bite.card.id}
+                    className="anim-item-in"
+                    style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
+                  >
                     <StudybiteCard bite={bite} />
                   </div>
                 ))}
               </div>
             ) : view === "grid" ? (
-              <div className={cn("grid grid-cols-2 gap-4 sm:grid-cols-3", !showRail && "xl:grid-cols-4")}>
+              <div
+                className={cn(
+                  "grid grid-cols-2 gap-4 sm:grid-cols-3",
+                  !showRail && "xl:grid-cols-4",
+                )}
+              >
                 {pageBooks.map((book, i) => (
-                  <div key={book.id} className="anim-item-in" style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}>
+                  <div
+                    key={book.id}
+                    className="anim-item-in"
+                    style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
+                  >
                     <CoverCard book={book} />
                   </div>
                 ))}
@@ -288,7 +303,11 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
             ) : (
               <div className="flex flex-col gap-3">
                 {pageBooks.map((book, i) => (
-                  <div key={book.id} className="anim-item-in" style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}>
+                  <div
+                    key={book.id}
+                    className="anim-item-in"
+                    style={{ animationDelay: `${Math.min(i, 12) * 30}ms` }}
+                  >
                     <BookRow book={book} />
                   </div>
                 ))}
@@ -296,12 +315,21 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
             )}
           </div>
 
-          <Pagination page={safePage} totalPages={totalPages} onChange={goToPage} className="mt-8" />
+          <Pagination
+            page={safePage}
+            totalPages={totalPages}
+            onChange={goToPage}
+            className="mt-8"
+          />
         </div>
       </div>
 
       {/* Mobile / tablet filter drawer */}
-      <FilterDrawer open={filtersOpen} onClose={() => setFiltersOpen(false)} resultCount={resultCount}>
+      <FilterDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        resultCount={resultCount}
+      >
         <FilterPanel
           resultCount={resultCount}
           selected={selected}
@@ -326,7 +354,8 @@ function TabButton({
   onClick: () => void;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       role="tab"
       aria-selected={active}
@@ -345,8 +374,10 @@ function TabButton({
       >
         {count}
       </span>
-      {active && <span className="pill-in absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-violet" />}
-    </button>
+      {active && (
+        <span className="pill-in bg-violet absolute inset-x-0 -bottom-px h-0.5 rounded-full" />
+      )}
+    </Button>
   );
 }
 
@@ -362,7 +393,8 @@ function ViewButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       aria-label={label}
       aria-pressed={active}
@@ -373,7 +405,7 @@ function ViewButton({
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }
 
@@ -383,7 +415,7 @@ function BookRow({ book }: { book: Studybook }) {
   return (
     <Link
       href={`/studybook/${book.slug}`}
-      className="hover-lift group flex gap-3 rounded-card border border-hairline bg-surface p-3"
+      className="hover-lift group rounded-card border-hairline bg-surface flex gap-3 border p-3"
     >
       <div className="bg-plum relative aspect-[3/4] w-16 shrink-0 overflow-hidden rounded-lg">
         {book.cover && (
@@ -391,9 +423,11 @@ function BookRow({ book }: { book: Studybook }) {
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="line-clamp-1 font-semibold leading-snug group-hover:text-violet">{book.title}</p>
-        <p className="line-clamp-1 text-sm text-muted">{book.author}</p>
-        <p className="mt-1 line-clamp-1 text-sm text-muted">{book.synopsis}</p>
+        <p className="group-hover:text-violet line-clamp-1 leading-snug font-semibold">
+          {book.title}
+        </p>
+        <p className="text-muted line-clamp-1 text-sm">{book.author}</p>
+        <p className="text-muted mt-1 line-clamp-1 text-sm">{book.synopsis}</p>
         <div className="mt-2 flex flex-wrap items-center gap-2">
           {book.priceEur != null ? (
             <Pill>€{book.priceEur.toFixed(2)}</Pill>
@@ -401,7 +435,7 @@ function BookRow({ book }: { book: Studybook }) {
             <Pill className="bg-brand-green/10 text-brand-green">Free</Pill>
           )}
           <Pill className="bg-lavender">{subject}</Pill>
-          <span className="text-xs text-muted">{book.cards.length} cards</span>
+          <span className="text-muted text-xs">{book.cards.length} cards</span>
         </div>
       </div>
     </Link>
@@ -410,7 +444,7 @@ function BookRow({ book }: { book: Studybook }) {
 
 function EmptyState() {
   return (
-    <p className="rounded-card border border-dashed border-hairline p-8 text-center text-sm text-muted">
+    <p className="rounded-card border-hairline text-muted border border-dashed p-8 text-center text-sm">
       Nothing here for this filter yet. Try removing a filter or two.
     </p>
   );

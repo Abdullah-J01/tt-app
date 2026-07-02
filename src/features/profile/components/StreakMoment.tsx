@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Flame, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 const DAYS = [true, true, true, true, true, true, true];
 
@@ -20,18 +21,23 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
   if (!open) return null;
 
   return (
-    <div className="bg-plum fixed inset-0 z-50 flex flex-col text-white" role="dialog" aria-modal="true">
-      <button
+    <div
+      className="bg-plum fixed inset-0 z-50 flex flex-col text-white"
+      role="dialog"
+      aria-modal="true"
+    >
+      <Button
+        unstyled
         type="button"
         onClick={onClose}
         aria-label="Close"
-        className="absolute right-4 top-4 grid h-10 w-10 place-items-center rounded-full bg-white/10 hover:bg-white/20"
+        className="absolute top-4 right-4 grid h-10 w-10 place-items-center rounded-full bg-white/10 hover:bg-white/20"
       >
         <X className="h-5 w-5" />
-      </button>
+      </Button>
 
       <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <span className="animate-floaty grid h-28 w-28 place-items-center rounded-full bg-gradient-to-br from-amber to-orange-500 text-white shadow-[0_0_60px_rgba(244,169,59,0.6)]">
+        <span className="animate-floaty from-amber grid h-28 w-28 place-items-center rounded-full bg-gradient-to-br to-orange-500 text-white shadow-[0_0_60px_rgba(244,169,59,0.6)]">
           <Flame className="h-14 w-14" />
         </span>
         <h2 className="mt-8 text-3xl font-bold text-white">7-day streak!</h2>
@@ -55,13 +61,14 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
       </div>
 
       <div className="p-6">
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={onClose}
-          className="h-13 w-full rounded-xl bg-white font-semibold text-ink transition-transform hover:bg-white/90 active:scale-[0.99]"
+          className="text-ink h-13 w-full rounded-xl bg-white font-semibold transition-transform hover:bg-white/90 active:scale-[0.99]"
         >
           Keep it going
-        </button>
+        </Button>
       </div>
     </div>
   );

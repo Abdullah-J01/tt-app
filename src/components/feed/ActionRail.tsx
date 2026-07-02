@@ -5,6 +5,7 @@ import { Bookmark, Heart, Share2 } from "lucide-react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import { usePersistedFlag } from "@/lib/usePersistedFlag";
+import { Button } from "@/components/ui/Button";
 
 interface ActionRailProps {
   /** Stable id for the item (e.g. card id) — keys the persisted like/save state. */
@@ -137,7 +138,8 @@ export function ActionRail({
       />
       <RailButton label="Share" onClick={share} icon={<Share2 className="h-7 w-7" />} />
       {onOpenBook && (
-        <button
+        <Button
+          unstyled
           onClick={onOpenBook}
           aria-label="Open studybook"
           className="mt-1 h-11 w-11 rounded-full border-2 border-white/80 bg-white/20"
@@ -162,7 +164,7 @@ function RailButton({
   iconRef?: Ref<HTMLSpanElement>;
 }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-1">
+    <Button unstyled onClick={onClick} className="flex flex-col items-center gap-1">
       <span
         ref={iconRef}
         className={cn(
@@ -173,6 +175,6 @@ function RailButton({
         {icon}
       </span>
       {label && <span className="text-xs font-medium">{label}</span>}
-    </button>
+    </Button>
   );
 }

@@ -1,4 +1,5 @@
 import { Pencil, User } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 interface ProfileHeaderProps {
   name: string;
@@ -10,21 +11,22 @@ interface ProfileHeaderProps {
 export function ProfileHeader({ name, handle }: ProfileHeaderProps) {
   return (
     <div className="flex items-center gap-4">
-      <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full bg-lavender text-violet">
+      <div className="bg-lavender text-violet flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full">
         <User className="h-8 w-8" aria-hidden />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="truncate font-display text-xl font-bold text-ink">{name}</p>
-        <p className="truncate text-sm text-muted">{handle}</p>
+        <p className="font-display text-ink truncate text-xl font-bold">{name}</p>
+        <p className="text-muted truncate text-sm">{handle}</p>
       </div>
       {/* TODO(team): wire edit profile */}
-      <button
+      <Button
+        unstyled
         type="button"
         aria-label="Edit profile"
-        className="flex h-10 w-10 items-center justify-center rounded-full text-muted transition-colors hover:bg-lavender hover:text-ink"
+        className="text-muted hover:bg-lavender hover:text-ink flex h-10 w-10 items-center justify-center rounded-full transition-colors"
       >
         <Pencil className="h-5 w-5" aria-hidden />
-      </button>
+      </Button>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 interface ToggleProps {
@@ -12,7 +13,8 @@ interface ToggleProps {
 /** Switch control (daily reminder, settings). Real `role="switch"` with `aria-checked`. */
 export function Toggle({ checked, onChange, label, disabled = false, className }: ToggleProps) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       role="switch"
       aria-checked={checked}
@@ -20,7 +22,7 @@ export function Toggle({ checked, onChange, label, disabled = false, className }
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className={cn(
-        "relative h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet/40",
+        "focus-visible:ring-violet/40 relative h-7 w-12 shrink-0 rounded-full transition-colors focus-visible:ring-2 focus-visible:outline-none",
         checked ? "bg-violet" : "bg-hairline",
         disabled && "opacity-50",
         className,
@@ -32,6 +34,6 @@ export function Toggle({ checked, onChange, label, disabled = false, className }
           checked ? "left-[22px]" : "left-0.5",
         )}
       />
-    </button>
+    </Button>
   );
 }

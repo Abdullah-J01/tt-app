@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 const FOLLOWED = [
   { emoji: "💥", name: "Entrepreneurship" },
@@ -31,19 +32,29 @@ export function FollowedTopics() {
 
   return (
     <div>
-      <div className="divide-y divide-hairline">
+      <div className="divide-hairline divide-y">
         {FOLLOWED.map((t) => (
-          <TopicRow key={t.name} {...t} following={following.has(t.name)} onToggle={() => toggle(t.name)} />
+          <TopicRow
+            key={t.name}
+            {...t}
+            following={following.has(t.name)}
+            onToggle={() => toggle(t.name)}
+          />
         ))}
       </div>
 
       <div className="mt-8 flex items-center justify-between">
         <h2 className="text-xl font-bold">Suggested Topics</h2>
-        <ChevronRight className="h-5 w-5 text-muted" />
+        <ChevronRight className="text-muted h-5 w-5" />
       </div>
-      <div className="mt-2 divide-y divide-hairline">
+      <div className="divide-hairline mt-2 divide-y">
         {SUGGESTED.map((t) => (
-          <TopicRow key={t.name} {...t} following={following.has(t.name)} onToggle={() => toggle(t.name)} />
+          <TopicRow
+            key={t.name}
+            {...t}
+            following={following.has(t.name)}
+            onToggle={() => toggle(t.name)}
+          />
         ))}
       </div>
     </div>
@@ -63,22 +74,23 @@ function TopicRow({
 }) {
   return (
     <div className="flex items-center gap-3 py-3">
-      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-lavender text-xl">
+      <span className="bg-lavender grid h-11 w-11 shrink-0 place-items-center rounded-full text-xl">
         {emoji}
       </span>
-      <span className="flex-1 font-semibold text-ink">{name}</span>
-      <button
+      <span className="text-ink flex-1 font-semibold">{name}</span>
+      <Button
+        unstyled
         type="button"
         onClick={onToggle}
         className={cn(
           "rounded-full px-5 py-2 text-sm font-semibold transition-colors active:scale-95",
           following
-            ? "border border-hairline text-ink hover:bg-lavender"
-            : "bg-ink text-white hover:bg-ink/90",
+            ? "border-hairline text-ink hover:bg-lavender border"
+            : "bg-ink hover:bg-ink/90 text-white",
         )}
       >
         {following ? "Following" : "Follow"}
-      </button>
+      </Button>
     </div>
   );
 }

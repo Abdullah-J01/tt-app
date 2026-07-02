@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { selectableSurface } from "./SelectableCard";
 
@@ -17,7 +18,8 @@ interface GoalTileProps {
  */
 export function GoalTile({ value, unit, selected, onSelect, className }: GoalTileProps) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
@@ -28,8 +30,8 @@ export function GoalTile({ value, unit, selected, onSelect, className }: GoalTil
         className,
       )}
     >
-      <span className="font-display text-3xl font-extrabold leading-none">{value}</span>
+      <span className="font-display text-3xl leading-none font-extrabold">{value}</span>
       <span className={cn("text-[11px]", selected ? "text-violet" : "text-muted")}>{unit}</span>
-    </button>
+    </Button>
   );
 }

@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -102,21 +103,23 @@ export default function MobileNav() {
             >
               <div className="glass border-border shadow-lift focus-within:ring-violet/30 mt-2 flex items-center gap-2.5 rounded-2xl border px-4 py-3 focus-within:ring-2">
                 <Search size={20} className="text-muted shrink-0" aria-hidden />
-                <input
+                <Input
+                  unstyled
                   ref={searchInputRef}
                   type="text"
                   placeholder="Search studybooks, subjects…"
                   aria-label="Search studybooks, subjects"
                   className="text-ink placeholder:text-muted w-full bg-transparent text-base outline-none"
                 />
-                <button
+                <Button
+                  unstyled
                   type="button"
                   onClick={() => setSearchOpen(false)}
                   aria-label="Close search"
                   className="text-ink/60 hover:text-ink hover:bg-ink/5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors"
                 >
                   <X size={18} />
-                </button>
+                </Button>
               </div>
             </motion.div>
           </>
@@ -157,7 +160,8 @@ export default function MobileNav() {
               {/* macOS-style grabber */}
               <div className="bg-ink/15 mx-auto mt-1 mb-1.5 h-1 w-10 rounded-full" />
 
-              <button
+              <Button
+                unstyled
                 type="button"
                 role="menuitem"
                 onClick={openSearch}
@@ -168,9 +172,10 @@ export default function MobileNav() {
                 </span>
                 <span className="flex-1 text-left">Search</span>
                 <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
-              </button>
+              </Button>
 
-              <button
+              <Button
+                unstyled
                 type="button"
                 role="menuitem"
                 className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
@@ -180,7 +185,7 @@ export default function MobileNav() {
                 </span>
                 <span className="flex-1 text-left">Language</span>
                 <span className="text-muted shrink-0 text-sm">EN</span>
-              </button>
+              </Button>
 
               <div className="px-2 py-2">
                 <Link href="/login" onClick={() => setMoreOpen(false)}>
@@ -220,7 +225,7 @@ export default function MobileNav() {
               <li className="flex-1">
                 <Link
                   href="/profile"
-                  className="flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium text-ink/60 transition-transform hover:text-ink active:scale-95"
+                  className="text-ink/60 hover:text-ink flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95"
                 >
                   <User className="h-[22px] w-[22px]" aria-hidden />
                   Profile
@@ -229,7 +234,8 @@ export default function MobileNav() {
             )}
 
             <li className="flex-1">
-              <button
+              <Button
+                unstyled
                 type="button"
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-label="More"
@@ -243,7 +249,7 @@ export default function MobileNav() {
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />
                 More
-              </button>
+              </Button>
             </li>
           </ul>
         </nav>

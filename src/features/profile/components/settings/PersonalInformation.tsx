@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { useProfile, type ProfileData } from "../../useProfile";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 export function PersonalInformation() {
   const { data, update } = useProfile();
@@ -26,17 +28,21 @@ export function PersonalInformation() {
             // eslint-disable-next-line @next/next/no-img-element
             <img src={data.photo} alt="" className="h-28 w-28 rounded-full object-cover" />
           ) : (
-            <div className="grid h-28 w-28 place-items-center rounded-full bg-lavender text-4xl">🙂</div>
+            <div className="bg-lavender grid h-28 w-28 place-items-center rounded-full text-4xl">
+              🙂
+            </div>
           )}
-          <button
+          <Button
+            unstyled
             type="button"
             aria-label="Change photo"
             onClick={() => fileRef.current?.click()}
-            className="absolute bottom-1 right-1 grid h-9 w-9 place-items-center rounded-full bg-ink text-white transition-transform hover:-translate-y-0.5 active:scale-95"
+            className="bg-ink absolute right-1 bottom-1 grid h-9 w-9 place-items-center rounded-full text-white transition-transform hover:-translate-y-0.5 active:scale-95"
           >
             <Pencil className="h-4 w-4" />
-          </button>
-          <input
+          </Button>
+          <Input
+            unstyled
             ref={fileRef}
             type="file"
             accept="image/*"
@@ -44,20 +50,21 @@ export function PersonalInformation() {
             className="hidden"
           />
         </div>
-        <p className="mt-3 font-semibold text-muted">Profile Photo</p>
+        <p className="text-muted mt-3 font-semibold">Profile Photo</p>
         {data.photo && (
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => update({ photo: undefined })}
             className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:underline"
           >
             <Trash2 className="h-3.5 w-3.5" /> Remove
-          </button>
+          </Button>
         )}
       </div>
 
       {/* Editable fields */}
-      <div className="divide-y divide-hairline border-y border-hairline">
+      <div className="divide-hairline border-hairline divide-y border-y">
         <Field label="First Name" value={data.firstName} onSave={(v) => update({ firstName: v })} />
         <Field label="Last Name" value={data.lastName} onSave={(v) => update({ lastName: v })} />
         <Field label="Email" type="email" value={data.email} onSave={(v) => update({ email: v })} />
@@ -69,7 +76,7 @@ export function PersonalInformation() {
         />
       </div>
 
-      <p className="mt-4 text-center text-sm text-muted">Tap any field to edit it.</p>
+      <p className="text-muted mt-4 text-center text-sm">Tap any field to edit it.</p>
     </div>
   );
 }
@@ -102,9 +109,10 @@ function Field({
 
   return (
     <div className="flex items-center justify-between gap-4 py-4">
-      <span className="shrink-0 font-semibold text-muted">{label}</span>
+      <span className="text-muted shrink-0 font-semibold">{label}</span>
       {editing ? (
-        <input
+        <Input
+          unstyled
           autoFocus
           type={type}
           value={val}
@@ -117,20 +125,21 @@ function Field({
               setEditing(false);
             }
           }}
-          className="w-1/2 rounded-lg border border-violet bg-surface px-3 py-1.5 text-right font-semibold text-ink outline-none"
+          className="border-violet bg-surface text-ink w-1/2 rounded-lg border px-3 py-1.5 text-right font-semibold outline-none"
         />
       ) : (
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={() => setEditing(true)}
-          className="group flex min-w-0 items-center gap-2 font-semibold text-ink"
+          className="group text-ink flex min-w-0 items-center gap-2 font-semibold"
         >
-          <span className="truncate group-hover:text-violet">
+          <span className="group-hover:text-violet truncate">
             {prefix}
             {value}
           </span>
-          <Pencil className="h-3.5 w-3.5 shrink-0 text-muted group-hover:text-violet" />
-        </button>
+          <Pencil className="text-muted group-hover:text-violet h-3.5 w-3.5 shrink-0" />
+        </Button>
       )}
     </div>
   );

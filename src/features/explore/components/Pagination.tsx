@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 interface PaginationProps {
@@ -32,22 +33,22 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
   if (totalPages <= 1) return null;
 
   return (
-    <nav aria-label="Results pages" className={cn("flex items-center justify-center gap-1.5", className)}>
-      <PagerButton
-        label="Previous page"
-        disabled={page === 1}
-        onClick={() => onChange(page - 1)}
-      >
+    <nav
+      aria-label="Results pages"
+      className={cn("flex items-center justify-center gap-1.5", className)}
+    >
+      <PagerButton label="Previous page" disabled={page === 1} onClick={() => onChange(page - 1)}>
         <ChevronLeft className="h-4 w-4" aria-hidden />
       </PagerButton>
 
       {pageItems(page, totalPages).map((item, i) =>
         item === "gap" ? (
-          <span key={`gap-${i}`} className="px-1 text-sm text-faint" aria-hidden>
+          <span key={`gap-${i}`} className="text-faint px-1 text-sm" aria-hidden>
             …
           </span>
         ) : (
-          <button
+          <Button
+            unstyled
             key={item}
             type="button"
             onClick={() => onChange(item)}
@@ -56,12 +57,12 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
             className={cn(
               "grid h-9 min-w-9 place-items-center rounded-full px-1 text-sm font-semibold transition-all active:scale-95",
               item === page
-                ? "pill-in bg-violet text-white shadow-soft"
+                ? "pill-in bg-violet shadow-soft text-white"
                 : "text-ink hover:bg-lavender",
             )}
           >
             {item}
-          </button>
+          </Button>
         ),
       )}
 
@@ -88,17 +89,18 @@ function PagerButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       aria-label={label}
       disabled={disabled}
       onClick={onClick}
       className={cn(
-        "grid h-9 w-9 place-items-center rounded-full border border-hairline transition-colors active:scale-95",
-        disabled ? "cursor-default text-faint" : "text-ink hover:border-violet hover:bg-lavender",
+        "border-hairline grid h-9 w-9 place-items-center rounded-full border transition-colors active:scale-95",
+        disabled ? "text-faint cursor-default" : "text-ink hover:border-violet hover:bg-lavender",
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }

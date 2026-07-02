@@ -3,8 +3,14 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MapPin, MessageCircle, Send, CheckCircle2 } from "lucide-react";
+import { z } from "zod";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 import FloatingCircle from "@/components/home/FloatingCircle";
+import { Button } from "@/components/ui/Button";
+import { FieldError } from "@/components/ui/FieldError";
+import { Input } from "@/components/ui/Input";
+import { Textarea } from "@/components/ui/Textarea";
+import { useZodForm } from "@/components/ui/Form";
 
 const channels = [
   {
@@ -29,19 +35,32 @@ const channels = [
 
 const topics = ["General question", "Partnership", "Press", "Bug report", "Something else"];
 
+const contactSchema = z.object({
+  name: z.string().min(1, "Please enter your name"),
+  email: z.string().min(1, "Email is required").pipe(z.email("Enter a valid email")),
+  message: z.string().min(1, "Please enter a message"),
+});
+
 export default function ContactPage() {
   const [topic, setTopic] = useState(topics[0]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const form = useZodForm(contactSchema);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = form;
+
+  const onValid = () => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
       setSubmitted(true);
     }, 1100);
-  }
+  };
 
   return (
     <main className="relative min-h-screen bg-white">
@@ -130,12 +149,16 @@ export default function ContactPage() {
                   <p className="text-body text-muted max-w-xs">
                     Thanks for reaching out — we usually reply within one business day.
                   </p>
-                  <button
-                    onClick={() => setSubmitted(false)}
+                  <Button
+                    unstyled
+                    onClick={() => {
+                      reset();
+                      setSubmitted(false);
+                    }}
                     className="text-violet hover:text-violet-dark mt-6 text-sm font-medium transition-colors"
                   >
                     Send another message
-                  </button>
+                  </Button>
                 </motion.div>
               ) : (
                 <motion.form
@@ -144,27 +167,32 @@ export default function ContactPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  onSubmit={handleSubmit}
+                  noValidate
+                  onSubmit={handleSubmit(onValid)}
                   className="space-y-5"
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
                       <span className="text-caption text-ink mb-1.5 block font-medium">Name</span>
-                      <input
-                        required
+                      <Input
+                        unstyled
                         type="text"
                         placeholder="Ada Lovelace"
                         className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full rounded-xl border px-4 py-2.5 text-sm transition-all outline-none focus:ring-2"
+                        {...register("name")}
                       />
+                      <FieldError className="mt-1.5">{errors.name?.message}</FieldError>
                     </label>
                     <label className="block">
                       <span className="text-caption text-ink mb-1.5 block font-medium">Email</span>
-                      <input
-                        required
+                      <Input
+                        unstyled
                         type="email"
                         placeholder="ada@example.com"
                         className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full rounded-xl border px-4 py-2.5 text-sm transition-all outline-none focus:ring-2"
+                        {...register("email")}
                       />
+                      <FieldError className="mt-1.5">{errors.email?.message}</FieldError>
                     </label>
                   </div>
 
@@ -172,7 +200,8 @@ export default function ContactPage() {
                     <span className="text-caption text-ink mb-2 block font-medium">Topic</span>
                     <div className="flex flex-wrap gap-2">
                       {topics.map((t) => (
-                        <button
+                        <Button
+                          unstyled
                           type="button"
                           key={t}
                           onClick={() => setTopic(t)}
@@ -190,19 +219,21 @@ export default function ContactPage() {
                             />
                           )}
                           <span className="relative z-10">{t}</span>
-                        </button>
+                        </Button>
                       ))}
                     </div>
                   </div>
 
                   <label className="block">
                     <span className="text-caption text-ink mb-1.5 block font-medium">Message</span>
-                    <textarea
-                      required
+                    <Textarea
+                      unstyled
                       rows={5}
                       placeholder="Tell us what's on your mind..."
                       className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:ring-2"
+                      {...register("message")}
                     />
+                    <FieldError className="mt-1.5">{errors.message?.message}</FieldError>
                   </label>
 
                   <motion.button
@@ -229,7 +260,6 @@ export default function ContactPage() {
           </motion.div>
         </div>
       </section>
-
     </main>
   );
 }

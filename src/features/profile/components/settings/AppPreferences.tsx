@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { List, Row, Toggle, ValueChip } from "./ui";
+import { Button } from "@/components/ui/Button";
 
 const THEMES = [
   { id: "system", label: "System" },
@@ -30,21 +31,22 @@ export function AppPreferences() {
         {THEMES.map((t) => {
           const active = theme === t.id;
           return (
-            <button
+            <Button
+              unstyled
               key={t.id}
               type="button"
               onClick={() => setTheme(t.id)}
               className={cn(
                 "rounded-2xl border-2 p-3 transition-colors",
-                active ? "border-violet bg-lavender/40" : "border-transparent hover:bg-lavender/30",
+                active ? "border-violet bg-lavender/40" : "hover:bg-lavender/30 border-transparent",
               )}
             >
               <ThemeMock variant={t.id} />
               <span className="mt-2 flex items-center justify-center gap-1 text-sm font-semibold">
-                {active && <Check className="h-4 w-4 text-violet" />}
+                {active && <Check className="text-violet h-4 w-4" />}
                 {t.label}
               </span>
-            </button>
+            </Button>
           );
         })}
       </div>
@@ -58,9 +60,15 @@ export function AppPreferences() {
         <Row
           title="Reading Animation"
           subtitle="Enable the background curtain animation while reading"
-          right={<Toggle checked={readingAnim} onChange={setReadingAnim} label="Reading animation" />}
+          right={
+            <Toggle checked={readingAnim} onChange={setReadingAnim} label="Reading animation" />
+          }
         />
-        <Row title="Sounds" subtitle="Enable in-app sounds" right={<Toggle checked={sounds} onChange={setSounds} label="Sounds" />} />
+        <Row
+          title="Sounds"
+          subtitle="Enable in-app sounds"
+          right={<Toggle checked={sounds} onChange={setSounds} label="Sounds" />}
+        />
         <Row
           title="Vibrations"
           subtitle="Enable vibrations for main actions"
@@ -74,17 +82,27 @@ export function AppPreferences() {
         <Row
           title="Show Screenshot drawer"
           subtitle="Show a drawer with share options after taking a screenshot."
-          right={<Toggle checked={screenshot} onChange={setScreenshot} label="Show screenshot drawer" />}
+          right={
+            <Toggle checked={screenshot} onChange={setScreenshot} label="Show screenshot drawer" />
+          }
         />
         <Row
           title="Reading Speed"
           subtitle="Change the speed of the reading animation"
-          right={<ValueChip onClick={() => setReadIdx((i) => (i + 1) % SPEEDS.length)}>{SPEEDS[readIdx]}</ValueChip>}
+          right={
+            <ValueChip onClick={() => setReadIdx((i) => (i + 1) % SPEEDS.length)}>
+              {SPEEDS[readIdx]}
+            </ValueChip>
+          }
         />
         <Row
           title="Listening Speed"
           subtitle="Change the playback rate for audio"
-          right={<ValueChip onClick={() => setListenIdx((i) => (i + 1) % SPEEDS.length)}>{SPEEDS[listenIdx]}</ValueChip>}
+          right={
+            <ValueChip onClick={() => setListenIdx((i) => (i + 1) % SPEEDS.length)}>
+              {SPEEDS[listenIdx]}
+            </ValueChip>
+          }
         />
       </List>
     </div>
@@ -97,15 +115,15 @@ function ThemeMock({ variant }: { variant: string }) {
   return (
     <div
       className={cn(
-        "mx-auto flex aspect-[9/16] w-full max-w-[72px] flex-col gap-1.5 rounded-xl border border-hairline p-2",
+        "border-hairline mx-auto flex aspect-[9/16] w-full max-w-[72px] flex-col gap-1.5 rounded-xl border p-2",
         dark && "bg-plum-1",
         variant === "light" && "bg-surface",
-        variant === "system" && "bg-gradient-to-br from-surface to-plum-1",
+        variant === "system" && "from-surface to-plum-1 bg-gradient-to-br",
       )}
     >
-      <span className="h-3 rounded bg-amber/70" />
-      <span className="h-3 rounded bg-violet/50" />
-      <span className="h-3 rounded bg-brand-green/60" />
+      <span className="bg-amber/70 h-3 rounded" />
+      <span className="bg-violet/50 h-3 rounded" />
+      <span className="bg-brand-green/60 h-3 rounded" />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Award, Bookmark, Check, Cloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 const FEATURES = [
   "Every studybook & studybite",
@@ -31,32 +32,37 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="fade-in absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="drawer-up relative flex max-h-[92vh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl bg-surface p-6 sm:rounded-3xl">
-        <button
+      <div className="drawer-up bg-surface relative flex max-h-[92vh] w-full max-w-md flex-col overflow-y-auto rounded-t-3xl p-6 sm:rounded-3xl">
+        <Button
+          unstyled
           type="button"
           onClick={onClose}
           aria-label="Close"
-          className="absolute right-4 top-4 grid h-9 w-9 place-items-center rounded-full hover:bg-lavender"
+          className="hover:bg-lavender absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full"
         >
           <X className="h-5 w-5" />
-        </button>
+        </Button>
 
         {!done ? (
           <>
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-violet text-white">
+            <span className="bg-violet mx-auto grid h-14 w-14 place-items-center rounded-full text-white">
               <Award className="h-7 w-7" />
             </span>
             <h2 className="mt-4 text-center text-2xl font-bold">Unlock every studybook</h2>
-            <p className="mt-2 text-center text-sm text-muted">
+            <p className="text-muted mt-2 text-center text-sm">
               This one&apos;s Premium. Go unlimited and keep the streak growing.
             </p>
 
             <ul className="mt-5 space-y-2.5">
               {FEATURES.map((f) => (
                 <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="h-4 w-4 shrink-0 text-brand-green" /> {f}
+                  <Check className="text-brand-green h-4 w-4 shrink-0" /> {f}
                 </li>
               ))}
             </ul>
@@ -79,48 +85,51 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
               />
             </div>
 
-            <button
+            <Button
+              unstyled
               type="button"
               onClick={() => setDone(true)}
-              className="mt-5 h-13 w-full rounded-xl bg-violet font-semibold text-white transition-transform hover:bg-violet-dark active:scale-[0.99]"
+              className="bg-violet hover:bg-violet-dark mt-5 h-13 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.99]"
             >
               {plan === "annual" ? "Start 7-day free trial" : "Go Premium"}
-            </button>
-            <p className="mt-3 text-center text-xs text-muted">
-              Then 1.90€/mo · Cancel anytime · <span className="font-semibold text-ink">Restore</span>
+            </Button>
+            <p className="text-muted mt-3 text-center text-xs">
+              Then 1.90€/mo · Cancel anytime ·{" "}
+              <span className="text-ink font-semibold">Restore</span>
             </p>
           </>
         ) : (
           <>
-            <span className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-brand-green/15 text-brand-green">
+            <span className="bg-brand-green/15 text-brand-green mx-auto grid h-14 w-14 place-items-center rounded-full">
               <Check className="h-8 w-8" />
             </span>
             <h2 className="mt-4 text-center text-2xl font-bold">You&apos;re Premium!</h2>
-            <p className="mt-2 text-center text-sm text-muted">
+            <p className="text-muted mt-2 text-center text-sm">
               Every studybook is unlocked and your saves are unlimited. Time to dive in.
             </p>
-            <div className="mt-5 space-y-3 rounded-card border border-hairline p-4 text-sm">
+            <div className="rounded-card border-hairline mt-5 space-y-3 border p-4 text-sm">
               <p className="flex items-center gap-2">
-                <Award className="h-4 w-4 shrink-0 text-violet" />
+                <Award className="text-violet h-4 w-4 shrink-0" />
                 {plan === "annual" ? "Annual" : "Monthly"} plan · renews 1 Jul 2027
               </p>
               <p className="flex items-center gap-2">
-                <Bookmark className="h-4 w-4 shrink-0 text-violet" /> Unlimited saves active
+                <Bookmark className="text-violet h-4 w-4 shrink-0" /> Unlimited saves active
               </p>
               <p className="flex items-center gap-2">
-                <Cloud className="h-4 w-4 shrink-0 text-violet" /> Offline reading on
+                <Cloud className="text-violet h-4 w-4 shrink-0" /> Offline reading on
               </p>
             </div>
-            <button
+            <Button
+              unstyled
               type="button"
               onClick={() => {
                 onClose();
                 router.push("/feed");
               }}
-              className="mt-5 h-13 w-full rounded-xl bg-violet font-semibold text-white transition-transform hover:bg-violet-dark active:scale-[0.99]"
+              className="bg-violet hover:bg-violet-dark mt-5 h-13 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.99]"
             >
               Start learning
-            </button>
+            </Button>
           </>
         )}
       </div>
@@ -144,7 +153,8 @@ function PlanRow({
   badge?: string;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={onClick}
       className={cn(
@@ -158,21 +168,23 @@ function PlanRow({
           selected ? "border-violet" : "border-hairline",
         )}
       >
-        {selected && <span className="h-2.5 w-2.5 rounded-full bg-violet" />}
+        {selected && <span className="bg-violet h-2.5 w-2.5 rounded-full" />}
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span className="font-bold">{title}</span>
           {badge && (
-            <span className="rounded-full bg-amber/15 px-2 py-0.5 text-xs font-bold text-amber">{badge}</span>
+            <span className="bg-amber/15 text-amber rounded-full px-2 py-0.5 text-xs font-bold">
+              {badge}
+            </span>
           )}
         </span>
-        <span className="block text-xs text-muted">{note}</span>
+        <span className="text-muted block text-xs">{note}</span>
       </span>
       <span className="shrink-0 text-right">
         <span className="block font-bold">{price}</span>
-        <span className="block text-xs text-muted">/month</span>
+        <span className="text-muted block text-xs">/month</span>
       </span>
-    </button>
+    </Button>
   );
 }

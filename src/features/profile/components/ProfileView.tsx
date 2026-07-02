@@ -20,6 +20,7 @@ import { useProfile } from "../useProfile";
 import { PROFILE } from "../config";
 import { Paywall } from "./Paywall";
 import { StreakMoment } from "./StreakMoment";
+import { Button } from "@/components/ui/Button";
 
 const STATS = [
   { value: "428", label: "Cards learned" },
@@ -44,7 +45,7 @@ export function ProfileView() {
         <Link
           href="/profile/settings"
           aria-label="Settings"
-          className="grid h-10 w-10 place-items-center rounded-full bg-lavender text-ink hover:bg-violet/10"
+          className="bg-lavender text-ink hover:bg-violet/10 grid h-10 w-10 place-items-center rounded-full"
         >
           <Settings className="h-5 w-5" />
         </Link>
@@ -56,18 +57,20 @@ export function ProfileView() {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={data.photo} alt="" className="h-16 w-16 rounded-full object-cover" />
         ) : (
-          <div className="grid h-16 w-16 place-items-center rounded-full bg-lavender text-2xl">🙂</div>
+          <div className="bg-lavender grid h-16 w-16 place-items-center rounded-full text-2xl">
+            🙂
+          </div>
         )}
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-xl font-bold">{fullName}</h2>
-          <p className="truncate text-sm text-muted">
+          <p className="text-muted truncate text-sm">
             @{data.handle} · {PROFILE.grade}
           </p>
         </div>
         <Link
           href="/profile/settings/personal"
           aria-label="Edit profile"
-          className="grid h-10 w-10 place-items-center rounded-full border border-hairline text-ink hover:bg-lavender"
+          className="border-hairline text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full border"
         >
           <Pencil className="h-4 w-4" />
         </Link>
@@ -75,33 +78,35 @@ export function ProfileView() {
 
       {/* Streak + plan */}
       <div className="mt-4 flex items-center gap-5 text-sm font-semibold">
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={() => setStreak(true)}
-          className="flex items-center gap-1 text-amber hover:underline"
+          className="text-amber flex items-center gap-1 hover:underline"
         >
           <Flame className="h-4 w-4" /> 7-day streak
-        </button>
-        <span className="flex items-center gap-1 text-brand-green">
+        </Button>
+        <span className="text-brand-green flex items-center gap-1">
           <BadgeCheck className="h-4 w-4" /> {PROFILE.plan}
         </span>
       </div>
 
       {/* Stats */}
-      <div className="mt-4 grid grid-cols-3 divide-x divide-hairline rounded-card border border-hairline bg-surface py-4">
+      <div className="divide-hairline rounded-card border-hairline bg-surface mt-4 grid grid-cols-3 divide-x border py-4">
         {STATS.map((s) => (
           <div key={s.label} className="px-2 text-center">
             <p className="text-2xl font-bold">{s.value}</p>
-            <p className="mt-0.5 text-xs text-muted">{s.label}</p>
+            <p className="text-muted mt-0.5 text-xs">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Go Premium */}
-      <button
+      <Button
+        unstyled
         type="button"
         onClick={() => setPaywall(true)}
-        className="hover-lift mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-violet to-violet-dark p-4 text-left text-white"
+        className="hover-lift from-violet to-violet-dark mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r p-4 text-left text-white"
       >
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15">
           <Crown className="h-5 w-5" />
@@ -111,30 +116,32 @@ export function ProfileView() {
           <span className="block text-sm text-white/80">Unlock every studybook &amp; offline.</span>
         </span>
         <ChevronRight className="h-5 w-5" />
-      </button>
+      </Button>
 
       {/* Shortcuts */}
-      <div className="mt-6 divide-y divide-hairline border-t border-hairline">
+      <div className="divide-hairline border-hairline mt-6 divide-y border-t">
         <RowLink icon={User} label="Account" href="/profile/settings" />
         <RowLink icon={Bell} label="Notifications" href="/profile/settings/notifications" />
-        <button
+        <Button
+          unstyled
           type="button"
           onClick={() => setLangIdx((i) => (i + 1) % LANGS.length)}
           className="flex w-full items-center gap-3 py-4 text-left"
         >
-          <Globe className="h-5 w-5 text-ink" />
+          <Globe className="text-ink h-5 w-5" />
           <span className="flex-1 font-medium">Language</span>
-          <span className="text-sm font-semibold text-violet">{LANGS[langIdx]}</span>
-          <ChevronRight className="h-5 w-5 text-muted" />
-        </button>
-        <button
+          <span className="text-violet text-sm font-semibold">{LANGS[langIdx]}</span>
+          <ChevronRight className="text-muted h-5 w-5" />
+        </Button>
+        <Button
+          unstyled
           type="button"
           onClick={() => router.push("/login")}
           className="flex w-full items-center gap-3 py-4 text-left text-red-600"
         >
           <LogOut className="h-5 w-5" />
           <span className="font-semibold">Log out</span>
-        </button>
+        </Button>
       </div>
 
       <Paywall open={paywall} onClose={() => setPaywall(false)} />
@@ -146,9 +153,9 @@ export function ProfileView() {
 function RowLink({ icon: Icon, label, href }: { icon: LucideIcon; label: string; href: string }) {
   return (
     <Link href={href} className="flex items-center gap-3 py-4">
-      <Icon className="h-5 w-5 text-ink" />
+      <Icon className="text-ink h-5 w-5" />
       <span className="flex-1 font-medium">{label}</span>
-      <ChevronRight className="h-5 w-5 text-muted" />
+      <ChevronRight className="text-muted h-5 w-5" />
     </Link>
   );
 }

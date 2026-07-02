@@ -6,6 +6,7 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SETTINGS_GROUPS, type SettingsItem } from "../config";
 import { SITE } from "@/config/site";
+import { Button } from "@/components/ui/Button";
 
 /** Grouped settings list. Links navigate; sign-out / delete run client actions. */
 export function SettingsList() {
@@ -27,11 +28,11 @@ export function SettingsList() {
       {SETTINGS_GROUPS.map((group, gi) => (
         <section key={group.title ?? `group-${gi}`}>
           {group.title && (
-            <h2 className="px-1 pb-1 text-xs font-bold uppercase tracking-wide text-muted">
+            <h2 className="text-muted px-1 pb-1 text-xs font-bold tracking-wide uppercase">
               {group.title}
             </h2>
           )}
-          <ul className="divide-y divide-hairline overflow-hidden rounded-card border border-hairline bg-surface">
+          <ul className="divide-hairline rounded-card border-hairline bg-surface divide-y overflow-hidden border">
             {group.items.map((item) =>
               item.href ? (
                 <li key={item.id}>
@@ -41,9 +42,14 @@ export function SettingsList() {
                 </li>
               ) : (
                 <li key={item.id}>
-                  <button type="button" onClick={() => runAction(item.id)} className="w-full">
+                  <Button
+                    unstyled
+                    type="button"
+                    onClick={() => runAction(item.id)}
+                    className="w-full"
+                  >
                     <Row item={item} />
-                  </button>
+                  </Button>
                 </li>
               ),
             )}
@@ -51,9 +57,7 @@ export function SettingsList() {
         </section>
       ))}
 
-      <p className="pt-2 text-center text-sm text-muted">
-        {SITE.name} v0.1.0
-      </p>
+      <p className="text-muted pt-2 text-center text-sm">{SITE.name} v0.1.0</p>
     </div>
   );
 }
@@ -63,13 +67,13 @@ function Row({ item }: { item: SettingsItem }) {
   return (
     <span
       className={cn(
-        "flex items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-lavender/40",
+        "hover:bg-lavender/40 flex items-center gap-3 px-4 py-3.5 text-left transition-colors",
         item.danger ? "text-red-600" : "text-ink",
       )}
     >
       <Icon className={cn("h-5 w-5 shrink-0", item.danger ? "text-red-600" : "text-ink")} />
       <span className="flex-1 font-medium">{item.label}</span>
-      {item.href && <ChevronRight className="h-5 w-5 shrink-0 text-muted" />}
+      {item.href && <ChevronRight className="text-muted h-5 w-5 shrink-0" />}
     </span>
   );
 }

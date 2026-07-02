@@ -27,13 +27,13 @@ export default function LibraryPage() {
 
       {/* Empty state (replace with saved items from API) */}
       <div className="mt-12 flex flex-col items-center text-center">
-        <span className="grid h-16 w-16 place-items-center rounded-full bg-lavender text-violet">
+        <span className="bg-lavender text-violet grid h-16 w-16 place-items-center rounded-full">
           <Bookmark className="h-8 w-8" />
         </span>
         <p className="mt-4 font-semibold">
           {tab === "cards" ? "No saved cards yet" : "No studybooks yet"}
         </p>
-        <p className="mt-1 max-w-xs text-sm text-muted">
+        <p className="text-muted mt-1 max-w-xs text-sm">
           Tap the bookmark on any card to save it here for later.
         </p>
         <Link href="/feed" className="mt-6">
@@ -54,7 +54,8 @@ function TabButton({
   children: React.ReactNode;
 }) {
   return (
-    <button
+    <Button
+      unstyled
       onClick={onClick}
       className={cn(
         "rounded-full px-4 py-2 text-sm font-medium transition-colors",
@@ -62,6 +63,6 @@ function TabButton({
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }

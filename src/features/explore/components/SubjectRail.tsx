@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
 import { selectableSurface } from "@/components/ui/SelectableCard";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /** Subjects shown before "See more" folds the rest (vertical xl rail). */
@@ -38,7 +39,7 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
     <section className={cn("rail-in min-w-0 xl:sticky xl:top-6", className)}>
       <h2 className="text-lg font-bold">Subjects</h2>
 
-      <div className="mt-3 flex flex-wrap gap-2 xl:flex-col xl:flex-nowrap xl:gap-1.5 xl:rounded-card xl:border xl:border-hairline xl:bg-surface xl:p-2">
+      <div className="xl:rounded-card xl:border-hairline xl:bg-surface mt-3 flex flex-wrap gap-2 xl:flex-col xl:flex-nowrap xl:gap-1.5 xl:border xl:p-2">
         {SUBJECTS.map((subject, i) => {
           const key = `subject:${subject.slug}`;
           const checked = selected.has(key);
@@ -62,25 +63,29 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
 
         {/* Mobile/tablet: open the full-list bottom-sheet. */}
         {hiddenMobile > 0 && (
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => setSheetOpen(true)}
-            className="flex shrink-0 items-center gap-1 rounded-full border border-hairline px-3.5 py-1.5 text-[13px] font-semibold text-violet transition-colors hover:border-violet hover:bg-lavender/40 active:scale-95 xl:hidden"
+            className="border-hairline text-violet hover:border-violet hover:bg-lavender/40 flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors active:scale-95 xl:hidden"
           >
             More ({hiddenMobile})
-          </button>
+          </Button>
         )}
 
         {/* xl vertical rail: inline fold control. */}
         {hidden > 0 && (
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => setShowAll((v) => !v)}
-            className="hidden w-full items-center justify-center gap-1 rounded-xl py-2 text-sm font-semibold text-violet transition-colors hover:bg-lavender/40 xl:flex"
+            className="text-violet hover:bg-lavender/40 hidden w-full items-center justify-center gap-1 rounded-xl py-2 text-sm font-semibold transition-colors xl:flex"
           >
             {showAll ? "See less" : `See more (${hidden})`}
-            <ChevronDown className={cn("h-4 w-4 transition-transform duration-300", showAll && "rotate-180")} />
-          </button>
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform duration-300", showAll && "rotate-180")}
+            />
+          </Button>
         )}
       </div>
 
@@ -115,7 +120,8 @@ function SubjectChip({
 }) {
   const Icon = subject.icon;
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       aria-pressed={checked}
       onClick={onClick}
@@ -130,30 +136,40 @@ function SubjectChip({
     >
       <span
         className={cn(
-          "grid shrink-0 place-items-center rounded-full bg-mist transition-colors",
+          "bg-mist grid shrink-0 place-items-center rounded-full transition-colors",
           fullWidth ? "h-8 w-8" : "h-6 w-6 xl:h-8 xl:w-8",
           checked ? "bg-violet text-white" : subject.color,
         )}
       >
         {checked ? (
-          <Check className={cn("check-pop", fullWidth ? "h-4 w-4" : "h-3.5 w-3.5 xl:h-4 xl:w-4")} strokeWidth={3} aria-hidden />
+          <Check
+            className={cn("check-pop", fullWidth ? "h-4 w-4" : "h-3.5 w-3.5 xl:h-4 xl:w-4")}
+            strokeWidth={3}
+            aria-hidden
+          />
         ) : (
           <Icon className={cn(fullWidth ? "h-4 w-4" : "h-3.5 w-3.5 xl:h-4 xl:w-4")} aria-hidden />
         )}
       </span>
-      <span className={cn("whitespace-nowrap font-medium text-ink xl:flex-1 xl:truncate", fullWidth && "flex-1 truncate", checked && "font-semibold")}>
+      <span
+        className={cn(
+          "text-ink font-medium whitespace-nowrap xl:flex-1 xl:truncate",
+          fullWidth && "flex-1 truncate",
+          checked && "font-semibold",
+        )}
+      >
         {subject.name}
       </span>
       <span
         className={cn(
-          "text-xs tabular-nums text-muted",
+          "text-muted text-xs tabular-nums",
           // Counts crowd the compact mobile chips — keep them for the wide layouts only.
           fullWidth ? "inline" : "hidden xl:inline",
         )}
       >
         {subject.count.toLocaleString("en-US")}
       </span>
-    </button>
+    </Button>
   );
 }
 
@@ -183,19 +199,25 @@ function SubjectSheet({
   const count = [...selected].filter((k) => k.startsWith("subject:")).length;
 
   return (
-    <div className="fixed inset-0 z-50 xl:hidden" role="dialog" aria-modal="true" aria-label="Choose subjects">
+    <div
+      className="fixed inset-0 z-50 xl:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Choose subjects"
+    >
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="drawer-left absolute inset-y-0 left-0 flex w-[96%] max-w-2xl flex-col rounded-r-2xl bg-surface">
-        <div className="flex items-center justify-between border-b border-hairline px-4 py-3">
+      <div className="drawer-left bg-surface absolute inset-y-0 left-0 flex w-[96%] max-w-2xl flex-col rounded-r-2xl">
+        <div className="border-hairline flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-lg font-bold">Subjects</h2>
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={onClose}
             aria-label="Close subjects"
-            className="grid h-9 w-9 place-items-center rounded-full hover:bg-lavender active:scale-95"
+            className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto overscroll-contain p-4">
@@ -215,14 +237,15 @@ function SubjectSheet({
           </div>
         </div>
 
-        <div className="border-t border-hairline p-4">
-          <button
+        <div className="border-hairline border-t p-4">
+          <Button
+            unstyled
             type="button"
             onClick={onClose}
-            className="h-11 w-full rounded-xl bg-violet font-semibold text-white transition-transform hover:bg-violet-dark active:scale-[0.98]"
+            className="bg-violet hover:bg-violet-dark h-11 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.98]"
           >
             {count > 0 ? `Done · ${count} selected` : "Done"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

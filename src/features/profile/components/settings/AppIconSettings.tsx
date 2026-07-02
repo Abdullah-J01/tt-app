@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Flame, GraduationCap, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 const ICONS = [
   {
@@ -35,12 +36,13 @@ export function AppIconSettings() {
   const [selected, setSelected] = useState("default");
 
   return (
-    <div className="divide-y divide-hairline border-y border-hairline">
+    <div className="divide-hairline border-hairline divide-y border-y">
       {ICONS.map((ic) => {
         const Icon = ic.icon;
         const isSel = selected === ic.id;
         return (
-          <button
+          <Button
+            unstyled
             key={ic.id}
             type="button"
             disabled={ic.locked}
@@ -49,26 +51,26 @@ export function AppIconSettings() {
           >
             <span
               className={cn(
-                "grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white shadow-soft",
+                "shadow-soft grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br text-white",
                 ic.gradient,
               )}
             >
               <Icon className="h-7 w-7" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="block font-bold text-ink">{ic.label}</span>
-              <span className="block text-sm text-muted">{ic.desc}</span>
+              <span className="text-ink block font-bold">{ic.label}</span>
+              <span className="text-muted block text-sm">{ic.desc}</span>
             </span>
             {ic.locked ? (
-              <Lock className="h-5 w-5 text-muted" />
+              <Lock className="text-muted h-5 w-5" />
             ) : isSel ? (
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-brand-green text-white">
+              <span className="bg-brand-green grid h-6 w-6 place-items-center rounded-full text-white">
                 <Check className="h-4 w-4" />
               </span>
             ) : (
-              <span className="h-6 w-6 rounded-full border-2 border-hairline" />
+              <span className="border-hairline h-6 w-6 rounded-full border-2" />
             )}
-          </button>
+          </Button>
         );
       })}
     </div>

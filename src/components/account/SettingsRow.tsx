@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ChevronRight, type LucideIcon } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 interface SettingsRowProps {
@@ -24,11 +25,13 @@ export function SettingsRow({ icon: Icon, label, value, href, onClick, danger }:
   const content = (
     <>
       <Icon className={cn("h-5 w-5 shrink-0", danger ? "text-danger" : "text-muted")} aria-hidden />
-      <span className={cn("text-sm font-medium", danger ? "text-danger" : "text-ink")}>{label}</span>
-      {value && <span className="ml-auto text-sm text-muted">{value}</span>}
+      <span className={cn("text-sm font-medium", danger ? "text-danger" : "text-ink")}>
+        {label}
+      </span>
+      {value && <span className="text-muted ml-auto text-sm">{value}</span>}
       {!danger && (
         <ChevronRight
-          className={cn("h-5 w-5 shrink-0 text-faint", value ? "ml-2" : "ml-auto")}
+          className={cn("text-faint h-5 w-5 shrink-0", value ? "ml-2" : "ml-auto")}
           aria-hidden
         />
       )}
@@ -43,8 +46,8 @@ export function SettingsRow({ icon: Icon, label, value, href, onClick, danger }:
     );
   }
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <Button unstyled type="button" onClick={onClick} className={className}>
       {content}
-    </button>
+    </Button>
   );
 }

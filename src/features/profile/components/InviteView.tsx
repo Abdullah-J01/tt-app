@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Check, Link2, MessageCircle, MoreHorizontal, Send } from "lucide-react";
 import { SITE } from "@/config/site";
+import { Button } from "@/components/ui/Button";
 
 /** "Invite friends" share sheet with functional share targets. */
 export function InviteView() {
@@ -35,12 +36,12 @@ export function InviteView() {
 
   return (
     <div className="mx-auto max-w-lg px-4 pb-24 md:pb-12">
-      <h1 className="mt-6 text-4xl font-bold leading-tight">{SITE.name} is better with friends!</h1>
-      <p className="mt-4 text-lg text-muted">
+      <h1 className="mt-6 text-4xl leading-tight font-bold">{SITE.name} is better with friends!</h1>
+      <p className="text-muted mt-4 text-lg">
         Send invites to your friends to build a daily learning habit together.
       </p>
 
-      <p className="mt-10 text-xs font-bold uppercase tracking-wide text-muted">Invite via</p>
+      <p className="text-muted mt-10 text-xs font-bold tracking-wide uppercase">Invite via</p>
 
       <div className="mt-3 space-y-3">
         <a
@@ -64,22 +65,24 @@ export function InviteView() {
         </a>
 
         <div className="grid grid-cols-2 gap-3">
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={copyLink}
-            className="flex h-14 items-center justify-center gap-2 rounded-full bg-ink text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
+            className="bg-ink flex h-14 items-center justify-center gap-2 rounded-full text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
           >
             {copied ? <Check className="h-5 w-5" /> : <Link2 className="h-5 w-5" />}
             {copied ? "Copied!" : "Copy Link"}
-          </button>
-          <button
+          </Button>
+          <Button
+            unstyled
             type="button"
             onClick={shareOthers}
-            className="flex h-14 items-center justify-center gap-2 rounded-full bg-ink text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
+            className="bg-ink flex h-14 items-center justify-center gap-2 rounded-full text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <MoreHorizontal className="h-5 w-5" />
             Others
-          </button>
+          </Button>
         </div>
       </div>
     </div>

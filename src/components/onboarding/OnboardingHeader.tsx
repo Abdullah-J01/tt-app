@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { ProgressDots } from "@/components/ui/ProgressDots";
 
 interface OnboardingHeaderProps {
@@ -17,33 +18,52 @@ const arrowClass =
   "flex h-8 w-8 items-center justify-center rounded-full text-ink transition-colors hover:bg-lavender";
 
 /** Onboarding step header — back/forward arrows, "Step X of Y", skip, and progress dots. */
-export function OnboardingHeader({ step, total, onBack, onForward, onSkip }: OnboardingHeaderProps) {
+export function OnboardingHeader({
+  step,
+  total,
+  onBack,
+  onForward,
+  onSkip,
+}: OnboardingHeaderProps) {
   return (
     <div className="flex flex-col gap-3.5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           {onBack && (
-            <button type="button" onClick={onBack} aria-label="Go back" className={`-ml-1.5 ${arrowClass}`}>
+            <Button
+              unstyled
+              type="button"
+              onClick={onBack}
+              aria-label="Go back"
+              className={`-ml-1.5 ${arrowClass}`}
+            >
               <ChevronLeft className="h-5 w-5" aria-hidden />
-            </button>
+            </Button>
           )}
-          <span className="text-xs font-semibold text-muted">
+          <span className="text-muted text-xs font-semibold">
             Step {step + 1} of {total}
           </span>
           {onForward && (
-            <button type="button" onClick={onForward} aria-label="Go forward" className={arrowClass}>
+            <Button
+              unstyled
+              type="button"
+              onClick={onForward}
+              aria-label="Go forward"
+              className={arrowClass}
+            >
               <ChevronRight className="h-5 w-5" aria-hidden />
-            </button>
+            </Button>
           )}
         </div>
         {onSkip && (
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={onSkip}
-            className="text-sm font-semibold text-violet hover:text-violet-dark"
+            className="text-violet hover:text-violet-dark text-sm font-semibold"
           >
             Skip
-          </button>
+          </Button>
         )}
       </div>
       <ProgressDots total={total} current={step} />

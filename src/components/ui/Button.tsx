@@ -28,10 +28,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   leadingIcon?: ReactNode;
   /** Optional icon after the label. */
   trailingIcon?: ReactNode;
-  children: ReactNode;
+  /**
+   * Render a bare `<button>` with only the supplied `className` — skips every
+   * default/variant/size style plus the icon & loading chrome. Use it to route a
+   * fully custom button through this component without altering its look.
+   */
+  unstyled?: boolean;
+  children?: ReactNode;
 }
 
-/** Primary CTA / secondary / ghost button. Matches TT's rounded violet buttons. */
+/**
+ * Primary CTA / secondary / ghost button. Matches TT's rounded violet buttons.
+ *
+ * Every native `<button>` attribute (`onClick`, `type`, `aria-*`, `ref`, …) is
+ * optional and forwarded straight through, so it drops in wherever a plain
+ * `<button>` was used. Pass `unstyled` to keep a bespoke button's own styling.
+ */
 export function Button({
   variant = "primary",
   size = "md",
@@ -39,17 +51,26 @@ export function Button({
   loading = false,
   leadingIcon,
   trailingIcon,
+  unstyled = false,
   disabled,
   className,
   children,
   ...props
 }: ButtonProps) {
+  if (unstyled) {
+    return (
+      <button className={className} disabled={disabled} {...props}>
+        {children}
+      </button>
+    );
+  }
+
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-transform transition-colors",
+        "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-colors transition-transform",
         "hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.97]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet/40 disabled:opacity-50",
+        "focus-visible:ring-violet/40 focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50",
         block && "w-full",
         variants[variant],
         sizes[size],
@@ -65,7 +86,9 @@ export function Button({
         leadingIcon && <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{leadingIcon}</span>
       )}
       {children}
-      {trailingIcon && <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{trailingIcon}</span>}
+      {trailingIcon && (
+        <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{trailingIcon}</span>
+      )}
     </button>
   );
 }

@@ -61,13 +61,14 @@ export default function Navbar() {
 
             <div className="flex items-center gap-3 sm:gap-4">
               <SearchBar />
-              <button
+              <Button
+                unstyled
                 className="text-ink/80 hover:text-ink hidden items-center gap-1.5 text-sm transition-colors md:flex"
                 aria-label="Select language"
               >
                 <Globe size={16} />
                 EN
-              </button>
+              </Button>
               {status === "authenticated" && (
                 <a
                   href="/profile"

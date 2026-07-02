@@ -76,7 +76,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       onClick={close}
     >
       <div
-        className="pop-in relative flex h-[100svh] w-full max-w-md flex-col overflow-hidden bg-plum text-white md:h-[80vh] md:max-h-[720px] md:rounded-card md:shadow-soft"
+        className="pop-in bg-plum md:rounded-card md:shadow-soft relative flex h-[100svh] w-full max-w-md flex-col overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header: progress + close */}
@@ -89,14 +89,15 @@ export function StudybookPreview({ book }: { book: Studybook }) {
               />
             ))}
           </div>
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={close}
             aria-label="Close preview"
             className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur hover:bg-white/25"
           >
             <X className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
 
         {/* Slide body */}
@@ -107,7 +108,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
                 {book.category} · Preview
               </span>
               <div>
-                <h2 className="text-3xl font-bold leading-tight text-white">{card.heading}</h2>
+                <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
                 <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
               </div>
               <BookAttribution book={book} />
@@ -115,8 +116,14 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           ) : (
             <div className="flex flex-1 flex-col items-center justify-center text-center">
               {book.cover ? (
-                <div className="relative h-28 w-20 overflow-hidden rounded-lg shadow-soft">
-                  <Image src={book.cover} alt={book.title} fill sizes="80px" className="object-cover" />
+                <div className="shadow-soft relative h-28 w-20 overflow-hidden rounded-lg">
+                  <Image
+                    src={book.cover}
+                    alt={book.title}
+                    fill
+                    sizes="80px"
+                    className="object-cover"
+                  />
                 </div>
               ) : (
                 <span className="grid h-16 w-16 place-items-center rounded-full bg-white/15 backdrop-blur">
@@ -124,7 +131,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
                 </span>
               )}
               <h2 className="mt-5 text-2xl font-bold text-white">
-                {remaining > 0 ? `${remaining} more card${remaining === 1 ? "" : "s"} inside` : "That's the preview"}
+                {remaining > 0
+                  ? `${remaining} more card${remaining === 1 ? "" : "s"} inside`
+                  : "That's the preview"}
               </h2>
               <p className="mt-2 max-w-xs text-white/80">
                 {book.priceEur != null
@@ -142,7 +151,8 @@ export function StudybookPreview({ book }: { book: Studybook }) {
 
         {/* Prev / Next */}
         <div className="flex items-center justify-between p-4">
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => setIndex((i) => Math.max(i - 1, 0))}
             disabled={index === 0}
@@ -150,11 +160,12 @@ export function StudybookPreview({ book }: { book: Studybook }) {
             className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
           >
             <ChevronLeft className="h-6 w-6" />
-          </button>
+          </Button>
           <span className="text-sm text-white/70">
             {Math.min(index + 1, previewCards.length)} / {previewCards.length}
           </span>
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => setIndex((i) => Math.min(i + 1, slideCount - 1))}
             disabled={index >= slideCount - 1}
@@ -162,7 +173,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
             className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
           >
             <ChevronRight className="h-6 w-6" />
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -174,9 +185,7 @@ function BookAttribution({ book }: { book: Studybook }) {
   return (
     <div className="flex items-center gap-3">
       <div className="relative h-14 w-11 shrink-0 overflow-hidden rounded-md bg-white/20">
-        {book.cover && (
-          <Image src={book.cover} alt="" fill sizes="44px" className="object-cover" />
-        )}
+        {book.cover && <Image src={book.cover} alt="" fill sizes="44px" className="object-cover" />}
       </div>
       <div className="min-w-0">
         <p className="truncate font-semibold">{book.title}</p>

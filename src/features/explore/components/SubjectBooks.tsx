@@ -8,6 +8,7 @@ import { CoverCard } from "./CoverCard";
 import { FilterDrawer } from "./FilterDrawer";
 import { FilterPanel } from "./FilterPanel";
 import { SortMenu, sortBooks, type Sort } from "./SortMenu";
+import { Button } from "@/components/ui/Button";
 import type { Studybook } from "@/types";
 
 /**
@@ -36,29 +37,30 @@ export function SubjectBooks({ books }: { books: Studybook[] }) {
     <div className="mt-6">
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
-        <p className="text-sm text-muted">
+        <p className="text-muted text-sm">
           {visible.length} {visible.length === 1 ? "studybook" : "studybooks"}
         </p>
 
         <div className="flex items-center gap-2">
           {/* Filter icon → opens drawer */}
-          <button
+          <Button
+            unstyled
             type="button"
             onClick={() => setFiltersOpen(true)}
             aria-label="Filter materials"
-            className="flex h-9 items-center gap-2 rounded-full border border-hairline px-3 text-sm font-medium hover:border-violet hover:bg-lavender active:scale-95"
+            className="border-hairline hover:border-violet hover:bg-lavender flex h-9 items-center gap-2 rounded-full border px-3 text-sm font-medium active:scale-95"
           >
             <SlidersHorizontal className="h-4 w-4" />
             <span>Filters</span>
             {selected.size > 0 && (
               <span
                 key={selected.size}
-                className="pill-in grid h-5 min-w-5 place-items-center rounded-full bg-violet px-1 text-xs font-semibold text-white"
+                className="pill-in bg-violet grid h-5 min-w-5 place-items-center rounded-full px-1 text-xs font-semibold text-white"
               >
                 {selected.size}
               </span>
             )}
-          </button>
+          </Button>
 
           <SortMenu sort={sort} onChange={setSort} />
         </div>
@@ -69,14 +71,18 @@ export function SubjectBooks({ books }: { books: Studybook[] }) {
       {/* Grid */}
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {visible.length === 0 ? (
-          <p className="col-span-full text-muted">No studybooks for this filter yet.</p>
+          <p className="text-muted col-span-full">No studybooks for this filter yet.</p>
         ) : (
           visible.map((b) => <CoverCard key={b.id} book={b} />)
         )}
       </div>
 
       {/* Filter drawer */}
-      <FilterDrawer open={filtersOpen} onClose={() => setFiltersOpen(false)} resultCount={visible.length}>
+      <FilterDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        resultCount={visible.length}
+      >
         <FilterPanel
           resultCount={visible.length}
           selected={selected}

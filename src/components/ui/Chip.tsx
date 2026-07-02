@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
 
@@ -13,7 +14,8 @@ interface ChipProps {
 /** Selectable rounded chip — used for subjects, grades, filters (UI brief §2.4). */
 export function Chip({ children, selected = false, className, onClick }: ChipProps) {
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={onClick}
       className={cn(
@@ -25,6 +27,6 @@ export function Chip({ children, selected = false, className, onClick }: ChipPro
       )}
     >
       {children}
-    </button>
+    </Button>
   );
 }

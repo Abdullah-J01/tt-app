@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, FileText } from "lucide-react";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
+import { Button } from "@/components/ui/Button";
 
 const terms = [
   {
@@ -95,7 +96,8 @@ export default function TermsPage() {
                 transition={{ duration: 0.4, delay: Math.min(i * 0.05, 0.3) }}
                 className="bg-white"
               >
-                <button
+                <Button
+                  unstyled
                   onClick={() => setOpen(isOpen ? null : i)}
                   className="hover:bg-violet-tint/30 flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition-colors"
                   aria-expanded={isOpen}
@@ -108,7 +110,7 @@ export default function TermsPage() {
                   >
                     <ChevronDown size={15} className="text-violet" />
                   </motion.span>
-                </button>
+                </Button>
                 <AnimatePresence initial={false}>
                   {isOpen && (
                     <motion.div
@@ -141,7 +143,6 @@ export default function TermsPage() {
           .
         </motion.p>
       </section>
-
     </main>
   );
 }

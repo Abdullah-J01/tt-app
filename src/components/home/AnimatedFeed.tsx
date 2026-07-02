@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Bookmark, Share2, Zap } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 
 type Card = {
   category: string;
@@ -66,7 +67,7 @@ export default function AnimatedFeed() {
   if (!card) return null;
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative h-full w-full overflow-hidden">
       <AnimatePresence mode="popLayout">
         <motion.div
           key={index}
@@ -74,12 +75,12 @@ export default function AnimatedFeed() {
           animate={{ y: "0%", opacity: 1 }}
           exit={{ y: "-100%", opacity: 0 }}
           transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-          className={`absolute inset-0 bg-gradient-to-br ${card.gradient} flex flex-col justify-between p-5 overflow-hidden`}
+          className={`absolute inset-0 bg-gradient-to-br ${card.gradient} flex flex-col justify-between overflow-hidden p-5`}
         >
           {/* animated moving blur blobs */}
           <motion.div
             aria-hidden="true"
-            className="absolute w-40 h-40 rounded-full bg-white/20 blur-3xl"
+            className="absolute h-40 w-40 rounded-full bg-white/20 blur-3xl"
             animate={{
               x: [0, 40, -10, 0],
               y: [0, -30, 20, 0],
@@ -90,7 +91,7 @@ export default function AnimatedFeed() {
           />
           <motion.div
             aria-hidden="true"
-            className="absolute w-32 h-32 rounded-full bg-white/10 blur-2xl"
+            className="absolute h-32 w-32 rounded-full bg-white/10 blur-2xl"
             animate={{
               x: [0, -30, 20, 0],
               y: [0, 24, -16, 0],
@@ -101,71 +102,64 @@ export default function AnimatedFeed() {
           />
 
           {/* top: category */}
-          <div className="relative z-10 flex items-center gap-1.5 text-white/90 text-xs font-medium">
+          <div className="relative z-10 flex items-center gap-1.5 text-xs font-medium text-white/90">
             <Zap size={13} className="fill-white/90" />
             {card.category}
           </div>
 
           {/* middle: title */}
           <div className="relative z-10">
-            <p className="text-white/60 text-[10px] uppercase tracking-wider mb-1.5 font-medium">
+            <p className="mb-1.5 text-[10px] font-medium tracking-wider text-white/60 uppercase">
               Did you know
             </p>
-            <p className="text-white font-display font-semibold text-xl leading-snug">
+            <p className="font-display text-xl leading-snug font-semibold text-white">
               {card.title}
             </p>
           </div>
 
           {/* bottom: book + actions */}
           <div className="relative z-10 flex items-end justify-between">
-            <div className="flex items-center gap-2 max-w-[65%]">
-              <div className="w-7 h-7 rounded-md bg-white/25 flex items-center justify-center text-[10px] text-white font-semibold shrink-0">
+            <div className="flex max-w-[65%] items-center gap-2">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/25 text-[10px] font-semibold text-white">
                 {card.book[0]}
               </div>
               <div className="min-w-0">
-                <p className="text-white text-xs font-medium truncate">
-                  {card.book}
-                </p>
-                <p className="text-white/60 text-[10px] truncate">
-                  {card.author}
-                </p>
+                <p className="truncate text-xs font-medium text-white">{card.book}</p>
+                <p className="truncate text-[10px] text-white/60">{card.author}</p>
               </div>
             </div>
 
             <div className="flex flex-col items-center gap-3">
-              <button
+              <Button
+                unstyled
                 aria-label="Like"
                 onClick={() => setLiked((v) => !v)}
-                className="w-9 h-9 rounded-full bg-white flex items-center justify-center shadow-lg active:scale-90 transition-transform"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg transition-transform active:scale-90"
               >
-                <Heart
-                  size={16}
-                  className={liked ? "fill-rose-500 text-rose-500" : "text-ink"}
-                />
-              </button>
-              <button
+                <Heart size={16} className={liked ? "fill-rose-500 text-rose-500" : "text-ink"} />
+              </Button>
+              <Button
+                unstyled
                 aria-label="Bookmark"
                 onClick={() => setSaved((v) => !v)}
-                className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center active:scale-90 transition-transform"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition-transform active:scale-90"
               >
-                <Bookmark
-                  size={15}
-                  className={saved ? "fill-white text-white" : "text-white"}
-                />
-              </button>
-              <button
+                <Bookmark size={15} className={saved ? "fill-white text-white" : "text-white"} />
+              </Button>
+              <Button
+                unstyled
                 aria-label="Share"
-                className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center active:scale-90 transition-transform"
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition-transform active:scale-90"
               >
                 <Share2 size={15} className="text-white" />
-              </button>
+              </Button>
             </div>
           </div>
 
           {/* progress bar */}
-          <div className="relative z-10 h-0.5 w-full bg-white/20 rounded-full overflow-hidden mt-3">
+          <div className="relative z-10 mt-3 h-0.5 w-full overflow-hidden rounded-full bg-white/20">
             <motion.div
-              className="h-full bg-white rounded-full"
+              className="h-full rounded-full bg-white"
               initial={{ width: 0 }}
               animate={{ width: `${card.progress}%` }}
               transition={{ duration: 0.6, ease: "easeOut" }}

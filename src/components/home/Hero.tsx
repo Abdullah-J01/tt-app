@@ -60,13 +60,16 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.5 }}
             className="mt-8"
           >
-            <button className="group text-ink hover:text-violet inline-flex items-center gap-2 text-sm font-medium transition-colors">
+            <Button
+              unstyled
+              className="group text-ink hover:text-violet inline-flex items-center gap-2 text-sm font-medium transition-colors"
+            >
               <PlayCircle
                 size={20}
                 className="transition-transform duration-300 group-hover:rotate-[20deg]"
               />
               How it works
-            </button>
+            </Button>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, y: 14 }}

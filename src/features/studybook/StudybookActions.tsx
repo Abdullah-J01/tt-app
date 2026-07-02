@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Bookmark, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 
 /** Share the current studybook (Web Share API, clipboard fallback). */
@@ -24,17 +25,18 @@ export function ShareButton({ title, className }: { title: string; className?: s
   };
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={share}
       aria-label="Share"
       className={cn(
-        "grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-lavender active:scale-95",
+        "text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full active:scale-95",
         className,
       )}
     >
       <Share2 className="h-5 w-5" />
-    </button>
+    </Button>
   );
 }
 
@@ -45,28 +47,32 @@ export function SaveButton({ full = false }: { full?: boolean }) {
 
   if (full) {
     return (
-      <button
+      <Button
+        unstyled
         type="button"
         onClick={toggle}
         className={cn(
           "flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors",
-          saved ? "border-violet bg-lavender text-violet" : "border-hairline text-ink hover:bg-lavender",
+          saved
+            ? "border-violet bg-lavender text-violet"
+            : "border-hairline text-ink hover:bg-lavender",
         )}
       >
         <Bookmark className={cn("h-5 w-5", saved && "fill-current")} />
         {saved ? "Saved" : "Save"}
-      </button>
+      </Button>
     );
   }
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={toggle}
       aria-label={saved ? "Saved" : "Save"}
-      className="grid h-10 w-10 place-items-center rounded-full text-ink hover:bg-lavender active:scale-95"
+      className="text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full active:scale-95"
     >
-      <Bookmark className={cn("h-5 w-5", saved && "fill-current text-violet")} />
-    </button>
+      <Bookmark className={cn("h-5 w-5", saved && "text-violet fill-current")} />
+    </Button>
   );
 }

@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { CheckCircle2 } from "lucide-react";
 import type { ReactNode } from "react";
@@ -55,7 +56,8 @@ export function SelectableCard({
   const showCheck = selected && resolvedCheck !== "none";
 
   return (
-    <button
+    <Button
+      unstyled
       type="button"
       onClick={onSelect}
       aria-pressed={selected}
@@ -76,25 +78,25 @@ export function SelectableCard({
           className={cn(
             "block leading-tight",
             isHorizontal
-              ? "font-display text-[15px] font-semibold text-ink"
+              ? "font-display text-ink text-[15px] font-semibold"
               : "text-[13px] font-semibold",
             emphasizeTitle && "text-base",
           )}
         >
           {title}
         </span>
-        {subtitle && <span className="mt-0.5 block text-xs text-muted">{subtitle}</span>}
+        {subtitle && <span className="text-muted mt-0.5 block text-xs">{subtitle}</span>}
       </span>
 
       {showCheck && (
         <CheckCircle2
           className={cn(
-            "h-5 w-5 shrink-0 text-violet",
-            resolvedCheck === "corner" ? "absolute right-2 top-2" : "ml-auto",
+            "text-violet h-5 w-5 shrink-0",
+            resolvedCheck === "corner" ? "absolute top-2 right-2" : "ml-auto",
           )}
           aria-hidden
         />
       )}
-    </button>
+    </Button>
   );
 }
