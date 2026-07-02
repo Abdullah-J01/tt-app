@@ -3,8 +3,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, FileText } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 
 const terms = [
@@ -54,8 +52,6 @@ export default function TermsPage() {
         style={{ scaleX: progress }}
         className="bg-violet fixed top-0 right-0 left-0 z-[60] h-1 origin-left"
       />
-
-      <Navbar />
 
       <section className="relative mx-auto max-w-4xl overflow-hidden px-5 pt-40 pb-16 sm:px-8 sm:pt-48">
         <BackgroundGradient />
@@ -146,7 +142,6 @@ export default function TermsPage() {
         </motion.p>
       </section>
 
-      <Footer />
     </main>
   );
 }

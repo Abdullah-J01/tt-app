@@ -1,16 +1,13 @@
 import Link from "next/link";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
-import { SubjectCard } from "@/features/explore";
 import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
-import { SUBJECTS } from "@/config/subjects";
 import { StackingStudyBites } from "@/components/home/StackingStudyBites";
 import { UniverseCarousel } from "@/components/home/UniverseCarousel";
-import Navbar from "@/components/layout/Navbar";
+import { ExploreSection } from "@/components/home/ExploreSection";
 import Hero from "@/components/home/Hero";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 
@@ -38,7 +35,6 @@ export default async function LandingPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <Navbar />
       <Hero />
       <FeatureCardsLoader />
 
@@ -96,16 +92,8 @@ export default async function LandingPage() {
           })}
         </section> */}
 
-        {/* Subject grid */}
-        <section className="mx-auto max-w-6xl px-4 pb-16">
-          <h2 className="text-2xl font-bold">Explore by subject</h2>
-          <p className="mt-1 text-muted">Pick a subject and start learning in seconds.</p>
-          <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {SUBJECTS.map((s) => (
-              <SubjectCard key={s.slug} subject={s} />
-            ))}
-          </div>
-        </section>
+        {/* Explore by subject — scroll-spun 3D coverflow of subject cards. */}
+        <ExploreSection />
 
         {/* New study bites — a scroll-stacked deck of horizontal cards. Each card
             pins near the top and recedes as the next scrolls up to cover it. */}
@@ -126,7 +114,7 @@ export default async function LandingPage() {
 
         {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
             flat, focused center as you scroll; neighbors tilt away in perspective. */}
-        <section className="mx-auto max-w-6xl px-4 pb-20">
+        <section className="mx-auto max-w-6xl px-4 pb-16">
           <SectionHeader
             title="Freshly digitized"
             subtitle="Digital textbooks and workbooks — study anywhere, anytime."
@@ -141,7 +129,6 @@ export default async function LandingPage() {
           <UniverseCarousel books={books} />
         </section>
       
-      <Footer />
     </main>
   );
 }

@@ -3,8 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 
 const sections = [
@@ -77,8 +75,6 @@ export default function PrivacyPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <Navbar />
-
       <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-16 sm:px-8 sm:pt-48">
         <BackgroundGradient />
         <motion.div
@@ -185,7 +181,6 @@ export default function PrivacyPage() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }

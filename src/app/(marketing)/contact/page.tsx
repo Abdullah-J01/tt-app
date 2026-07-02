@@ -3,8 +3,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MapPin, MessageCircle, Send, CheckCircle2 } from "lucide-react";
-import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 import FloatingCircle from "@/components/home/FloatingCircle";
 
@@ -47,8 +45,6 @@ export default function ContactPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <Navbar />
-
       <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-20 sm:px-8 sm:pt-48">
         <BackgroundGradient />
         <FloatingCircle />
@@ -234,7 +230,6 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <Footer />
     </main>
   );
 }
