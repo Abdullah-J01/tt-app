@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { BookOpen, Layers, Smartphone, Sparkles } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
-import { Footer } from "@/components/layout/Footer";
+import { AppCta } from "@/components/layout/AppCta";
 import { Button } from "@/components/ui/Button";
 import { SubjectCard } from "@/features/explore";
 import { CardRail, ContentCard, SectionHeader } from "@/components/ui";
@@ -173,7 +173,7 @@ export default async function LandingPage() {
           </CardRail>
         </section>
       
-      <Footer />
+      <AppCta />
     </main>
   );
 }
