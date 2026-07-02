@@ -11,6 +11,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { ContentCard } from "@/components/ui";
+import { cn } from "@/lib/utils";
 import { STUDY_BITES, type StudyBite } from "@/config/studyBites";
 
 /**
@@ -22,12 +23,13 @@ import { STUDY_BITES, type StudyBite } from "@/config/studyBites";
  */
 
 /** Scroll travel between each card joining the stack — tight, so cards stay in
- *  view together (and you see them un-stack again on the way back up). */
-const GAP = "14vh";
+ *  view together (and you see them un-stack again on the way back up). Tighter
+ *  on mobile, where tall viewports would turn vh gaps into big empty stretches. */
+const GAP_CLASSES = "mb-[6vh] sm:mb-[14vh]";
 /** Trailing scrub room after the last card. Keeps the container taller than the
  *  viewport (so scroll progress spans 0→1 on any screen) without padding the gap
  *  between every card — the one empty stretch sits below the fully-formed deck. */
-const TAIL = "18vh";
+const TAIL_CLASSES = "pb-[8vh] sm:pb-[18vh]";
 /** Sticky offset: clear the fixed navbar (base) + step down per card (peek). */
 const TOP_BASE = "6.5rem";
 const TOP_STEP_REM = 1.25;
@@ -56,14 +58,15 @@ function StackCard({
 
   return (
     <div
-      className={reduce ? "mb-5" : "sticky flex justify-center"}
+      className={
+        reduce
+          ? "mb-5"
+          : cn("sticky flex justify-center", !isLast && GAP_CLASSES)
+      }
       style={
         reduce
           ? undefined
-          : {
-              top: `calc(${TOP_BASE} + ${index * TOP_STEP_REM}rem)`,
-              marginBottom: isLast ? undefined : GAP,
-            }
+          : { top: `calc(${TOP_BASE} + ${index * TOP_STEP_REM}rem)` }
       }
     >
       <motion.div
@@ -111,8 +114,7 @@ export function StackingStudyBites() {
   return (
     <div
       ref={container}
-      className="mx-auto max-w-2xl"
-      style={reduce ? undefined : { paddingBottom: TAIL }}
+      className={cn("mx-auto max-w-2xl", !reduce && TAIL_CLASSES)}
     >
       {STUDY_BITES.map((bite, i) => (
         <StackCard

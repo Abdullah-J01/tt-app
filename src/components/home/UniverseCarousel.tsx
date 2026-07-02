@@ -29,8 +29,6 @@ import type { Studybook } from "@/types";
 
 /** How many covers ride the spiral (images cycle cardImage1-5). */
 const COUNT = 5;
-/** Scroll distance (vh) to advance the spiral by one card — smaller = shorter section. */
-const PER_CARD_VH = 20;
 /** Vertical anchor of the deck inside the pinned stage (smaller = closer to the heading). */
 const ANCHOR = "40%";
 
@@ -50,6 +48,8 @@ interface Dims {
   cardH: number;
   /** Horizontal radius of the helix — smaller = more overlap ("negative spacing"). */
   spreadX: number;
+  /** Scroll distance (vh) to advance the spiral by one card — smaller = shorter section. */
+  perCardVh: number;
 }
 
 function DrumCard({
@@ -168,19 +168,25 @@ export function UniverseCarousel({ books }: { books: Studybook[] }) {
   const container = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion() ?? false;
   // Responsive sizing — bigger, wider fan on desktop; compact on mobile.
-  const [dims, setDims] = useState<Dims>({ cardW: 300, cardH: 408, spreadX: 200 });
+  const [dims, setDims] = useState<Dims>({
+    cardW: 300,
+    cardH: 408,
+    spreadX: 200,
+    perCardVh: 20,
+  });
 
   useEffect(() => {
     const compute = () => {
       const w = window.innerWidth;
-      const cardW =
-        w >= 640
-          ? Math.min(Math.max(Math.round(w * 0.26), 320), 380) // desktop: 320–380
-          : Math.min(Math.round(w * 0.78), 300); // mobile: up to 300
+      const mobile = w < 640;
+      const cardW = mobile
+        ? Math.min(Math.round(w * 0.6), 240) // mobile: keep the fan inside the screen
+        : Math.min(Math.max(Math.round(w * 0.26), 320), 380); // desktop: 320–380
       setDims({
         cardW,
         cardH: Math.round(cardW * 1.36),
-        spreadX: Math.max(120, Math.min(w * 0.3, 440)),
+        spreadX: mobile ? Math.round(w * 0.24) : Math.max(120, Math.min(w * 0.3, 440)),
+        perCardVh: mobile ? 14 : 20, // shorter scroll track on mobile — less empty scrub
       });
     };
     compute();
@@ -203,7 +209,7 @@ export function UniverseCarousel({ books }: { books: Studybook[] }) {
   return (
     <div
       ref={container}
-      style={{ height: `calc(100vh + ${(items.length - 1) * PER_CARD_VH}vh)` }}
+      style={{ height: `calc(100vh + ${(items.length - 1) * dims.perCardVh}vh)` }}
     >
       <div
         className="sticky top-0 h-screen overflow-hidden [perspective:1300px]"
