@@ -11,14 +11,14 @@ export function TopNav() {
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
         <Logo />
 
-        <div className="relative hidden flex-1 md:block">
-          <Search className="text-muted pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
-          <input
-            type="search"
-            placeholder="Search studybooks, subjects…"
-            className="border-hairline bg-lavender/50 focus:border-violet h-10 w-full rounded-full border pr-4 pl-9 text-sm outline-none"
-          />
-        </div>
+        {/* Tapping opens the full-screen search screen */}
+        <Link
+          href="/explore/search"
+          className="border-hairline bg-lavender/50 text-muted hover:border-violet relative hidden h-10 flex-1 items-center rounded-full border pr-4 pl-9 text-sm transition-colors md:flex"
+        >
+          <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2" />
+          Search studybooks, subjects…
+        </Link>
 
         <nav className="hidden items-center gap-5 md:flex">
           {SITE.nav.map((item) => (

@@ -9,8 +9,8 @@ function subjectName(slug: string) {
 }
 
 /**
- * Rich studybook card with a 3D flip on hover: the front shows the cover +
- * subject pill + footer meta; the back reveals the synopsis and an open prompt.
+ * Rich studybook card with a 3D flip on hover: the front shows the big title +
+ * meta + price; the back reveals the cover with footer meta and an open prompt.
  * Reused across Explore rows, subject grids and search.
  */
 export function CoverCard({ book }: { book: Studybook }) {
@@ -22,8 +22,8 @@ export function CoverCard({ book }: { book: Studybook }) {
   return (
     <Link href={`/studybook/${book.slug}`} className="group block aspect-[7/10] [perspective:1200px]">
       <div className="relative h-full w-full transition-transform duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-        {/* ── Front ── */}
-        <div className="bg-plum absolute inset-0 flex flex-col overflow-hidden rounded-2xl text-white shadow-soft [backface-visibility:hidden]">
+        {/* ── Back (hover): cover + footer meta + open prompt ── */}
+        <div className="bg-plum absolute inset-0 flex flex-col overflow-hidden rounded-2xl text-white shadow-soft [backface-visibility:hidden] [transform:rotateY(180deg)]">
           {/* Cover area */}
           <div className="relative flex-1">
             {book.cover && (
@@ -80,13 +80,15 @@ export function CoverCard({ book }: { book: Studybook }) {
                   </span>
                 </span>
               </span>
-              <span className="shrink-0 font-bold uppercase tracking-wide text-white">{price}</span>
+              <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-white">
+                Open <ArrowRight className="h-3.5 w-3.5" />
+              </span>
             </div>
           </div>
         </div>
 
-        {/* ── Back: cover image + name ── */}
-        <div className="bg-plum absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-soft [backface-visibility:hidden] [transform:rotateY(180deg)]">
+        {/* ── Front (default): cover image + name + price ── */}
+        <div className="bg-plum absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-soft [backface-visibility:hidden]">
           {book.cover ? (
             <Image src={book.cover} alt={book.title} fill sizes="240px" className="object-cover" />
           ) : (
@@ -112,9 +114,7 @@ export function CoverCard({ book }: { book: Studybook }) {
               <span className="text-white/70">
                 {cards} cards · ~ {minutes} min
               </span>
-              <span className="inline-flex items-center gap-1 font-semibold">
-                Open <ArrowRight className="h-4 w-4" />
-              </span>
+              <span className="font-bold uppercase tracking-wide text-white">{price}</span>
             </div>
           </div>
         </div>

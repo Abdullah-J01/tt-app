@@ -131,6 +131,36 @@ export function facetValues(selected: ReadonlySet<string>, facetKey: string): st
 }
 
 /**
+ * Subject slugs effectively checked under the subject facet — checked groups
+ * expand to all their member subjects.
+ */
+export function effectiveSubjectSlugs(selected: ReadonlySet<string>): Set<string> {
+  return new Set(facetValues(selected, "subject").flatMap((v) => SUBJECT_GROUPS[v]?.slugs ?? [v]));
+}
+
+/**
+ * Toggle one subject slug in the selection. If the slug is only selected via
+ * its checked group, the group dissolves into its remaining siblings so
+ * unticking a single subject keeps the rest of the group filtered.
+ */
+export function toggleSubjectSlug(selected: ReadonlySet<string>, slug: string): Set<string> {
+  const next = new Set(selected);
+  const key = `subject:${slug}`;
+
+  const group = Object.entries(SUBJECT_GROUPS).find(([, g]) => g.slugs.includes(slug));
+  const groupKey = group && `subject:${group[0]}`;
+  if (groupKey && next.has(groupKey)) {
+    next.delete(groupKey);
+    next.delete(key);
+    for (const sibling of group[1].slugs) if (sibling !== slug) next.add(`subject:${sibling}`);
+    return next;
+  }
+
+  next.has(key) ? next.delete(key) : next.add(key);
+  return next;
+}
+
+/**
  * Build a studybook predicate from the checked filters. Facets combine with
  * AND, values inside a facet with OR. A checked subject group means "any
  * subject in the group". Facets without a data mapping yet (material,
@@ -141,9 +171,7 @@ export function createFilterPredicate(selected: ReadonlySet<string>): (book: Stu
   if (selected.size === 0) return () => true;
 
   const grades = facetValues(selected, "target").filter((v) => GRADE_VALUES.has(v));
-  const subjects = new Set(
-    facetValues(selected, "subject").flatMap((v) => SUBJECT_GROUPS[v]?.slugs ?? [v]),
-  );
+  const subjects = effectiveSubjectSlugs(selected);
   const prices = facetValues(selected, "price");
 
   return (b) =>

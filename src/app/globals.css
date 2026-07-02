@@ -588,6 +588,19 @@ body {
   animation: drawer-up 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Side drawer sliding in from the left. */
+@keyframes drawer-left {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+.drawer-left {
+  animation: drawer-left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -680,6 +693,7 @@ body {
   }
   .pop-in,
   .drawer-up,
+  .drawer-left,
   .fade-in,
   .check-pop,
   .pill-in,

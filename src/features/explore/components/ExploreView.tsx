@@ -8,7 +8,12 @@ import { Chip } from "@/components/ui/Chip";
 import { Pill } from "@/components/ui/Pill";
 import { GRADES, SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
-import { applyFilters, createFilterPredicate } from "../filters";
+import {
+  applyFilters,
+  createFilterPredicate,
+  effectiveSubjectSlugs,
+  toggleSubjectSlug,
+} from "../filters";
 import { ActiveFilters } from "./ActiveFilters";
 import { CoverCard } from "./CoverCard";
 import { FilterDrawer } from "./FilterDrawer";
@@ -66,6 +71,19 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   /** The subject rail is contextual — it appears once a subject filter is checked. */
   const showRail = [...selected].some((k) => k.startsWith("subject:"));
 
+  /** Rail highlight state: checked groups count as all their member subjects. */
+  const railSelected = useMemo(() => {
+    const expanded = new Set(selected);
+    for (const slug of effectiveSubjectSlugs(selected)) expanded.add(`subject:${slug}`);
+    return expanded;
+  }, [selected]);
+
+  /** Rail toggles go through the group-aware helper (a group dissolves into siblings). */
+  const toggleRailSubject = (key: string) => {
+    setPage(1);
+    setSelected((prev) => toggleSubjectSlug(prev, key.slice("subject:".length)));
+  };
+
   const booksF = useMemo(
     () => sortBooks(applyFilters(books, selected), sort),
     [books, selected, sort],
@@ -92,17 +110,17 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
 
   return (
     <div className="mx-auto max-w-7xl px-4 pb-24 md:py-10 md:pb-12">
-      {/* Sticky header on mobile (title + search) */}
-      <div className="sticky top-0 z-30 -mx-4 border-b border-hairline bg-surface/95 px-4 pb-3 pt-6 backdrop-blur md:static md:mx-0 md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0 md:backdrop-blur-none">
+      {/* Sticky header on mobile — search lives in the TopNav on md+, so mobile
+          only gets a compact shortcut to the full-screen search screen */}
+      <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-hairline bg-surface/95 px-4 pb-3 pt-6 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0 md:backdrop-blur-none">
         <h1 className="text-2xl font-bold">Explore</h1>
 
-        {/* Search — tapping opens the full-screen search screen */}
         <Link
           href="/explore/search"
-          className="relative mt-3 flex h-11 items-center rounded-full border border-hairline bg-lavender/50 pl-9 pr-4 text-sm text-muted transition-colors hover:border-violet md:mt-4"
+          aria-label="Search"
+          className="grid h-10 w-10 place-items-center rounded-full border border-hairline bg-lavender/50 text-muted transition-colors hover:border-violet md:hidden"
         >
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" />
-          Search studybooks, subjects…
+          <Search className="h-4 w-4" />
         </Link>
       </div>
 
@@ -147,8 +165,8 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
             Horizontal on mobile → sticky vertical column on xl. */}
         {showRail && (
           <SubjectRail
-            selected={selected}
-            onToggle={toggle}
+            selected={railSelected}
+            onToggle={toggleRailSubject}
             className="mt-4 lg:col-start-2 lg:row-start-1 lg:mt-0"
           />
         )}
