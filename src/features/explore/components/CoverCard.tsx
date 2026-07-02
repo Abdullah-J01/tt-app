@@ -88,7 +88,7 @@ export function CoverCard({ book }: { book: Studybook }) {
         </div>
 
         {/* ── Front (default): cover image + name + price ── */}
-        <div className="bg-plum absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl p-5 text-white shadow-soft [backface-visibility:hidden]">
+        <div className="bg-plum absolute inset-0 flex flex-col justify-between overflow-hidden rounded-2xl p-3.5 text-white shadow-soft [backface-visibility:hidden] sm:p-5">
           {book.cover ? (
             <Image src={book.cover} alt={book.title} fill sizes="240px" className="object-cover" />
           ) : (
@@ -108,13 +108,17 @@ export function CoverCard({ book }: { book: Studybook }) {
           </div>
 
           <div className="relative">
-            <h3 className="line-clamp-3 text-xl font-bold leading-tight text-white">{book.title}</h3>
-            <p className="mt-1 line-clamp-1 text-sm text-white/80">{book.author}</p>
-            <div className="mt-3 flex items-center justify-between text-sm">
-              <span className="text-white/70">
-                {cards} cards · ~ {minutes} min
+            <h3 className="line-clamp-3 text-lg font-bold leading-tight text-white sm:text-xl">{book.title}</h3>
+            <p className="mt-1 line-clamp-1 text-xs text-white/80 sm:text-sm">{book.author}</p>
+            <div className="mt-2 flex items-center justify-between gap-2 text-xs sm:mt-3 sm:text-sm">
+              <span className="min-w-0 truncate whitespace-nowrap text-white/70">
+                {cards} cards
+                <span className="hidden sm:inline">
+                  {" "}
+                  <span className="text-white/40">·</span> ~ {minutes} min
+                </span>
               </span>
-              <span className="font-bold uppercase tracking-wide text-white">{price}</span>
+              <span className="shrink-0 font-bold uppercase tracking-wide text-white">{price}</span>
             </div>
           </div>
         </div>
