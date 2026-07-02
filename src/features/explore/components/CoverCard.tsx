@@ -128,6 +128,6 @@ export function CoverCard({ book }: { book: Studybook }) {
           </div>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

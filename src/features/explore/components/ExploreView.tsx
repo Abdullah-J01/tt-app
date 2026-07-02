@@ -109,7 +109,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 pb-24 md:py-10 md:pb-12">
+    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 md:pb-12">
       {/* Sticky header on mobile — search lives in the TopNav on md+, so mobile
           only gets a compact shortcut to the full-screen search screen */}
       <div className="sticky top-0 z-30 -mx-4 flex items-center justify-between border-b border-hairline bg-surface/95 px-4 pb-3 pt-6 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pb-0 md:pt-0 md:backdrop-blur-none">
@@ -124,24 +124,29 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
         </Link>
       </div>
 
-      {/* Grade quick-chips (Target Group facet) — the sidebar covers this on lg+ */}
-      <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 pb-1 lg:hidden">
-        {GRADES.map((g) =>
-          g.slug === "all" ? (
-            <Chip key={g.slug} selected={!anyTarget} onClick={clearTarget} className="shrink-0">
-              {g.label}
-            </Chip>
-          ) : (
-            <Chip
-              key={g.slug}
-              selected={selected.has(`target:${g.slug}`)}
-              onClick={() => toggle(`target:${g.slug}`)}
-              className="shrink-0"
-            >
-              {g.label}
-            </Chip>
-          ),
-        )}
+      {/* Grade quick-chips (Target Group facet) — the sidebar covers this on lg+.
+          The row stays horizontally scrollable; the outer clip + pb/-mb pushes the
+          scrollbar below the visible area so it's hidden even in webviews that
+          ignore `::-webkit-scrollbar` styling. */}
+      <div className="-mx-4 mt-4 overflow-hidden lg:hidden">
+        <div className="no-scrollbar -mb-4 flex gap-2 overflow-x-auto px-4 pb-4">
+          {GRADES.map((g) =>
+            g.slug === "all" ? (
+              <Chip key={g.slug} selected={!anyTarget} onClick={clearTarget} className="shrink-0">
+                {g.label}
+              </Chip>
+            ) : (
+              <Chip
+                key={g.slug}
+                selected={selected.has(`target:${g.slug}`)}
+                onClick={() => toggle(`target:${g.slug}`)}
+                className="shrink-0"
+              >
+                {g.label}
+              </Chip>
+            ),
+          )}
+        </div>
       </div>
 
       <div
