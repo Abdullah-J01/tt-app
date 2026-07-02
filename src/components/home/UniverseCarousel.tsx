@@ -10,7 +10,6 @@ import {
   useSpring,
   useTransform,
   useReducedMotion,
-  useMotionValueEvent,
   type MotionValue,
 } from "framer-motion";
 import { CardRail, ContentCard, Pill } from "@/components/ui";
@@ -23,21 +22,22 @@ import type { Studybook } from "@/types";
  * index; each card sits on the helix relative to it, so one card sweeps up to the
  * flat, front-centered focus while its neighbours spiral away and fade.
  *
- * The horizontal spread is responsive: tight on mobile (cards stay near centre),
- * wide and fanned on desktop. Under `prefers-reduced-motion` → plain rail.
+ * Robust for any COUNT: cards that revolve past 90° show their back, which
+ * `backface-visibility: hidden` clips — so only the front arc is ever visible,
+ * no matter how many cards ride the spiral. Under reduced-motion → plain rail.
  */
 
-/** How many covers ride the spiral (maps 1:1 to cardImage1-5). */
+/** How many covers ride the spiral (images cycle cardImage1-5). */
 const COUNT = 5;
-/** Scroll distance (vh) to advance the spiral by one card. */
-const PER_CARD_VH = 36;
+/** Scroll distance (vh) to advance the spiral by one card — smaller = shorter section. */
+const PER_CARD_VH = 20;
+/** Vertical anchor of the deck inside the pinned stage (smaller = closer to the heading). */
+const ANCHOR = "40%";
 
 // --- Helix geometry (all easily tunable) --------------------------------------
-const CARD_W = 300; // px — focused card face
-const CARD_H = 410;
 const ANGLE = 40; // deg of revolution between adjacent cards
 const DEPTH = 200; // px — how far the ring bows back
-const PITCH = 74; // px — vertical climb per card (the "spiral")
+const PITCH = 58; // px — vertical climb per card (the "spiral")
 const ROTY = 1; // 0 = faces flat, 1 = fully tangent (coverflow tilt)
 const SCALE_STEP = 0.12;
 const OPACITY_STEP = 0.3;
@@ -45,18 +45,26 @@ const OPACITY_STEP = 0.3;
 const cardImage = (i: number) => `/images/demoData/cardImage${(i % 5) + 1}.jpg`;
 const formatPrice = (eur?: number) => (eur != null ? `${eur.toFixed(2)}€` : undefined);
 
+interface Dims {
+  cardW: number;
+  cardH: number;
+  /** Horizontal radius of the helix — smaller = more overlap ("negative spacing"). */
+  spreadX: number;
+}
+
 function DrumCard({
   book,
   index,
   focus,
-  spreadX,
+  dims,
 }: {
   book: Studybook;
   index: number;
   focus: MotionValue<number>;
-  /** Responsive horizontal radius of the helix. */
-  spreadX: number;
+  dims: Dims;
 }) {
+  const { cardW, cardH, spreadX } = dims;
+
   const transform = useTransform(focus, (f) => {
     const d = index - f; // signed distance from focus: 0 = centred
     const rad = (d * ANGLE * Math.PI) / 180;
@@ -71,9 +79,11 @@ function DrumCard({
     Math.max(0, 1 - Math.abs(index - f) * OPACITY_STEP),
   );
   const zIndex = useTransform(focus, (f) => Math.round(100 - Math.abs(index - f) * 10));
-  // Only the (near-)focused card is clickable, so dim cards don't swallow taps.
+  // Every visible card is clickable (opens its studybook); z-index resolves overlaps,
+  // so a click lands on whichever card is on top at that point. Hidden/back-facing
+  // cards (far from focus) opt out so they don't swallow taps.
   const pointerEvents = useTransform(focus, (f) =>
-    Math.abs(index - f) < 0.5 ? "auto" : "none",
+    Math.abs(index - f) < 2 ? "auto" : "none",
   );
 
   const price = formatPrice(book.priceEur);
@@ -84,48 +94,48 @@ function DrumCard({
         transform,
         opacity,
         zIndex,
-        width: CARD_W,
-        height: CARD_H,
+        pointerEvents,
+        width: cardW,
+        height: cardH,
         left: "50%",
         top: "50%",
-        marginLeft: -CARD_W / 2,
-        marginTop: -CARD_H / 2,
+        marginLeft: -cardW / 2,
+        marginTop: -cardH / 2,
+        backfaceVisibility: "hidden",
       }}
-      className="absolute [transform-style:preserve-3d]"
+      className="absolute"
     >
-      <motion.div style={{ pointerEvents }} className="h-full w-full">
-        <Link
-          href={`/studybook/${book.slug}`}
-          className="group relative block h-full w-full overflow-hidden rounded-card bg-ink shadow-lift ring-1 ring-black/5"
-        >
-          <Image
-            src={cardImage(index)}
-            alt={book.title}
-            fill
-            sizes="300px"
-            className="object-cover"
-          />
-          {/* legibility scrim */}
-          <div
-            aria-hidden
-            className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-transparent"
-          />
-          <div className="absolute inset-x-0 bottom-0 p-4">
-            <h3 className="font-display line-clamp-2 text-lg font-bold text-white">
-              {book.title}
-            </h3>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              {price && (
-                <Pill variant="solid">
-                  <span className="font-medium opacity-80">from</span>
-                  {price}
-                </Pill>
-              )}
-              <span className="text-xs font-medium text-white/70">{book.category}</span>
-            </div>
+      <Link
+        href={`/studybook/${book.slug}`}
+        className="group relative block h-full w-full overflow-hidden rounded-card bg-ink shadow-lift ring-1 ring-black/5"
+      >
+        <Image
+          src={cardImage(index)}
+          alt={book.title}
+          fill
+          sizes={`${cardW}px`}
+          className="object-cover"
+        />
+        {/* legibility scrim */}
+        <div
+          aria-hidden
+          className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-transparent"
+        />
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <h3 className="font-display line-clamp-2 text-lg font-bold text-white">
+            {book.title}
+          </h3>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {price && (
+              <Pill variant="solid">
+                <span className="font-medium opacity-80">from</span>
+                {price}
+              </Pill>
+            )}
+            <span className="text-xs font-medium text-white/70">{book.category}</span>
           </div>
-        </Link>
-      </motion.div>
+        </div>
+      </Link>
     </motion.div>
   );
 }
@@ -157,13 +167,22 @@ export function UniverseCarousel({ books }: { books: Studybook[] }) {
   const items = books.slice(0, COUNT);
   const container = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion() ?? false;
-  const [active, setActive] = useState(0);
-  // Horizontal radius of the helix — tight on mobile, wide on desktop.
-  const [spreadX, setSpreadX] = useState(200);
+  // Responsive sizing — bigger, wider fan on desktop; compact on mobile.
+  const [dims, setDims] = useState<Dims>({ cardW: 300, cardH: 408, spreadX: 200 });
 
   useEffect(() => {
-    const compute = () =>
-      setSpreadX(Math.max(120, Math.min(window.innerWidth * 0.3, 430)));
+    const compute = () => {
+      const w = window.innerWidth;
+      const cardW =
+        w >= 640
+          ? Math.min(Math.max(Math.round(w * 0.26), 320), 380) // desktop: 320–380
+          : Math.min(Math.round(w * 0.78), 300); // mobile: up to 300
+      setDims({
+        cardW,
+        cardH: Math.round(cardW * 1.36),
+        spreadX: Math.max(120, Math.min(w * 0.3, 440)),
+      });
+    };
     compute();
     window.addEventListener("resize", compute);
     return () => window.removeEventListener("resize", compute);
@@ -179,11 +198,6 @@ export function UniverseCarousel({ books }: { books: Studybook[] }) {
   });
   const focus = useSpring(raw, { stiffness: 140, damping: 26, mass: 0.4 });
 
-  useMotionValueEvent(focus, "change", (v) => {
-    const idx = Math.min(items.length - 1, Math.max(0, Math.round(v)));
-    setActive((prev) => (prev === idx ? prev : idx));
-  });
-
   if (reduce) return <Rail books={books} />;
 
   return (
@@ -191,33 +205,21 @@ export function UniverseCarousel({ books }: { books: Studybook[] }) {
       ref={container}
       style={{ height: `calc(100vh + ${(items.length - 1) * PER_CARD_VH}vh)` }}
     >
-      <div className="sticky top-0 flex h-screen items-center justify-center overflow-hidden [perspective:1300px]">
-        {/* "universe" backdrop — a single soft violet glow (no hard ring). */}
+      <div
+        className="sticky top-0 h-screen overflow-hidden [perspective:1300px]"
+        style={{ ["--anchor" as string]: ANCHOR }}
+      >
+        {/* "universe" backdrop — a single soft violet glow, behind the deck. */}
         <div
           aria-hidden
-          className="bg-violet/12 pointer-events-none absolute left-1/2 top-1/2 h-[680px] w-[680px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-3xl"
+          className="pointer-events-none absolute left-1/2 top-[var(--anchor)] h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full "
         />
 
-        {/* the spiral stage */}
-        <div className="relative h-0 w-0 [transform-style:preserve-3d]">
+        {/* the spiral deck — zero-size anchor placed near the top (not centred),
+            so the cards sit close to the heading instead of a screen below it. */}
+        <div className="absolute left-1/2 top-[var(--anchor)] h-0 w-0 [transform-style:preserve-3d]">
           {items.map((book, i) => (
-            <DrumCard key={book.id} book={book} index={i} focus={focus} spreadX={spreadX} />
-          ))}
-        </div>
-
-        {/* focused-card indicator */}
-        <div
-          className="absolute right-6 top-1/2 hidden -translate-y-1/2 flex-col gap-2 sm:flex"
-          aria-hidden
-        >
-          {items.map((book, i) => (
-            <span
-              key={book.id}
-              className={
-                "h-2 w-2 rounded-full transition-all duration-300 " +
-                (i === active ? "bg-violet scale-125" : "bg-ink/15")
-              }
-            />
+            <DrumCard key={book.id} book={book} index={i} focus={focus} dims={dims} />
           ))}
         </div>
       </div>
