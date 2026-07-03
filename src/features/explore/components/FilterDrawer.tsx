@@ -42,7 +42,7 @@ export function FilterDrawer({ open, onClose, resultCount, onApply, children }: 
       aria-label="Filter materials"
     >
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
-      <div className="drawer-up bg-surface absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-2xl md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-full md:max-w-sm md:rounded-none md:rounded-l-2xl">
+      <div className="drawer-up md-drawer-right bg-surface absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-2xl md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-full md:max-w-sm md:rounded-none md:rounded-l-2xl">
         <div className="border-hairline flex items-center justify-between border-b px-4 py-3">
           <h2 className="text-lg font-bold">Filters</h2>
           <Button

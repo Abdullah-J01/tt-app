@@ -35,7 +35,9 @@ function toEntry(card: StudyCardType, book: Studybook): LibraryEntry {
  */
 export function CardFeed({ items }: { items: FeedItem[] }) {
   return (
-    <div className="snap-feed h-[100svh] w-full">
+    // data-lenis-prevent: the page-level Lenis smooth scroll preventDefaults
+    // wheel events over nested scroll containers, freezing the snap feed.
+    <div data-lenis-prevent className="snap-feed h-[100svh] w-full">
       {items.map(({ card, book, index, total }) => (
         <StudyCard
           key={card.id}

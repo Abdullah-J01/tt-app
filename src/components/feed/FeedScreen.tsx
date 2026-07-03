@@ -198,21 +198,39 @@ export default function FeedScreen() {
   const goNext = useCallback(() => goTo(index + 1), [goTo, index]);
   const goPrev = useCallback(() => goTo(index - 1), [goTo, index]);
 
-  // Wheel navigation (desktop)
+  // Wheel navigation (desktop). Deltas accumulate per gesture (a pause resets
+  // them), so a mouse-wheel notch advances instantly while trackpad momentum
+  // can't fire a second advance right after the lock releases.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
+    let accum = 0;
+    let reset: number | undefined;
     function onWheel(e: WheelEvent) {
       e.preventDefault();
-      if (lockRef.current) return;
-      if (Math.abs(e.deltaY) < 8) return;
-      if (e.deltaY > 0) goNext();
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        accum = 0;
+      }, 150);
+      if (lockRef.current) {
+        // Mid-transition momentum shouldn't queue another advance.
+        accum = 0;
+        return;
+      }
+      accum += e.deltaY;
+      if (Math.abs(accum) < 40) return;
+      const delta = accum;
+      accum = 0;
+      if (delta > 0) goNext();
       else goPrev();
     }
 
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(reset);
+    };
   }, [goNext, goPrev]);
 
   // Touch navigation (mobile/tablet)
@@ -262,8 +280,11 @@ export default function FeedScreen() {
       {/* <FeedNavbar streak={7} /> */}
       <Navbar />
 
+      {/* data-lenis-prevent: the page-level Lenis smooth scroll would otherwise
+          also react to wheel events here and drag the page while cards change. */}
       <div
         ref={containerRef}
+        data-lenis-prevent
         className="relative min-h-0 flex-1 overflow-hidden"
         role="region"
         aria-roledescription="carousel"
@@ -294,6 +315,8 @@ export default function FeedScreen() {
                     <FeedCard
                       card={card}
                       active={i === index}
+                      index={i}
+                      total={total}
                       onOpenFilters={openFilters}
                       filterCount={applied.size}
                     />

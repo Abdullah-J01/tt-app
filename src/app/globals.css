@@ -619,6 +619,23 @@ body {
   animation: drawer-left 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
+/* Side drawer sliding in from the right. Pair .md-drawer-right with .drawer-up
+   on panels that are a bottom sheet on mobile and a right side panel on md+:
+   the slide direction follows the layout. */
+@keyframes drawer-right {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+@media (min-width: 768px) {
+  .md-drawer-right {
+    animation-name: drawer-right;
+  }
+}
+
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -712,6 +729,7 @@ body {
   .pop-in,
   .drawer-up,
   .drawer-left,
+  .md-drawer-right,
   .fade-in,
   .check-pop,
   .pill-in,

@@ -49,7 +49,10 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const [dir, setDir] = useState(1);
   const lockRef = useRef(false);
   const touchStartY = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+  // The whole overlay (backdrop included) — wheel/swipe anywhere navigates, not
+  // just over the narrow card surface (matters on desktop where the cursor
+  // usually sits on the backdrop or the action rail).
+  const containerRef = useRef<HTMLElement>(null);
 
   const subject = SUBJECTS.find((s) => s.slug === book.subjectSlug)?.name ?? book.subjectSlug;
   const active = cards[index];
@@ -77,18 +80,37 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     else router.push(`/studybook/${book.slug}`);
   }, [router, book.slug]);
 
-  // Wheel (desktop)
+  // Wheel (desktop). Deltas accumulate per gesture (a pause resets them), so a
+  // mouse-wheel notch advances instantly while trackpad momentum can't fire a
+  // second advance right after the lock releases.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
+    let accum = 0;
+    let reset: number | undefined;
     function onWheel(e: WheelEvent) {
       e.preventDefault();
-      if (Math.abs(e.deltaY) < 8) return;
-      if (e.deltaY > 0) goNext();
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        accum = 0;
+      }, 150);
+      if (lockRef.current) {
+        // Mid-transition momentum shouldn't queue another advance.
+        accum = 0;
+        return;
+      }
+      accum += e.deltaY;
+      if (Math.abs(accum) < 40) return;
+      const delta = accum;
+      accum = 0;
+      if (delta > 0) goNext();
       else goPrev();
     }
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(reset);
+    };
   }, [goNext, goPrev]);
 
   // Touch (mobile/tablet)
@@ -159,15 +181,15 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   if (!active) return null;
 
   return (
-    <main className="relative flex min-h-[100dvh] items-center justify-center overflow-x-clip bg-black/60 backdrop-blur-sm lg:py-8">
+    <main
+      ref={containerRef}
+      className="relative flex min-h-[100dvh] touch-none items-center justify-center overflow-x-clip bg-black/60 backdrop-blur-sm lg:py-8"
+    >
       {/* Positioning frame — NOT clipped, so the rail can sit outside on desktop
           (same pattern as the feed on desktop). */}
       <div className="relative h-[100dvh] w-full max-w-full sm:h-[80vh] sm:max-h-[720px] sm:max-w-md">
         {/* Phone-style reader surface — clipped, rounded on larger screens */}
-        <div
-          ref={containerRef}
-          className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]"
-        >
+        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]">
           {/* Top bar: back · book title · save */}
           <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-4 pt-5">
             <button
