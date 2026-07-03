@@ -199,12 +199,12 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                 <p className="mb-3 text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
                   {subject}
                 </p>
-                <h2 className="font-display text-3xl leading-tight font-bold text-white sm:text-4xl">
+                <h2 className="font-display text-3xl leading-tight font-bold text-white sm:text-3xl">
                   {active.heading}
                 </h2>
 
                 {/* Book cover */}
-                <div className="relative my-6 flex h-44 items-center justify-center overflow-hidden rounded-2xl bg-white/[0.06]">
+                <div className="relative my-6 flex h-44 items-center justify-center overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4 sm:h-36">
                   {book.cover ? (
                     <Image
                       src={book.cover}

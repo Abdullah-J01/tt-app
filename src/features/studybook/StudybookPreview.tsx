@@ -88,9 +88,20 @@ export function StudybookPreview({ book }: { book: Studybook }) {
         className="pop-in bg-plum md:rounded-card md:shadow-soft relative flex h-[100svh] w-full max-w-md flex-col overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header: progress + close */}
-        <div className="flex items-center gap-3 p-4">
-          <div className="flex flex-1 gap-1" aria-label={`Slide ${index + 1} of ${slideCount}`}>
+        {/* Header: close on top, progress below */}
+        <div className="flex flex-col gap-3 p-4">
+          <div className="flex justify-end">
+            <Button
+              unstyled
+              type="button"
+              onClick={close}
+              aria-label="Close preview"
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur hover:bg-white/25"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <div className="flex gap-1" aria-label={`Slide ${index + 1} of ${slideCount}`}>
             {Array.from({ length: slideCount }).map((_, i) => (
               <span
                 key={i}
@@ -98,15 +109,6 @@ export function StudybookPreview({ book }: { book: Studybook }) {
               />
             ))}
           </div>
-          <Button
-            unstyled
-            type="button"
-            onClick={close}
-            aria-label="Close preview"
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur hover:bg-white/25"
-          >
-            <X className="h-5 w-5" />
-          </Button>
         </div>
 
         {/* Slide body */}
