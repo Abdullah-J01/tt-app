@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   BadgeCheck,
   Bell,
@@ -31,11 +31,19 @@ const LANGS = ["English", "Estonian", "Russian"];
 
 /** Profile home: identity, streak, stats, Premium upsell and shortcuts. */
 export function ProfileView() {
-  const router = useRouter();
+  const { data: session } = useSession();
   const { data, fullName } = useProfile();
   const [paywall, setPaywall] = useState(false);
   const [streak, setStreak] = useState(false);
   const [langIdx, setLangIdx] = useState(0);
+
+  // Prefer the signed-in user's details while the stored profile is still the
+  // placeholder default; anything the user edited keeps winning.
+  const sessionHandle = session?.user?.email?.split("@")[0];
+  const displayName =
+    fullName === PROFILE.name && session?.user?.name ? session.user.name : fullName;
+  const displayHandle =
+    data.handle === PROFILE.handle && sessionHandle ? sessionHandle : data.handle;
 
   return (
     <div className="mx-auto max-w-2xl px-4 pb-24 md:pb-12">
@@ -62,9 +70,9 @@ export function ProfileView() {
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-xl font-bold">{fullName}</h2>
+          <h2 className="truncate text-xl font-bold">{displayName}</h2>
           <p className="text-muted truncate text-sm">
-            @{data.handle} · {PROFILE.grade}
+            @{displayHandle} · {PROFILE.grade}
           </p>
         </div>
         <Link
@@ -136,7 +144,7 @@ export function ProfileView() {
         <Button
           unstyled
           type="button"
-          onClick={() => router.push("/login")}
+          onClick={() => signOut({ callbackUrl: "/login" })}
           className="flex w-full items-center gap-3 py-4 text-left text-red-600"
         >
           <LogOut className="h-5 w-5" />

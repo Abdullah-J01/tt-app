@@ -66,7 +66,7 @@ export default async function StudybookPage({
         <BackButton fallbackHref="/explore" label="" className="border border-hairline" />
         <div className="flex items-center gap-1">
           <ShareButton title={book.title} />
-          <SaveButton />
+          <SaveButton book={book} />
         </div>
       </div>
 
@@ -140,7 +140,7 @@ export default async function StudybookPage({
                 >
                   <PlayCircle className="h-5 w-5" /> Preview
                 </Link>
-                <SaveButton full />
+                <SaveButton book={book} full />
               </div>
             </div>
           </div>

@@ -1,16 +1,17 @@
 "use client";
 
 import { useRef, type Ref } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Bookmark, Heart, Share2 } from "lucide-react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
-import { usePersistedFlag } from "@/lib/usePersistedFlag";
+import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { Button } from "@/components/ui/Button";
-import { toastSaved } from "@/components/ui/Toaster";
 
 interface ActionRailProps {
-  /** Stable id for the item (e.g. card id) — keys the persisted like/save state. */
-  id: string;
+  /** Card + book snapshot — persisted to the library on like/save. */
+  entry: LibraryEntry;
   /** Studybook cover thumbnail (tap → open detail). */
   onOpenBook?: () => void;
   /** Base counts; the current user's tap adds +1 on top (persisted locally). */
@@ -19,9 +20,6 @@ interface ActionRailProps {
   /** Optional share target; defaults to the current URL. */
   shareUrl?: string;
   shareTitle?: string;
-  /** Extra classes for the count labels — e.g. the feed turns them dark on desktop
-   * (`lg:text-ink`) where the rail sits on a white background instead of the card. */
-  labelClassName?: string;
 }
 
 /** Compact count label, hidden at zero: 0 → "", 988 → "988", 2700 → "2.7k". */
@@ -91,28 +89,34 @@ function burstHearts(origin: HTMLElement | null) {
  * GSAP heart burst; Share uses the Web Share sheet (clipboard fallback).
  */
 export function ActionRail({
-  id,
+  entry,
   onOpenBook,
   likeCount = 0,
   saveCount = 0,
   shareUrl,
   shareTitle,
-  labelClassName,
 }: ActionRailProps) {
-  const [saved, setSaved] = usePersistedFlag(`tt:save:${id}`);
-  const [liked, setLiked] = usePersistedFlag(`tt:like:${id}`);
+  const router = useRouter();
+  const { status } = useSession();
+  const { isLiked, isSaved, toggleLiked, toggleSaved } = useLibrary();
   const heartRef = useRef<HTMLSpanElement>(null);
 
-  const toggleSave = () => {
-    const next = !saved;
-    setSaved(next);
-    if (next) toastSaved(() => setSaved(false));
+  const saved = isSaved(entry.cardId);
+  const liked = isLiked(entry.cardId);
+
+  /** Liking/saving requires a session — send guests to login and back here. */
+  const withAuth = (action: () => void) => () => {
+    if (status !== "authenticated") {
+      const back = `/studybook/${entry.bookSlug}/read`;
+      router.push(`/login?callbackUrl=${encodeURIComponent(back)}`);
+      return;
+    }
+    action();
   };
 
   const toggleLike = () => {
-    const next = !liked;
-    setLiked(next);
-    if (next) {
+    toggleLiked(entry);
+    if (!liked) {
       popHeart(heartRef.current);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduce) burstHearts(heartRef.current);
@@ -133,28 +137,21 @@ export function ActionRail({
   };
 
   return (
-    <div className="flex flex-col items-center gap-1.5 text-white">
+    <div className="flex flex-col items-center gap-5 text-white">
       <RailButton
         label={countLabel(saveCount + (saved ? 1 : 0))}
-        labelClassName={labelClassName}
         active={saved}
-        onClick={toggleSave}
-        icon={<Bookmark className={cn("h-5 w-5", saved && "fill-current")} />}
+        onClick={withAuth(() => toggleSaved(entry))}
+        icon={<Bookmark className={cn("h-7 w-7", saved && "fill-current")} />}
       />
       <RailButton
         label={countLabel(likeCount + (liked ? 1 : 0))}
-        labelClassName={labelClassName}
         active={liked}
-        onClick={toggleLike}
+        onClick={withAuth(toggleLike)}
         iconRef={heartRef}
-        icon={<Heart className={cn("h-5 w-5", liked && "fill-current text-red-500")} />}
+        icon={<Heart className={cn("h-7 w-7", liked && "fill-current text-red-500")} />}
       />
-      <RailButton
-        label="Share"
-        labelClassName={labelClassName}
-        onClick={share}
-        icon={<Share2 className="h-5 w-5" />}
-      />
+      <RailButton label="Share" onClick={share} icon={<Share2 className="h-7 w-7" />} />
       {onOpenBook && (
         <Button
           unstyled
@@ -174,31 +171,25 @@ function RailButton({
   active,
   onClick,
   iconRef,
-  labelClassName,
 }: {
   label: string;
   icon: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
   iconRef?: Ref<HTMLSpanElement>;
-  labelClassName?: string;
 }) {
   return (
     <Button unstyled onClick={onClick} className="flex flex-col items-center gap-1">
       <span
         ref={iconRef}
         className={cn(
-          "grid h-10 w-10 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
+          "grid h-12 w-12 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
           active && "bg-black/30",
         )}
       >
         {icon}
       </span>
-      {/* Label slot is always rendered at a fixed height so the row never shifts
-          when a count first appears (0 → "1"). */}
-      <span className={cn("h-4 text-[11px] leading-4 font-medium tabular-nums", labelClassName)}>
-        {label || " "}
-      </span>
+      {label && <span className="text-xs font-medium">{label}</span>}
     </Button>
   );
 }

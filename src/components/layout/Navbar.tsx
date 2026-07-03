@@ -7,6 +7,7 @@ import { Globe, User } from "lucide-react";
 import SearchBar from "../home/SearchBar";
 import { Logo } from "./Logo";
 import MobileNav from "./MobileNav";
+import ProfileMenu from "./ProfileMenu";
 import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 
@@ -70,27 +71,38 @@ export default function Navbar() {
                 EN
               </Button>
               {status === "authenticated" && (
-                <a
-                  href="/profile"
-                  aria-label="Profile"
-                  className="text-ink/80 hover:text-ink hidden items-center gap-1.5 text-sm transition-colors md:inline-flex"
-                >
-                  <User size={18} />
-                </a>
+                <>
+                  {/* Desktop: dropdown with user details + log out */}
+                  <ProfileMenu />
+                  {/* Mobile: the profile icon opens the full /profile screen */}
+                  <a
+                    href="/profile"
+                    aria-label="Profile"
+                    className="text-ink/80 hover:text-ink inline-flex items-center gap-1.5 text-sm transition-colors md:hidden"
+                  >
+                    <User size={18} />
+                  </a>
+                </>
               )}
-              {/* <Link href="/login" className="hidden md:inline-flex"> */}
-              <a href="/login">
-                <Button className="shadow-soft hover:shadow-glow hidden rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300 md:inline-flex">
-                  Log in
-                </Button>
-              </a>
-              {/* </Link> */}
-              {/* Mobile: only the Login button (nav lives in the bottom bar) */}
-              <a href="/login">
-                <Button className="shadow-soft rounded-full px-5 py-2 text-sm font-medium text-white md:hidden">
-                  Log in
-                </Button>
-              </a>
+              {/* `unauthenticated` (not `!== authenticated`) so the Log in
+                  button doesn't flash while the session is still loading. */}
+              {status === "unauthenticated" && (
+                <>
+                  {/* <Link href="/login" className="hidden md:inline-flex"> */}
+                  <a href="/login">
+                    <Button className="shadow-soft hover:shadow-glow hidden rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300 md:inline-flex">
+                      Log in
+                    </Button>
+                  </a>
+                  {/* </Link> */}
+                  {/* Mobile: only the Login button (nav lives in the bottom bar) */}
+                  <a href="/login">
+                    <Button className="shadow-soft rounded-full px-5 py-2 text-sm font-medium text-white md:hidden">
+                      Log in
+                    </Button>
+                  </a>
+                </>
+              )}
             </div>
           </nav>
         </div>

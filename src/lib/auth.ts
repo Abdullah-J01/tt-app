@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { notFound, redirect } from "next/navigation";
+import { IS_DEV_MODE } from "./env";
 
 /** App-level authorization roles carried in the session (see src/types/next-auth.d.ts). */
 export type Role = "admin" | "user";
@@ -35,19 +36,25 @@ export const authOptions: NextAuthOptions = {
   pages: { signIn: "/login" },
   providers: [
     // Demo/stub sign-in — accepts any email so the login flow works without a
-    // backend. TODO(team): replace `authorize` with a real TT login call.
-    CredentialsProvider({
-      name: "Email",
-      credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        const email = credentials?.email?.trim();
-        if (!email) return null;
-        return { id: email, email, name: email.split("@")[0] || "You" };
-      },
-    }),
+    // backend. Dev mode only (NEXT_PUBLIC_DEV_MODE).
+    // TODO(team): in production, add a Credentials provider that calls TT's
+    // login endpoint instead of this stub.
+    ...(IS_DEV_MODE
+      ? [
+          CredentialsProvider({
+            name: "Email",
+            credentials: {
+              email: { label: "Email", type: "email" },
+              password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials) {
+              const email = credentials?.email?.trim();
+              if (!email) return null;
+              return { id: email, email, name: email.split("@")[0] || "You" };
+            },
+          }),
+        ]
+      : []),
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({

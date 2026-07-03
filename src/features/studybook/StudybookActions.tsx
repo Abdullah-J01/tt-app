@@ -1,10 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { toastSaved } from "@/components/ui/Toaster";
 import { cn } from "@/lib/utils";
+import { useLibrary } from "@/features/library/useLibrary";
+import type { Studybook } from "@/types";
 
 /** Share the current studybook (Web Share API, clipboard fallback). */
 export function ShareButton({ title, className }: { title: string; className?: string }) {
@@ -41,13 +43,31 @@ export function ShareButton({ title, className }: { title: string; className?: s
   );
 }
 
-/** Save/bookmark toggle. `full` renders a labelled button; otherwise an icon. */
-export function SaveButton({ full = false }: { full?: boolean }) {
-  const [saved, setSaved] = useState(false);
+/**
+ * Save/bookmark toggle for a whole studybook — persists to the library
+ * (Studybooks tab). `full` renders a labelled button; otherwise an icon.
+ */
+export function SaveButton({ book, full = false }: { book: Studybook; full?: boolean }) {
+  const router = useRouter();
+  const { status } = useSession();
+  const { isBookSaved, toggleBook } = useLibrary();
+  const saved = isBookSaved(book.slug);
+
   const toggle = () => {
-    const next = !saved;
-    setSaved(next);
-    if (next) toastSaved(() => setSaved(false));
+    // Saving requires a session — send guests to login and back here.
+    if (status !== "authenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/studybook/${book.slug}`)}`);
+      return;
+    }
+    toggleBook({
+      bookSlug: book.slug,
+      bookTitle: book.title,
+      bookAuthor: book.author,
+      subject: book.subjectSlug,
+      grade: book.grade,
+      cover: book.cover,
+      savedAt: 0, // stamped by the store on insert
+    });
   };
 
   if (full) {

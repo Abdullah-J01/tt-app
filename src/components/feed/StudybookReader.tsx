@@ -3,15 +3,32 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, BookOpen, Bookmark, ChevronUp, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
+import { slugify } from "./feedData";
 import { SUBJECTS } from "@/config/subjects";
-import { usePersistedFlag } from "@/lib/usePersistedFlag";
-import { toastSaved } from "@/components/ui/Toaster";
-import type { Studybook } from "@/types";
+import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
+import type { Studybook, StudyCard } from "@/types";
 
 const LOCK_MS = 500;
+
+/** Library snapshot for the active card — lets the rail's like/save persist. */
+function toEntry(card: StudyCard, book: Studybook): LibraryEntry {
+  return {
+    cardId: card.id,
+    cardSlug: slugify(card.heading) || card.id,
+    heading: card.heading,
+    body: card.body,
+    bookSlug: book.slug,
+    bookTitle: book.title,
+    bookAuthor: book.author,
+    subject: book.subjectSlug,
+    grade: book.grade,
+    savedAt: 0, // stamped by the store on insert
+  };
+}
 
 const cardVariants = {
   enter: (dir: number) => ({ opacity: 0, y: dir > 0 ? 64 : -64 }),
@@ -165,7 +182,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               <Zap className="h-3.5 w-3.5 shrink-0 fill-white/90" />
               <span className="truncate">{book.title}</span>
             </div>
-            <TopSave slug={book.slug} />
+            <TopSave book={book} />
           </div>
 
           {/* Progress */}
@@ -243,20 +260,35 @@ export default function StudybookReader({ book }: { book: Studybook }) {
         {/* Action rail (Save / Like / Share) — sibling of the frame so it sits
             inside the card on mobile and outside it on desktop, like the feed. */}
         <div className="absolute right-4 bottom-28 z-30 sm:bottom-32 lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-full lg:ml-5 lg:-translate-y-1/2">
-          <ActionRail id={active.id} shareTitle={book.title} />
+          <ActionRail entry={toEntry(active, book)} shareTitle={book.title} />
         </div>
       </div>
     </main>
   );
 }
 
-/** Top-bar save toggle — persisted per book, fires the shared "Saved" toast. */
-function TopSave({ slug }: { slug: string }) {
-  const [saved, setSaved] = usePersistedFlag(`tt:save:${slug}`);
+/** Top-bar save toggle — persists the whole book to the library (Studybooks tab). */
+function TopSave({ book }: { book: Studybook }) {
+  const router = useRouter();
+  const { status } = useSession();
+  const { isBookSaved, toggleBook } = useLibrary();
+  const saved = isBookSaved(book.slug);
+
   const toggle = () => {
-    const next = !saved;
-    setSaved(next);
-    if (next) toastSaved(() => setSaved(false));
+    // Saving requires a session — send guests to login and back here.
+    if (status !== "authenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/studybook/${book.slug}/read`)}`);
+      return;
+    }
+    toggleBook({
+      bookSlug: book.slug,
+      bookTitle: book.title,
+      bookAuthor: book.author,
+      subject: book.subjectSlug,
+      grade: book.grade,
+      cover: book.cover,
+      savedAt: 0, // stamped by the store on insert
+    });
   };
   return (
     <button
