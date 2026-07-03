@@ -16,7 +16,7 @@ export default function LibraryPage() {
     <div className="mx-auto max-w-3xl px-4 py-6 pb-24 md:py-10 md:pb-12">
       <h1 className="text-2xl font-bold">Library</h1>
 
-      <div className="mt-4 flex gap-2">
+      <div className="mt-6 flex gap-2">
         <TabButton active={tab === "cards"} onClick={() => setTab("cards")}>
           Saved cards
         </TabButton>

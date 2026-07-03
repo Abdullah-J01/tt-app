@@ -129,7 +129,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
           The row stays horizontally scrollable; the outer clip + pb/-mb pushes the
           scrollbar below the visible area so it's hidden even in webviews that
           ignore `::-webkit-scrollbar` styling. */}
-      <div className="-mx-4 mt-4 overflow-hidden lg:hidden">
+      <div className="-mx-4 mt-6 overflow-hidden lg:hidden">
         <div className="no-scrollbar -mb-4 flex gap-2 overflow-x-auto px-4 pb-4">
           {GRADES.map((g) =>
             g.slug === "all" ? (
