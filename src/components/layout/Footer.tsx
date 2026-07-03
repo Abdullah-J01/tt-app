@@ -14,7 +14,7 @@ export function Footer() {
     <footer className="px-4 py-8 sm:px-6">
       <div className="bg-plum-gradient shadow-lift relative mx-auto max-w-7xl overflow-hidden rounded-3xl text-white">
         {/* Accent bar */}
-        <div className="h-1 w-full bg-gradient-to-r from-violet via-amber to-brand-green" />
+        <div className="h-1 w-full bg-[#A78BFA]" />
 
         {/* Moving / fading background blobs (GSAP drift + mouse parallax) */}
         <ParallaxBlobs>
