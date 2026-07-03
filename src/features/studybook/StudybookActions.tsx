@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { toastSaved } from "@/components/ui/Toaster";
 import { cn } from "@/lib/utils";
 
 /** Share the current studybook (Web Share API, clipboard fallback). */
@@ -43,7 +44,11 @@ export function ShareButton({ title, className }: { title: string; className?: s
 /** Save/bookmark toggle. `full` renders a labelled button; otherwise an icon. */
 export function SaveButton({ full = false }: { full?: boolean }) {
   const [saved, setSaved] = useState(false);
-  const toggle = () => setSaved((v) => !v);
+  const toggle = () => {
+    const next = !saved;
+    setSaved(next);
+    if (next) toastSaved(() => setSaved(false));
+  };
 
   if (full) {
     return (

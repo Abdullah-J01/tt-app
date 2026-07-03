@@ -7,6 +7,12 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 gsap.registerPlugin(ScrollTrigger);
 
+declare global {
+  interface Window {
+    __lenis?: Lenis;
+  }
+}
+
 export default function SmoothScroll({ children }: { children: ReactNode }) {
   const lenisRef = useRef<Lenis | null>(null);
 
@@ -24,6 +30,10 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       touchMultiplier: 1.4,
     });
     lenisRef.current = lenis;
+    // Expose the instance so full-screen modals (e.g. the studybook reader) can
+    // reset/freeze the page scroll behind them — plain window.scrollTo doesn't
+    // stick while Lenis is driving the scroll.
+    window.__lenis = lenis;
 
     lenis.on("scroll", ScrollTrigger.update);
 
@@ -34,6 +44,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     return () => {
       lenis.destroy();
+      if (window.__lenis === lenis) delete window.__lenis;
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000);
       });

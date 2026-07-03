@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/home/SmoothScroll";
+import { Toaster } from "@/components/ui/Toaster";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
 const poppins = Poppins({
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <Providers>
           <SmoothScroll>{children}</SmoothScroll>
         </Providers>
+        <Toaster />
         <div className="noise-overlay" aria-hidden="true" />
       </body>
     </html>
