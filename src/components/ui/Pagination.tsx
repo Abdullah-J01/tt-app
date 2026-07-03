@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+import { Button } from "./Button";
 import { cn } from "@/lib/utils";
 
 interface PaginationProps {
@@ -28,7 +28,7 @@ function pageItems(page: number, totalPages: number): (number | "gap")[] {
   });
 }
 
-/** Numbered pager shown under the results grid. */
+/** Numbered pager shown under a results grid or table. */
 export function Pagination({ page, totalPages, onChange, className }: PaginationProps) {
   if (totalPages <= 1) return null;
 

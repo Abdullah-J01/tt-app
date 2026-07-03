@@ -1,65 +1,60 @@
-import type { Metadata } from "next";
-import { Plus } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, BookOpen, Layers, Plus, Tags, Users } from "lucide-react";
 import { Button } from "@/components/ui/Button";
-import { Logo } from "@/components/layout/Logo";
-import { listStudybooks } from "@/lib/api";
+import { Card } from "@/components/ui/Card";
+import { IconBadge } from "@/components/ui/IconBadge";
+import { adminListStudybooks, adminStats, StudybookTable } from "@/features/admin";
 
-export const metadata: Metadata = { title: "Admin" };
+/** Admin dashboard: catalog stats at a glance + the most recent studybooks. */
+export default async function AdminDashboardPage() {
+  const [stats, recent] = await Promise.all([adminStats(), adminListStudybooks({ perPage: 5 })]);
 
-/**
- * Admin CMS (UI brief §6.10) — low-fidelity placeholder.
- * NOTE: content is authored in TT's own CMS. If TT exposes write endpoints,
- * this can manage studybooks/cards; otherwise it's read-only here.
- */
-export default async function AdminPage() {
-  const studybooks = await listStudybooks();
+  const tiles = [
+    { label: "Studybooks", value: stats.studybooks, icon: <BookOpen />, variant: "violet" as const },
+    { label: "Bite cards", value: stats.cards, icon: <Layers />, variant: "green" as const },
+    { label: "Subjects", value: stats.subjects, icon: <Tags />, variant: "amber" as const },
+    { label: "Users", value: stats.users, icon: <Users />, variant: "grey" as const },
+  ];
+
   return (
-    <div className="min-h-[100svh] bg-surface">
-      <header className="border-b border-hairline">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <div className="flex items-center gap-3">
-            <Logo href="/admin" />
-            <span className="rounded-full bg-lavender px-2 py-0.5 text-xs font-semibold text-violet">
-              CMS
-            </span>
-          </div>
-          <Button size="sm">
-            <Plus className="h-4 w-4" /> New studybook
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-ink text-2xl font-bold">Dashboard</h1>
+          <p className="text-muted mt-1 text-sm">What&apos;s in the catalog right now.</p>
+        </div>
+        <Link href="/admin/studybooks/new">
+          <Button size="sm" leadingIcon={<Plus />}>
+            New studybook
           </Button>
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {tiles.map((tile) => (
+          <Card key={tile.label} className="flex items-center gap-3">
+            <IconBadge icon={tile.icon} variant={tile.variant} shape="rounded" size="sm" />
+            <div>
+              <p className="font-display text-ink text-xl font-bold">{tile.value}</p>
+              <p className="text-muted text-xs">{tile.label}</p>
+            </div>
+          </Card>
+        ))}
+      </div>
+
+      <section className="flex flex-col gap-3" aria-label="Recent studybooks">
+        <div className="flex items-center justify-between">
+          <h2 className="font-display text-ink text-lg font-bold">Recent studybooks</h2>
+          <Link
+            href="/admin/studybooks"
+            className="text-violet flex items-center gap-1 text-sm font-semibold hover:underline"
+          >
+            View all
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden />
+          </Link>
         </div>
-      </header>
-
-      <main className="mx-auto max-w-5xl px-4 py-8">
-        <h1 className="text-2xl font-bold">Studybooks</h1>
-
-        <div className="mt-6 overflow-hidden rounded-card border border-hairline">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-lavender/60 text-muted">
-              <tr>
-                <th className="px-4 py-3 font-semibold">Title</th>
-                <th className="px-4 py-3 font-semibold">Subject</th>
-                <th className="px-4 py-3 font-semibold">Grade</th>
-                <th className="px-4 py-3 font-semibold">Cards</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-hairline">
-              {studybooks.map((b) => (
-                <tr key={b.id} className="hover:bg-lavender/30">
-                  <td className="px-4 py-3 font-medium">{b.title}</td>
-                  <td className="px-4 py-3 text-muted">{b.subjectSlug}</td>
-                  <td className="px-4 py-3 text-muted">{b.grade}</td>
-                  <td className="px-4 py-3 text-muted">{b.cards.length}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        <p className="mt-4 text-sm text-muted">
-          Placeholder table. Build a card editor (add/reorder bite cards with text + image) and
-          wire to the API.
-        </p>
-      </main>
+        <StudybookTable books={recent.items} />
+      </section>
     </div>
   );
 }
