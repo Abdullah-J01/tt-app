@@ -121,7 +121,9 @@ export function SubjectReveal() {
     // Previously this was state that updated after mount, rebuilding the pinned
     // ScrollTrigger and leaving a second pinned trigger alive — which replayed the
     // whole card reveal a second time as you scrolled through the doubled pin.
-    const scrollVh = Math.min(750, Math.max(420, 320 + SUBJECTS.length * 14));
+    // Tightened (was 320 + n*14, capped 750) so the zoom kicks in a bit earlier
+    // and the whole reveal needs less scroll — no long dead tail after the cards.
+    const scrollVh = Math.min(560, Math.max(320, 240 + SUBJECTS.length * 11));
 
     // Everything is scoped to a gsap.context bound to the wrapper, so a single
     // ctx.revert() on cleanup removes every tween, ScrollTrigger AND the pin-spacer.
