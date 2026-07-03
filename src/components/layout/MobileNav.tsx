@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -188,11 +188,26 @@ export default function MobileNav() {
               </Button>
 
               <div className="px-2 py-2">
-                <Link href="/login" onClick={() => setMoreOpen(false)}>
-                  <Button block className="rounded-2xl py-3 text-sm font-medium text-white">
-                    Log in
+                {status === "authenticated" ? (
+                  <Button
+                    block
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMoreOpen(false);
+                      signOut({ callbackUrl: "/" });
+                    }}
+                    className="rounded-2xl py-3 text-sm font-medium text-white"
+                  >
+                    Log out
                   </Button>
-                </Link>
+                ) : (
+                  <Link href="/login" onClick={() => setMoreOpen(false)}>
+                    <Button block className="rounded-2xl py-3 text-sm font-medium text-white">
+                      Log in
+                    </Button>
+                  </Link>
+                )}
               </div>
             </motion.div>
           )}

@@ -1,4 +1,6 @@
 import { StudyCard } from "./StudyCard";
+import { slugify } from "./feedData";
+import type { LibraryEntry } from "@/features/library/useLibrary";
 import type { Studybook, StudyCard as StudyCardType } from "@/types";
 
 export interface FeedItem {
@@ -6,6 +8,22 @@ export interface FeedItem {
   book: Studybook;
   index: number;
   total: number;
+}
+
+/** Library snapshot for a card — lets the rail's like/save persist. */
+function toEntry(card: StudyCardType, book: Studybook): LibraryEntry {
+  return {
+    cardId: card.id,
+    cardSlug: slugify(card.heading) || card.id,
+    heading: card.heading,
+    body: card.body,
+    bookSlug: book.slug,
+    bookTitle: book.title,
+    bookAuthor: book.author,
+    subject: book.subjectSlug,
+    grade: book.grade,
+    savedAt: 0, // stamped by the store on insert
+  };
 }
 
 /**
@@ -21,7 +39,7 @@ export function CardFeed({ items }: { items: FeedItem[] }) {
       {items.map(({ card, book, index, total }) => (
         <StudyCard
           key={card.id}
-          id={card.id}
+          entry={toEntry(card, book)}
           heading={card.heading}
           body={card.body}
           subjectLabel={book.category}

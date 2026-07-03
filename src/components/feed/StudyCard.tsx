@@ -1,9 +1,10 @@
 import { cn } from "@/lib/utils";
 import { ActionRail } from "./ActionRail";
+import type { LibraryEntry } from "@/features/library/useLibrary";
 
 interface StudyCardProps {
-  /** Stable card id — keys the persisted like/save state on the rail. */
-  id: string;
+  /** Card + book snapshot — keys the rail's persisted like/save state. */
+  entry: LibraryEntry;
   heading: string;
   body: string;
   subjectLabel: string;
@@ -19,7 +20,7 @@ interface StudyCardProps {
  * Full-height, snap target, plum gradient background, right-side action rail.
  */
 export function StudyCard({
-  id,
+  entry,
   heading,
   body,
   subjectLabel,
@@ -67,7 +68,7 @@ export function StudyCard({
       <div className="absolute bottom-24 right-4">
         {/* No base counts yet (no API) — starts at 0, the user's own tap makes it 1.
             When real data arrives, pass saveCount/likeCount and they add on top. */}
-        <ActionRail id={id} shareTitle={bookTitle} />
+        <ActionRail entry={entry} shareTitle={bookTitle} />
       </div>
     </article>
   );

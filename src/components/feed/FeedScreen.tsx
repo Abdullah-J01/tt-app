@@ -14,19 +14,11 @@ import { createFilterPredicate } from "@/features/explore/filters";
 import { FilterDrawer } from "@/features/explore/components/FilterDrawer";
 import { FilterPanel } from "@/features/explore/components/FilterPanel";
 import { getForYouFeed, type FeedItem } from "@/lib/api";
-import type { FeedCardData } from "./feedData";
+import { slugify, type FeedCardData } from "./feedData";
 
 const TRANSITION = { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const };
 const INSTANT = { duration: 0 };
 const LOCK_MS = 620;
-
-function slugify(s: string): string {
-  return s
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48);
-}
 
 function toCardData({ card, book }: FeedItem, slug: string): FeedCardData {
   return {
@@ -40,6 +32,7 @@ function toCardData({ card, book }: FeedItem, slug: string): FeedCardData {
     bookTitle: book.title,
     bookAuthor: book.author,
     bookSubject: book.subjectSlug,
+    bookSlug: book.slug,
     likes: "",
     shares: "",
   };
@@ -321,7 +314,7 @@ export default function FeedScreen() {
               )}
             </div>
 
-            {total > 0 && <SideActions />}
+            {cards[index] && <SideActions card={cards[index]} />}
           </div>
         </div>
       </div>

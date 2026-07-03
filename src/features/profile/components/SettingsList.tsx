@@ -1,5 +1,6 @@
 "use client";
 
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
@@ -14,8 +15,7 @@ export function SettingsList() {
 
   const runAction = (id: string) => {
     if (id === "sign-out") {
-      // TODO(team): call next-auth signOut() once the session provider is wired.
-      router.push("/login");
+      signOut({ callbackUrl: "/login" });
     } else if (id === "delete") {
       if (window.confirm("Delete your account? This can't be undone.")) {
         router.push("/login");

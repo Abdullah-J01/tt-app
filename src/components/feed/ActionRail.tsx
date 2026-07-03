@@ -1,15 +1,17 @@
 "use client";
 
 import { useRef, type Ref } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { Bookmark, Heart, Share2 } from "lucide-react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
-import { usePersistedFlag } from "@/lib/usePersistedFlag";
+import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { Button } from "@/components/ui/Button";
 
 interface ActionRailProps {
-  /** Stable id for the item (e.g. card id) — keys the persisted like/save state. */
-  id: string;
+  /** Card + book snapshot — persisted to the library on like/save. */
+  entry: LibraryEntry;
   /** Studybook cover thumbnail (tap → open detail). */
   onOpenBook?: () => void;
   /** Base counts; the current user's tap adds +1 on top (persisted locally). */
@@ -87,21 +89,34 @@ function burstHearts(origin: HTMLElement | null) {
  * GSAP heart burst; Share uses the Web Share sheet (clipboard fallback).
  */
 export function ActionRail({
-  id,
+  entry,
   onOpenBook,
   likeCount = 0,
   saveCount = 0,
   shareUrl,
   shareTitle,
 }: ActionRailProps) {
-  const [saved, setSaved] = usePersistedFlag(`tt:save:${id}`);
-  const [liked, setLiked] = usePersistedFlag(`tt:like:${id}`);
+  const router = useRouter();
+  const { status } = useSession();
+  const { isLiked, isSaved, toggleLiked, toggleSaved } = useLibrary();
   const heartRef = useRef<HTMLSpanElement>(null);
 
+  const saved = isSaved(entry.cardId);
+  const liked = isLiked(entry.cardId);
+
+  /** Liking/saving requires a session — send guests to login and back here. */
+  const withAuth = (action: () => void) => () => {
+    if (status !== "authenticated") {
+      const back = `/studybook/${entry.bookSlug}/read`;
+      router.push(`/login?callbackUrl=${encodeURIComponent(back)}`);
+      return;
+    }
+    action();
+  };
+
   const toggleLike = () => {
-    const next = !liked;
-    setLiked(next);
-    if (next) {
+    toggleLiked(entry);
+    if (!liked) {
       popHeart(heartRef.current);
       const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (!reduce) burstHearts(heartRef.current);
@@ -126,13 +141,13 @@ export function ActionRail({
       <RailButton
         label={countLabel(saveCount + (saved ? 1 : 0))}
         active={saved}
-        onClick={() => setSaved((v) => !v)}
+        onClick={withAuth(() => toggleSaved(entry))}
         icon={<Bookmark className={cn("h-7 w-7", saved && "fill-current")} />}
       />
       <RailButton
         label={countLabel(likeCount + (liked ? 1 : 0))}
         active={liked}
-        onClick={toggleLike}
+        onClick={withAuth(toggleLike)}
         iconRef={heartRef}
         icon={<Heart className={cn("h-7 w-7", liked && "fill-current text-red-500")} />}
       />

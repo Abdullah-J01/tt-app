@@ -1,15 +1,46 @@
 "use client";
 
-import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, Share2, Bookmark } from "lucide-react";
+import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
+import type { FeedCardData } from "./feedData";
 
 const ACTION_BTN =
   "w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-lift flex items-center justify-center";
 
-export default function SideActions() {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+function toEntry(card: FeedCardData): LibraryEntry {
+  return {
+    cardId: card.id,
+    cardSlug: card.slug,
+    heading: card.title,
+    body: card.description,
+    bookSlug: card.bookSlug,
+    bookTitle: card.bookTitle,
+    bookAuthor: card.bookAuthor,
+    subject: card.subject,
+    grade: card.grade,
+    savedAt: 0, // stamped by the store on insert
+  };
+}
+
+export default function SideActions({ card }: { card: FeedCardData }) {
+  const router = useRouter();
+  const { status } = useSession();
+  const { isLiked, isSaved, toggleLiked, toggleSaved } = useLibrary();
+
+  const liked = isLiked(card.id);
+  const saved = isSaved(card.id);
+
+  /** Liking/saving requires a session — send guests to login and back here. */
+  const withAuth = (action: () => void) => () => {
+    if (status !== "authenticated") {
+      router.push(`/login?callbackUrl=${encodeURIComponent(`/feed?slug=${card.slug}`)}`);
+      return;
+    }
+    action();
+  };
 
   return (
     // Mobile/tablet: overlaid inside the card (bottom-right).
@@ -18,7 +49,7 @@ export default function SideActions() {
       <div className="flex flex-col items-center gap-1">
         <motion.button
           type="button"
-          onClick={() => setLiked((v) => !v)}
+          onClick={withAuth(() => toggleLiked(toEntry(card)))}
           whileTap={{ scale: 0.85 }}
           aria-pressed={liked}
           aria-label="Like"
@@ -49,7 +80,7 @@ export default function SideActions() {
       <div className="flex flex-col items-center gap-1">
         <motion.button
           type="button"
-          onClick={() => setSaved((v) => !v)}
+          onClick={withAuth(() => toggleSaved(toEntry(card)))}
           whileTap={{ scale: 0.85 }}
           aria-pressed={saved}
           aria-label="Save"
