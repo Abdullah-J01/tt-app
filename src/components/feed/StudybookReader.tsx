@@ -55,10 +55,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const goNext = useCallback(() => go(index + 1), [go, index]);
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
-  // Go back to the detail page. Pop history when we can (so we don't leave a
-  // duplicate detail entry behind — which would make the detail page's own Back
-  // button land back here on the reader). Fall back to a direct push on a deep
-  // link / fresh load where there's no in-app history to return to.
   const goBack = useCallback(() => {
     if (window.history.length > 1) router.back();
     else router.push(`/studybook/${book.slug}`);
@@ -117,12 +113,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [goNext, goPrev]);
 
-  // When the reader opens as a modal on top of the detail page, make the page
-  // behind it look the same as the Preview: reset it to the top (so the clean
-  // banner is what's dimmed behind, not the busy cards/related section), freeze
-  // it there, and hide the detail page's footer so nothing bleeds through the
-  // dimmed backdrop. Lenis drives the scroll, so plain window.scrollTo won't
-  // stick — reset/freeze via the exposed Lenis instance when present.
   useEffect(() => {
     const lenis = window.__lenis;
     const prevScroll = window.scrollY;
@@ -194,7 +184,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           </div>
 
           {/* Card content */}
-          <div className="absolute inset-0 flex items-center px-6 sm:px-8">
+          <div className="absolute inset-0 flex items-center px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
             <AnimatePresence mode="popLayout" custom={dir} initial={false}>
               <motion.div
                 key={active.id}
