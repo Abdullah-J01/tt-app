@@ -85,11 +85,21 @@ export default async function StudybookPage({
             </Link>
           </nav>
 
-          <div className="mt-3 flex gap-4 md:gap-8">
+          {/* Mobile: cover + meta row, actions stacked full-width below.
+              md+: cover spans both rows so the actions line up under the meta
+              column instead of floating below the cover. */}
+          <div className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-6 md:gap-x-8">
             {/* Cover */}
-            <div className="bg-plum relative aspect-[3/4] w-24 shrink-0 overflow-hidden rounded-xl shadow-soft md:w-48">
+            <div className="bg-plum relative aspect-[3/4] w-24 overflow-hidden rounded-xl shadow-soft md:row-span-2 md:w-48">
               {book.cover ? (
-                <Image src={book.cover} alt={book.title} fill sizes="192px" className="object-cover" priority />
+                <Image
+                  src={book.cover}
+                  alt={book.title}
+                  fill
+                  sizes="(max-width: 768px) 96px, 192px"
+                  className="object-cover"
+                  priority
+                />
               ) : (
                 <span className="absolute inset-0 grid place-items-center font-mono text-[10px] tracking-[0.2em] text-white/40">
                   book cover
@@ -112,26 +122,26 @@ export default async function StudybookPage({
                 {book.cards.length} cards · ~{minutes} min
               </div>
             </div>
-          </div>
 
-          {/* Actions */}
-          <div className="mt-6 space-y-3 md:max-w-md">
-            <Link
-              href={`/studybook/${book.slug}/read`}
-              className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-violet font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-violet-dark active:scale-[0.98]"
-            >
-              Start learning
-              <Pill className="bg-white/20 text-white">{price}</Pill>
-            </Link>
-            <div className="grid grid-cols-2 gap-3">
+            {/* Actions */}
+            <div className="col-span-2 space-y-3 self-start md:col-span-1 md:col-start-2 md:max-w-md">
               <Link
-                href={`/studybook/${book.slug}?preview=1`}
-                scroll={false}
-                className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-hairline text-sm font-semibold text-ink transition-colors hover:bg-lavender"
+                href={`/studybook/${book.slug}/read`}
+                className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-violet font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-violet-dark active:scale-[0.98]"
               >
-                <PlayCircle className="h-5 w-5" /> Preview
+                Start learning
+                <Pill className="bg-white/20 text-white">{price}</Pill>
               </Link>
-              <SaveButton full />
+              <div className="grid grid-cols-2 gap-3">
+                <Link
+                  href={`/studybook/${book.slug}?preview=1`}
+                  scroll={false}
+                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-hairline text-sm font-semibold text-ink transition-colors hover:bg-lavender"
+                >
+                  <PlayCircle className="h-5 w-5" /> Preview
+                </Link>
+                <SaveButton full />
+              </div>
             </div>
           </div>
         </div>
@@ -154,13 +164,13 @@ export default async function StudybookPage({
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 flex gap-4 overflow-x-auto pb-2">
+        <div className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {book.cards.slice(0, 6).map((card, i) => (
             <Link
               key={card.id}
               href={`/studybook/${book.slug}?preview=1&card=${i}`}
               scroll={false}
-              className="group w-32 shrink-0"
+              className="group w-32 shrink-0 snap-start md:w-40"
             >
               <div
                 className={`flex aspect-[4/5] flex-col justify-end rounded-2xl p-3 text-white shadow-soft transition-transform group-hover:-translate-y-1 ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
@@ -182,7 +192,7 @@ export default async function StudybookPage({
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6">
           {related.map((b) => (
             <Link key={b.id} href={`/studybook/${b.slug}`} className="group">
               <div className="bg-plum relative aspect-[3/4] w-full overflow-hidden rounded-xl shadow-soft">
