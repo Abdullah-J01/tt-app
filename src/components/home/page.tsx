@@ -8,6 +8,7 @@ import { SITE } from "@/config/site";
 import { StackingStudyBites } from "@/components/home/StackingStudyBites";
 import { UniverseCarousel } from "@/components/home/UniverseCarousel";
 import { ExploreSection } from "@/components/home/ExploreSection";
+import { SubjectGrid } from "@/components/home/SubjectGrid";
 import Hero from "@/components/home/Hero";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 
@@ -37,6 +38,8 @@ export default async function LandingPage() {
     <main className="relative min-h-screen bg-white">
       <Hero />
       <FeatureCardsLoader />
+
+      <div className="h-10"></div>
 
       {/* <TopNav /> */}
 
@@ -92,43 +95,46 @@ export default async function LandingPage() {
           })}
         </section> */}
 
-        {/* Explore by subject — scroll-spun 3D coverflow of subject cards. */}
-        <ExploreSection />
+      {/* Explore by subject — pinned zoom reveal + fly-in category cards,
+            closing with a short concluding line. */}
+      <ExploreSection />
 
-        {/* New study bites — a scroll-stacked deck of horizontal cards. Each card
+      {/* Browse all subjects — the static, browseable grid moved out of the
+            pinned reveal so it lives in normal flow (no scroll-jack, no blank). */}
+
+      {/* New study bites — a scroll-stacked deck of horizontal cards. Each card
             pins near the top and recedes as the next scrolls up to cover it. */}
-        <section className="mx-auto max-w-6xl px-4 pb-16">
-          <SectionHeader
-            title="New study bites"
-            subtitle="Study bites help you focus on one specific topic."
-            action={
-              <Link href="/explore">
-                <Button variant="secondary" size="sm">
-                  More bites
-                </Button>
-              </Link>
-            }
-          />
-          <StackingStudyBites />
-        </section>
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <SectionHeader
+          title="New study bites"
+          subtitle="Study bites help you focus on one specific topic."
+          action={
+            <Link href="/explore">
+              <Button variant="secondary" size="sm">
+                More bites
+              </Button>
+            </Link>
+          }
+        />
+        <StackingStudyBites />
+      </section>
 
-        {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
+      {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
             flat, focused center as you scroll; neighbors tilt away in perspective. */}
-        <section className="mx-auto max-w-6xl px-4 pb-16">
-          <SectionHeader
-            title="Freshly digitized"
-            subtitle="Digital textbooks and workbooks — study anywhere, anytime."
-            action={
-              <Link href="/library">
-                <Button variant="secondary" size="sm">
-                  All e-books
-                </Button>
-              </Link>
-            }
-          />
-          <UniverseCarousel books={books} />
-        </section>
-
+      <section className="mx-auto max-w-6xl px-4 pb-16">
+        <SectionHeader
+          title="Freshly digitized"
+          subtitle="Digital textbooks and workbooks — study anywhere, anytime."
+          action={
+            <Link href="/library">
+              <Button variant="secondary" size="sm">
+                All e-books
+              </Button>
+            </Link>
+          }
+        />
+        <UniverseCarousel books={books} />
+      </section>
     </main>
   );
 }

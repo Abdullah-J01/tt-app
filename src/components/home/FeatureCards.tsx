@@ -85,26 +85,41 @@ export default function FeatureCards() {
       // How far the row overflows the viewport = how far it must travel on X.
       // A function so it's re-measured on every ScrollTrigger.refresh() (resize).
       const getScrollAmount = () => Math.max(0, track.scrollWidth - window.innerWidth);
+      // Fraction of the travel distance added as a tail where the row HOLDS after
+      // the last card lands — so the last feature card is fully visible and the
+      // section settles before it unpins and the next (ExploreSection) begins.
+      // This is the clean handoff: the pin fully finishes here, then plain
+      // vertical scroll moves into the reveal — no overlap.
+      const HOLD_RATIO = 0.25;
 
-      const tween = gsap.to(track, {
-        x: () => -getScrollAmount(), // translate the container along the X-axis
-        ease: "none", // linear -> vertical scroll maps 1:1 to horizontal move
+      // Timeline: the track tween (duration 1) is the horizontal travel; the empty
+      // tween (duration HOLD_RATIO) is the settle. Numeric durations keep the
+      // scrub mapping exact, and `end` uses the same ratio so travel completes
+      // precisely when the last card is fully in view, then holds for the tail.
+      const tl = gsap.timeline({
         scrollTrigger: {
           trigger: section,
           start: "top top", // pin the moment the section reaches the top
-          end: () => `+=${getScrollAmount()}`, // scroll length == horizontal travel
+          end: () => `+=${getScrollAmount() * (1 + HOLD_RATIO)}`, // travel + settle
           pin: true, // hold the section fixed while the row scrolls sideways
           scrub: 1, // smoothly follow the scrollbar (scrubbed)
           anticipatePin: 1, // avoid a 1-frame jump as pinning engages
           invalidateOnRefresh: true, // recompute widths on resize
         },
       });
+      tl.to(track, {
+        x: () => -getScrollAmount(), // translate the container along the X-axis
+        ease: "none", // linear -> vertical scroll maps 1:1 to horizontal move
+        duration: 1,
+      });
+      tl.to({}, { duration: HOLD_RATIO }); // settle on the last card, then unpin
 
       // Recalculate once the async 3D scenes have mounted and laid out.
       ScrollTrigger.refresh();
 
       return () => {
-        tween.kill();
+        tl.scrollTrigger?.kill();
+        tl.kill();
         section.style.overflowX = "";
       };
     });
