@@ -72,7 +72,9 @@ export default async function StudybookPage({
 
       {/* Banner */}
       <section className="bg-lavender">
-        <div className="mx-auto max-w-5xl px-4 py-6 md:py-10">
+        {/* md:pt-28 clears the fixed desktop Navbar (same idea as the app
+            layout's pt-24 spacer) so the header doesn't overlap the content. */}
+        <div className="mx-auto max-w-5xl px-4 py-6 md:pt-28 md:pb-10">
           <nav className="flex items-center gap-1 text-xs text-muted">
             <Link href="/explore" className="hover:text-violet">
               Studybook

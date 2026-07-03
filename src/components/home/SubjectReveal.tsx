@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
@@ -14,14 +14,7 @@ if (typeof window !== "undefined") {
 
 /* Direction offsets — where each card flies in from ------------------ */
 type Dir =
-  | "left"
-  | "right"
-  | "top"
-  | "bottom"
-  | "top-left"
-  | "top-right"
-  | "bottom-left"
-  | "bottom-right";
+  "left" | "right" | "top" | "bottom" | "top-left" | "top-right" | "bottom-left" | "bottom-right";
 
 const DIRECTIONS: Dir[] = [
   "left",
@@ -97,14 +90,11 @@ export function SubjectReveal() {
   const dashRef = useRef<SVGSVGElement | null>(null);
   const orbitSpinRef = useRef<HTMLDivElement | null>(null);
   const decorRef = useRef<HTMLDivElement | null>(null);
+  const circlesRef = useRef<HTMLDivElement | null>(null);
   const rippleRefs = useRef<Array<HTMLDivElement | null>>([]);
   const bgRef = useRef<HTMLDivElement | null>(null);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const paragraphRef = useRef<HTMLDivElement | null>(null);
-  const eyebrowRef = useRef<HTMLParagraphElement | null>(null);
-
-  const [scrollVh, setScrollVh] = useState(600);
 
   const cards = useMemo(
     () =>
@@ -117,11 +107,6 @@ export function SubjectReveal() {
   );
 
   useLayoutEffect(() => {
-    const vh = Math.min(750, Math.max(420, 320 + SUBJECTS.length * 14));
-    setScrollVh(vh);
-  }, []);
-
-  useLayoutEffect(() => {
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (reduceMotion) {
@@ -131,157 +116,162 @@ export function SubjectReveal() {
       return;
     }
 
-    // Always-on spins — the rings and orbiting dot keep moving.
-    const spins = [
-      gsap.to(dashRef.current, { rotation: 360, duration: 48, ease: "none", repeat: -1 }),
-      gsap.to(eggRef.current, { rotation: -360, duration: 65, ease: "none", repeat: -1 }),
-      gsap.to(orbitSpinRef.current, { rotation: 360, duration: 16, ease: "none", repeat: -1 }),
-    ];
+    // Scroll length of the pinned reveal — a constant derived from the subject
+    // count. Computed here (not React state) so the timeline builds exactly once.
+    // Previously this was state that updated after mount, rebuilding the pinned
+    // ScrollTrigger and leaving a second pinned trigger alive — which replayed the
+    // whole card reveal a second time as you scrolled through the doubled pin.
+    const scrollVh = Math.min(750, Math.max(420, 320 + SUBJECTS.length * 14));
 
-    const mm = gsap.matchMedia();
-    mm.add("(min-width: 768px)", () => buildTimeline(1));
-    mm.add("(max-width: 767px)", () => buildTimeline(0.55));
+    // Everything is scoped to a gsap.context bound to the wrapper, so a single
+    // ctx.revert() on cleanup removes every tween, ScrollTrigger AND the pin-spacer.
+    // Without this, React's dev remount can leave the first pinned trigger + spacer
+    // alive, and that second copy renders/animates the cards a second time.
+    const ctx = gsap.context(() => {
+      // Always-on spins — the rings and orbiting dot keep moving.
+      gsap.to(dashRef.current, { rotation: 360, duration: 48, ease: "none", repeat: -1 });
+      gsap.to(eggRef.current, { rotation: -360, duration: 65, ease: "none", repeat: -1 });
+      gsap.to(orbitSpinRef.current, { rotation: 360, duration: 16, ease: "none", repeat: -1 });
 
-    function buildTimeline(intensity: number) {
-      const tl = gsap.timeline({
-        defaults: { ease: "power3.out" },
-        scrollTrigger: {
-          trigger: wrapperRef.current,
-          pin: pinRef.current,
-          start: "top top",
-          end: "bottom bottom",
-          scrub: 0.6,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
+      // One timeline, built exactly once. `intensity` is read directly instead of
+      // via gsap.matchMedia() so the whole reveal lives in this single gsap.context.
+      // ctx.revert() then kills the one ScrollTrigger + pin-spacer outright — there
+      // is no matchMedia trigger that can survive cleanup as a second pinned copy
+      // (which was replaying the cards after a stretch of white space).
+      const intensity = window.matchMedia("(min-width: 768px)").matches ? 1 : 0.55;
+      buildTimeline(intensity);
 
-      // Phase 0: hold on the heading briefly.
-      tl.to({}, { duration: 0.4 });
+      function buildTimeline(intensity: number) {
+        const tl = gsap.timeline({
+          defaults: { ease: "power3.out" },
+          scrollTrigger: {
+            // GSAP pin (position:fixed) — required for the centre zoom to hold and
+            // animate smoothly under Lenis. The scroll distance comes solely from
+            // pin-spacing (`+=…%` of the viewport); the wrapper is NOT given an
+            // explicit height, so the old double-count (tall wrapper + pin-spacing)
+            // that left a big blank scroll after the quote is gone.
+            trigger: wrapperRef.current,
+            pin: pinRef.current,
+            start: "top top",
+            end: () => `+=${scrollVh - 100}%`,
+            scrub: 0.6,
+            anticipatePin: 1,
+          },
+        });
 
-      // Phase 1: zoom-through tunnel — the whole centre (glow, rings, dot, circle)
-      // scales up and fades out together.
-      tl.to(
-        decorRef.current,
-        { scale: 7, opacity: 0, filter: "blur(4px)", duration: 1.1, ease: "power2.in" },
-        ">",
-      );
-      // Echo circles fade in AND out only during the zoom — never before/after.
-      tl.fromTo(
-        rippleRefs.current.filter(Boolean),
-        { scale: 1, opacity: 0 },
-        {
-          scale: (i: number) => 4 + i * 3,
-          keyframes: { opacity: [0, 0.5, 0] },
-          duration: 1.2,
-          ease: "power2.out",
-          stagger: 0.12,
-          immediateRender: false,
-        },
-        "<",
-      );
-      // Background stays put — tiny breathing scale only.
-      tl.fromTo(
-        bgRef.current,
-        { scale: 1 },
-        { scale: 1.04, duration: 1.8, ease: "sine.inOut" },
-        "<",
-      );
-
-      // Phase 2: grid appears, cards fly in.
-      tl.fromTo(gridRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 }, "<0.3");
-
-      const cardEls = cardRefs.current.filter(Boolean) as HTMLDivElement[];
-      const firstWave = cardEls.slice(0, FIRST_WAVE_COUNT);
-      const restWave = cardEls.slice(FIRST_WAVE_COUNT);
-
-      // First few cards arrive together, fast & punchy.
-      firstWave.forEach((el, i) => {
-        const card = cards[i];
-        if (!card) return;
-        const off = offsetFor(card.dir);
+        // Phase 1: the gradient + side circles enlarge as you scroll (deepstash-style
+        // pulse). The heading text does NOT zoom — it stays put. Rings keep spinning.
         tl.fromTo(
-          el,
-          {
-            x: off.x * intensity,
-            y: off.y * intensity,
-            rotate: off.rotate,
-            scale: 0.5,
-            opacity: 0,
-            filter: "blur(6px)",
-          },
-          {
-            x: 0,
-            y: 0,
-            rotate: 0,
-            scale: 1,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.6,
-            ease: "back.out(1.4)",
-          },
-          i === 0 ? "-=0.15" : "<0.08",
+          circlesRef.current,
+          { scale: 1 },
+          { scale: 2.4, duration: 1.4, ease: "power1.inOut" },
         );
-      });
-
-      // Remaining cards trickle in, staggered by depth.
-      restWave.forEach((el, i) => {
-        const card = cards[i + FIRST_WAVE_COUNT];
-        if (!card) return;
-        const off = offsetFor(card.dir);
+        // Echo circles expand outward alongside them.
         tl.fromTo(
-          el,
+          rippleRefs.current.filter(Boolean),
+          { scale: 1, opacity: 0 },
           {
-            x: off.x * intensity,
-            y: off.y * intensity,
-            rotate: off.rotate,
-            scale: 0.6,
-            opacity: 0,
-            filter: "blur(5px)",
+            scale: (i: number) => 3 + i * 2.5,
+            keyframes: { opacity: [0, 0.45, 0] },
+            duration: 1.4,
+            ease: "power2.out",
+            stagger: 0.14,
+            immediateRender: false,
           },
-          {
-            x: 0,
-            y: 0,
-            rotate: 0,
-            scale: 1,
-            opacity: 1,
-            filter: "blur(0px)",
-            duration: 0.55 * card.depth + 0.35,
-            ease: "power3.out",
-          },
-          "<0.09",
+          "<",
         );
-      });
+        // Background breathes a touch.
+        tl.fromTo(
+          bgRef.current,
+          { scale: 1 },
+          { scale: 1.04, duration: 1.8, ease: "sine.inOut" },
+          "<",
+        );
 
-      // Subtle parallax settle on the whole grid after the reveal.
-      tl.to(gridRef.current, { y: -10, duration: 0.4, ease: "sine.inOut" }, "<0.2");
+        // Then the whole centre — enlarged circles AND the text together — fades out
+        // all at once, and the cards come straight in.
+        tl.to(decorRef.current, { opacity: 0, duration: 0.4, ease: "power2.in" }, ">-0.1");
 
-      // Phase 3: recede the grid, bring in the closing line.
-      tl.to(
-        gridRef.current,
-        { scale: 0.92, opacity: 0.18, filter: "blur(3px)", duration: 0.6, ease: "power2.inOut" },
-        "+=0.2",
-      );
-      tl.fromTo(eyebrowRef.current, { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 0.35 }, "<0.1");
-      tl.fromTo(
-        paragraphRef.current,
-        { opacity: 0, y: 28 },
-        { opacity: 1, y: 0, duration: 0.55, ease: "power2.out" },
-        "<0.05",
-      );
+        // Phase 2: grid appears and the cards fly in, right after the fade-out.
+        tl.fromTo(gridRef.current, { opacity: 0 }, { opacity: 1, duration: 0.5 }, "<0.15");
 
-      // Brief hold so the ending doesn't feel abrupt before unpin.
-      tl.to({}, { duration: 0.35 });
-    }
+        const cardEls = cardRefs.current.filter(Boolean) as HTMLDivElement[];
+        const firstWave = cardEls.slice(0, FIRST_WAVE_COUNT);
+        const restWave = cardEls.slice(FIRST_WAVE_COUNT);
 
-    return () => {
-      spins.forEach((s) => s.kill());
-      mm.revert();
-    };
-  }, [cards, scrollVh]);
+        // First few cards arrive together, fast & punchy.
+        firstWave.forEach((el, i) => {
+          const card = cards[i];
+          if (!card) return;
+          const off = offsetFor(card.dir);
+          tl.fromTo(
+            el,
+            {
+              x: off.x * intensity,
+              y: off.y * intensity,
+              rotate: off.rotate,
+              scale: 0.5,
+              opacity: 0,
+              filter: "blur(6px)",
+            },
+            {
+              x: 0,
+              y: 0,
+              rotate: 0,
+              scale: 1,
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 0.6,
+              ease: "back.out(1.4)",
+              // Don't re-assert the off-screen "from" state on a timeline re-init at
+              // the pin boundary — that was replaying the cards a second time.
+              immediateRender: false,
+            },
+            i === 0 ? "-=0.15" : "<0.08",
+          );
+        });
+
+        // Remaining cards trickle in, staggered by depth.
+        restWave.forEach((el, i) => {
+          const card = cards[i + FIRST_WAVE_COUNT];
+          if (!card) return;
+          const off = offsetFor(card.dir);
+          tl.fromTo(
+            el,
+            {
+              x: off.x * intensity,
+              y: off.y * intensity,
+              rotate: off.rotate,
+              scale: 0.6,
+              opacity: 0,
+              filter: "blur(5px)",
+            },
+            {
+              x: 0,
+              y: 0,
+              rotate: 0,
+              scale: 1,
+              opacity: 1,
+              filter: "blur(0px)",
+              duration: 0.55 * card.depth + 0.35,
+              ease: "power3.out",
+              immediateRender: false,
+            },
+            "<0.09",
+          );
+        });
+
+        // The last card landing is the final beat — no settle, no tail, no quote.
+        // When the timeline completes the pin releases and the next Home section
+        // follows immediately.
+      }
+    }, wrapperRef);
+
+    return () => ctx.revert();
+  }, [cards]);
 
   return (
-    <div ref={wrapperRef} className="relative" style={{ height: `${scrollVh}vh` }}>
+    <div ref={wrapperRef} className="relative">
       <div ref={pinRef} className="relative h-screen w-full overflow-hidden bg-white">
         {/* Stable background — never translates during the sequence */}
         <div
@@ -297,76 +287,80 @@ export function SubjectReveal() {
               rippleRefs.current[i] = el;
             }}
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-[14] m-auto h-64 w-64 rounded-full bg-plum-gradient opacity-0 md:h-72 md:w-72"
+            className="bg-plum-gradient pointer-events-none absolute inset-0 z-[14] m-auto h-64 w-64 rounded-full opacity-0 md:h-72 md:w-72"
           />
         ))}
 
-        {/* Center decoration + heading — scales/fades together on zoom; rings spin */}
+        {/* Center decoration + heading. The circles/gradient enlarge on scroll while
+            the heading stays put; then the whole thing fades out at once. */}
         <div ref={decorRef} className="pointer-events-none absolute inset-0 z-20">
-          {/* soft radial glow */}
-          <div
-            ref={glowRef}
-            aria-hidden
-            className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
-            }}
-          />
-          {/* dashed rotating ring — gradient stroke */}
-          <svg
-            ref={dashRef}
-            viewBox="0 0 200 200"
-            aria-hidden
-            className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
-          >
-            <defs>
-              <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stopColor="#6c4ce3" />
-                <stop offset="100%" stopColor="#9c85f0" />
-              </linearGradient>
-            </defs>
-            <circle
-              cx="100"
-              cy="100"
-              r="98"
-              fill="none"
-              stroke="url(#subjectDashGrad)"
-              strokeOpacity={0.45}
-              strokeWidth={0.5}
-              strokeDasharray="1.5 3"
+          {/* Gradient + side circles — only these enlarge on scroll. */}
+          <div ref={circlesRef} className="absolute inset-0">
+            {/* soft radial glow */}
+            <div
+              ref={glowRef}
+              aria-hidden
+              className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
+              style={{
+                background:
+                  "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
+              }}
             />
-          </svg>
-          {/* wavy rotating blob (filled + outline) */}
-          <svg
-            ref={eggRef}
-            viewBox="0 0 200 200"
-            aria-hidden
-            className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
-          >
-            <defs>
-              <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
-                <stop offset="0%" stopColor="rgba(108,76,227,0.12)" />
-                <stop offset="65%" stopColor="rgba(108,76,227,0.04)" />
-                <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-              </radialGradient>
-            </defs>
-            <path
-              d={WAVY_RING}
-              fill="url(#subjectBlobFill)"
-              stroke="#6c4ce3"
-              strokeOpacity={0.4}
-              strokeWidth={1}
-              strokeLinejoin="round"
-            />
-          </svg>
-          {/* orbiting dot riding the dashed ring */}
-          <div
-            aria-hidden
-            className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
-          >
-            <div ref={orbitSpinRef} className="relative h-full w-full">
-              <span className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
+            {/* dashed rotating ring — gradient stroke */}
+            <svg
+              ref={dashRef}
+              viewBox="0 0 200 200"
+              aria-hidden
+              className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+            >
+              <defs>
+                <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#6c4ce3" />
+                  <stop offset="100%" stopColor="#9c85f0" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="100"
+                cy="100"
+                r="98"
+                fill="none"
+                stroke="url(#subjectDashGrad)"
+                strokeOpacity={0.45}
+                strokeWidth={0.5}
+                strokeDasharray="1.5 3"
+              />
+            </svg>
+            {/* wavy rotating blob (filled + outline) */}
+            <svg
+              ref={eggRef}
+              viewBox="0 0 200 200"
+              aria-hidden
+              className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
+            >
+              <defs>
+                <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
+                  <stop offset="0%" stopColor="rgba(108,76,227,0.12)" />
+                  <stop offset="65%" stopColor="rgba(108,76,227,0.04)" />
+                  <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                </radialGradient>
+              </defs>
+              <path
+                d={WAVY_RING}
+                fill="url(#subjectBlobFill)"
+                stroke="#6c4ce3"
+                strokeOpacity={0.4}
+                strokeWidth={1}
+                strokeLinejoin="round"
+              />
+            </svg>
+            {/* orbiting dot riding the dashed ring */}
+            <div
+              aria-hidden
+              className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+            >
+              <div ref={orbitSpinRef} className="relative h-full w-full">
+                <span className="bg-violet absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
+              </div>
             </div>
           </div>
           {/* layered heading over the glow (hero style — no solid circle) */}
@@ -375,13 +369,13 @@ export function SubjectReveal() {
             className="absolute inset-0 flex items-center justify-center px-6 text-center"
           >
             <div>
-              <h2 className="font-display font-extrabold uppercase leading-[0.82] tracking-tight">
-                <span className="block text-4xl text-ink sm:text-6xl md:text-8xl">Learn</span>
-                <span className="-mt-1 block text-4xl text-violet/25 sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
+              <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
+                <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">Learn</span>
+                <span className="text-violet/25 -mt-1 block text-4xl sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
                   Something New
                 </span>
               </h2>
-              <p className="mt-6 text-xs font-semibold uppercase tracking-[0.35em] text-muted sm:text-sm">
+              <p className="text-muted mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
                 In the time it takes to scroll.
               </p>
             </div>
@@ -409,11 +403,11 @@ export function SubjectReveal() {
                     whileHover={{ y: -4, scale: 1.03 }}
                     whileTap={{ scale: 0.98 }}
                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                    className="flex flex-col items-center gap-2 rounded-2xl border border-ink/10 bg-white/80 p-4 text-center shadow-sm backdrop-blur-sm"
+                    className="border-ink/10 flex flex-col items-center gap-2 rounded-2xl border bg-white/80 p-4 text-center shadow-sm backdrop-blur-sm"
                   >
                     <Icon className={cn("h-6 w-6", subject.color)} strokeWidth={1.75} />
-                    <span className="text-sm font-medium text-ink">{subject.name}</span>
-                    <span className="text-xs text-ink/45">
+                    <span className="text-ink text-sm font-medium">{subject.name}</span>
+                    <span className="text-ink/45 text-xs">
                       {subject.count.toLocaleString()} items
                     </span>
                   </motion.div>
@@ -421,30 +415,6 @@ export function SubjectReveal() {
               </div>
             );
           })}
-        </div>
-
-        {/* Closing line — revealed once every card has landed */}
-        <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-center px-6">
-          <div className="max-w-xl text-center">
-            <p
-              ref={eyebrowRef}
-              className="mb-3 text-xs font-semibold uppercase tracking-[0.2em] text-ink/40 opacity-0"
-            >
-              Every subject, one place
-            </p>
-            <div ref={paragraphRef} className="opacity-0">
-              <p className="text-2xl font-medium leading-snug text-ink md:text-3xl">
-                From history to chemistry, from Estonian to Russian — thousands of study materials
-                are organized into subjects you already know.
-              </p>
-              <Link
-                href="/explore"
-                className="pointer-events-auto mt-6 inline-flex items-center gap-1 rounded-full border border-ink/15 px-5 py-2 text-sm font-medium text-ink transition-colors hover:border-violet hover:text-violet"
-              >
-                All subjects
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>
