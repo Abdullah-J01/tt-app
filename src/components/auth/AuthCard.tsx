@@ -22,13 +22,14 @@ export function AuthCard({ initialMode }: { initialMode: Mode }) {
 
   const switchTo = (next: Mode) => {
     setMode(next);
-    window.history.replaceState(null, "", next === "signup" ? "/signup" : "/login");
+    // Preserve Next's router state (don't pass null) so back navigation keeps working.
+    window.history.replaceState(window.history.state, "", next === "signup" ? "/signup" : "/login");
   };
 
   const isSignup = mode === "signup";
 
   return (
-    <main className="flex min-h-[100svh] flex-col items-center justify-center bg-lavender-soft px-5 py-10">
+    <main className="bg-lavender-soft flex min-h-[100svh] flex-col items-center justify-center px-5 py-10">
       <div className="w-full max-w-sm">
         {/* Static branding above the flipping card */}
         <div className="flex flex-col items-center gap-4 text-center">
@@ -45,14 +46,14 @@ export function AuthCard({ initialMode }: { initialMode: Mode }) {
             )}
           >
             <div
-              className="[grid-area:1/1] [backface-visibility:hidden]"
+              className="[backface-visibility:hidden] [grid-area:1/1]"
               inert={isSignup}
               aria-hidden={isSignup}
             >
               <LoginFace onSwitch={() => switchTo("signup")} />
             </div>
             <div
-              className="[grid-area:1/1] [backface-visibility:hidden] [transform:rotateY(180deg)]"
+              className="[transform:rotateY(180deg)] [backface-visibility:hidden] [grid-area:1/1]"
               inert={!isSignup}
               aria-hidden={!isSignup}
             >

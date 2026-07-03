@@ -179,6 +179,13 @@
   }
 }
 
+/* While the studybook reader is open as a modal on the detail page, hide that
+   page's footer so it doesn't bleed through the reader's dimmed backdrop
+   (the rest of the detail page still shows behind, like the Preview). */
+body.reader-open footer {
+  display: none;
+}
+
 /* ──────────────────────────────────────────────────────────────
    TikTok-style vertical snap feed helpers (see UI brief §4)
    ────────────────────────────────────────────────────────────── */
