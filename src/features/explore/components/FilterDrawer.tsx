@@ -8,6 +8,11 @@ interface FilterDrawerProps {
   open: boolean;
   onClose: () => void;
   resultCount: number;
+  /**
+   * Called by the footer button instead of `onClose` — for draft-style filters
+   * where backdrop/X dismisses but the footer commits (e.g. the feed).
+   */
+  onApply?: () => void;
   /** Drawer body — typically a <FilterPanel>. */
   children: ReactNode;
 }
@@ -17,7 +22,7 @@ interface FilterDrawerProps {
  * desktop, with a sticky "Show N results" footer. Locks the page scroll behind
  * it while open. Shared by Explore and the subject page.
  */
-export function FilterDrawer({ open, onClose, resultCount, children }: FilterDrawerProps) {
+export function FilterDrawer({ open, onClose, resultCount, onApply, children }: FilterDrawerProps) {
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -55,7 +60,7 @@ export function FilterDrawer({ open, onClose, resultCount, children }: FilterDra
           <Button
             unstyled
             type="button"
-            onClick={onClose}
+            onClick={onApply ?? onClose}
             className="bg-violet hover:bg-violet-dark h-11 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.98]"
           >
             Show {resultCount} results

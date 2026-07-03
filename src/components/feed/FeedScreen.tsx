@@ -1,12 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
 import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
 import NavControls from "./NavControls";
 import SideActions from "./SideActions";
+import { Button } from "@/components/ui/Button";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { createFilterPredicate } from "@/features/explore/filters";
+import { FilterDrawer } from "@/features/explore/components/FilterDrawer";
+import { FilterPanel } from "@/features/explore/components/FilterPanel";
 import { getForYouFeed, type FeedItem } from "@/lib/api";
 import type { FeedCardData } from "./feedData";
 
@@ -59,8 +65,20 @@ function slugFromUrl(): string | null {
   return new URLSearchParams(window.location.search).get("slug");
 }
 
+/** Feed items whose studybook matches the checked filters, mapped to cards. */
+function filteredCards(items: FeedItem[], selected: ReadonlySet<string>): FeedCardData[] {
+  if (selected.size === 0) return withSlugs(items);
+  const matches = createFilterPredicate(selected);
+  return withSlugs(items.filter((item) => matches(item.book)));
+}
+
 export default function FeedScreen() {
-  const [cards, setCards] = useState<FeedCardData[]>([]);
+  const [items, setItems] = useState<FeedItem[]>([]);
+  // Applied filters drive the feed; the draft only lives while the drawer is
+  // open and commits on "Show results" (backdrop/X discards it).
+  const [applied, setApplied] = useState<Set<string>>(new Set());
+  const [draft, setDraft] = useState<Set<string>>(new Set());
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const [index, setIndex] = useState(0);
   const [trackHeight, setTrackHeight] = useState(0);
   // Gate the scroll transition so the initial slug-restore lands instantly (no
@@ -70,15 +88,20 @@ export default function FeedScreen() {
   const touchStartY = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackWrapRef = useRef<HTMLDivElement>(null);
+
+  const cards = useMemo(() => filteredCards(items, applied), [items, applied]);
   const total = cards.length;
+  /** Live count for the drawer — what the feed will show if the draft commits. */
+  const draftCount = useMemo(() => filteredCards(items, draft).length, [items, draft]);
 
   // Load the feed, then restore the active card from ?slug= (default: first).
   useEffect(() => {
     let active = true;
-    getForYouFeed().then((items) => {
+    getForYouFeed().then((loaded) => {
       if (!active) return;
-      const mapped = withSlugs(items);
-      setCards(mapped);
+      setItems(loaded);
+      // No filters are applied at load, so the visible cards are all items.
+      const mapped = withSlugs(loaded);
       const slug = slugFromUrl();
       const found = slug ? mapped.findIndex((c) => c.slug === slug) : -1;
       const start = found >= 0 ? found : 0;
@@ -91,6 +114,34 @@ export default function FeedScreen() {
     return () => {
       active = false;
     };
+  }, []);
+
+  const openFilters = useCallback(() => {
+    setDraft(new Set(applied));
+    setFiltersOpen(true);
+  }, [applied]);
+
+  const toggleDraft = useCallback((key: string) => {
+    setDraft((prev) => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  }, []);
+
+  /** Commit the draft: refilter the feed, jump to its first card. */
+  const applyFilters = useCallback(() => {
+    setApplied(new Set(draft));
+    setFiltersOpen(false);
+    setIndex(0);
+    const first = filteredCards(items, draft)[0];
+    if (first) window.history.replaceState(null, "", `?slug=${first.slug}`);
+  }, [draft, items]);
+
+  const clearApplied = useCallback(() => {
+    setApplied(new Set());
+    setDraft(new Set());
+    setIndex(0);
   }, []);
 
   useEffect(() => {
@@ -168,11 +219,12 @@ export default function FeedScreen() {
     if (!el) return;
 
     function onTouchStart(e: TouchEvent) {
-      touchStartY.current = e.touches[0].clientY;
+      touchStartY.current = e.touches[0]?.clientY ?? null;
     }
     function onTouchEnd(e: TouchEvent) {
-      if (touchStartY.current === null) return;
-      const delta = touchStartY.current - e.changedTouches[0].clientY;
+      const endY = e.changedTouches[0]?.clientY;
+      if (touchStartY.current === null || endY === undefined) return;
+      const delta = touchStartY.current - endY;
       touchStartY.current = null;
       if (Math.abs(delta) < 45) return;
       if (delta > 0) goNext();
@@ -187,8 +239,9 @@ export default function FeedScreen() {
     };
   }, [goNext, goPrev]);
 
-  // Keyboard navigation
+  // Keyboard navigation (paused while the filter drawer is open)
   useEffect(() => {
+    if (filtersOpen) return;
     function onKeyDown(e: KeyboardEvent) {
       if (e.key === "ArrowDown" || e.key === "PageDown") {
         e.preventDefault();
@@ -200,7 +253,7 @@ export default function FeedScreen() {
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, filtersOpen]);
 
   return (
     <main className="relative flex h-[85dvh] flex-col overflow-hidden">
@@ -219,7 +272,9 @@ export default function FeedScreen() {
           Card {index + 1} of {total}: {cards[index]?.title}
         </p>
 
-        <NavControls index={index} total={total} onPrev={goPrev} onNext={goNext} onSelect={goTo} />
+        {total > 0 && (
+          <NavControls index={index} total={total} onPrev={goPrev} onNext={goNext} onSelect={goTo} />
+        )}
 
         <div className="relative flex h-full w-full items-center justify-center py-4 sm:py-6 lg:py-8">
           <div className="relative h-full w-full max-w-full sm:h-[92%] lg:h-[94%] lg:max-w-[400px] xl:max-w-[420px]">
@@ -234,16 +289,59 @@ export default function FeedScreen() {
               >
                 {cards.map((card, i) => (
                   <div key={card.id} style={{ height: trackHeight || "100%" }} className="w-full">
-                    <FeedCard card={card} active={i === index} />
+                    <FeedCard
+                      card={card}
+                      active={i === index}
+                      onOpenFilters={openFilters}
+                      filterCount={applied.size}
+                    />
                   </div>
                 ))}
               </motion.div>
+
+              {/* Filters excluded every card — keep the filter entry point reachable */}
+              {items.length > 0 && total === 0 && (
+                <div className="bg-surface absolute inset-0 grid place-items-center">
+                  <EmptyState
+                    icon={<SlidersHorizontal className="h-5 w-5" aria-hidden />}
+                    title="Nothing matches your filters"
+                    description="Try removing a filter or two to see more cards."
+                    action={
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        <Button variant="secondary" size="sm" onClick={openFilters}>
+                          Edit filters
+                        </Button>
+                        <Button size="sm" onClick={clearApplied}>
+                          Clear filters
+                        </Button>
+                      </div>
+                    }
+                  />
+                </div>
+              )}
             </div>
 
-            <SideActions />
+            {total > 0 && <SideActions />}
           </div>
         </div>
       </div>
+
+      {/* Filter drawer: bottom sheet on mobile, right side panel on md+. The
+          footer commits the draft; backdrop/X discards it. */}
+      <FilterDrawer
+        open={filtersOpen}
+        onClose={() => setFiltersOpen(false)}
+        onApply={applyFilters}
+        resultCount={draftCount}
+      >
+        <FilterPanel
+          resultCount={draftCount}
+          selected={draft}
+          onToggle={toggleDraft}
+          onClear={() => setDraft(new Set())}
+          searchable
+        />
+      </FilterDrawer>
     </main>
   );
 }

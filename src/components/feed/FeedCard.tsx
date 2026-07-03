@@ -7,9 +7,13 @@ import type { FeedCardData } from "./feedData";
 type Props = {
   card: FeedCardData;
   active: boolean;
+  /** Opens the feed filter drawer; the icon only renders as a button when set. */
+  onOpenFilters?: () => void;
+  /** Number of applied filters — shown as a badge on the filter button. */
+  filterCount?: number;
 };
 
-export default function FeedCard({ card, active }: Props) {
+export default function FeedCard({ card, active, onOpenFilters, filterCount = 0 }: Props) {
   return (
     <div
       className="bg-plum-gradient relative h-full w-full overflow-hidden select-none"
@@ -60,9 +64,29 @@ export default function FeedCard({ card, active }: Props) {
           initial={{ opacity: 0, y: -10 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.5, delay: 0.22 }}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90"
         >
-          <SlidersHorizontal size={20} className="fill-white/90" />
+          {onOpenFilters ? (
+            <button
+              type="button"
+              onClick={onOpenFilters}
+              aria-label="Filter feed"
+              className="relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90 transition-transform hover:bg-white/15 active:scale-95"
+            >
+              <SlidersHorizontal size={20} className="fill-white/90" />
+              {filterCount > 0 && (
+                <span
+                  key={filterCount}
+                  className="pill-in bg-amber text-ink absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold"
+                >
+                  {filterCount}
+                </span>
+              )}
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90">
+              <SlidersHorizontal size={20} className="fill-white/90" />
+            </div>
+          )}
         </motion.div>
       </div>
       <div className="absolute inset-x-5 top-16 z-10 flex items-center justify-start sm:inset-x-7 sm:top-[4.5rem]">
