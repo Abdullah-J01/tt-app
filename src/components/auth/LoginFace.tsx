@@ -13,11 +13,16 @@ import { loginSchema, type LoginValues } from "./schemas";
 
 /** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up. */
 export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
-  // Desktop lands on the home page; mobile goes straight to the app feed.
-  const landingUrl = () =>
-    typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches
-      ? "/"
-      : "/feed";
+  // Honors ?callbackUrl= when a guard bounced the user here (e.g. /admin).
+  // Otherwise: desktop lands on the home page, mobile goes straight to the feed.
+  // Read via window (not useSearchParams) to keep /login statically prerendered.
+  const landingUrl = () => {
+    if (typeof window === "undefined") return "/feed";
+    const callbackUrl = new URLSearchParams(window.location.search).get("callbackUrl");
+    // Internal paths only — never redirect to another origin.
+    if (callbackUrl?.startsWith("/")) return callbackUrl;
+    return window.matchMedia("(min-width: 768px)").matches ? "/" : "/feed";
+  };
 
   const form = useZodForm(loginSchema);
   const {

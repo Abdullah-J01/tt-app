@@ -1,6 +1,24 @@
-import type { NextAuthOptions } from "next-auth";
+import type { NextAuthOptions, Session } from "next-auth";
+import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
+import { notFound, redirect } from "next/navigation";
+
+/** App-level authorization roles carried in the session (see src/types/next-auth.d.ts). */
+export type Role = "admin" | "user";
+
+/**
+ * MVP admin gate: a comma-separated `ADMIN_EMAILS` env allowlist.
+ * TODO(team): replace with TT's role claim once TT auth is confirmed
+ * (docs/TT_API_ENDPOINTS.md §B) — this function is the single swap point.
+ */
+function roleForEmail(email: string | null | undefined): Role {
+  const allowlist = (process.env.ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  return email && allowlist.includes(email.toLowerCase()) ? "admin" : "user";
+}
 
 /**
  * NextAuth (Auth.js) configuration — MVP stub.
@@ -39,4 +57,33 @@ export const authOptions: NextAuthOptions = {
         ]
       : []),
   ],
+  callbacks: {
+    // Recomputed on every request so allowlist changes apply without re-login.
+    async jwt({ token }) {
+      token.role = roleForEmail(token.email);
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) session.user.role = token.role ?? "user";
+      return session;
+    },
+  },
 };
+
+/**
+ * Server-side auth guards. Call from layouts/pages to gate a subtree, and again
+ * from every server action that mutates data — a layout guard alone does not
+ * protect directly-invoked actions.
+ */
+export async function requireUser(callbackUrl = "/feed"): Promise<Session> {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
+  return session;
+}
+
+/** Requires an admin session. Non-admins get a 404 so /admin stays undiscoverable. */
+export async function requireAdmin(callbackUrl = "/admin"): Promise<Session> {
+  const session = await requireUser(callbackUrl);
+  if (session.user.role !== "admin") notFound();
+  return session;
+}

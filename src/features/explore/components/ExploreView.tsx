@@ -19,7 +19,7 @@ import { ActiveFilters } from "./ActiveFilters";
 import { CoverCard } from "./CoverCard";
 import { FilterDrawer } from "./FilterDrawer";
 import { FilterPanel } from "./FilterPanel";
-import { Pagination } from "./Pagination";
+import { Pagination } from "@/components/ui/Pagination";
 import { SortMenu, sortBooks, type Sort } from "./SortMenu";
 import { StudybiteCard } from "./StudybiteCard";
 import { SubjectRail } from "./SubjectRail";
