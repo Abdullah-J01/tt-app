@@ -6,6 +6,7 @@ import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import { usePersistedFlag } from "@/lib/usePersistedFlag";
 import { Button } from "@/components/ui/Button";
+import { toastSaved } from "@/components/ui/Toaster";
 
 interface ActionRailProps {
   /** Stable id for the item (e.g. card id) — keys the persisted like/save state. */
@@ -18,6 +19,9 @@ interface ActionRailProps {
   /** Optional share target; defaults to the current URL. */
   shareUrl?: string;
   shareTitle?: string;
+  /** Extra classes for the count labels — e.g. the feed turns them dark on desktop
+   * (`lg:text-ink`) where the rail sits on a white background instead of the card. */
+  labelClassName?: string;
 }
 
 /** Compact count label, hidden at zero: 0 → "", 988 → "988", 2700 → "2.7k". */
@@ -93,10 +97,17 @@ export function ActionRail({
   saveCount = 0,
   shareUrl,
   shareTitle,
+  labelClassName,
 }: ActionRailProps) {
   const [saved, setSaved] = usePersistedFlag(`tt:save:${id}`);
   const [liked, setLiked] = usePersistedFlag(`tt:like:${id}`);
   const heartRef = useRef<HTMLSpanElement>(null);
+
+  const toggleSave = () => {
+    const next = !saved;
+    setSaved(next);
+    if (next) toastSaved(() => setSaved(false));
+  };
 
   const toggleLike = () => {
     const next = !liked;
@@ -122,21 +133,28 @@ export function ActionRail({
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 text-white">
+    <div className="flex flex-col items-center gap-1.5 text-white">
       <RailButton
         label={countLabel(saveCount + (saved ? 1 : 0))}
+        labelClassName={labelClassName}
         active={saved}
-        onClick={() => setSaved((v) => !v)}
-        icon={<Bookmark className={cn("h-7 w-7", saved && "fill-current")} />}
+        onClick={toggleSave}
+        icon={<Bookmark className={cn("h-5 w-5", saved && "fill-current")} />}
       />
       <RailButton
         label={countLabel(likeCount + (liked ? 1 : 0))}
+        labelClassName={labelClassName}
         active={liked}
         onClick={toggleLike}
         iconRef={heartRef}
-        icon={<Heart className={cn("h-7 w-7", liked && "fill-current text-red-500")} />}
+        icon={<Heart className={cn("h-5 w-5", liked && "fill-current text-red-500")} />}
       />
-      <RailButton label="Share" onClick={share} icon={<Share2 className="h-7 w-7" />} />
+      <RailButton
+        label="Share"
+        labelClassName={labelClassName}
+        onClick={share}
+        icon={<Share2 className="h-5 w-5" />}
+      />
       {onOpenBook && (
         <Button
           unstyled
@@ -156,25 +174,31 @@ function RailButton({
   active,
   onClick,
   iconRef,
+  labelClassName,
 }: {
   label: string;
   icon: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
   iconRef?: Ref<HTMLSpanElement>;
+  labelClassName?: string;
 }) {
   return (
     <Button unstyled onClick={onClick} className="flex flex-col items-center gap-1">
       <span
         ref={iconRef}
         className={cn(
-          "grid h-12 w-12 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
+          "grid h-10 w-10 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
           active && "bg-black/30",
         )}
       >
         {icon}
       </span>
-      {label && <span className="text-xs font-medium">{label}</span>}
+      {/* Label slot is always rendered at a fixed height so the row never shifts
+          when a count first appears (0 → "1"). */}
+      <span className={cn("h-4 text-[11px] leading-4 font-medium tabular-nums", labelClassName)}>
+        {label || " "}
+      </span>
     </Button>
   );
 }

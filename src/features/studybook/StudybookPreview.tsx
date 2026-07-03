@@ -45,11 +45,18 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     setIndex(start);
   }, [open, params, previewCards.length]);
 
-  // Lock body scroll + wire Escape / arrow keys while open.
+  // Lock page scroll + wire Escape / arrow keys while open. Lenis drives the
+  // scroll and ignores `overflow: hidden`, so freeze it too (and lock <html>
+  // overflow for the reduced-motion case where Lenis isn't running) — otherwise
+  // the page keeps scrolling behind the open preview.
   useEffect(() => {
     if (!open) return;
-    const prev = document.body.style.overflow;
+    const lenis = window.__lenis;
+    lenis?.stop();
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
       if (e.key === "ArrowRight") setIndex((i) => Math.min(i + 1, slideCount - 1));
@@ -57,7 +64,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     };
     window.addEventListener("keydown", onKey);
     return () => {
-      document.body.style.overflow = prev;
+      lenis?.start();
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflow = prevHtml;
       window.removeEventListener("keydown", onKey);
     };
   }, [open, close, slideCount]);

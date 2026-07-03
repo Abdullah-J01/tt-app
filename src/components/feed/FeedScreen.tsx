@@ -40,6 +40,8 @@ function toCardData({ card, book }: FeedItem, slug: string): FeedCardData {
     bookTitle: book.title,
     bookAuthor: book.author,
     bookSubject: book.subjectSlug,
+    bookSlug: book.slug,
+    cover: book.cover,
     likes: "",
     shares: "",
   };
@@ -108,6 +110,10 @@ export default function FeedScreen() {
       setIndex(start);
       if (mapped[start]) {
         // Normalize the URL to the resolved card without adding a history entry.
+        // Pass null (Next's documented pattern) so Next's patched replaceState
+        // syncs the router's canonical URL/tree. Passing window.history.state
+        // carries Next's `__NA` flag, which makes Next treat this as an internal
+        // call and skip that sync — corrupting router.back() after you leave the feed.
         window.history.replaceState(null, "", `?slug=${mapped[start].slug}`);
       }
     });
@@ -172,6 +178,10 @@ export default function FeedScreen() {
       const slug = cards[clamped]?.slug;
       if (slug) {
         // Push a history entry per card so Back/Forward moves between cards.
+        // Pass null so Next's patched pushState copies its internal state into the
+        // new entry AND syncs the router URL/tree. Passing window.history.state
+        // carries `__NA`, which makes Next skip that sync and breaks router.back()
+        // after you leave the feed for a detail page.
         window.history.pushState(null, "", `?slug=${slug}`);
       }
       window.setTimeout(() => {
@@ -222,8 +232,8 @@ export default function FeedScreen() {
       touchStartY.current = e.touches[0]?.clientY ?? null;
     }
     function onTouchEnd(e: TouchEvent) {
-      const endY = e.changedTouches[0]?.clientY;
-      if (touchStartY.current === null || endY === undefined) return;
+      if (touchStartY.current === null) return;
+      const endY = e.changedTouches[0]?.clientY ?? touchStartY.current;
       const delta = touchStartY.current - endY;
       touchStartY.current = null;
       if (Math.abs(delta) < 45) return;
@@ -321,7 +331,9 @@ export default function FeedScreen() {
               )}
             </div>
 
-            {total > 0 && <SideActions />}
+            {cards[index] && (
+              <SideActions id={cards[index].id} shareTitle={cards[index].bookTitle} />
+            )}
           </div>
         </div>
       </div>
