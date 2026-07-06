@@ -95,12 +95,10 @@ export default async function LandingPage() {
           })}
         </section> */}
 
-      {/* Explore by subject — pinned zoom reveal + fly-in category cards,
-            closing with a short concluding line. */}
+      {/* Explore by subject — scroll reveal (Framer Motion): centre zoom then
+            fly-in category cards, on a sticky panel that releases into the next
+            section (no blank scroll tail). */}
       <ExploreSection />
-
-      {/* Browse all subjects — the static, browseable grid moved out of the
-            pinned reveal so it lives in normal flow (no scroll-jack, no blank). */}
 
       {/* New study bites — a scroll-stacked deck of horizontal cards. Each card
             pins near the top and recedes as the next scrolls up to cover it. */}
