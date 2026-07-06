@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { IS_DEV_MODE } from "@/lib/env";
+import { toastSaved } from "@/components/ui/Toaster";
 
 /**
  * One liked/saved feed card. Carries enough metadata to render a Library row
@@ -141,14 +142,41 @@ export function useLibrary() {
   );
 
   const toggleSaved = useCallback(
-    (entry: LibraryEntry) =>
-      apply((prev) => ({ ...prev, saved: toggle(prev.saved, entry, cardKey) })),
+    (entry: LibraryEntry) => {
+      let didSave = false;
+      apply((prev) => {
+        didSave = !prev.saved.some((e) => cardKey(e) === entry.cardId);
+        return { ...prev, saved: toggle(prev.saved, entry, cardKey) };
+      });
+      // Confirm only on save (not un-save), with an Undo that removes it again.
+      if (didSave) {
+        toastSaved(() =>
+          apply((prev) => ({
+            ...prev,
+            saved: prev.saved.filter((e) => cardKey(e) !== entry.cardId),
+          })),
+        );
+      }
+    },
     [apply],
   );
 
   const toggleBook = useCallback(
-    (entry: BookEntry) =>
-      apply((prev) => ({ ...prev, books: toggle(prev.books, entry, bookKey) })),
+    (entry: BookEntry) => {
+      let didSave = false;
+      apply((prev) => {
+        didSave = !prev.books.some((e) => bookKey(e) === entry.bookSlug);
+        return { ...prev, books: toggle(prev.books, entry, bookKey) };
+      });
+      if (didSave) {
+        toastSaved(() =>
+          apply((prev) => ({
+            ...prev,
+            books: prev.books.filter((e) => bookKey(e) !== entry.bookSlug),
+          })),
+        );
+      }
+    },
     [apply],
   );
 

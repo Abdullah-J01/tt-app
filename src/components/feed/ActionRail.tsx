@@ -189,7 +189,9 @@ function RailButton({
       >
         {icon}
       </span>
-      {label && <span className="text-xs font-medium">{label}</span>}
+      {/* Always reserve the label row so a count appearing/changing (0 → 1)
+          doesn't grow the button and shift the rail. */}
+      <span className="h-4 text-xs leading-4 font-medium">{label}</span>
     </Button>
   );
 }
