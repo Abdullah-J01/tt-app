@@ -22,6 +22,7 @@ function toEntry(card: StudyCardType, book: Studybook): LibraryEntry {
     bookAuthor: book.author,
     subject: book.subjectSlug,
     grade: book.grade,
+    cover: book.cover,
     savedAt: 0, // stamped by the store on insert
   };
 }

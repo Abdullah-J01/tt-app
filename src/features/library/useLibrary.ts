@@ -22,6 +22,12 @@ export interface LibraryEntry {
   bookAuthor: string;
   subject: string;
   grade: string;
+  /**
+   * Studybook cover art for this card — the SAME `cover` field used by
+   * BookEntry and `Studybook`, so every Library tab renders one consistent
+   * image. Falls back to a subject-colored gradient when absent.
+   */
+  cover?: string;
   savedAt: number;
 }
 
