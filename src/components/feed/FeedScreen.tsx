@@ -6,6 +6,7 @@ import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
 import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
+import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "./FeedSkeleton";
 import NavControls from "./NavControls";
 import SideActions from "./SideActions";
 import { Button } from "@/components/ui/Button";
@@ -13,12 +14,13 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { createFilterPredicate } from "@/features/explore/filters";
 import { FilterDrawer } from "@/features/explore/components/FilterDrawer";
 import { FilterPanel } from "@/features/explore/components/FilterPanel";
-import { getForYouFeed, type FeedItem } from "@/lib/api";
+import type { FeedItem } from "@/lib/api";
 import { slugify, type FeedCardData } from "./feedData";
 
-const TRANSITION = { duration: 0.6, ease: [0.22, 1, 0.36, 1] as const };
+const TRANSITION = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
 const INSTANT = { duration: 0 };
-const LOCK_MS = 620;
+// Slightly above the slide duration so a new gesture can land right as it settles.
+const LOCK_MS = 420;
 
 function toCardData({ card, book }: FeedItem, slug: string): FeedCardData {
   return {
@@ -68,6 +70,7 @@ function filteredCards(items: FeedItem[], selected: ReadonlySet<string>): FeedCa
 
 export default function FeedScreen() {
   const [items, setItems] = useState<FeedItem[]>([]);
+  const [loading, setLoading] = useState(true);
   // Applied filters drive the feed; the draft only lives while the drawer is
   // open and commits on "Show results" (backdrop/X discards it).
   const [applied, setApplied] = useState<Set<string>>(new Set());
@@ -88,27 +91,39 @@ export default function FeedScreen() {
   /** Live count for the drawer — what the feed will show if the draft commits. */
   const draftCount = useMemo(() => filteredCards(items, draft).length, [items, draft]);
 
-  // Load the feed, then restore the active card from ?slug= (default: first).
+  // Load the feed from /api/feed (data stays server-side — the upstream fetch
+  // cache applies there), then restore the active card from ?slug= (default: first).
   useEffect(() => {
     let active = true;
-    getForYouFeed().then((loaded) => {
-      if (!active) return;
-      setItems(loaded);
-      // No filters are applied at load, so the visible cards are all items.
-      const mapped = withSlugs(loaded);
-      const slug = slugFromUrl();
-      const found = slug ? mapped.findIndex((c) => c.slug === slug) : -1;
-      const start = found >= 0 ? found : 0;
-      setIndex(start);
-      if (mapped[start]) {
-        // Normalize the URL to the resolved card without adding a history entry.
-        // Pass null (Next's documented pattern) so Next's patched replaceState
-        // syncs the router's canonical URL/tree. Passing window.history.state
-        // carries Next's `__NA` flag, which makes Next treat this as an internal
-        // call and skip that sync — corrupting router.back() after you leave the feed.
-        window.history.replaceState(null, "", `?slug=${mapped[start].slug}`);
-      }
-    });
+    fetch("/api/feed")
+      .then((res) => {
+        if (!res.ok) throw new Error(`GET /api/feed → ${res.status}`);
+        return res.json() as Promise<{ items: FeedItem[] }>;
+      })
+      .then(({ items: loaded }) => {
+        if (!active) return;
+        setLoading(false);
+        setItems(loaded);
+        // No filters are applied at load, so the visible cards are all items.
+        const mapped = withSlugs(loaded);
+        const slug = slugFromUrl();
+        const found = slug ? mapped.findIndex((c) => c.slug === slug) : -1;
+        const start = found >= 0 ? found : 0;
+        setIndex(start);
+        if (mapped[start]) {
+          // Normalize the URL to the resolved card without adding a history entry.
+          // Pass null (Next's documented pattern) so Next's patched replaceState
+          // syncs the router's canonical URL/tree. Passing window.history.state
+          // carries Next's `__NA` flag, which makes Next treat this as an internal
+          // call and skip that sync — corrupting router.back() after you leave the feed.
+          window.history.replaceState(null, "", `?slug=${mapped[start].slug}`);
+        }
+      })
+      .catch((err) => {
+        // Leave the feed empty rather than crash; the EmptyState covers the UI.
+        console.error("Failed to load feed:", err);
+        if (active) setLoading(false);
+      });
     return () => {
       active = false;
     };
@@ -292,9 +307,10 @@ export default function FeedScreen() {
       >
         {/* live region for screen readers */}
         <p className="sr-only" aria-live="polite">
-          Card {index + 1} of {total}: {cards[index]?.title}
+          {loading ? "Loading study cards…" : `Card ${index + 1} of ${total}: ${cards[index]?.title}`}
         </p>
 
+        {loading && <NavControlsSkeleton />}
         {total > 0 && (
           <NavControls index={index} total={total} onPrev={goPrev} onNext={goNext} onSelect={goTo} />
         )}
@@ -305,8 +321,9 @@ export default function FeedScreen() {
               ref={trackWrapRef}
               className="lg:shadow-glow relative h-full w-full overflow-hidden rounded-none shadow-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]"
             >
+              {loading && <FeedCardSkeleton />}
               <motion.div
-                className="absolute inset-x-0 top-0"
+                className="absolute inset-x-0 top-0 will-change-transform"
                 animate={{ y: -index * trackHeight }}
                 transition={ready ? TRANSITION : INSTANT}
               >
@@ -315,6 +332,9 @@ export default function FeedScreen() {
                     <FeedCard
                       card={card}
                       active={i === index}
+                      // Active card + neighbours: eager cover fetch + ambient blobs,
+                      // so the next swipe lands fully dressed.
+                      near={Math.abs(i - index) <= 1}
                       index={i}
                       total={total}
                       onOpenFilters={openFilters}
@@ -346,6 +366,7 @@ export default function FeedScreen() {
               )}
             </div>
 
+            {loading && <SideActionsSkeleton />}
             {cards[index] && <SideActions card={cards[index]} />}
           </div>
         </div>

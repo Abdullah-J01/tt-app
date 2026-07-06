@@ -17,6 +17,7 @@ export { ProgressDots } from "./ProgressDots";
 export { Select } from "./Select";
 export { SectionHeader } from "./SectionHeader";
 export { SelectableCard, selectableSurface } from "./SelectableCard";
+export { Skeleton } from "./Skeleton";
 export { SubjectCard } from "./SubjectCard";
 export { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "./Table";
 export { Toggle } from "./Toggle";
