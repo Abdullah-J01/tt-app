@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
-import { StackingStudyBites } from "@/components/home/StackingStudyBites";
-import { UniverseCarousel } from "@/components/home/UniverseCarousel";
+import StackingStudyBitesLoader from "@/components/home/StackingStudyBitesLoader";
+import UniverseCarouselLoader from "@/components/home/UniverseCarouselLoader";
 import { ExploreSection } from "@/components/home/ExploreSection";
 import { SubjectGrid } from "@/components/home/SubjectGrid";
 import HeroLoader from "@/components/home/HeroLoader";
@@ -114,7 +114,7 @@ export default async function LandingPage() {
             </Link>
           }
         />
-        <StackingStudyBites />
+        <StackingStudyBitesLoader />
       </section>
 
       {/* Freshly digitized — a scroll-spun 3D drum. Each cover revolves up to a
@@ -131,7 +131,7 @@ export default async function LandingPage() {
             </Link>
           }
         />
-        <UniverseCarousel books={books} />
+        <UniverseCarouselLoader books={books} />
       </section>
     </main>
   );

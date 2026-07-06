@@ -5,4 +5,7 @@
  * the `Skeleton` primitive in `@/components/ui`.
  */
 export { HeroSkeleton } from "./home/HeroSkeleton";
+export { ExploreSectionSkeleton } from "./home/ExploreSectionSkeleton";
+export { StackingStudyBitesSkeleton } from "./home/StackingStudyBitesSkeleton";
+export { UniverseCarouselSkeleton } from "./home/UniverseCarouselSkeleton";
 export { FeedCardSkeleton, SideActionsSkeleton, NavControlsSkeleton } from "./feed/FeedSkeleton";
