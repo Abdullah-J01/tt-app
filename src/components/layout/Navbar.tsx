@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Globe, User } from "lucide-react";
@@ -14,6 +15,7 @@ import { Button } from "@/components/ui/Button";
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { status } = useSession();
+  const pathname = usePathname();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -46,18 +48,22 @@ export default function Navbar() {
 
             {/* Desktop nav — unchanged, md and up only */}
             <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm md:flex">
-              {SITE.nav.map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    className={`underline-anim ${
-                      item === SITE.nav[0] ? "text-ink font-medium" : "hover:text-ink"
-                    }`}
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
+              {SITE.nav.map((item) => {
+                const active =
+                  pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      className={`underline-anim ${
+                        active ? "text-ink font-medium" : "hover:text-ink"
+                      }`}
+                    >
+                      {item.label}
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
 
             <div className="flex items-center gap-3 sm:gap-4">
