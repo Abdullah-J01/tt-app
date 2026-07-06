@@ -229,39 +229,49 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                 )}
               </Button>
 
-              {tab === "books" && (
-                <>
-                  <SortMenu
-                    sort={sort}
-                    onChange={(s) => {
-                      setSort(s);
+              {/* Sort + view controls only apply to Studybooks. From md they stay
+                  mounted and fade out toward the right on Studybites so the
+                  toolbar keeps its width/height (no layout shift on tab switch);
+                  below md they simply hide. `visibility` rides the transition so
+                  the controls drop out of the tab/a11y order once faded. */}
+              <div
+                className={cn(
+                  "flex items-center gap-2 motion-safe:transition-[opacity,transform,visibility] motion-safe:duration-300 motion-safe:ease-out",
+                  tab === "books"
+                    ? "visible translate-x-0 opacity-100"
+                    : "invisible hidden translate-x-4 opacity-0 md:flex",
+                )}
+              >
+                <SortMenu
+                  sort={sort}
+                  onChange={(s) => {
+                    setSort(s);
+                    setPage(1);
+                  }}
+                />
+                <div className="border-hairline flex overflow-hidden rounded-full border">
+                  <ViewButton
+                    label="Grid view"
+                    active={view === "grid"}
+                    onClick={() => {
+                      setView("grid");
                       setPage(1);
                     }}
-                  />
-                  <div className="border-hairline flex overflow-hidden rounded-full border">
-                    <ViewButton
-                      label="Grid view"
-                      active={view === "grid"}
-                      onClick={() => {
-                        setView("grid");
-                        setPage(1);
-                      }}
-                    >
-                      <LayoutGrid className="h-4 w-4" aria-hidden />
-                    </ViewButton>
-                    <ViewButton
-                      label="List view"
-                      active={view === "list"}
-                      onClick={() => {
-                        setView("list");
-                        setPage(1);
-                      }}
-                    >
-                      <List className="h-4 w-4" aria-hidden />
-                    </ViewButton>
-                  </div>
-                </>
-              )}
+                  >
+                    <LayoutGrid className="h-4 w-4" aria-hidden />
+                  </ViewButton>
+                  <ViewButton
+                    label="List view"
+                    active={view === "list"}
+                    onClick={() => {
+                      setView("list");
+                      setPage(1);
+                    }}
+                  >
+                    <List className="h-4 w-4" aria-hidden />
+                  </ViewButton>
+                </div>
+              </div>
             </div>
           </div>
 
