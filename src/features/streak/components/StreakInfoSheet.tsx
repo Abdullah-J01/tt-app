@@ -37,7 +37,7 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div className="drawer-up bg-surface relative flex max-h-[88vh] w-full flex-col rounded-t-2xl md:max-w-md md:rounded-2xl">
-        <div className="flex-1 overflow-y-auto overscroll-contain px-6 pt-7 pb-5">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-6 pt-7 pb-5">
           <h2 className="font-display text-ink text-2xl font-bold">{title}</h2>
           <div className="mt-5">{children}</div>
         </div>

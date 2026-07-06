@@ -58,7 +58,7 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto overscroll-contain p-5">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain p-5">
           {streak === 0 && (
             <div className="border-hairline mb-6 flex flex-col items-center rounded-2xl border p-6 text-center">
               <StreakFlame size={64} lit={false} />
