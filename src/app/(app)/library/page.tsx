@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -60,7 +60,32 @@ export default function LibraryPage() {
   const { status } = useSession();
   const { liked, saved, books: savedBooks, hydrated, toggleLiked, toggleSaved } = useLibrary();
 
-  const entries = filter === "saved" ? saved : liked;
+  /**
+   * bookSlug → cover from the live catalog. Entries snapshotted before
+   * `cover` existed (or before the book had art) render as plain gradients;
+   * this backfills them so every tile shows the same cover treatment.
+   */
+  const [catalogCovers, setCatalogCovers] = useState<Record<string, string>>({});
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch("/api/studybooks", { signal: controller.signal })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { studybooks?: { slug: string; cover?: string }[] } | null) => {
+        if (!data?.studybooks) return;
+        const map: Record<string, string> = {};
+        for (const book of data.studybooks) if (book.cover) map[book.slug] = book.cover;
+        setCatalogCovers(map);
+      })
+      .catch(() => {
+        /* offline / aborted — tiles keep the gradient fallback */
+      });
+    return () => controller.abort();
+  }, []);
+
+  const entries = useMemo(() => {
+    const base = filter === "saved" ? saved : liked;
+    return base.map((e) => (e.cover ? e : { ...e, cover: catalogCovers[e.bookSlug] }));
+  }, [filter, saved, liked, catalogCovers]);
 
   /**
    * Directly saved studybooks first, then unique books behind saved/liked cards.
@@ -85,8 +110,12 @@ export default function LibraryPage() {
         existing.coverImage = b.cover;
       }
     }
+    // Same catalog backfill as the cards tab, for pre-`cover` snapshots.
+    for (const b of seen.values()) {
+      if (!b.coverImage) b.coverImage = catalogCovers[b.bookSlug];
+    }
     return [...seen.values()];
-  }, [savedBooks, saved, liked]);
+  }, [savedBooks, saved, liked, catalogCovers]);
 
   const loggedOut = status === "unauthenticated";
   const showCards = tab === "cards" && !loggedOut && entries.length > 0;
