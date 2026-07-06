@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   motion,
@@ -9,8 +9,11 @@ import {
   useTransform,
   type MotionValue,
 } from "framer-motion";
+import { LayoutGrid, X } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
+import { Portal } from "@/lib/Portal";
+import { useScrollLock } from "@/lib/useScrollLock";
 
 /* Direction offsets — where each card flies in from ------------------ */
 type Dir =
@@ -77,21 +80,17 @@ const WAVY_RING = wavyRingPath(8, 88, 5);
 type SubjectCardData = { subject: (typeof SUBJECTS)[number]; dir: Dir };
 
 /**
- * "Explore by subject" — a scroll-controlled reveal (Framer Motion, no GSAP).
- * A tall section on a `sticky` panel: as YOU scroll, the centre circle + heading
- * hold, then zoom through and fade, then the subject cards fly in from every
- * direction. Everything is tied to scroll progress (nothing autoplays). When the
- * section ends the sticky releases straight into the next section (no blank).
- * Reduced-motion → a plain static grid.
+ * "Explore by subject" — a scroll-controlled reveal (Framer Motion). Desktop
+ * (sm+): the centre circle zooms through and the subject cards fly in from every
+ * direction. Mobile (< sm): the same centre reveal, then an "Explore by subject"
+ * card fades in that opens a scrollable dialog with every subject.
  */
 export function SubjectReveal() {
   const reduced = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [open, setOpen] = useState(false);
+  useScrollLock(open);
 
-  // Scroll progress through the section (0 = its top hits the viewport top, 1 =
-  // its bottom hits the viewport bottom), measured from getBoundingClientRect so
-  // it tracks the real viewport position on every scroll — robust with Lenis and
-  // whichever element is the actual scroller (unlike Framer's useScroll here).
   const scrollYProgress = useMotionValue(0);
   useEffect(() => {
     if (reduced) return;
@@ -123,142 +122,249 @@ export function SubjectReveal() {
     [],
   );
 
-  // Phase 1a (0 → 0.18): centre holds, as-is. 1b (0.18 → 0.4): zoom + fade out —
-  // it's fully gone by 0.4, with a clear gap before the cards so the two never
-  // show at once (no stacked/overlapping frame).
+  // Phase 1a (0 → 0.18): centre holds. 1b (0.18 → 0.4): zoom + fade out.
   const centreScale = useTransform(scrollYProgress, [0, 0.18, 0.42], [1, 1, 2.8]);
   const centreOpacity = useTransform(scrollYProgress, [0, 0.18, 0.4], [1, 1, 0]);
   const rippleScale = useTransform(scrollYProgress, [0.18, 0.42], [1, 4.2]);
   const rippleOpacity = useTransform(scrollYProgress, [0.18, 0.3, 0.42], [0, 0.4, 0]);
-  // Phase 2 (0.46 →): only once the centre is gone does the grid fade in.
+  // Phase 2 (0.46 →): once the centre is gone the grid / mobile card comes in.
   const gridOpacity = useTransform(scrollYProgress, [0.46, 0.54], [0, 1]);
+  const ctaOpacity = useTransform(scrollYProgress, [0.46, 0.56], [0, 1]);
+  const ctaScale = useTransform(scrollYProgress, [0.46, 0.6], [0.9, 1]);
+  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.62], [-85, 0]);
 
   return (
-    <section ref={sectionRef} className={reduced ? "relative" : "relative h-[320vh]"}>
-      <div
-        className={cn(
-          "flex w-full items-start justify-center overflow-hidden bg-white",
-          reduced ? "relative min-h-screen py-16" : "sticky top-0 h-screen",
-        )}
-      >
-        {/* Centre: circle + rings + heading — scroll zooms it through and fades. */}
-        {!reduced && (
+    <>
+      <section ref={sectionRef} className={reduced ? "relative" : "relative h-[320vh]"}>
+        <div
+          className={cn(
+            "flex w-full items-start justify-center overflow-hidden bg-white",
+            reduced ? "relative min-h-screen py-16" : "sticky top-0 h-screen",
+          )}
+        >
+          {/* Centre: circle + rings + heading — scroll zooms it through and fades. */}
+          {!reduced && (
+            <motion.div
+              style={{ scale: centreScale, opacity: centreOpacity }}
+              className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+            >
+              {[0, 1].map((i) => (
+                <motion.div
+                  key={i}
+                  aria-hidden
+                  style={{ scale: rippleScale, opacity: rippleOpacity }}
+                  className="bg-plum-gradient pointer-events-none absolute inset-0 z-[14] m-auto h-64 w-64 rounded-full md:h-72 md:w-72"
+                />
+              ))}
+              <div className="absolute inset-0">
+                <div
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
+                  style={{
+                    background:
+                      "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
+                  }}
+                />
+                <motion.svg
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 48, ease: "linear" }}
+                  viewBox="0 0 200 200"
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+                >
+                  <defs>
+                    <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#6c4ce3" />
+                      <stop offset="100%" stopColor="#9c85f0" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="98"
+                    fill="none"
+                    stroke="url(#subjectDashGrad)"
+                    strokeOpacity={0.45}
+                    strokeWidth={0.5}
+                    strokeDasharray="1.5 3"
+                  />
+                </motion.svg>
+                <motion.svg
+                  animate={{ rotate: -360 }}
+                  transition={{ repeat: Infinity, duration: 65, ease: "linear" }}
+                  viewBox="0 0 200 200"
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
+                >
+                  <defs>
+                    <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
+                      <stop offset="0%" stopColor="rgba(108,76,227,0.12)" />
+                      <stop offset="65%" stopColor="rgba(108,76,227,0.04)" />
+                      <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                    </radialGradient>
+                  </defs>
+                  <path
+                    d={WAVY_RING}
+                    fill="url(#subjectBlobFill)"
+                    stroke="#6c4ce3"
+                    strokeOpacity={0.4}
+                    strokeWidth={1}
+                    strokeLinejoin="round"
+                  />
+                </motion.svg>
+                <div
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+                >
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
+                    className="relative h-full w-full"
+                  >
+                    <span className="bg-violet absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
+                  </motion.div>
+                </div>
+              </div>
+              <div className="relative px-6 text-center">
+                <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
+                  <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">Learn</span>
+                  <span className="text-violet/25 -mt-1 block text-4xl sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
+                    Something New
+                  </span>
+                </h2>
+                <p className="text-muted mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
+                  In the time it takes to scroll.
+                </p>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Subject grid — DESKTOP/TABLET only (sm+); flies the cards in. */}
           <motion.div
-            style={{ scale: centreScale, opacity: centreOpacity }}
-            className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+            style={reduced ? undefined : { opacity: gridOpacity }}
+            className="relative z-10 mx-auto hidden max-w-6xl grid-cols-2 items-center gap-2.5 px-5 pt-24 pb-16 sm:grid sm:grid-cols-3 sm:gap-3 md:grid-cols-4 md:pt-28 lg:grid-cols-5 lg:gap-4"
           >
-            {/* echo ripples */}
-            {[0, 1].map((i) => (
-              <motion.div
-                key={i}
-                aria-hidden
-                style={{ scale: rippleScale, opacity: rippleOpacity }}
-                className="bg-plum-gradient pointer-events-none absolute inset-0 z-[14] m-auto h-64 w-64 rounded-full md:h-72 md:w-72"
+            {cards.map((card, i) => (
+              <SubjectCard
+                key={card.subject.slug}
+                progress={scrollYProgress}
+                card={card}
+                index={i}
+                total={cards.length}
+                reduced={!!reduced}
               />
             ))}
-            {/* rings + glow */}
-            <div className="absolute inset-0">
-              <div
-                aria-hidden
-                className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
-                style={{
-                  background:
-                    "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
-                }}
-              />
-              <motion.svg
-                animate={{ rotate: 360 }}
-                transition={{ repeat: Infinity, duration: 48, ease: "linear" }}
-                viewBox="0 0 200 200"
-                aria-hidden
-                className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
-              >
-                <defs>
-                  <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#6c4ce3" />
-                    <stop offset="100%" stopColor="#9c85f0" />
-                  </linearGradient>
-                </defs>
-                <circle
-                  cx="100"
-                  cy="100"
-                  r="98"
-                  fill="none"
-                  stroke="url(#subjectDashGrad)"
-                  strokeOpacity={0.45}
-                  strokeWidth={0.5}
-                  strokeDasharray="1.5 3"
+          </motion.div>
+
+          {/* Explore card — MOBILE only (< sm); opens the subjects dialog. */}
+          <motion.div
+            style={
+              reduced
+                ? undefined
+                : {
+                    opacity: ctaOpacity,
+                    scale: ctaScale,
+                    rotateX: ctaRotate,
+                    transformPerspective: 1200,
+                    transformOrigin: "bottom center",
+                  }
+            }
+            className="absolute inset-0 z-10 flex items-center justify-center px-5 sm:hidden"
+          >
+            <div className="bg-plum-gradient relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-[#a78bfa] px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
+              {/* glowing orb badge */}
+              <span className="relative grid h-20 w-20 place-items-center rounded-full">
+                <span
+                  className="absolute inset-0 rounded-full blur-md"
+                  style={{ background: "radial-gradient(circle, var(--color-amber) 0%, transparent 70%)" }}
                 />
-              </motion.svg>
-              <motion.svg
-                animate={{ rotate: -360 }}
-                transition={{ repeat: Infinity, duration: 65, ease: "linear" }}
-                viewBox="0 0 200 200"
-                aria-hidden
-                className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
-              >
-                <defs>
-                  <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
-                    <stop offset="0%" stopColor="rgba(108,76,227,0.12)" />
-                    <stop offset="65%" stopColor="rgba(108,76,227,0.04)" />
-                    <stop offset="100%" stopColor="rgba(255,255,255,0)" />
-                  </radialGradient>
-                </defs>
-                <path
-                  d={WAVY_RING}
-                  fill="url(#subjectBlobFill)"
-                  stroke="#6c4ce3"
-                  strokeOpacity={0.4}
-                  strokeWidth={1}
-                  strokeLinejoin="round"
-                />
-              </motion.svg>
-              <div
-                aria-hidden
-                className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
-              >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
-                  className="relative h-full w-full"
+                <span
+                  className="relative grid h-full w-full place-items-center rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle at 50% 35%, #ffd27a 0%, var(--color-amber) 55%, var(--color-amber-dark) 100%)",
+                    boxShadow: "0 6px 18px -4px rgba(232, 137, 43, 0.6)",
+                  }}
                 >
-                  <span className="bg-violet absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
-                </motion.div>
-              </div>
-            </div>
-            {/* heading */}
-            <div className="relative px-6 text-center">
-              <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
-                <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">Learn</span>
-                <span className="text-violet/25 -mt-1 block text-4xl sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
-                  Something New
+                  <LayoutGrid className="h-8 w-8 text-white" strokeWidth={2} />
                 </span>
-              </h2>
-              <p className="text-muted mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
-                In the time it takes to scroll.
+              </span>
+
+              <p className="mt-6 text-xs font-semibold tracking-[0.18em] text-white uppercase">
+                Explore by subject
               </p>
+              <h3 className="font-display mt-2 text-3xl leading-tight font-bold text-[#a78bfa]">
+                Dive into {SUBJECTS.length} subjects
+              </h3>
+
+              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
+                <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
+                  📚 {SUBJECTS.length} subjects
+                </span>
+                <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
+                  ✨ 1000s of cards
+                </span>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-[#a78bfa] py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+              >
+                Explore by subject
+              </button>
             </div>
           </motion.div>
-        )}
+        </div>
+      </section>
 
-        {/* Subject grid — scroll flies the cards in after the centre has gone. */}
-        <motion.div
-          style={reduced ? undefined : { opacity: gridOpacity }}
-          className="relative z-10 mx-auto grid max-w-6xl grid-cols-2 items-center gap-2.5 px-5 pt-24 pb-16 sm:grid-cols-3 sm:gap-3 md:grid-cols-4 md:pt-28 lg:grid-cols-5 lg:gap-4"
-        >
-          {cards.map((card, i) => (
-            <SubjectCard
-              key={card.subject.slug}
-              progress={scrollYProgress}
-              card={card}
-              index={i}
-              total={cards.length}
-              reduced={!!reduced}
-            />
-          ))}
-        </motion.div>
-      </div>
-    </section>
+      {open && (
+        <Portal>
+          <div
+            className="fixed inset-0 z-[60] flex items-end justify-center md:items-center md:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Explore by subject"
+          >
+            <div className="fade-in absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+            <div className="drawer-up bg-surface relative flex max-h-[85vh] w-full flex-col rounded-t-2xl md:max-w-2xl md:rounded-2xl">
+              <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
+                <h2 className="font-display text-ink text-lg font-bold">Explore by subject</h2>
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  aria-label="Close"
+                  className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+              <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain p-4">
+                <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                  {SUBJECTS.map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <Link
+                        key={s.slug}
+                        href={`/explore/${s.slug}`}
+                        onClick={() => setOpen(false)}
+                        className="border-ink/10 hover:border-violet flex flex-col items-center gap-1.5 rounded-2xl border bg-white p-3 text-center transition-colors active:scale-95"
+                      >
+                        <Icon className={cn("h-6 w-6", s.color)} strokeWidth={1.75} />
+                        <span className="text-ink text-xs font-medium sm:text-sm">{s.name}</span>
+                        <span className="text-ink/45 text-[10px] sm:text-xs">
+                          {s.count.toLocaleString()} items
+                        </span>
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+        </Portal>
+      )}
+    </>
   );
 }
 
