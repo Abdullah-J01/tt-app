@@ -52,7 +52,7 @@ export function Footer() {
               <div className="mt-6 flex flex-col gap-3">
                 <a
                   href="#"
-                  className="flex w-full items-center gap-3 rounded-2xl bg-[#7b5fd4] px-5 py-3 transition-transform hover:-translate-y-0.5 active:scale-[0.98] sm:w-72"
+                  className="btn-shine relative flex w-full items-center gap-3 overflow-hidden rounded-2xl bg-[#7b5fd4] px-5 py-3 transition-transform hover:-translate-y-0.5 active:scale-[0.98] sm:w-72"
                 >
                   <Apple className="h-7 w-7 shrink-0" />
                   <span className="text-left leading-tight">
@@ -65,7 +65,7 @@ export function Footer() {
 
                 <a
                   href="#"
-                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-[#3a3358] px-5 py-3 transition-colors hover:bg-[#443c66] sm:w-72"
+                  className="btn-shine relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#3a3358] px-5 py-3 transition-colors hover:bg-[#443c66] sm:w-72"
                 >
                   <Play className="h-6 w-6 shrink-0 fill-current" />
                   <span className="text-left leading-tight">

@@ -8,8 +8,9 @@ import {
   useReducedMotion,
   useTransform,
   type MotionValue,
+  type Variants,
 } from "framer-motion";
-import { LayoutGrid, X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
 import { Portal } from "@/lib/Portal";
@@ -77,6 +78,16 @@ function wavyRingPath(bumps = 12, rBase = 82, rBump = 9, size = 200) {
 
 const WAVY_RING = wavyRingPath(8, 88, 5);
 
+/** Staggered fade-up for the mobile card's inner elements. */
+const CARD_CONTAINER: Variants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
+};
+const CARD_ITEM: Variants = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+};
+
 type SubjectCardData = { subject: (typeof SUBJECTS)[number]; dir: Dir };
 
 /**
@@ -89,6 +100,7 @@ export function SubjectReveal() {
   const reduced = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
+  const [cardIn, setCardIn] = useState(false);
   useScrollLock(open);
 
   const scrollYProgress = useMotionValue(0);
@@ -117,6 +129,13 @@ export function SubjectReveal() {
     };
   }, [reduced, scrollYProgress]);
 
+  // Trigger the mobile card's inner stagger once the card starts revealing.
+  useEffect(() => {
+    if (reduced) return;
+    const unsub = scrollYProgress.on("change", (v) => setCardIn(v > 0.5));
+    return () => unsub();
+  }, [reduced, scrollYProgress]);
+
   const cards = useMemo<SubjectCardData[]>(
     () => SUBJECTS.map((subject, i) => ({ subject, dir: DIRECTIONS[i % DIRECTIONS.length] ?? "left" })),
     [],
@@ -130,8 +149,9 @@ export function SubjectReveal() {
   // Phase 2 (0.46 →): once the centre is gone the grid / mobile card comes in.
   const gridOpacity = useTransform(scrollYProgress, [0.46, 0.54], [0, 1]);
   const ctaOpacity = useTransform(scrollYProgress, [0.46, 0.56], [0, 1]);
-  const ctaScale = useTransform(scrollYProgress, [0.46, 0.6], [0.9, 1]);
-  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.62], [-85, 0]);
+  const ctaScale = useTransform(scrollYProgress, [0.46, 0.62], [0.92, 1]);
+  const ctaX = useTransform(scrollYProgress, [0.46, 0.64], [-300, 0]);
+  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.64], [-80, 0]);
 
   return (
     <>
@@ -264,55 +284,75 @@ export function SubjectReveal() {
                 : {
                     opacity: ctaOpacity,
                     scale: ctaScale,
-                    rotateX: ctaRotate,
+                    x: ctaX,
+                    rotateY: ctaRotate,
                     transformPerspective: 1200,
-                    transformOrigin: "bottom center",
+                    transformOrigin: "left center",
                   }
             }
             className="absolute inset-0 z-10 flex items-center justify-center px-5 sm:hidden"
           >
             <div className="bg-plum-gradient relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-[#a78bfa] px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
-              {/* glowing orb badge */}
-              <span className="relative grid h-20 w-20 place-items-center rounded-full">
-                <span
-                  className="absolute inset-0 rounded-full blur-md"
-                  style={{ background: "radial-gradient(circle, var(--color-amber) 0%, transparent 70%)" }}
-                />
-                <span
-                  className="relative grid h-full w-full place-items-center rounded-full"
-                  style={{
-                    background:
-                      "radial-gradient(circle at 50% 35%, #ffd27a 0%, var(--color-amber) 55%, var(--color-amber-dark) 100%)",
-                    boxShadow: "0 6px 18px -4px rgba(232, 137, 43, 0.6)",
-                  }}
-                >
-                  <LayoutGrid className="h-8 w-8 text-white" strokeWidth={2} />
-                </span>
-              </span>
-
-              <p className="mt-6 text-xs font-semibold tracking-[0.18em] text-white uppercase">
-                Explore by subject
-              </p>
-              <h3 className="font-display mt-2 text-3xl leading-tight font-bold text-[#a78bfa]">
-                Dive into {SUBJECTS.length} subjects
-              </h3>
-
-              <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
-                <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-                  📚 {SUBJECTS.length} subjects
-                </span>
-                <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-                  ✨ 1000s of cards
-                </span>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => setOpen(true)}
-                className="mt-8 inline-flex w-full items-center justify-center rounded-2xl bg-[#a78bfa] py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+              <motion.div
+                variants={CARD_CONTAINER}
+                initial={reduced ? false : "hidden"}
+                animate={reduced || cardIn ? "show" : "hidden"}
+                className="flex w-full flex-col items-center"
               >
-                Explore by subject
-              </button>
+                <motion.p
+                  variants={CARD_ITEM}
+                  className="text-xs font-semibold tracking-[0.18em] text-white uppercase"
+                >
+                  Explore by subject
+                </motion.p>
+                <motion.h3
+                  variants={CARD_ITEM}
+                  className="font-display mt-2 text-3xl leading-tight font-bold text-[#a78bfa]"
+                >
+                  Dive into {SUBJECTS.length} subjects
+                </motion.h3>
+
+                {/* subject icon preview + "see more" */}
+                <motion.div
+                  variants={CARD_ITEM}
+                  className="mt-6 flex flex-wrap items-center justify-center gap-2"
+                >
+                  {SUBJECTS.slice(0, 4).map((s) => {
+                    const Icon = s.icon;
+                    return (
+                      <span
+                        key={s.slug}
+                        className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 ring-1 ring-white/15"
+                      >
+                        <Icon className="h-5 w-5 text-white" strokeWidth={1.75} />
+                      </span>
+                    );
+                  })}
+                  <button
+                    type="button"
+                    onClick={() => setOpen(true)}
+                    className="inline-flex h-11 items-center gap-1 rounded-xl bg-white/15 px-3 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/25"
+                  >
+                    <Plus className="h-4 w-4" />
+                    {SUBJECTS.length - 4} more
+                  </button>
+                </motion.div>
+
+                <motion.button
+                  variants={CARD_ITEM}
+                  type="button"
+                  onClick={() => setOpen(true)}
+                  className="relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl bg-[#a78bfa] py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+                >
+                  <span className="relative z-10">Explore by subject</span>
+                  <motion.span
+                    aria-hidden
+                    className="absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                    animate={{ x: ["-160%", "460%"] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.8 }}
+                  />
+                </motion.button>
+              </motion.div>
             </div>
           </motion.div>
         </div>
