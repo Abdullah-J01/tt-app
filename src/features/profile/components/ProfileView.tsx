@@ -21,21 +21,24 @@ import { PROFILE } from "../config";
 import { Paywall } from "./Paywall";
 import { StreakMoment } from "./StreakMoment";
 import { Button } from "@/components/ui/Button";
+import { useStreak } from "@/features/streak";
 
-const STATS = [
-  { value: "428", label: "Cards learned" },
-  { value: "7", label: "Day streak" },
-  { value: "6", label: "Completed" },
-];
 const LANGS = ["English", "Estonian", "Russian"];
 
 /** Profile home: identity, streak, stats, Premium upsell and shortcuts. */
 export function ProfileView() {
   const { data: session } = useSession();
   const { data, fullName } = useProfile();
+  const { streak: streakDays } = useStreak();
   const [paywall, setPaywall] = useState(false);
   const [streak, setStreak] = useState(false);
   const [langIdx, setLangIdx] = useState(0);
+
+  const STATS = [
+    { value: "428", label: "Cards learned" },
+    { value: `${streakDays}`, label: "Day streak" },
+    { value: "6", label: "Completed" },
+  ];
 
   // Prefer the signed-in user's details while the stored profile is still the
   // placeholder default; anything the user edited keeps winning.
@@ -92,7 +95,7 @@ export function ProfileView() {
           onClick={() => setStreak(true)}
           className="text-amber flex items-center gap-1 hover:underline"
         >
-          <Flame className="h-4 w-4" /> 7-day streak
+          <Flame className="h-4 w-4" /> {streakDays}-day streak
         </Button>
         <span className="text-brand-green flex items-center gap-1">
           <BadgeCheck className="h-4 w-4" /> {PROFILE.plan}

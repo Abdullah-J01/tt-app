@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Flame, Zap, BookOpen, SlidersHorizontal } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useStreak } from "@/features/streak";
 import type { FeedCardData } from "./feedData";
 
 type Props = {
@@ -27,6 +28,7 @@ export default function FeedCard({
   onOpenFilters,
   filterCount = 0,
 }: Props) {
+  const { streak } = useStreak();
   return (
     <div
       className="bg-plum-gradient relative h-full w-full overflow-hidden select-none"
@@ -78,7 +80,7 @@ export default function FeedCard({
           className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
         >
           <Flame size={13} className="text-amber fill-amber" />
-          {card.streakDays}
+          {streak}
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: -10 }}
