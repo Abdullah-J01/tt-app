@@ -9,6 +9,7 @@ import SearchBar from "../home/SearchBar";
 import { Logo } from "./Logo";
 import MobileNav from "./MobileNav";
 import ProfileMenu from "./ProfileMenu";
+import { StreakButton } from "@/features/streak";
 import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 
@@ -78,6 +79,7 @@ export default function Navbar() {
               </Button>
               {status === "authenticated" && (
                 <>
+                  <StreakButton />
                   {/* Desktop: dropdown with user details + log out */}
                   <ProfileMenu />
                   {/* Mobile: the profile icon opens the full /profile screen */}

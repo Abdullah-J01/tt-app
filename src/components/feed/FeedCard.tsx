@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Flame, Zap, BookOpen, SlidersHorizontal } from "lucide-react";
 // import { cn } from "@/lib/utils"; // used by the progress strip (hidden for now)
+import { useStreak } from "@/features/streak";
 import type { FeedCardData } from "./feedData";
 
 /** Progress segments shown at the top — capped so long feeds stay legible (and cheap). */
@@ -35,6 +36,7 @@ function FeedCard({
   onOpenFilters,
   filterCount = 0,
 }: Props) {
+  const { streak } = useStreak();
   // One segment per card for short feeds; proportional fill once the feed
   // outgrows the strip (hundreds of hairline slivers help nobody).
   // Kept for when the progress strip below is re-enabled.
@@ -100,7 +102,7 @@ function FeedCard({
           className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
         >
           <Flame size={13} className="text-amber fill-amber" />
-          {card.streakDays}
+          {streak}
         </motion.div>
         <motion.div
           initial={{ opacity: 0, y: -10 }}

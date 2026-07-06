@@ -10,6 +10,7 @@ import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
 import { SUBJECTS } from "@/config/subjects";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
+import { StreakCompletion } from "@/features/streak";
 import type { Studybook, StudyCard } from "@/types";
 
 const LOCK_MS = 500;
@@ -47,6 +48,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const total = cards.length;
   const [index, setIndex] = useState(0);
   const [dir, setDir] = useState(1);
+  const [done, setDone] = useState(false);
   const lockRef = useRef(false);
   const touchStartY = useRef<number | null>(null);
   // The whole overlay (backdrop included) — wheel/swipe anywhere navigates, not
@@ -72,7 +74,13 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     [index, total],
   );
 
-  const goNext = useCallback(() => go(index + 1), [go, index]);
+  const goNext = useCallback(() => {
+    if (index >= total - 1) {
+      setDone(true);
+      return;
+    }
+    go(index + 1);
+  }, [go, index, total]);
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
   const goBack = useCallback(() => {
@@ -285,6 +293,14 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           <ActionRail entry={toEntry(active, book)} shareTitle={book.title} />
         </div>
       </div>
+
+      <StreakCompletion
+        open={done}
+        onClose={() => setDone(false)}
+        cardsLearned={total}
+        onNextStudybook={goBack}
+        onBackToFeed={() => router.push("/feed")}
+      />
     </main>
   );
 }
