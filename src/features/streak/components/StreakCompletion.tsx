@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { BookmarkCheck, X } from "lucide-react";
 import { useStreak } from "../useStreak";
 import { StreakFlame } from "./StreakFlame";
+import { useScrollLock } from "@/lib/useScrollLock";
+import { Portal } from "@/lib/Portal";
 
 interface StreakCompletionProps {
   open: boolean;
@@ -24,29 +26,27 @@ export function StreakCompletion({
 }: StreakCompletionProps) {
   const { markToday, streak } = useStreak();
 
+  useScrollLock(open);
+
   useEffect(() => {
     if (open) markToday();
   }, [open, markToday]);
 
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open) return null;
 
   return (
+    <Portal>
     <div
-      className="fixed inset-0 z-[70] grid place-items-center p-4"
+      className="fixed inset-0 z-[80] grid place-items-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label="Studybook complete"
@@ -107,5 +107,6 @@ export function StreakCompletion({
         </button>
       </div>
     </div>
+    </Portal>
   );
 }

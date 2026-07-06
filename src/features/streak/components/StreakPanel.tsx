@@ -9,6 +9,8 @@ import { StreakFlame } from "./StreakFlame";
 import { StreakInfoSheet } from "./StreakInfoSheet";
 import { StreakMilestones } from "./StreakMilestones";
 import { StreakFreezesInfo } from "./StreakFreezesInfo";
+import { useScrollLock } from "@/lib/useScrollLock";
+import { Portal } from "@/lib/Portal";
 
 interface StreakPanelProps {
   open: boolean;
@@ -19,18 +21,15 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
   const { streak, maxStreak, freezes, activeDays, nextMilestone, daysToNext } = useStreak();
   const [info, setInfo] = useState<null | "milestones" | "freezes">(null);
 
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
     window.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKey);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
   if (!open) return null;
@@ -39,7 +38,8 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
   const progress = Math.min(streak / maxMilestone, 1);
 
   return (
-    <div className="fixed inset-0 z-50" role="dialog" aria-modal="true" aria-label="Reading streak">
+    <Portal>
+    <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Reading streak">
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div className="drawer-up md-drawer-right bg-surface absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-2xl md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-full md:max-w-md md:rounded-none md:rounded-l-2xl">
@@ -147,6 +147,7 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
         <StreakFreezesInfo />
       </StreakInfoSheet>
     </div>
+    </Portal>
   );
 }
 

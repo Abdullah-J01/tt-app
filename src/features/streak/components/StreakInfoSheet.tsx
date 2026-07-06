@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useScrollLock } from "@/lib/useScrollLock";
+import { Portal } from "@/lib/Portal";
 
 interface StreakInfoSheetProps {
   open: boolean;
@@ -11,6 +13,8 @@ interface StreakInfoSheetProps {
 }
 
 export function StreakInfoSheet({ open, onClose, title, children, cta = "Continue" }: StreakInfoSheetProps) {
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -23,8 +27,9 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
   if (!open) return null;
 
   return (
+    <Portal>
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center md:items-center md:p-4"
+      className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -47,5 +52,6 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
         </div>
       </div>
     </div>
+    </Portal>
   );
 }
