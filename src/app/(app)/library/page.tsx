@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -9,10 +9,15 @@ import { Bookmark, BookOpen, Heart, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { BookTileSkeleton, CardTileSkeleton, LibraryGridSkeleton } from "@/components/skeletons";
+import { useLazyList } from "@/lib/useLazyList";
+import { usePersistedChoice } from "@/lib/usePersistedChoice";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 
-type Tab = "cards" | "studybooks";
-type CardsFilter = "saved" | "liked";
+const TABS = ["cards", "studybooks"] as const;
+const CARDS_FILTERS = ["saved", "liked"] as const;
+type Tab = (typeof TABS)[number];
+type CardsFilter = (typeof CARDS_FILTERS)[number];
 /** What a Studybooks-tab tile needs — satisfied by both BookEntry and LibraryEntry. */
 type LibraryBook = Pick<LibraryEntry, "bookSlug" | "bookTitle" | "bookAuthor" | "subject"> & {
   /** Optional — falls back to a subject-colored cover when absent. */
@@ -45,8 +50,13 @@ const tileVariants = {
 
 /** Personal library / stash (UI brief §6.6). Liked/saved cards from the feed. */
 export default function LibraryPage() {
-  const [tab, setTab] = useState<Tab>("cards");
-  const [filter, setFilter] = useState<CardsFilter>("saved");
+  // Active tab + cards filter survive hard reloads (non-sensitive UI state).
+  const [tab, setTab] = usePersistedChoice<Tab>("tt:library-tab", "cards", TABS);
+  const [filter, setFilter] = usePersistedChoice<CardsFilter>(
+    "tt:library-filter",
+    "saved",
+    CARDS_FILTERS,
+  );
   const { status } = useSession();
   const { liked, saved, books: savedBooks, hydrated, toggleLiked, toggleSaved } = useLibrary();
 
@@ -82,6 +92,24 @@ export default function LibraryPage() {
   const showCards = tab === "cards" && !loggedOut && entries.length > 0;
   const showBooks = tab === "studybooks" && !loggedOut && books.length > 0;
 
+  // Render grids in viewport-sized batches; reset the window on tab/filter swaps.
+  const lazyCards = useLazyList(entries, 12, `${tab}:${filter}`);
+  const lazyBooks = useLazyList(books, 12, tab);
+
+  // Skeleton while the stash hydrates / the session resolves, unless we
+  // already have tiles to show. Also covers the logged-out check so the
+  // "log in" empty state never flashes the wrong copy.
+  const loadingLibrary = (!hydrated || status === "loading") && !showCards && !showBooks;
+
+  // Content replacing the skeleton mounts without the entrance animation —
+  // the data is already local, so staggering in from hidden reads as a second
+  // loading gap. Later tab/filter switches still animate. Ref flips in an
+  // effect, so the swap render itself still sees `true`.
+  const fromSkeleton = useRef(true);
+  useEffect(() => {
+    if (!loadingLibrary) fromSkeleton.current = false;
+  }, [loadingLibrary]);
+
   return (
     <div className="mx-auto min-h-screen max-w-5xl bg-white px-4 py-6 pb-24 md:py-10 md:pb-12">
       <motion.h1
@@ -111,7 +139,7 @@ export default function LibraryPage() {
       <AnimatePresence>
         {tab === "cards" && !loggedOut && (saved.length > 0 || liked.length > 0) && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
+            initial={fromSkeleton.current ? false : { opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: easeOut }}
@@ -129,18 +157,20 @@ export default function LibraryPage() {
         )}
       </AnimatePresence>
 
+      {loadingLibrary && <LibraryGridSkeleton tab={tab} />}
+
       <AnimatePresence mode="wait">
         {showCards && (
           <motion.ul
             key={`cards-${filter}`}
-            initial="hidden"
+            initial={fromSkeleton.current ? false : "hidden"}
             animate="show"
             exit={{ opacity: 0 }}
             variants={gridVariants}
             className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5"
           >
             <AnimatePresence initial={false}>
-              {entries.map((entry) => (
+              {lazyCards.items.map((entry) => (
                 <motion.li
                   key={entry.cardId}
                   layout
@@ -155,31 +185,52 @@ export default function LibraryPage() {
                 </motion.li>
               ))}
             </AnimatePresence>
+            {/* load-more sentinel: skeleton tiles that reveal the next batch on approach */}
+            {lazyCards.hasMore && (
+              <>
+                <li ref={lazyCards.sentinelRef} aria-hidden="true">
+                  <CardTileSkeleton />
+                </li>
+                <li aria-hidden="true">
+                  <CardTileSkeleton />
+                </li>
+              </>
+            )}
           </motion.ul>
         )}
 
         {showBooks && (
           <motion.ul
             key="studybooks"
-            initial="hidden"
+            initial={fromSkeleton.current ? false : "hidden"}
             animate="show"
             exit={{ opacity: 0 }}
             variants={gridVariants}
             className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4"
           >
-            {books.map((book) => (
+            {lazyBooks.items.map((book) => (
               <motion.li key={book.bookSlug} variants={tileVariants}>
                 <BookTile book={book} />
               </motion.li>
             ))}
+            {lazyBooks.hasMore && (
+              <>
+                <li ref={lazyBooks.sentinelRef} aria-hidden="true">
+                  <BookTileSkeleton />
+                </li>
+                <li aria-hidden="true">
+                  <BookTileSkeleton />
+                </li>
+              </>
+            )}
           </motion.ul>
         )}
       </AnimatePresence>
 
-      {/* Empty state — only once hydrated, so saved items don't flash it. */}
-      {hydrated && !showCards && !showBooks && (
+      {/* Empty state — only after loading, so saved items don't flash it. */}
+      {!loadingLibrary && !showCards && !showBooks && (
         <motion.div
-          initial={{ opacity: 0, y: 12 }}
+          initial={fromSkeleton.current ? false : { opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.45, ease: easeOut }}
           className="mt-12 flex flex-col items-center text-center"
