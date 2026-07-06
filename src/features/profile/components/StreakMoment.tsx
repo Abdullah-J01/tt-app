@@ -1,29 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
 import { Flame, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { useStreak } from "@/features/streak";
+import { useScrollLock } from "@/lib/useScrollLock";
+import { Portal } from "@/lib/Portal";
 
 /** Celebratory streak overlay (UI: Streak moment). */
 export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { streak } = useStreak();
   const DAYS = Array.from({ length: 7 }, (_, i) => i < streak);
 
-  useEffect(() => {
-    if (!open) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [open]);
+  useScrollLock(open);
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center p-4" role="dialog" aria-modal="true">
+    <Portal>
+    <div className="fixed inset-0 z-[70] grid place-items-center p-4" role="dialog" aria-modal="true">
       <div className="fade-in absolute inset-0 bg-black/50" onClick={onClose} />
 
       <div className="anim-pop bg-plum relative flex w-full max-w-sm flex-col items-center rounded-3xl px-6 py-9 text-center text-white shadow-xl">
@@ -70,5 +65,6 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
         </Button>
       </div>
     </div>
+    </Portal>
   );
 }
