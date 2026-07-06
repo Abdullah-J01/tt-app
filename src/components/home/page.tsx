@@ -9,7 +9,7 @@ import { StackingStudyBites } from "@/components/home/StackingStudyBites";
 import { UniverseCarousel } from "@/components/home/UniverseCarousel";
 import { ExploreSection } from "@/components/home/ExploreSection";
 import { SubjectGrid } from "@/components/home/SubjectGrid";
-import Hero from "@/components/home/Hero";
+import HeroLoader from "@/components/home/HeroLoader";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 
 const FEATURES = [
@@ -36,7 +36,7 @@ export default async function LandingPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <Hero />
+      <HeroLoader />
       <FeatureCardsLoader />
 
       <div className="h-10"></div>

@@ -6,7 +6,7 @@ import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
 import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
-import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "./FeedSkeleton";
+import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "@/components/skeletons";
 import NavControls from "./NavControls";
 import SideActions from "./SideActions";
 import { Button } from "@/components/ui/Button";
