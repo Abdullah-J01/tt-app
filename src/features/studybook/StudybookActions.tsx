@@ -55,6 +55,9 @@ export function SaveButton({ book, full = false }: { book: Studybook; full?: boo
 
   const toggle = () => {
     // Saving requires a session — send guests to login and back here.
+    // Taps while the session is still resolving are ignored (no login bounce,
+    // no writes under the anonymous storage key).
+    if (status === "loading") return;
     if (status !== "authenticated") {
       router.push(`/login?callbackUrl=${encodeURIComponent(`/studybook/${book.slug}`)}`);
       return;

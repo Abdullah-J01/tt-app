@@ -104,8 +104,13 @@ export function ActionRail({
   const saved = isSaved(entry.cardId);
   const liked = isLiked(entry.cardId);
 
-  /** Liking/saving requires a session — send guests to login and back here. */
+  /**
+   * Liking/saving requires a session — send guests to login and back here.
+   * Taps while the session is still resolving are ignored (no login bounce,
+   * no writes under the anonymous storage key).
+   */
   const withAuth = (action: () => void) => () => {
+    if (status === "loading") return;
     if (status !== "authenticated") {
       const back = `/studybook/${entry.bookSlug}/read`;
       router.push(`/login?callbackUrl=${encodeURIComponent(back)}`);

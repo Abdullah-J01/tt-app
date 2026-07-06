@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { IS_DEV_MODE } from "@/lib/env";
-import { toastSaved } from "@/components/ui/Toaster";
+import { toastLiked, toastSaved } from "@/components/ui/Toaster";
 
 /**
  * One liked/saved feed card. Carries enough metadata to render a Library row
@@ -136,8 +136,22 @@ export function useLibrary() {
   );
 
   const toggleLiked = useCallback(
-    (entry: LibraryEntry) =>
-      apply((prev) => ({ ...prev, liked: toggle(prev.liked, entry, cardKey) })),
+    (entry: LibraryEntry) => {
+      let didLike = false;
+      apply((prev) => {
+        didLike = !prev.liked.some((e) => cardKey(e) === entry.cardId);
+        return { ...prev, liked: toggle(prev.liked, entry, cardKey) };
+      });
+      // Confirm only on like (not un-like), with an Undo that removes it again.
+      if (didLike) {
+        toastLiked(() =>
+          apply((prev) => ({
+            ...prev,
+            liked: prev.liked.filter((e) => cardKey(e) !== entry.cardId),
+          })),
+        );
+      }
+    },
     [apply],
   );
 

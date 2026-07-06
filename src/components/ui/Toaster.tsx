@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bookmark } from "lucide-react";
+import { Bookmark, Heart, X } from "lucide-react";
 
 type ToastAction = { label: string; onClick: () => void };
-type ToastItem = { id: number; message: string; action?: ToastAction };
+type ToastItem = { id: number; message: string; action?: ToastAction; icon?: ReactNode };
+
+const DEFAULT_DURATION = 2000;
 
 /* --- Tiny module-level store so any component can `toast(...)` without a provider --- */
 let counter = 0;
@@ -29,20 +31,24 @@ function dismiss(id: number) {
 }
 
 /** Queue a toast. Returns its id so callers can dismiss it early. */
-export function toast(message: string, opts?: { action?: ToastAction; duration?: number }) {
+export function toast(
+  message: string,
+  opts?: { action?: ToastAction; duration?: number; icon?: ReactNode },
+) {
   const id = ++counter;
-  items = [...items, { id, message, action: opts?.action }];
+  items = [...items, { id, message, action: opts?.action, icon: opts?.icon }];
   emit();
   timers.set(
     id,
-    setTimeout(() => dismiss(id), opts?.duration ?? 3200),
+    setTimeout(() => dismiss(id), opts?.duration ?? DEFAULT_DURATION),
   );
   return id;
 }
 
-/** The "Saved to Library" toast with an Undo that reverts the save. */
-export function toastSaved(onUndo: () => void) {
-  const id = toast("Saved to Library", {
+/** Confirmation toast with an Undo action that reverts the change. */
+function toastUndo(message: string, icon: ReactNode, onUndo: () => void) {
+  const id = toast(message, {
+    icon,
     action: {
       label: "Undo",
       onClick: () => {
@@ -51,6 +57,24 @@ export function toastSaved(onUndo: () => void) {
       },
     },
   });
+}
+
+/** The "Saved to Library" toast with an Undo that reverts the save. */
+export function toastSaved(onUndo: () => void) {
+  toastUndo(
+    "Saved to Library",
+    <Bookmark className="text-brand-green fill-brand-green h-4 w-4 shrink-0" />,
+    onUndo,
+  );
+}
+
+/** The "Added to Likes" toast with an Undo that reverts the like. */
+export function toastLiked(onUndo: () => void) {
+  toastUndo(
+    "Added to Likes",
+    <Heart className="h-4 w-4 shrink-0 fill-rose-500 text-rose-500" />,
+    onUndo,
+  );
 }
 
 /** Mounted once (in the root layout) — renders whatever is in the store. */
@@ -78,19 +102,27 @@ export function Toaster() {
             transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
             role="status"
             aria-live="polite"
-            className="shadow-lift bg-ink/95 pointer-events-auto flex items-center gap-3 rounded-xl py-3 pr-3 pl-4 text-sm text-white backdrop-blur"
+            className="shadow-lift bg-ink/95 pointer-events-auto flex items-center gap-3 rounded-xl py-2.5 pr-2 pl-4 text-sm text-white backdrop-blur"
           >
-            <Bookmark className="text-brand-green fill-brand-green h-4 w-4 shrink-0" />
+            {t.icon}
             <span className="font-medium">{t.message}</span>
             {t.action && (
               <button
                 type="button"
                 onClick={t.action.onClick}
-                className="ml-3 font-semibold text-[#A78BFA] hover:underline"
+                className="ml-2 font-semibold text-[#A78BFA] hover:underline"
               >
                 {t.action.label}
               </button>
             )}
+            <button
+              type="button"
+              onClick={() => dismiss(t.id)}
+              aria-label="Dismiss"
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
+            >
+              <X className="h-4 w-4" aria-hidden />
+            </button>
           </motion.div>
         ))}
       </AnimatePresence>

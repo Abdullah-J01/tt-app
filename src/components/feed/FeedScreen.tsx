@@ -8,7 +8,7 @@ import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
 import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "@/components/skeletons";
 import NavControls from "./NavControls";
-import SideActions from "./SideActions";
+import SideActions, { type SideActionsHandle } from "./SideActions";
 import { Button } from "@/components/ui/Button";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { createFilterPredicate } from "@/features/explore/filters";
@@ -85,6 +85,8 @@ export default function FeedScreen() {
   const touchStartY = useRef<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const trackWrapRef = useRef<HTMLDivElement>(null);
+  const sideActionsRef = useRef<SideActionsHandle>(null);
+  const lastTap = useRef<{ t: number; x: number; y: number } | null>(null);
 
   const cards = useMemo(() => filteredCards(items, applied), [items, applied]);
   const total = cards.length;
@@ -274,6 +276,49 @@ export default function FeedScreen() {
     };
   }, [goNext, goPrev]);
 
+  // Instagram-style like gesture on the card area: double click (desktop) or
+  // double tap (touch). Taps on buttons/links inside the card are ignored, and
+  // the tiny tap movement never reaches the swipe handler's 45px threshold, so
+  // the two gestures don't conflict. SideActions owns the actual like + heart
+  // flight (it knows the session state and the Like button's live position).
+  useEffect(() => {
+    const el = trackWrapRef.current;
+    if (!el) return;
+
+    const isInteractive = (target: EventTarget | null) =>
+      target instanceof Element && target.closest("button, a") !== null;
+
+    function onDoubleClick(e: MouseEvent) {
+      if (isInteractive(e.target)) return;
+      // Double click also selects text — clear it so the gesture feels clean.
+      window.getSelection()?.removeAllRanges();
+      sideActionsRef.current?.likeAt(e.clientX, e.clientY);
+    }
+
+    function onTouchEnd(e: TouchEvent) {
+      const touch = e.changedTouches[0];
+      if (!touch || isInteractive(e.target)) return;
+      const now = performance.now();
+      const prev = lastTap.current;
+      lastTap.current = { t: now, x: touch.clientX, y: touch.clientY };
+      const isDoubleTap =
+        prev &&
+        now - prev.t < 300 &&
+        Math.hypot(touch.clientX - prev.x, touch.clientY - prev.y) < 24;
+      if (isDoubleTap) {
+        lastTap.current = null;
+        sideActionsRef.current?.likeAt(touch.clientX, touch.clientY);
+      }
+    }
+
+    el.addEventListener("dblclick", onDoubleClick);
+    el.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      el.removeEventListener("dblclick", onDoubleClick);
+      el.removeEventListener("touchend", onTouchEnd);
+    };
+  }, []);
+
   // Keyboard navigation (paused while the filter drawer is open)
   useEffect(() => {
     if (filtersOpen) return;
@@ -367,7 +412,7 @@ export default function FeedScreen() {
             </div>
 
             {loading && <SideActionsSkeleton />}
-            {cards[index] && <SideActions card={cards[index]} />}
+            {cards[index] && <SideActions ref={sideActionsRef} card={cards[index]} />}
           </div>
         </div>
       </div>
