@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
-import { Flame, Star, Trophy, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Flame, Star, Trophy } from "lucide-react";
 import { STREAK_MILESTONES, useStreak } from "../useStreak";
 import { StreakCalendar } from "./StreakCalendar";
 import { StreakFlame } from "./StreakFlame";
@@ -34,28 +34,28 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
 
   if (!open) return null;
 
-  const maxMilestone = STREAK_MILESTONES[STREAK_MILESTONES.length - 1] ?? 30;
-  const progress = Math.min(streak / maxMilestone, 1);
-
   return (
     <Portal>
     <div className="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-label="Reading streak">
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div className="drawer-up md-drawer-right bg-surface absolute inset-x-0 bottom-0 flex max-h-[88vh] flex-col rounded-t-2xl md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-full md:max-w-md md:rounded-none md:rounded-l-2xl">
-        <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
-          <h2 className="font-display text-ink flex items-center gap-2 text-lg font-bold">
-            <Flame size={20} className={streak > 0 ? "text-amber" : "text-faint"} fill={streak > 0 ? "currentColor" : "none"} />
-            Reading streak
-          </h2>
+        <div className="flex items-center justify-between px-5 py-4">
           <button
             type="button"
             onClick={onClose}
             aria-label="Close streak"
-            className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
+            className="text-faint hover:text-ink hover:bg-lavender grid h-9 w-9 place-items-center rounded-full transition-colors active:scale-95"
           >
-            <X className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5" />
           </button>
+          <h2 className="font-display text-ink text-lg font-bold">Streak Milestones</h2>
+          <span
+            aria-hidden
+            className="text-faint grid h-9 w-9 place-items-center rounded-full"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </span>
         </div>
 
         <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain p-5">
@@ -85,22 +85,32 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
                 </span>
               )}
             </div>
-            <div className="relative">
-              <div className="bg-mist h-1.5 rounded-full" />
-              <div
-                className="bg-amber absolute top-0 left-0 h-1.5 rounded-full transition-[width]"
-                style={{ width: `${progress * 100}%` }}
-              />
-              <div className="absolute inset-x-0 -top-2.5 flex justify-between">
-                {STREAK_MILESTONES.map((m) => {
-                  const reached = streak >= m;
-                  return (
+            <div className="flex items-center gap-1.5">
+              {/* leading day dots up to the first milestone */}
+              {Array.from({ length: STREAK_MILESTONES[0] ?? 7 }).map((_, i) => (
+                <span
+                  key={`dot-${i}`}
+                  className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                    i < streak ? "bg-amber" : "bg-mist"
+                  }`}
+                />
+              ))}
+              {/* milestone chips joined by tracks */}
+              {STREAK_MILESTONES.map((m, idx) => {
+                const reached = streak >= m;
+                const prevReached = idx === 0 || streak >= (STREAK_MILESTONES[idx - 1] ?? 0);
+                return (
+                  <Fragment key={m}>
+                    {idx > 0 && (
+                      <span
+                        className={`h-1 flex-1 rounded-full ${prevReached ? "bg-amber" : "bg-mist"}`}
+                      />
+                    )}
                     <button
-                      key={m}
                       type="button"
                       onClick={() => setInfo("milestones")}
                       aria-label={`${m}-day milestone details`}
-                      className={`grid h-7 w-7 place-items-center rounded-lg border text-xs font-semibold transition-transform active:scale-90 ${
+                      className={`grid h-8 min-w-8 shrink-0 place-items-center rounded-lg border px-1.5 text-sm font-semibold transition-transform active:scale-90 ${
                         reached
                           ? "border-amber bg-amber text-white"
                           : "border-hairline bg-surface text-muted hover:border-amber"
@@ -108,9 +118,9 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
                     >
                       {m}
                     </button>
-                  );
-                })}
-              </div>
+                  </Fragment>
+                );
+              })}
             </div>
           </div>
 
