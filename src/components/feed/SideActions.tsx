@@ -21,6 +21,7 @@ function toEntry(card: FeedCardData): LibraryEntry {
     bookAuthor: card.bookAuthor,
     subject: card.subject,
     grade: card.grade,
+    cover: card.cover,
     savedAt: 0, // stamped by the store on insert
   };
 }
