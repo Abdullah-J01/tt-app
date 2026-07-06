@@ -6,12 +6,5 @@ import { SubjectReveal } from "./SubjectReveal";
  * a short concluding line before the browseable subject grid section below.
  */
 export function ExploreSection() {
-  return (
-    <>
-      <SubjectReveal />
-      {/* Concluding content of the reveal — replaces the old dead/blank scroll
-          that used to sit after the cards, and leads into the subject grid. */}
-      <div className="mx-auto max-w-2xl px-6 pb-14 text-center sm:pb-16"></div>
-    </>
-  );
+  return <SubjectReveal />;
 }
