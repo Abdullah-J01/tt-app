@@ -13,6 +13,7 @@ import {
   Home,
   MoreHorizontal,
   Search,
+  ShieldCheck,
   User,
   X,
   type LucideIcon,
@@ -41,7 +42,8 @@ const NAV_ICONS: Record<string, LucideIcon> = {
  * Desktop is untouched — this whole tree is `md:hidden`.
  */
 export default function MobileNav() {
-  const { status } = useSession();
+  const { data: session, status } = useSession();
+  const isAdmin = session?.user?.role === "admin";
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -186,6 +188,21 @@ export default function MobileNav() {
                 <span className="flex-1 text-left">Language</span>
                 <span className="text-muted shrink-0 text-sm">EN</span>
               </Button>
+
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  role="menuitem"
+                  onClick={() => setMoreOpen(false)}
+                  className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
+                    <ShieldCheck size={18} className="text-ink/70" aria-hidden />
+                  </span>
+                  <span className="flex-1 text-left">Admin dashboard</span>
+                  <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
+                </Link>
+              )}
 
               <div className="px-2 py-2">
                 {status === "authenticated" ? (

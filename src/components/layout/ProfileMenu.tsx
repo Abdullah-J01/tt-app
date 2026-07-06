@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
-import { LogOut, User } from "lucide-react";
+import { LogOut, ShieldCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 /**
@@ -36,6 +36,7 @@ export default function ProfileMenu() {
 
   const name = session?.user?.name ?? "You";
   const email = session?.user?.email ?? "";
+  const isAdmin = session?.user?.role === "admin";
 
   return (
     <div ref={rootRef} className="relative hidden md:block">
@@ -80,6 +81,18 @@ export default function ProfileMenu() {
             <User size={16} className="text-ink/70" aria-hidden />
             View profile
           </Link>
+
+          {isAdmin && (
+            <Link
+              href="/admin"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
+            >
+              <ShieldCheck size={16} className="text-ink/70" aria-hidden />
+              Admin dashboard
+            </Link>
+          )}
 
           <Button
             unstyled
