@@ -149,8 +149,9 @@ export function SubjectReveal() {
   // Phase 2 (0.46 →): once the centre is gone the grid / mobile card comes in.
   const gridOpacity = useTransform(scrollYProgress, [0.46, 0.54], [0, 1]);
   const ctaOpacity = useTransform(scrollYProgress, [0.46, 0.56], [0, 1]);
-  const ctaScale = useTransform(scrollYProgress, [0.46, 0.6], [0.9, 1]);
-  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.62], [-85, 0]);
+  const ctaScale = useTransform(scrollYProgress, [0.46, 0.62], [0.92, 1]);
+  const ctaX = useTransform(scrollYProgress, [0.46, 0.64], [-300, 0]);
+  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.64], [-80, 0]);
 
   return (
     <>
@@ -283,9 +284,10 @@ export function SubjectReveal() {
                 : {
                     opacity: ctaOpacity,
                     scale: ctaScale,
-                    rotateX: ctaRotate,
+                    x: ctaX,
+                    rotateY: ctaRotate,
                     transformPerspective: 1200,
-                    transformOrigin: "bottom center",
+                    transformOrigin: "left center",
                   }
             }
             className="absolute inset-0 z-10 flex items-center justify-center px-5 sm:hidden"
