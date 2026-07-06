@@ -22,6 +22,7 @@ import { Paywall } from "./Paywall";
 import { StreakMoment } from "./StreakMoment";
 import { Button } from "@/components/ui/Button";
 import { useStreak } from "@/features/streak";
+import { AchievementsCard } from "@/features/achievements";
 
 const LANGS = ["English", "Estonian", "Russian"];
 
@@ -110,6 +111,11 @@ export function ProfileView() {
             <p className="text-muted mt-0.5 text-xs">{s.label}</p>
           </div>
         ))}
+      </div>
+
+      {/* Achievements */}
+      <div className="mt-4">
+        <AchievementsCard />
       </div>
 
       {/* Go Premium */}
