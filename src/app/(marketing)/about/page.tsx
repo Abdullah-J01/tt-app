@@ -82,7 +82,7 @@ export default function AboutPage() {
   return (
     <main className="relative min-h-screen bg-white">
       {/* Hero */}
-      <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-24 sm:px-8 sm:pt-48">
+      <section className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-40 pb-24 sm:px-6 sm:pt-48 lg:px-8">
         <BackgroundGradient />
         <motion.p
           initial={{ opacity: 0, y: 12 }}
@@ -113,7 +113,7 @@ export default function AboutPage() {
       </section>
 
       {/* Stats */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
           {stats.map((s, i) => (
             <motion.div
@@ -134,7 +134,7 @@ export default function AboutPage() {
       </section>
 
       {/* Values */}
-      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -166,7 +166,7 @@ export default function AboutPage() {
       </section>
 
       {/* Timeline */}
-      <section className="mx-auto max-w-4xl px-5 pb-24 sm:px-8">
+      <section className="mx-auto max-w-4xl px-4 pb-24 sm:px-6 lg:px-8">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -205,7 +205,7 @@ export default function AboutPage() {
       </section>
 
       {/* Quote */}
-      <section className="mx-auto max-w-4xl px-5 pb-28 sm:px-8">
+      <section className="mx-auto max-w-4xl px-4 pb-28 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
@@ -230,7 +230,6 @@ export default function AboutPage() {
           </p>
         </motion.div>
       </section>
-
     </main>
   );
 }

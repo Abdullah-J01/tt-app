@@ -80,7 +80,7 @@ function FeedCard({
 
       {/* progress segments — which card of the feed you're on (hidden for now) */}
       {/* <div
-        className="absolute inset-x-5 top-4 z-10 flex gap-1 sm:inset-x-7 sm:top-5"
+        className="absolute inset-x-4 top-4 z-10 flex gap-1 sm:inset-x-6 sm:top-5"
         aria-label={`Card ${index + 1} of ${total}`}
       >
         {Array.from({ length: segments }).map((_, i) => (
@@ -94,7 +94,7 @@ function FeedCard({
       {/* top badges: streak · For You · filter. Sits above the whole-card link
           overlay (z-20) but stays click-transparent — only the filter button
           re-enables pointer events, so the rest of the card still opens the book. */}
-      <div className="pointer-events-none absolute inset-x-5 top-8 z-30 flex items-center justify-between sm:inset-x-7 sm:top-9">
+      <div className="pointer-events-none absolute inset-x-4 top-8 z-30 flex items-center justify-between sm:inset-x-6 sm:top-9">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
@@ -143,7 +143,7 @@ function FeedCard({
       </div>
 
       {/* subject · grade */}
-      <div className="absolute inset-x-5 top-19 z-10 flex items-center justify-start sm:inset-x-7 sm:top-20">
+      <div className="absolute inset-x-4 top-19 z-10 flex items-center justify-start sm:inset-x-6 sm:top-20">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
@@ -156,7 +156,7 @@ function FeedCard({
       </div>
 
       {/* main content */}
-      <div className="absolute inset-x-5 top-[38%] z-10 -translate-y-1/2 sm:inset-x-8 sm:top-[40%]">
+      <div className="absolute inset-x-4 top-[38%] z-10 -translate-y-1/2 sm:inset-x-6 sm:top-[40%]">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
@@ -188,7 +188,7 @@ function FeedCard({
         initial={{ opacity: 0, y: 14 }}
         animate={active ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.35, delay: 0.25 }}
-        className="absolute inset-x-5 bottom-6 z-10 flex items-center gap-3 sm:inset-x-8 sm:bottom-8"
+        className="absolute inset-x-4 bottom-6 z-10 flex items-center gap-3 sm:inset-x-6 sm:bottom-8"
       >
         <div className="relative flex h-14 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/15 shadow-md">
           {card.cover ? (

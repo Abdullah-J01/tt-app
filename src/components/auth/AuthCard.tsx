@@ -1,8 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Logo } from "@/components/layout/Logo";
-import { IllustrationPlaceholder } from "@/components/ui/IllustrationPlaceholder";
 import { cn } from "@/lib/utils";
 import { LoginFace } from "./LoginFace";
 import { SignupFace } from "./SignupFace";
@@ -29,39 +27,31 @@ export function AuthCard({ initialMode }: { initialMode: Mode }) {
   const isSignup = mode === "signup";
 
   return (
-    <main className="bg-lavender-soft flex min-h-[100svh] flex-col items-center justify-center px-5 py-10">
-      <div className="w-full max-w-sm">
-        {/* Static branding above the flipping card */}
-        <div className="flex flex-col items-center gap-4 text-center">
-          <Logo animated />
-          <IllustrationPlaceholder caption="3D spot art · welcome mascot" className="h-28 w-28" />
-        </div>
-
-        <div className="mt-6 [perspective:1200px]">
+    <div className="mx-auto w-full max-w-[340px]">
+      <div className="[perspective:1200px]">
+        <div
+          className={cn(
+            "grid items-center [transform-style:preserve-3d]",
+            ready && "transition-transform duration-500",
+            isSignup && "[transform:rotateY(180deg)]",
+          )}
+        >
           <div
-            className={cn(
-              "grid [transform-style:preserve-3d]",
-              ready && "transition-transform duration-500",
-              isSignup && "[transform:rotateY(180deg)]",
-            )}
+            className="[backface-visibility:hidden] [grid-area:1/1]"
+            inert={isSignup}
+            aria-hidden={isSignup}
           >
-            <div
-              className="[backface-visibility:hidden] [grid-area:1/1]"
-              inert={isSignup}
-              aria-hidden={isSignup}
-            >
-              <LoginFace onSwitch={() => switchTo("signup")} />
-            </div>
-            <div
-              className="[transform:rotateY(180deg)] [backface-visibility:hidden] [grid-area:1/1]"
-              inert={!isSignup}
-              aria-hidden={!isSignup}
-            >
-              <SignupFace onSwitch={() => switchTo("login")} />
-            </div>
+            <LoginFace onSwitch={() => switchTo("signup")} />
+          </div>
+          <div
+            className="[transform:rotateY(180deg)] [backface-visibility:hidden] [grid-area:1/1]"
+            inert={!isSignup}
+            aria-hidden={!isSignup}
+          >
+            <SignupFace onSwitch={() => switchTo("login")} />
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

@@ -17,7 +17,7 @@ export function StreakButton() {
         onClick={() => setOpen(true)}
         aria-label={`Reading streak: ${streak} ${streak === 1 ? "day" : "days"}`}
         aria-haspopup="dialog"
-        className="text-ink/80 hover:text-ink inline-flex items-center gap-1 text-sm font-semibold transition-colors active:scale-95"
+        className="text-ink/80 hover:text-ink inline-flex items-center gap-1 text-sm font-semibold leading-none transition-colors active:scale-95"
       >
         <Flame
           size={18}

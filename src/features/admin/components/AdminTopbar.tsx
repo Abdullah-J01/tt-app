@@ -13,9 +13,9 @@ interface AdminTopbarProps {
 export function AdminTopbar({ userName }: AdminTopbarProps) {
   return (
     <header className="border-hairline bg-surface border-b">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-2 px-4 py-3 sm:px-6 lg:px-8">
         <div className="flex shrink-0 items-center gap-3 max-sm:gap-2">
-          <Logo href="/admin" />
+          <Logo href="/admin" className="h-6" />
           <Pill variant="solid" className="max-sm:hidden">
             CMS
           </Pill>

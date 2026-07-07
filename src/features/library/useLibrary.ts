@@ -12,7 +12,7 @@ import { toastLiked, toastSaved } from "@/components/ui/Toaster";
  */
 export interface LibraryEntry {
   cardId: string;
-  /** `/feed?slug=` deep-link back to the card. */
+  /** `/feed/[slug]` deep-link back to the card. */
   cardSlug: string;
   heading: string;
   body: string;

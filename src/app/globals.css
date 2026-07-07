@@ -46,6 +46,28 @@
   --color-plum-1: #4b3b66;
   --color-plum-2: #7a6a9e;
 
+  /* Gradient stops & accent tints (previously hard-coded in utilities/components).
+     Named so every hex lives in one place — generates bg-/text-/border- utilities. */
+  --color-violet-light: #9c85f0; /* lightest violet stop (gradients, headings) */
+  --color-violet-glow: #cbb8ff; /* snake-border highlight */
+  --color-lilac: #a78bfa; /* recurring accent purple (footer, toaster, reveal) */
+  --color-violet-muted: #7b5fd4; /* footer app-store button */
+  --color-plum-panel: #3a3358; /* dark plum panel/button bg */
+  --color-plum-panel-hover: #443c66; /* …its hover */
+  --color-green-mid: #2f8f4e; /* green gradient dark stop */
+  --color-green-bright: #6bc98a; /* green gradient light stop */
+  --color-amber-deep: #d98a1f; /* amber gradient dark stop */
+  --color-amber-light: #ffc76b; /* amber gradient light stop */
+  --color-amber-brown: #b0793b; /* psychology subject gradient dark stop */
+  --color-white: #ffffff;
+
+  /* RGB channel tokens — for rgb()/rgba() with an alpha (shadows, meshes, glass).
+     Use as: rgb(var(--color-ink-rgb) / 0.06). */
+  --color-ink-rgb: 30 26 46;
+  --color-violet-rgb: 108 76 227;
+  --color-brand-green-rgb: 67 168 99;
+  --color-white-rgb: 255 255 255;
+
   /* ── Typography ─────────────────────────────────────────── */
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-inter), sans-serif;
@@ -76,9 +98,12 @@
   --radius-xl3: 2.25rem;
 
   /* ── Shadows ────────────────────────────────────────────── */
-  --shadow-soft: 0 2px 8px rgba(30, 26, 46, 0.04), 0 8px 24px rgba(30, 26, 46, 0.06);
-  --shadow-lift: 0 12px 32px rgba(30, 26, 46, 0.12), 0 4px 12px rgba(30, 26, 46, 0.08);
-  --shadow-glow: 0 0 0 1px rgba(108, 76, 227, 0.08), 0 20px 60px rgba(108, 76, 227, 0.18);
+  --shadow-soft:
+    0 2px 8px rgb(var(--color-ink-rgb) / 0.04), 0 8px 24px rgb(var(--color-ink-rgb) / 0.06);
+  --shadow-lift:
+    0 12px 32px rgb(var(--color-ink-rgb) / 0.12), 0 4px 12px rgb(var(--color-ink-rgb) / 0.08);
+  --shadow-glow:
+    0 0 0 1px rgb(var(--color-violet-rgb) / 0.08), 0 20px 60px rgb(var(--color-violet-rgb) / 0.18);
 
   /* ── Animations ─────────────────────────────────────────── */
   --animate-float: float 7s ease-in-out infinite;
@@ -131,22 +156,44 @@
 
 /* ── Gradient / mesh background utilities ─────────────────── */
 .bg-plum-gradient {
-  background-image: linear-gradient(160deg, #483666 0%, #7a6a9e 100%);
+  background-image: linear-gradient(160deg, var(--color-plum-start) 0%, var(--color-plum-end) 100%);
 }
 .bg-green-gradient {
-  background-image: linear-gradient(160deg, #2f8f4e 0%, #43a863 60%, #6bc98a 100%);
+  background-image: linear-gradient(
+    160deg,
+    var(--color-green-mid) 0%,
+    var(--color-brand-green) 60%,
+    var(--color-green-bright) 100%
+  );
 }
 .bg-violet-gradient {
-  background-image: linear-gradient(160deg, #5a3ed0 0%, #6c4ce3 55%, #9c85f0 100%);
+  background-image: linear-gradient(
+    160deg,
+    var(--color-violet-dark) 0%,
+    var(--color-violet) 55%,
+    var(--color-violet-light) 100%
+  );
 }
 .bg-amber-gradient {
-  /* built from --color-amber (#f4a93b) */
-  background-image: linear-gradient(160deg, #d98a1f 0%, #f4a93b 60%, #ffc76b 100%);
+  background-image: linear-gradient(
+    160deg,
+    var(--color-amber-deep) 0%,
+    var(--color-amber) 60%,
+    var(--color-amber-light) 100%
+  );
 }
 .bg-mesh-light {
   background-image:
-    radial-gradient(60% 50% at 15% 10%, rgba(108, 76, 227, 0.1) 0%, rgba(108, 76, 227, 0) 60%),
-    radial-gradient(50% 40% at 90% 20%, rgba(67, 168, 99, 0.08) 0%, rgba(67, 168, 99, 0) 60%);
+    radial-gradient(
+      60% 50% at 15% 10%,
+      rgb(var(--color-violet-rgb) / 0.1) 0%,
+      rgb(var(--color-violet-rgb) / 0) 60%
+    ),
+    radial-gradient(
+      50% 40% at 90% 20%,
+      rgb(var(--color-brand-green-rgb) / 0.08) 0%,
+      rgb(var(--color-brand-green-rgb) / 0) 60%
+    );
 }
 
 @layer base {
@@ -333,8 +380,8 @@ html.lenis {
 }
 
 body {
-  color: #1e1a2e;
-  background: #ffffff;
+  color: var(--color-ink);
+  background: var(--color-surface);
   overflow-x: hidden;
 }
 
@@ -350,7 +397,7 @@ body {
 }
 
 .glass {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgb(var(--color-white-rgb) / 0.6);
   backdrop-filter: blur(20px) saturate(160%);
 
   /* -webkit-backdrop-filter: blur(20px) saturate(160%); */
@@ -358,7 +405,12 @@ body {
 }
 
 .text-gradient-violet {
-  background: linear-gradient(135deg, #5a3ed0, #6c4ce3 60%, #9c85f0);
+  background: linear-gradient(
+    135deg,
+    var(--color-violet-dark),
+    var(--color-violet) 60%,
+    var(--color-violet-light)
+  );
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -374,7 +426,7 @@ body {
   bottom: -3px;
   width: 100%;
   height: 1.5px;
-  background: #6c4ce3;
+  background: var(--color-violet);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s cubic-bezier(0.65, 0, 0.35, 1);
@@ -399,7 +451,7 @@ body {
   width: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #e7e7ee;
+  background: var(--color-border);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-track {
@@ -421,7 +473,7 @@ body {
 }
 .card-3d:hover {
   transform: perspective(900px) rotateX(6deg) rotateY(-7deg) translateY(-6px) scale(1.03);
-  box-shadow: 0 22px 40px rgba(30, 26, 46, 0.22);
+  box-shadow: 0 22px 40px rgb(var(--color-ink-rgb) / 0.22);
 }
 /* Glossy light sweep across the cover on hover. */
 .card-3d::after {
@@ -431,7 +483,7 @@ body {
   background: linear-gradient(
     105deg,
     transparent 30%,
-    rgba(255, 255, 255, 0.28) 45%,
+    rgb(var(--color-white-rgb) / 0.28) 45%,
     transparent 62%
   );
   transform: translateX(-130%);
@@ -460,7 +512,7 @@ body {
     transparent 0deg,
     transparent 250deg,
     var(--color-violet) 300deg,
-    #cbb8ff 330deg,
+    var(--color-violet-glow) 330deg,
     var(--color-violet) 360deg
   );
   -webkit-mask:
@@ -670,7 +722,7 @@ body {
   background: linear-gradient(
     to right,
     transparent,
-    rgba(255, 255, 255, 0.35),
+    rgb(var(--color-white-rgb) / 0.35),
     transparent
   );
   animation: btn-shine 2.8s ease-in-out infinite;

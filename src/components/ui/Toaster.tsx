@@ -110,7 +110,7 @@ export function Toaster() {
               <button
                 type="button"
                 onClick={t.action.onClick}
-                className="ml-2 font-semibold text-[#A78BFA] hover:underline"
+                className="text-lilac ml-2 font-semibold hover:underline"
               >
                 {t.action.label}
               </button>

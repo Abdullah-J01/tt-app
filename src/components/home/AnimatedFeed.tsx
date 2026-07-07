@@ -20,7 +20,7 @@ const cards: Card[] = [
     title: "Sunlight is 8½ minutes old when it reaches you.",
     book: "Everyday Astronomy",
     author: "E.V.F",
-    gradient: "from-[#483666] to-[#7A6A9E]",
+    gradient: "from-plum-start to-plum-end",
     progress: 62,
   },
   {
@@ -28,7 +28,7 @@ const cards: Card[] = [
     title: "Octopuses have three hearts and blue blood.",
     book: "Life Under the Sea",
     author: "R. Tamm",
-    gradient: "from-[#2F8F4E] to-[#6BC98A]",
+    gradient: "from-green-mid to-green-bright",
     progress: 34,
   },
   {
@@ -36,7 +36,7 @@ const cards: Card[] = [
     title: "The Great Wall isn't visible from space.",
     book: "Myths We Believe",
     author: "K. Isaac",
-    gradient: "from-[#5A3ED0] to-[#9C85F0]",
+    gradient: "from-violet-dark to-violet-light",
     progress: 81,
   },
   {
@@ -44,7 +44,7 @@ const cards: Card[] = [
     title: "Habits form faster when tied to an existing routine.",
     book: "The Shape of Habit",
     author: "M. Kask",
-    gradient: "from-[#B0793B] to-[#F4A93B]",
+    gradient: "from-amber-brown to-amber",
     progress: 20,
   },
 ];

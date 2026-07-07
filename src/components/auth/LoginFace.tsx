@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { signIn } from "next-auth/react";
-import { Mail } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Form, useZodForm } from "@/components/ui/Form";
 import { GoogleIcon } from "./GoogleIcon";
 import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
+import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
 import { loginSchema, type LoginValues } from "./schemas";
 
 /** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up. */
@@ -38,33 +38,40 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
     signIn("credentials", { email, password, callbackUrl: landingUrl() });
 
   return (
-    <div>
-      <div className="text-center">
-        <h1 className="font-display text-ink text-2xl font-bold">Welcome back</h1>
-        <p className="text-muted mt-1.5">Pick up your streak where you left off.</p>
+    <div className={GLASS_CARD}>
+      <div className="mb-5 text-center">
+        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">Welcome back</h1>
+        <p className="text-muted mt-1 text-[13px]">Pick up your streak where you left off.</p>
       </div>
 
-      <Form form={form} onSubmit={onSubmit} className="mt-6 flex flex-col gap-4">
+      <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-3">
         <Input
           id="login-email"
           type="email"
           label="Email"
-          placeholder="you@email.com"
-          leadingIcon={<Mail />}
+          labelClassName={GLASS_LABEL}
+          placeholder="Enter your email"
           autoComplete="email"
           error={errors.email?.message}
+          containerClassName={GLASS_FIELD}
+          className={GLASS_INPUT}
           {...register("email")}
         />
         <PasswordField
           id="login-password"
+          label="Password"
+          labelClassName={GLASS_LABEL}
+          placeholder="Enter your password"
           autoComplete="current-password"
           error={errors.password?.message}
+          containerClassName={GLASS_FIELD}
+          className={GLASS_INPUT}
           {...register("password")}
         />
-        <div className="-mt-1 flex justify-end">
+        <div className="-mt-0.5 flex justify-end">
           <Link
             href="/forgot-password"
-            className="text-violet hover:text-violet-dark text-sm font-semibold"
+            className="text-violet hover:text-violet-dark text-[13px] font-semibold"
           >
             Forgot password?
           </Link>
@@ -86,7 +93,7 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
         Continue with Google
       </Button>
 
-      <p className="text-muted mt-6 text-center text-sm">
+      <p className="text-muted mt-5 text-center text-[13px]">
         New here?{" "}
         <Button
           unstyled

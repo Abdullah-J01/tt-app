@@ -4,6 +4,7 @@ export { Card } from "./Card";
 export { CardRail } from "./CardRail";
 export { Chip } from "./Chip";
 export { ConfirmDialog } from "./ConfirmDialog";
+export { Container } from "./Container";
 export { EmptyState } from "./EmptyState";
 export { ContentCard } from "./ContentCard";
 export type { ContentCardProps, ContentCardLayout, ContentTag } from "./ContentCard";

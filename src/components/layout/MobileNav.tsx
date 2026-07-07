@@ -232,13 +232,13 @@ export default function MobileNav() {
 
         <nav
           aria-label="Primary"
-          className="glass border-border border-t px-2 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
+          className="glass border-border border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
         >
-          <ul className="mx-auto flex max-w-md items-stretch justify-around">
+          <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6 lg:px-8">
             {SITE.nav.map((item, i) => {
               const Icon = NAV_ICONS[item.href] ?? Circle;
               return (
-                <li key={item.href} className="flex-1">
+                <li key={item.href}>
                   <Link
                     href={item.href}
                     className={cn(
@@ -254,7 +254,7 @@ export default function MobileNav() {
             })}
 
             {status === "authenticated" && (
-              <li className="flex-1">
+              <li>
                 <Link
                   href="/profile"
                   className="text-ink/60 hover:text-ink flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95"
@@ -265,7 +265,7 @@ export default function MobileNav() {
               </li>
             )}
 
-            <li className="flex-1">
+            <li>
               <Button
                 unstyled
                 type="button"
