@@ -14,8 +14,19 @@ import { Input } from "@/components/ui/Input";
 export function SearchBar() {
   const router = useRouter();
   const params = useSearchParams();
-  const [value, setValue] = useState(params.get("q") ?? "");
+  const paramQ = params.get("q") ?? "";
+  const [value, setValue] = useState(paramQ);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // ?q= can also change outside the input (recent/suggested chips, back and
+  // forward). Mirror those into the field — without this, the stale value
+  // debounces back into the URL and undoes the chip tap. Trim-compare so our
+  // own replace (which trims) never clobbers a trailing space mid-typing.
+  const lastParamQ = useRef(paramQ);
+  if (lastParamQ.current !== paramQ) {
+    lastParamQ.current = paramQ;
+    if (paramQ !== value.trim()) setValue(paramQ);
+  }
 
   useEffect(() => {
     inputRef.current?.focus();

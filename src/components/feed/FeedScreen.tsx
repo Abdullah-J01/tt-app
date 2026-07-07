@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
-import Navbar from "@/components/layout/Navbar";
+// import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
 import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "@/components/skeletons";
 import NavControls from "./NavControls";
@@ -303,10 +303,13 @@ export default function FeedScreen() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev, filtersOpen]);
 
+  // Mobile: opt out of AppChrome's pt-20 spacer (-mt-20) and fill the viewport
+  // minus the fixed MobileNav bar (~64px + safe-area inset) so the card gets
+  // the whole screen. md+ keeps the original 85dvh stage.
   return (
-    <main className="relative flex h-[85dvh] flex-col overflow-hidden">
+    <main className="relative -mt-20 flex h-[calc(100dvh-64px-env(safe-area-inset-bottom))] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
       {/* <FeedNavbar streak={7} /> */}
-      <Navbar />
+      {/* <Navbar /> */}
 
       {/* data-lenis-prevent: the page-level Lenis smooth scroll would otherwise
           also react to wheel events here and drag the page while cards change. */}
@@ -336,7 +339,7 @@ export default function FeedScreen() {
           />
         )}
 
-        <div className="relative flex h-full w-full items-center justify-center pb-4 sm:pb-6 lg:pb-8">
+        <div className="relative flex h-full w-full items-center justify-center sm:pb-6 lg:pb-8">
           <div className="relative h-full w-full max-w-full sm:h-[92%] lg:h-[94%] lg:max-w-[400px] xl:max-w-[420px]">
             <div
               ref={trackWrapRef}

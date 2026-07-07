@@ -104,7 +104,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
   return (
     // Mobile/tablet: overlaid inside the card (bottom-right).
     // Desktop (lg+): moved outside the card to its right via left-full + margin.
-    <div className="absolute right-4 bottom-24 z-20 flex flex-col items-center gap-4 sm:right-6 sm:bottom-28 lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-full lg:ml-5 lg:-translate-y-1/2">
+    <div className="absolute right-2 bottom-17 z-20 flex flex-col items-center gap-4 sm:right-6 sm:bottom-28 lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-full lg:ml-5 lg:-translate-y-1/2">
       <div className="flex flex-col items-center gap-1">
         <motion.button
           ref={likeBtnRef}
