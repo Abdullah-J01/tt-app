@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
-// import Navbar from "@/components/layout/Navbar";
+import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
 import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "@/components/skeletons";
 import NavControls from "./NavControls";
@@ -309,7 +309,10 @@ export default function FeedScreen() {
   return (
     <main className="relative -mt-20 flex h-[calc(100dvh-64px-env(safe-area-inset-bottom))] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
       {/* <FeedNavbar streak={7} /> */}
-      {/* <Navbar /> */}
+      {/* Desktop-only: mobile keeps the immersive full-screen card (no header) */}
+      <div className="max-md:hidden">
+        <Navbar />
+      </div>
 
       {/* data-lenis-prevent: the page-level Lenis smooth scroll would otherwise
           also react to wheel events here and drag the page while cards change. */}
