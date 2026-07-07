@@ -6,6 +6,7 @@ import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
 import Navbar from "@/components/layout/Navbar";
 import FeedCard from "./FeedCard";
+import FeedTopBar from "./FeedTopBar";
 import { FeedCardSkeleton, NavControlsSkeleton, SideActionsSkeleton } from "@/components/skeletons";
 import NavControls from "./NavControls";
 import SideActions, { type SideActionsHandle } from "./SideActions";
@@ -370,6 +371,16 @@ export default function FeedScreen() {
                   </div>
                 ))}
               </motion.div>
+
+              {/* Mobile: one fixed top bar over the stage — the per-card copy
+                  (md+ only) would swipe along with the card track. */}
+              {total > 0 && (
+                <FeedTopBar
+                  className="md:hidden"
+                  onOpenFilters={openFilters}
+                  filterCount={applied.size}
+                />
+              )}
 
               {/* Filters excluded every card — keep the filter entry point reachable */}
               {items.length > 0 && total === 0 && (

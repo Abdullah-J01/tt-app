@@ -4,9 +4,9 @@ import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Flame, Zap, BookOpen, SlidersHorizontal } from "lucide-react";
+import { Zap, BookOpen } from "lucide-react";
 // import { cn } from "@/lib/utils"; // used by the progress strip (hidden for now)
-import { useStreak } from "@/features/streak";
+import FeedTopBar from "./FeedTopBar";
 import type { FeedCardData } from "./feedData";
 
 /** Progress segments shown at the top — capped so long feeds stay legible (and cheap). */
@@ -36,7 +36,6 @@ function FeedCard({
   onOpenFilters,
   filterCount = 0,
 }: Props) {
-  const { streak } = useStreak();
   // One segment per card for short feeds; proportional fill once the feed
   // outgrows the strip (hundreds of hairline slivers help nobody).
   // Kept for when the progress strip below is re-enabled.
@@ -91,56 +90,15 @@ function FeedCard({
         ))}
       </div> */}
 
-      {/* top badges: streak · For You · filter. Sits above the whole-card link
-          overlay (z-20) but stays click-transparent — only the filter button
-          re-enables pointer events, so the rest of the card still opens the book. */}
-      <div className="pointer-events-none absolute inset-x-4 top-8 z-30 flex items-center justify-between sm:inset-x-6 sm:top-9">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={active ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.35, delay: 0.05 }}
-          className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
-        >
-          <Flame size={13} className="text-amber fill-amber" />
-          {streak}
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={active ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.35, delay: 0.08 }}
-          className="flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-white"
-        >
-          For You
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={active ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.35, delay: 0.08 }}
-        >
-          {onOpenFilters ? (
-            <button
-              type="button"
-              onClick={onOpenFilters}
-              aria-label="Filter feed"
-              className="pointer-events-auto relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90 transition-transform hover:bg-white/15 active:scale-95"
-            >
-              <SlidersHorizontal size={20} className="fill-white/90" />
-              {filterCount > 0 && (
-                <span
-                  key={filterCount}
-                  className="pill-in bg-amber text-ink absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full px-1 text-[10px] font-semibold"
-                >
-                  {filterCount}
-                </span>
-              )}
-            </button>
-          ) : (
-            <div className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90">
-              <SlidersHorizontal size={20} className="fill-white/90" />
-            </div>
-          )}
-        </motion.div>
-      </div>
+      {/* top badges: streak · For You · filter — md+ only; on mobile FeedScreen
+          renders one fixed FeedTopBar over the stage so it doesn't swipe with
+          the card. */}
+      <FeedTopBar
+        className="max-md:hidden"
+        active={active}
+        onOpenFilters={onOpenFilters}
+        filterCount={filterCount}
+      />
 
       {/* subject · grade */}
       <div className="absolute inset-x-4 top-19 z-10 flex items-center justify-start sm:inset-x-6 sm:top-20">
