@@ -5,6 +5,7 @@ import SmoothScroll from "@/components/home/SmoothScroll";
 import { Toaster } from "@/components/ui/Toaster";
 import MobileNav from "@/components/layout/MobileNav";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
+import { AuthModal } from "@/components/auth/AuthModal";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
 const poppins = Poppins({
@@ -48,6 +49,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           <MobileNav />
           {/* Floating back-to-top (desktop only) — shows once scrolled down. */}
           <ScrollToTop />
+          {/* Global auth dialog — login/sign-up over the current page. */}
+          <AuthModal />
         </Providers>
         <Toaster />
         <div className="noise-overlay" aria-hidden="true" />

@@ -1,5 +1,5 @@
 import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 
 /**
  * Shared shell for the public marketing pages (home, about, contact, privacy,
@@ -11,7 +11,7 @@ export default function MarketingLayout({ children }: { children: React.ReactNod
     <>
       <Navbar />
       {children}
-      <Footer />
+      <ResponsiveFooter />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 
 /**
  * Client chrome for the authenticated app shell — just the bit that needs the
@@ -21,7 +21,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       {/* Spacer so content clears the fixed header — pages needn't add their own
           top margin. Immersive pages (feed) opt out with a negative margin. */}
       <div className="pt-20 md:pt-24">{children}</div>
-      {!hideChrome && <Footer />}
+      {!hideChrome && <ResponsiveFooter />}
     </div>
   );
 }

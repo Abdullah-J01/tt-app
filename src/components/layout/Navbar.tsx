@@ -11,6 +11,7 @@ import { Logo } from "./Logo";
 import ProfileMenu from "./ProfileMenu";
 import { StreakButton } from "@/features/streak";
 import { AdminLogoutButton } from "@/features/admin";
+import { useAuthModal } from "@/components/auth/useAuthModal";
 import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
@@ -19,6 +20,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const openAuth = useAuthModal((s) => s.openAuth);
   // On the admin CMS the shared header swaps its consumer controls (nav, search,
   // streak) for the CMS ones (badge, "View app", session info, log out).
   const onAdmin = pathname.startsWith("/admin");
@@ -118,21 +120,13 @@ export default function Navbar() {
                   {/* `unauthenticated` (not `!== authenticated`) so the Log in
                   button doesn't flash while the session is still loading. */}
                   {status === "unauthenticated" && (
-                    <>
-                      {/* <Link href="/login" className="hidden md:inline-flex"> */}
-                      <a href="/login">
-                        <Button className="shadow-soft hover:shadow-glow hidden rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300 md:inline-flex">
-                          Log in
-                        </Button>
-                      </a>
-                      {/* </Link> */}
-                      {/* Mobile: only the Login button (nav lives in the bottom bar) */}
-                      <a href="/login">
-                        <Button className="shadow-soft rounded-full px-5 py-2 text-sm font-medium text-white md:hidden">
-                          Log in
-                        </Button>
-                      </a>
-                    </>
+                    // Opens the auth dialog over the current page instead of navigating.
+                    <Button
+                      onClick={() => openAuth("login")}
+                      className="shadow-soft hover:shadow-glow rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300"
+                    >
+                      Log in
+                    </Button>
                   )}
                 </>
               )}

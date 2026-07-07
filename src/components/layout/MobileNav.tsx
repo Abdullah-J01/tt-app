@@ -21,6 +21,7 @@ import {
 import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { useAuthModal } from "@/components/auth/useAuthModal";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -44,6 +45,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 export default function MobileNav() {
   const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === "admin";
+  const openAuth = useAuthModal((s) => s.openAuth);
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -219,11 +221,18 @@ export default function MobileNav() {
                     Log out
                   </Button>
                 ) : (
-                  <Link href="/login" onClick={() => setMoreOpen(false)}>
-                    <Button block className="rounded-2xl py-3 text-sm font-medium text-white">
-                      Log in
-                    </Button>
-                  </Link>
+                  <Button
+                    block
+                    type="button"
+                    role="menuitem"
+                    onClick={() => {
+                      setMoreOpen(false);
+                      openAuth("login");
+                    }}
+                    className="rounded-2xl py-3 text-sm font-medium text-white"
+                  >
+                    Log in
+                  </Button>
                 )}
               </div>
             </motion.div>

@@ -8,11 +8,12 @@ import { Form, useZodForm } from "@/components/ui/Form";
 import { GoogleIcon } from "./GoogleIcon";
 import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
+import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
 import { loginSchema, type LoginValues } from "./schemas";
 
 /** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up. */
-export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
+export function LoginFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
   // Honors ?callbackUrl= when a guard bounced the user here (e.g. /admin).
   // Otherwise routes through /post-login, which checks the session role —
   // admins land on the admin dashboard, everyone else on the device default
@@ -39,6 +40,7 @@ export function LoginFace({ onSwitch }: { onSwitch: () => void }) {
 
   return (
     <div className={GLASS_CARD}>
+      <AuthHeader onClose={onClose} />
       <div className="mb-5 text-center">
         <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">Welcome back</h1>
         <p className="text-muted mt-1 text-[13px]">Pick up your streak where you left off.</p>

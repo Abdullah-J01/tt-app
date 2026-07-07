@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import { Footer } from "@/components/layout/Footer";
+import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 import { Pill } from "@/components/ui/Pill";
 import { StudybookPreview, SaveButton } from "@/features/studybook";
 import { SUBJECTS } from "@/config/subjects";
@@ -210,7 +210,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
       </Suspense>
 
       <div className="hidden md:block">
-        <Footer />
+        <ResponsiveFooter />
       </div>
     </>
   );

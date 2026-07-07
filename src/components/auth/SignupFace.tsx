@@ -8,11 +8,12 @@ import { Form, useZodForm } from "@/components/ui/Form";
 import { GoogleIcon } from "./GoogleIcon";
 import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
+import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
 import { signupSchema } from "./schemas";
 
 /** Sign-up face of the auth flip card (UI brief §6.2). `onSwitch` flips to log-in. */
-export function SignupFace({ onSwitch }: { onSwitch: () => void }) {
+export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
   const router = useRouter();
 
   const form = useZodForm(signupSchema);
@@ -26,6 +27,7 @@ export function SignupFace({ onSwitch }: { onSwitch: () => void }) {
 
   return (
     <div className={GLASS_CARD}>
+      <AuthHeader onClose={onClose} />
       <div className="mb-5 text-center">
         <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">Create your account</h1>
         <p className="text-muted mt-1 text-[13px]">Start your daily learning habit in minutes.</p>
