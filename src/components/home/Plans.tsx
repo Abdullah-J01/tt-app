@@ -1,18 +1,16 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Crown, Sparkles, X, Zap } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { DrawSVGPlugin } from "gsap/DrawSVGPlugin";
-import { MotionPathPlugin } from "gsap/MotionPathPlugin";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 
 if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger, DrawSVGPlugin, MotionPathPlugin);
+  gsap.registerPlugin(ScrollTrigger);
 }
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
@@ -123,8 +121,6 @@ export default function PremiumPlansPage() {
   const highlighterRef = useRef<HTMLDivElement>(null);
   const blobARef = useRef<HTMLDivElement>(null);
   const blobBRef = useRef<HTMLDivElement>(null);
-  const curvePathRef = useRef<SVGPathElement>(null);
-  const curveDotRef = useRef<SVGCircleElement>(null);
 
   const savingsLabel = useMemo(() => {
     const p = PLANS.find((p) => p.id === "genius")!;
@@ -161,52 +157,6 @@ export default function PremiumPlansPage() {
           },
         });
 
-        // Pricing cards flip in like a flashcard being turned over.
-        const cards = gsap.utils.toArray<HTMLElement>("[data-plan-card]");
-        gsap.set(cards, { transformPerspective: 1400, opacity: 0, rotateY: -110 });
-        gsap.to(cards, {
-          rotateY: 0,
-          opacity: 1,
-          duration: 0.9,
-          ease: "power3.out",
-          stagger: 0.16,
-          scrollTrigger: {
-            trigger: cardsWrapRef.current,
-            start: "top 82%",
-            toggleActions: "play none none reverse",
-          },
-        });
-
-        // Curve connecting the three plans draws in as you scroll past
-        // them, with a dot riding along it — a little "study path" from
-        // Free to Genius.
-        if (curvePathRef.current) {
-          gsap.set(curvePathRef.current, { drawSVG: "0%" });
-          const curveTl = gsap.timeline({
-            scrollTrigger: {
-              trigger: cardsWrapRef.current,
-              start: "top 70%",
-              end: "bottom 55%",
-              scrub: 0.6,
-            },
-          });
-          curveTl.to(curvePathRef.current, { drawSVG: "100%", ease: "none" }, 0);
-          if (curveDotRef.current) {
-            curveTl.to(
-              curveDotRef.current,
-              {
-                motionPath: {
-                  path: curvePathRef.current,
-                  align: curvePathRef.current,
-                  alignOrigin: [0.5, 0.5],
-                },
-                ease: "none",
-              },
-              0,
-            );
-          }
-        }
-
         // Highlighter sweep down the recommended column, like tracking a
         // line while reading study notes.
         if (highlighterRef.current && tableRowsRef.current) {
@@ -228,10 +178,85 @@ export default function PremiumPlansPage() {
         }
       });
 
-      mm.add("(prefers-reduced-motion: reduce)", () => {
-        gsap.set("[data-plan-card]", { opacity: 1, rotateY: 0 });
-        if (curvePathRef.current) gsap.set(curvePathRef.current, { drawSVG: "100%" });
-        if (curveDotRef.current) gsap.set(curveDotRef.current, { opacity: 0 });
+      // Pricing cards: scroll-scrubbed deck spread. The three cards start
+      // stacked (sides tucked behind Scholar with an edge peeking), then the
+      // sides glide out to their grid slots along a shallow arc, in lockstep
+      // with scroll — reversing the scroll replays it backwards for free.
+      // Transforms live on the [data-plan-slide] wrappers so they never fight
+      // the Framer Motion hover-lift on the cards themselves.
+      mm.add("(min-width: 640px) and (prefers-reduced-motion: no-preference)", () => {
+        const [leftCard, centerCard, rightCard] =
+          gsap.utils.toArray<HTMLElement>("[data-plan-slide]");
+        const wrap = cardsWrapRef.current;
+        if (!leftCard || !centerCard || !rightCard || !wrap) return;
+
+        const PEEK = 36; // px of a tucked card's outer edge left showing
+        const ARC = 22; // px of vertical rise at mid-flight (the curve)
+
+        // Offset that moves a side card from its grid slot to just behind the
+        // center card, stopping PEEK px short so its outer edge stays visible.
+        const stackedX = (el: HTMLElement) => {
+          const dx = centerCard.offsetLeft - el.offsetLeft;
+          return dx - Math.sign(dx) * PEEK;
+        };
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: wrap,
+            // Spread starts the moment the cards begin entering the viewport
+            // and completes as they become fully visible (one section-height
+            // of travel) — clamped so it still finishes near the bottom of
+            // short pages / on tall viewports where that much scroll room
+            // doesn't exist below the section.
+            start: "top bottom",
+            end: () => {
+              const startPos = wrap.getBoundingClientRect().top + window.scrollY - window.innerHeight;
+              const travel = Math.min(wrap.offsetHeight, ScrollTrigger.maxScroll(window) - startPos);
+              return startPos + Math.max(travel, 1);
+            },
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        for (const el of [leftCard, rightCard]) {
+          const dir = el === leftCard ? -1 : 1;
+          tl.fromTo(
+            el,
+            {
+              x: () => stackedX(el),
+              scale: 0.94,
+              rotation: dir * 3,
+              transformOrigin: "50% 100%",
+            },
+            { x: 0, scale: 1, rotation: 0, duration: 1, ease: "sine.inOut" },
+            0,
+          );
+          // Shallow rise-and-settle on y turns the straight slide into an arc.
+          tl.to(el, { keyframes: { y: [0, -ARC, 0], easeEach: "sine.inOut" }, duration: 1 }, 0);
+        }
+      });
+
+      // Single-column mobile: the deck metaphor doesn't apply, so cards just
+      // rise in softly as they enter, and reverse when scrolled back out.
+      mm.add("(max-width: 639px) and (prefers-reduced-motion: no-preference)", () => {
+        gsap.utils.toArray<HTMLElement>("[data-plan-slide]").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { opacity: 0, y: 28 },
+            {
+              opacity: 1,
+              y: 0,
+              duration: 0.6,
+              ease: "power2.out",
+              scrollTrigger: {
+                trigger: el,
+                start: "top 88%",
+                toggleActions: "play none none reverse",
+              },
+            },
+          );
+        });
       });
 
       // Toggle the compact sticky billing switch once the hero scrolls away.
@@ -243,7 +268,28 @@ export default function PremiumPlansPage() {
       });
     }, rootRef);
 
-    return () => ctx.revert();
+    // The landing page lazy-mounts the sections above this one (hero, feature
+    // cards, carousels), so the document grows after ScrollTrigger's initial
+    // measurement. Worse, the FeatureCards *pinned* trigger is created after
+    // ours, so without re-sorting, our triggers refresh before the pin and
+    // miss its ~1.6k px spacer offset — everything here would fire far too
+    // early. Re-sort into document order and re-measure whenever the page
+    // height changes.
+    let lastHeight = document.documentElement.scrollHeight;
+    const resizeObserver = new ResizeObserver(() => {
+      const height = document.documentElement.scrollHeight;
+      if (height !== lastHeight) {
+        lastHeight = height;
+        ScrollTrigger.sort();
+        ScrollTrigger.refresh();
+      }
+    });
+    resizeObserver.observe(document.body);
+
+    return () => {
+      resizeObserver.disconnect();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -257,7 +303,7 @@ export default function PremiumPlansPage() {
         className="pointer-events-none absolute -top-24 -right-20 h-72 w-72"
       >
         <motion.div
-          className="from-violet/20 h-full w-full rounded-full bg-gradient-to-br to-transparent blur-3xl"
+          className=" h-full w-full rounded-full bg-gradient-to-br to-transparent blur-3xl"
           animate={{ y: [0, 18, 0], opacity: [0.6, 0.9, 0.6] }}
           transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -268,7 +314,7 @@ export default function PremiumPlansPage() {
         className="pointer-events-none absolute top-40 -left-24 h-72 w-72"
       >
         <motion.div
-          className="bg-lavender h-full w-full rounded-full blur-3xl"
+          className="h-full w-full rounded-full blur-3xl"
           animate={{ y: [0, -14, 0], opacity: [0.5, 0.8, 0.5] }}
           transition={{ duration: 11, repeat: Infinity, ease: "easeInOut", delay: 1 }}
         />
@@ -329,32 +375,20 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      {/* Pricing cards — flip in on scroll, like turning over a flashcard */}
-      <div
-        ref={cardsWrapRef}
-        className="relative mt-10 grid grid-cols-1 gap-6 [perspective:1600px] sm:grid-cols-3"
-      >
-        {/* Curved "study path" connecting Free → Scholar → Genius, draws in on scroll */}
-        <svg
-          aria-hidden
-          viewBox="0 0 100 45"
-          preserveAspectRatio="none"
-          className="text-violet/50 pointer-events-none absolute inset-x-0 top-1/2 z-0 hidden h-16 w-full -translate-y-1/2 sm:block"
-        >
-          <path
-            ref={curvePathRef}
-            d="M 8 40 C 29 4, 71 4, 92 40"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="0.6"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-          <circle ref={curveDotRef} cx="8" cy="40" r="1.6" fill="currentColor" />
-        </svg>
-
+      {/* Pricing cards — start stacked behind Scholar, spread apart on scroll */}
+      <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {PLANS.map((plan) => (
-          <PricingCard key={plan.id} plan={plan} cycle={cycle} />
+          // GSAP animates this wrapper; the card inside keeps its own Framer
+          // Motion hover transform. `grid` makes the card fill the slot so all
+          // three stay equal height. The popular (center) card sits on top of
+          // the deck while the sides are tucked behind it.
+          <div
+            key={plan.id}
+            data-plan-slide
+            className={cn("relative grid", plan.popular ? "z-[2]" : "z-[1]")}
+          >
+            <PricingCard plan={plan} cycle={cycle} />
+          </div>
         ))}
       </div>
     </div>
@@ -367,11 +401,10 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
   return (
     <motion.div
       data-plan-card
-      style={{ opacity: 0 }}
       whileHover={{ y: plan.popular ? -10 : -6 }}
       transition={{ duration: 0.25, ease: easeOut }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-3xl p-6 ring-1 [transform-style:preserve-3d]",
+        "group relative flex flex-col overflow-hidden rounded-3xl p-6 ring-1",
         plan.popular
           ? "ring-violet/40 shadow-violet/20 bg-plum-gradient shadow-xl"
           : "bg-white shadow-md ring-black/5",
