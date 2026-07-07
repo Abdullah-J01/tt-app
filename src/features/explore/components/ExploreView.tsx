@@ -9,6 +9,7 @@ import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
 import { GRADES, SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 import {
   applyFilters,
   createFilterPredicate,
@@ -98,7 +99,10 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   const resultCount = tab === "books" ? booksF.length : bitesF.length;
 
   // ~4 rows per page (page size follows the column count of the active layout).
-  const pageSize = tab === "bites" ? 12 : view === "list" ? 8 : showRail ? 12 : 16;
+  // Below sm everything is 1–2 columns, so cap pages at 8 cards — the pager
+  // should arrive after a short scroll, not a long one.
+  const isMobile = useMediaQuery("(max-width: 639px)");
+  const pageSize = isMobile ? 8 : tab === "bites" ? 12 : view === "list" ? 8 : showRail ? 12 : 16;
   const totalPages = Math.max(1, Math.ceil(resultCount / pageSize));
   const safePage = Math.min(page, totalPages);
   const pageBooks = booksF.slice((safePage - 1) * pageSize, safePage * pageSize);
@@ -111,9 +115,10 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
 
   return (
     <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">
-      {/* Sticky header on mobile — search lives in the TopNav on md+, so mobile
-          only gets a compact shortcut to the full-screen search screen */}
-      <div className="border-hairline bg-surface/95 sticky top-0 z-30 -mx-4 flex items-center justify-between border-b px-4 pt-6 pb-3 backdrop-blur sm:-mx-6 sm:px-6 md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-0 md:backdrop-blur-none">
+      {/* Static header — the fixed navbar pill floats above the page, so a
+          sticky bar here would slide under it and look cropped. Search lives in
+          the navbar on md+; mobile gets a shortcut to the full-screen search */}
+      <div className="flex items-center justify-between pt-6 md:block md:pt-0">
         <h1 className="text-2xl font-bold">Explore</h1>
 
         <Link

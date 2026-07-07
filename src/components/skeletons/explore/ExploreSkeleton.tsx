@@ -16,8 +16,8 @@ export function ExploreSkeleton() {
       aria-label="Loading catalog"
       className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 md:pb-12"
     >
-      {/* header — sticky on mobile, plain on md+ */}
-      <div className="border-hairline bg-surface/95 sticky top-0 z-30 -mx-4 flex items-center justify-between border-b px-4 pt-6 pb-3 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-0 md:backdrop-blur-none">
+      {/* header — static, matches ExploreView */}
+      <div className="flex items-center justify-between pt-6 md:block md:pt-0">
         <h1 className="text-2xl font-bold">Explore</h1>
         <Skeleton className="h-10 w-10 rounded-full md:hidden" />
       </div>
