@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useScrollLock } from "@/lib/useScrollLock";
+import { Portal } from "@/lib/Portal";
 
 interface StreakInfoSheetProps {
   open: boolean;
@@ -11,6 +13,8 @@ interface StreakInfoSheetProps {
 }
 
 export function StreakInfoSheet({ open, onClose, title, children, cta = "Continue" }: StreakInfoSheetProps) {
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -23,8 +27,9 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
   if (!open) return null;
 
   return (
+    <Portal>
     <div
-      className="fixed inset-0 z-[60] flex items-end justify-center md:items-center md:p-4"
+      className="fixed inset-0 z-[70] flex items-end justify-center md:items-center md:p-4"
       role="dialog"
       aria-modal="true"
       aria-label={title}
@@ -32,7 +37,7 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
 
       <div className="drawer-up bg-surface relative flex max-h-[88vh] w-full flex-col rounded-t-2xl md:max-w-md md:rounded-2xl">
-        <div className="flex-1 overflow-y-auto overscroll-contain px-6 pt-7 pb-5">
+        <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain px-6 pt-7 pb-5">
           <h2 className="font-display text-ink text-2xl font-bold">{title}</h2>
           <div className="mt-5">{children}</div>
         </div>
@@ -47,5 +52,6 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
         </div>
       </div>
     </div>
+    </Portal>
   );
 }

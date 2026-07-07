@@ -11,7 +11,7 @@ import { ParallaxBlobs } from "./ParallaxBlobs";
  */
 export function Footer() {
   return (
-    <footer className="px-4 py-8 sm:px-6">
+    <footer className="px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 md:pb-8">
       <div className="bg-plum-gradient shadow-lift relative mx-auto max-w-7xl overflow-hidden rounded-3xl text-white">
         {/* Accent bar */}
         <div className="h-1 w-full bg-[#A78BFA]" />
@@ -52,7 +52,7 @@ export function Footer() {
               <div className="mt-6 flex flex-col gap-3">
                 <a
                   href="#"
-                  className="flex w-full items-center gap-3 rounded-2xl bg-[#7b5fd4] px-5 py-3 transition-transform hover:-translate-y-0.5 active:scale-[0.98] sm:w-72"
+                  className="btn-shine relative flex w-full items-center gap-3 overflow-hidden rounded-2xl bg-[#7b5fd4] px-5 py-3 transition-transform hover:-translate-y-0.5 active:scale-[0.98] sm:w-72"
                 >
                   <Apple className="h-7 w-7 shrink-0" />
                   <span className="text-left leading-tight">
@@ -65,7 +65,7 @@ export function Footer() {
 
                 <a
                   href="#"
-                  className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-[#3a3358] px-5 py-3 transition-colors hover:bg-[#443c66] sm:w-72"
+                  className="btn-shine relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-white/10 bg-[#3a3358] px-5 py-3 transition-colors hover:bg-[#443c66] sm:w-72"
                 >
                   <Play className="h-6 w-6 shrink-0 fill-current" />
                   <span className="text-left leading-tight">
