@@ -16,53 +16,56 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Gradients + colors are the globals.css design tokens
-// (bg-*-gradient utilities built from --color-violet / -green / -plum / -amber).
 const features = [
   {
     icon: Zap,
     title: "Bite sized cards",
-    description: "Five second insights you actually remember.",
+    description:
+      "Learn with quick five-second insights designed to be memorable and easy to revisit anytime.",
     gradient: "bg-violet-gradient",
     illustration: <FloatingShard />,
   },
   {
     icon: BookOpen,
     title: "Thousands of studybooks",
-    description: "A whole catalog, reimagined as cards.",
+    description:
+      "Dive into a rich collection of books redesigned as clear, interactive learning cards.",
     gradient: "bg-green-gradient",
     illustration: <FloatingBook />,
   },
   {
     icon: Smartphone,
     title: "Learn on any device",
-    description: "Phone, tablet, web your streak follows.",
+    description:
+      "Continue learning seamlessly across your phone, tablet, and web without losing progress.",
     gradient: "bg-plum-gradient",
     illustration: <FloatingDevices />,
   },
   {
     icon: Users,
     title: "Learn together",
-    description: "Share decks and race your friends.",
+    description:
+      "Collaborate with friends, share study decks, and stay motivated through friendly challenges.",
     gradient: "bg-violet-gradient",
     illustration: <FloatingStack />,
   },
   {
     icon: Trophy,
     title: "Earn as you go",
-    description: "Badges and levels for every win.",
+    description:
+      "Unlock badges, gain experience, and celebrate every milestone throughout learning journey.",
     gradient: "bg-green-gradient",
     illustration: <FloatingPrism />,
   },
   {
     icon: Flame,
     title: "Keep your streak",
-    description: "Daily nudges that make learning stick.",
+    description:
+      "Build lasting study habits with daily reminders, streaks, and motivating progress tracking.",
     gradient: "bg-plum-gradient",
     illustration: <FloatingRings />,
   },
 ];
-
 export default function FeatureCards() {
   const sectionRef = useRef<HTMLElement>(null); // pinned to the viewport
   const trackRef = useRef<HTMLDivElement>(null); // the wide row we slide on X
