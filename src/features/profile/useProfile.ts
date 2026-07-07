@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { PROFILE } from "./config";
 
 export interface ProfileData {
@@ -38,6 +39,7 @@ function read(): ProfileData {
  * TODO(team): replace with the real account API once available.
  */
 export function useProfile() {
+  const { data: session } = useSession();
   const [data, setData] = useState<ProfileData>(DEFAULT);
 
   // Hydrate after mount (localStorage is client-only) + keep tabs/screens in sync.
@@ -51,6 +53,31 @@ export function useProfile() {
       window.removeEventListener(EVENT, sync);
     };
   }, []);
+
+  // Seed the profile from the signed-in account while it's still the placeholder
+  // default — so a freshly created account's name/email show up right away.
+  // Anything the user edits afterwards is kept (this only runs on the default).
+  useEffect(() => {
+    const email = session?.user?.email;
+    if (!email) return;
+    const stored = read();
+    const isPlaceholder = stored.email === DEFAULT.email && stored.firstName === DEFAULT.firstName;
+    if (!isPlaceholder) return;
+    const parts = (session?.user?.name ?? email.split("@")[0] ?? "").trim().split(/\s+/);
+    const seeded: ProfileData = {
+      firstName: parts[0] || DEFAULT.firstName,
+      lastName: parts.slice(1).join(" "),
+      email,
+      handle: email.split("@")[0] ?? email,
+    };
+    try {
+      localStorage.setItem(KEY, JSON.stringify(seeded));
+    } catch {
+      /* ignore quota / disabled storage */
+    }
+    setData(seeded);
+    window.dispatchEvent(new Event(EVENT));
+  }, [session]);
 
   const update = useCallback((patch: Partial<ProfileData>) => {
     setData((prev) => {

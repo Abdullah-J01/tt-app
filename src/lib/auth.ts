@@ -44,13 +44,16 @@ export const authOptions: NextAuthOptions = {
           CredentialsProvider({
             name: "Email",
             credentials: {
+              // `name` is only sent on sign-up; login omits it and we derive one.
+              name: { label: "Name", type: "text" },
               email: { label: "Email", type: "email" },
               password: { label: "Password", type: "password" },
             },
             async authorize(credentials) {
               const email = credentials?.email?.trim();
               if (!email) return null;
-              return { id: email, email, name: email.split("@")[0] || "You" };
+              const name = credentials?.name?.trim() || email.split("@")[0] || "You";
+              return { id: email, email, name };
             },
           }),
         ]
