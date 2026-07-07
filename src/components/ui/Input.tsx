@@ -18,6 +18,8 @@ interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size">
   trailingIcon?: ReactNode;
   /** Class applied to the field wrapper (vs `className`, applied to the `<input>`). */
   containerClassName?: string;
+  /** Class applied to the `<label>` — e.g. to recolour it on a dark/gradient card. */
+  labelClassName?: string;
   /**
    * Render a bare `<input>` with only the supplied `className` — skips the field
    * chrome (wrapper, label, icons, error). Use it to route a fully custom input
@@ -46,6 +48,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
     leadingIcon,
     trailingIcon,
     containerClassName,
+    labelClassName,
     className,
     unstyled = false,
     id,
@@ -67,7 +70,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className="flex flex-col gap-1.5">
       {label && (
-        <Label htmlFor={fieldId} required={requiredMark}>
+        <Label htmlFor={fieldId} required={requiredMark} className={labelClassName}>
           {label}
         </Label>
       )}

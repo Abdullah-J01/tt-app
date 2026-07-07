@@ -7,9 +7,9 @@ import { LogOut, ShieldCheck, User } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 /**
- * Desktop-only profile menu for the navbar (md+). The trigger reuses the same
- * icon styling the plain /profile anchor had; clicking opens a small dropdown
- * with the signed-in user's details, a link to /profile and a log-out action.
+ * Profile menu for the navbar (all sizes). The trigger is the profile icon;
+ * clicking opens a small dropdown with the signed-in user's details, a link to
+ * /profile, an admin shortcut, and a log-out action.
  */
 export default function ProfileMenu() {
   const { data: session } = useSession();
@@ -39,7 +39,7 @@ export default function ProfileMenu() {
   const isAdmin = session?.user?.role === "admin";
 
   return (
-    <div ref={rootRef} className="relative hidden md:block">
+    <div ref={rootRef} className="relative flex items-center">
       <Button
         unstyled
         type="button"
@@ -48,7 +48,7 @@ export default function ProfileMenu() {
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="navbar-profile-menu"
-        className="text-ink/80 hover:text-ink inline-flex items-center gap-1.5 text-sm transition-colors"
+        className="text-ink/80 hover:text-ink inline-flex items-center gap-1.5 text-sm leading-none transition-colors"
       >
         <User size={18} />
       </Button>
@@ -58,7 +58,7 @@ export default function ProfileMenu() {
           id="navbar-profile-menu"
           role="menu"
           aria-label="Profile"
-          className="glass border-border shadow-lift absolute right-0 top-full z-50 mt-3 w-64 overflow-hidden rounded-2xl border p-2"
+          className="glass border-border shadow-lift absolute top-full right-0 z-50 mt-3 w-64 overflow-hidden rounded-2xl border p-2"
         >
           <div className="flex items-center gap-3 px-3 py-3">
             <span className="bg-lavender grid h-10 w-10 shrink-0 place-items-center rounded-full">

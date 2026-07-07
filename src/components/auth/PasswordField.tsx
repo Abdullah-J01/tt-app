@@ -1,7 +1,7 @@
 "use client";
 
 import { forwardRef, useState, type ComponentProps } from "react";
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
@@ -25,7 +25,6 @@ export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(
         ref={ref}
         type={visible ? "text" : "password"}
         label={label}
-        leadingIcon={<Lock />}
         trailingIcon={
           <Button
             unstyled

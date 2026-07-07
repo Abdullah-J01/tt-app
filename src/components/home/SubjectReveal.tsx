@@ -137,7 +137,8 @@ export function SubjectReveal() {
   }, [reduced, scrollYProgress]);
 
   const cards = useMemo<SubjectCardData[]>(
-    () => SUBJECTS.map((subject, i) => ({ subject, dir: DIRECTIONS[i % DIRECTIONS.length] ?? "left" })),
+    () =>
+      SUBJECTS.map((subject, i) => ({ subject, dir: DIRECTIONS[i % DIRECTIONS.length] ?? "left" })),
     [],
   );
 
@@ -182,7 +183,7 @@ export function SubjectReveal() {
                   className="absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
                   style={{
                     background:
-                      "radial-gradient(circle, rgba(108,76,227,0.34) 0%, rgba(108,76,227,0.12) 42%, transparent 70%)",
+                      "radial-gradient(circle, rgb(var(--color-violet-rgb) / 0.34) 0%, rgb(var(--color-violet-rgb) / 0.12) 42%, transparent 70%)",
                   }}
                 />
                 <motion.svg
@@ -292,7 +293,7 @@ export function SubjectReveal() {
             }
             className="absolute inset-0 z-10 flex items-center justify-center px-5 sm:hidden"
           >
-            <div className="bg-plum-gradient relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border border-[#a78bfa] px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
+            <div className="bg-plum-gradient border-lilac relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
               <motion.div
                 variants={CARD_CONTAINER}
                 initial={reduced ? false : "hidden"}
@@ -307,7 +308,7 @@ export function SubjectReveal() {
                 </motion.p>
                 <motion.h3
                   variants={CARD_ITEM}
-                  className="font-display mt-2 text-3xl leading-tight font-bold text-[#a78bfa]"
+                  className="font-display text-lilac mt-2 text-3xl leading-tight font-bold"
                 >
                   Dive into {SUBJECTS.length} subjects
                 </motion.h3>
@@ -342,14 +343,19 @@ export function SubjectReveal() {
                   variants={CARD_ITEM}
                   type="button"
                   onClick={() => setOpen(true)}
-                  className="relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl bg-[#a78bfa] py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+                  className="bg-lilac relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
                 >
                   <span className="relative z-10">Explore by subject</span>
                   <motion.span
                     aria-hidden
                     className="absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
                     animate={{ x: ["-160%", "460%"] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.8 }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      repeatDelay: 0.8,
+                    }}
                   />
                 </motion.button>
               </motion.div>

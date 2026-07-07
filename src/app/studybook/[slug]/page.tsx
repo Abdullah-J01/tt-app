@@ -7,8 +7,7 @@ import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { Footer } from "@/components/layout/Footer";
 import { Pill } from "@/components/ui/Pill";
-import { BackButton } from "@/components/layout/BackButton";
-import { StudybookPreview, ShareButton, SaveButton } from "@/features/studybook";
+import { StudybookPreview, SaveButton } from "@/features/studybook";
 import { SUBJECTS } from "@/config/subjects";
 import { getStudybook, listStudybooks } from "@/lib/api";
 
@@ -40,11 +39,7 @@ function gradeLabel(g: string) {
 }
 
 /** Studybook detail — mobile-first (UI brief §6.3). */
-export default async function StudybookPage({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}) {
+export default async function StudybookPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const book = await getStudybook(slug);
   if (!book) notFound();
@@ -56,31 +51,22 @@ export default async function StudybookPage({
 
   return (
     <>
-      {/* Desktop nav — shared site header */}
-      <div className="hidden md:block">
-        <Navbar />
-      </div>
-
-      {/* Mobile top bar */}
-      <div className="sticky top-0 z-40 flex items-center justify-between bg-surface/90 px-4 py-3 backdrop-blur md:hidden">
-        <BackButton fallbackHref="/explore" label="" className="border border-hairline" />
-        <div className="flex items-center gap-1">
-          <ShareButton title={book.title} />
-          <SaveButton book={book} />
-        </div>
-      </div>
+      {/* Shared site header — the same one header used across the whole app. */}
+      <Navbar />
 
       {/* Banner */}
       <section className="bg-lavender">
-        {/* md:pt-28 clears the fixed desktop Navbar (same idea as the app
-            layout's pt-24 spacer) so the header doesn't overlap the content. */}
-        <div className="mx-auto max-w-5xl px-4 py-6 md:pt-28 md:pb-10">
-          <nav className="flex items-center gap-1 text-xs text-muted">
+        {/* pt clears the fixed shared header (same spacer idea as the app shell). */}
+        <div className="mx-auto max-w-5xl px-4 pt-24 pb-6 md:pt-28 md:pb-10">
+          <nav className="text-muted flex items-center gap-1 text-xs">
             <Link href="/explore" className="hover:text-violet">
               Studybook
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <Link href={`/explore/${book.subjectSlug}`} className="font-medium text-ink hover:text-violet">
+            <Link
+              href={`/explore/${book.subjectSlug}`}
+              className="text-ink hover:text-violet font-medium"
+            >
               {subject}
             </Link>
           </nav>
@@ -90,7 +76,7 @@ export default async function StudybookPage({
               column instead of floating below the cover. */}
           <div className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-6 md:gap-x-8">
             {/* Cover */}
-            <div className="bg-plum relative aspect-[3/4] w-24 overflow-hidden rounded-xl shadow-soft md:row-span-2 md:w-48">
+            <div className="bg-plum shadow-soft relative aspect-[3/4] w-24 overflow-hidden rounded-xl md:row-span-2 md:w-48">
               {book.cover ? (
                 <Image
                   src={book.cover}
@@ -109,15 +95,15 @@ export default async function StudybookPage({
 
             {/* Meta */}
             <div className="min-w-0">
-              <h1 className="text-2xl font-bold leading-tight md:text-3xl">{book.title}</h1>
-              <p className="mt-1 text-sm text-muted">
+              <h1 className="text-2xl leading-tight font-bold md:text-3xl">{book.title}</h1>
+              <p className="text-muted mt-1 text-sm">
                 by {book.author} · {book.year}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Pill className="bg-white">{subject}</Pill>
                 <Pill className="bg-white">{gradeLabel(book.grade)}</Pill>
               </div>
-              <div className="mt-3 flex items-center gap-1.5 text-sm text-muted">
+              <div className="text-muted mt-3 flex items-center gap-1.5 text-sm">
                 <BookOpen className="h-4 w-4" />
                 {book.cards.length} cards · ~{minutes} min
               </div>
@@ -127,7 +113,7 @@ export default async function StudybookPage({
             <div className="col-span-2 space-y-3 self-start md:col-span-1 md:col-start-2 md:max-w-md">
               <Link
                 href={`/studybook/${book.slug}/read`}
-                className="flex h-13 w-full items-center justify-center gap-2 rounded-xl bg-violet font-semibold text-white transition-transform hover:-translate-y-0.5 hover:bg-violet-dark active:scale-[0.98]"
+                className="bg-violet hover:bg-violet-dark flex h-13 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Start learning
                 <Pill className="bg-white/20 text-white">{price}</Pill>
@@ -136,7 +122,7 @@ export default async function StudybookPage({
                 <Link
                   href={`/studybook/${book.slug}?preview=1`}
                   scroll={false}
-                  className="flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-hairline text-sm font-semibold text-ink transition-colors hover:bg-lavender"
+                  className="border-hairline text-ink hover:bg-lavender flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors"
                 >
                   <PlayCircle className="h-5 w-5" /> Preview
                 </Link>
@@ -148,9 +134,9 @@ export default async function StudybookPage({
       </section>
 
       {/* Body */}
-      <main className="mx-auto max-w-5xl px-4 py-8">
+      <main className="mx-auto max-w-5xl px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
         <h2 className="text-lg font-bold">About this studybook</h2>
-        <p className="mt-3 max-w-2xl leading-relaxed text-ink/80">{book.synopsis}</p>
+        <p className="text-ink/80 mt-3 max-w-2xl leading-relaxed">{book.synopsis}</p>
 
         {/* Cards preview */}
         <div className="mt-8 flex items-center justify-between">
@@ -158,13 +144,13 @@ export default async function StudybookPage({
           <Link
             href={`/studybook/${book.slug}?preview=1`}
             scroll={false}
-            className="flex items-center gap-0.5 text-sm font-semibold text-violet hover:underline"
+            className="text-violet flex items-center gap-0.5 text-sm font-semibold hover:underline"
           >
             All {book.cards.length}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="mt-4 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
           {book.cards.slice(0, 6).map((card, i) => (
             <Link
               key={card.id}
@@ -173,9 +159,9 @@ export default async function StudybookPage({
               className="group w-32 shrink-0 snap-start md:w-40"
             >
               <div
-                className={`flex aspect-[4/5] flex-col justify-end rounded-2xl p-3 text-white shadow-soft transition-transform group-hover:-translate-y-1 ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
+                className={`shadow-soft flex aspect-[4/5] flex-col justify-end rounded-2xl p-3 text-white transition-transform group-hover:-translate-y-1 ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
               >
-                <p className="line-clamp-4 text-sm font-semibold leading-snug">{card.heading}</p>
+                <p className="line-clamp-4 text-sm leading-snug font-semibold">{card.heading}</p>
               </div>
             </Link>
           ))}
@@ -186,7 +172,7 @@ export default async function StudybookPage({
           <h2 className="text-lg font-bold">You may also like</h2>
           <Link
             href="/explore"
-            className="flex items-center gap-0.5 text-sm font-semibold text-violet hover:underline"
+            className="text-violet flex items-center gap-0.5 text-sm font-semibold hover:underline"
           >
             More
             <ChevronRight className="h-4 w-4" />
@@ -195,17 +181,25 @@ export default async function StudybookPage({
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4 md:gap-6">
           {related.map((b) => (
             <Link key={b.id} href={`/studybook/${b.slug}`} className="group">
-              <div className="bg-plum relative aspect-[3/4] w-full overflow-hidden rounded-xl shadow-soft">
+              <div className="bg-plum shadow-soft relative aspect-[3/4] w-full overflow-hidden rounded-xl">
                 {b.cover ? (
-                  <Image src={b.cover} alt={b.title} fill sizes="(max-width: 768px) 50vw, 200px" className="object-cover" />
+                  <Image
+                    src={b.cover}
+                    alt={b.title}
+                    fill
+                    sizes="(max-width: 768px) 50vw, 200px"
+                    className="object-cover"
+                  />
                 ) : (
                   <span className="absolute inset-0 grid place-items-center font-mono text-[10px] tracking-[0.2em] text-white/40">
                     cover
                   </span>
                 )}
               </div>
-              <p className="mt-2 line-clamp-1 text-sm font-semibold group-hover:text-violet">{b.title}</p>
-              <p className="text-xs text-muted">{b.author}</p>
+              <p className="group-hover:text-violet mt-2 line-clamp-1 text-sm font-semibold">
+                {b.title}
+              </p>
+              <p className="text-muted text-xs">{b.author}</p>
             </Link>
           ))}
         </div>

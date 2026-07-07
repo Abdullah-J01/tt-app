@@ -21,7 +21,7 @@ export default async function SettingsDetailPage({
   const title = findSettingsItem(section)?.label ?? "Settings";
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-24 md:pb-12">
+    <>
       <div className="flex items-center gap-2 pt-4">
         <BackButton fallbackHref="/profile/settings" label="" />
         <h1 className="text-2xl font-bold">{title}</h1>
@@ -30,6 +30,6 @@ export default async function SettingsDetailPage({
       <div className="mt-6">
         <SettingsScreen section={section} />
       </div>
-    </div>
+    </>
   );
 }

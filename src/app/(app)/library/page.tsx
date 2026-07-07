@@ -28,10 +28,10 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 
 /** On-brand gradient per subject, so cards/covers without a real image still look designed. */
 const SUBJECT_GRADIENTS: Record<string, string> = {
-  Physics: "from-[#483666] to-[#7A6A9E]",
-  Biology: "from-[#2F8F4E] to-[#6BC98A]",
-  History: "from-[#5A3ED0] to-[#9C85F0]",
-  Psychology: "from-[#B0793B] to-[#F4A93B]",
+  Physics: "from-plum-start to-plum-end",
+  Biology: "from-green-mid to-green-bright",
+  History: "from-violet-dark to-violet-light",
+  Psychology: "from-amber-brown to-amber",
 };
 const DEFAULT_GRADIENT = "from-violet to-violet-dark";
 
@@ -140,7 +140,7 @@ export default function LibraryPage() {
   }, [loadingLibrary]);
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-white px-4 py-6 pb-24 md:py-10 md:pb-12">
+    <div className="mx-auto min-h-screen max-w-5xl bg-white px-4 py-6 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">
       <motion.h1
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

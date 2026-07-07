@@ -352,15 +352,23 @@ export default function FeedScreen() {
       >
         {/* live region for screen readers */}
         <p className="sr-only" aria-live="polite">
-          {loading ? "Loading study cards…" : `Card ${index + 1} of ${total}: ${cards[index]?.title}`}
+          {loading
+            ? "Loading study cards…"
+            : `Card ${index + 1} of ${total}: ${cards[index]?.title}`}
         </p>
 
         {loading && <NavControlsSkeleton />}
         {total > 0 && (
-          <NavControls index={index} total={total} onPrev={goPrev} onNext={goNext} onSelect={goTo} />
+          <NavControls
+            index={index}
+            total={total}
+            onPrev={goPrev}
+            onNext={goNext}
+            onSelect={goTo}
+          />
         )}
 
-        <div className="relative flex h-full w-full items-center justify-center py-4 sm:py-6 lg:py-8">
+        <div className="relative flex h-full w-full items-center justify-center pb-4 sm:pb-6 lg:pb-8">
           <div className="relative h-full w-full max-w-full sm:h-[92%] lg:h-[94%] lg:max-w-[400px] xl:max-w-[420px]">
             <div
               ref={trackWrapRef}

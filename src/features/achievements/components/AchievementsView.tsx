@@ -3,12 +3,13 @@
 import { useAchievements } from "../useAchievements";
 import { AchievementBadge } from "./AchievementBadge";
 import { BackButton } from "@/components/layout/BackButton";
+import { Container } from "@/components/ui";
 
 export function AchievementsView() {
   const { unlocked, locked, unlockedCount, total } = useAchievements();
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-24 md:pb-12">
+    <Container className="max-w-2xl pb-24 md:pb-12">
       <div className="flex items-center gap-2 pt-4">
         <BackButton fallbackHref="/profile" label="" />
         <h1 className="text-2xl font-bold">Achievements</h1>
@@ -38,6 +39,6 @@ export function AchievementsView() {
           </div>
         </section>
       )}
-    </div>
+    </Container>
   );
 }

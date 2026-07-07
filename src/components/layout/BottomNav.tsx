@@ -17,8 +17,8 @@ export function BottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-surface/95 backdrop-blur md:hidden">
-      <ul className="mx-auto flex max-w-md items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="border-hairline bg-surface/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur md:hidden">
+      <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 pb-[env(safe-area-inset-bottom)] sm:px-6 lg:px-8">
         {TABS.map((tab) => {
           const active = pathname === tab.href || pathname.startsWith(`${tab.href}/`);
           const Icon = tab.icon;

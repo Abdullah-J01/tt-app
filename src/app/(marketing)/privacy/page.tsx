@@ -75,7 +75,7 @@ export default function PrivacyPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-16 sm:px-8 sm:pt-48">
+      <section className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-40 pb-16 sm:px-6 sm:pt-48 lg:px-8">
         <BackgroundGradient />
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -103,7 +103,7 @@ export default function PrivacyPage() {
         </motion.p>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-28 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pb-28 sm:px-6 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[240px_1fr]">
           {/* Sticky TOC */}
           <aside className="hidden lg:block">
@@ -180,7 +180,6 @@ export default function PrivacyPage() {
           </div>
         </div>
       </section>
-
     </main>
   );
 }

@@ -54,7 +54,7 @@ export default function TermsPage() {
         className="bg-violet fixed top-0 right-0 left-0 z-[60] h-1 origin-left"
       />
 
-      <section className="relative mx-auto max-w-4xl overflow-hidden px-5 pt-40 pb-16 sm:px-8 sm:pt-48">
+      <section className="relative mx-auto max-w-4xl overflow-hidden px-4 pt-40 pb-16 sm:px-6 sm:pt-48 lg:px-8">
         <BackgroundGradient />
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
@@ -83,7 +83,7 @@ export default function TermsPage() {
         </motion.p>
       </section>
 
-      <section className="mx-auto max-w-4xl px-5 pb-28 sm:px-8">
+      <section className="mx-auto max-w-4xl px-4 pb-28 sm:px-6 lg:px-8">
         <div className="rounded-xl3 border-border divide-border shadow-soft divide-y overflow-hidden border">
           {terms.map((t, i) => {
             const isOpen = open === i;

@@ -64,7 +64,7 @@ export default function ContactPage() {
 
   return (
     <main className="relative min-h-screen bg-white">
-      <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-40 pb-20 sm:px-8 sm:pt-48">
+      <section className="relative mx-auto max-w-7xl overflow-hidden px-4 pt-40 pb-20 sm:px-6 sm:pt-48 lg:px-8">
         <BackgroundGradient />
         <FloatingCircle />
         <motion.p
@@ -94,7 +94,7 @@ export default function ContactPage() {
         </motion.p>
       </section>
 
-      <section className="mx-auto max-w-7xl px-5 pb-24 sm:px-8">
+      <section className="mx-auto max-w-7xl px-4 pb-24 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:gap-10 lg:grid-cols-[1fr_1.15fr]">
           {/* Channels */}
           <div className="space-y-4">

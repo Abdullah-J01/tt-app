@@ -3,6 +3,8 @@ import { Poppins, Inter } from "next/font/google";
 import "./globals.css";
 import SmoothScroll from "@/components/home/SmoothScroll";
 import { Toaster } from "@/components/ui/Toaster";
+import MobileNav from "@/components/layout/MobileNav";
+import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
 const poppins = Poppins({
@@ -40,6 +42,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       <body className="font-body antialiased">
         <Providers>
           <SmoothScroll>{children}</SmoothScroll>
+          {/* Persistent mobile bottom nav — rendered once here so it stays on
+              every screen (below md). Pages own their top header; this owns the
+              bottom bar, so no page can accidentally drop it. */}
+          <MobileNav />
+          {/* Floating back-to-top (desktop only) — shows once scrolled down. */}
+          <ScrollToTop />
         </Providers>
         <Toaster />
         <div className="noise-overlay" aria-hidden="true" />

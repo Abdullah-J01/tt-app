@@ -110,10 +110,10 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   };
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 md:pb-12">
+    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">
       {/* Sticky header on mobile — search lives in the TopNav on md+, so mobile
           only gets a compact shortcut to the full-screen search screen */}
-      <div className="border-hairline bg-surface/95 sticky top-0 z-30 -mx-4 flex items-center justify-between border-b px-4 pt-6 pb-3 backdrop-blur md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-0 md:backdrop-blur-none">
+      <div className="border-hairline bg-surface/95 sticky top-0 z-30 -mx-4 flex items-center justify-between border-b px-4 pt-6 pb-3 backdrop-blur sm:-mx-6 sm:px-6 md:static md:mx-0 md:block md:border-0 md:bg-transparent md:px-0 md:pt-0 md:pb-0 md:backdrop-blur-none">
         <h1 className="text-2xl font-bold">Explore</h1>
 
         <Link
@@ -129,8 +129,8 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
           The row stays horizontally scrollable; the outer clip + pb/-mb pushes the
           scrollbar below the visible area so it's hidden even in webviews that
           ignore `::-webkit-scrollbar` styling. */}
-      <div className="-mx-4 mt-6 overflow-hidden lg:hidden">
-        <div className="no-scrollbar -mb-4 flex gap-2 overflow-x-auto px-4 pb-4">
+      <div className="-mx-4 mt-6 overflow-hidden sm:-mx-6 lg:hidden">
+        <div className="no-scrollbar -mb-4 flex gap-2 overflow-x-auto px-4 pb-4 sm:px-6">
           {GRADES.map((g) =>
             g.slug === "all" ? (
               <Chip key={g.slug} selected={!anyTarget} onClick={clearTarget} className="shrink-0">
