@@ -62,7 +62,8 @@ export default function FeatureCard({
         rotateY: springY,
         transformPerspective: 800,
       }}
-      className={`rounded-xl3 xl:w-[32rem]overflow-hidden relative w-[82vw] p-6 sm:w-[46vw] sm:p-7 lg:w-[30vw] ${gradient} shadow-soft transition-shadow duration-500 ${
+      // lg width solves 4-up: 4w + 3×24px gaps + 2×6vw track padding = 100vw.
+      className={`rounded-xl3 relative w-[82vw] overflow-hidden p-6 sm:w-[46vw] sm:p-7 lg:w-[calc(22vw-18px)] ${gradient} shadow-soft transition-shadow duration-500 ${
         hovered ? "shadow-lift" : ""
       }`}
     >
@@ -83,7 +84,7 @@ export default function FeatureCard({
       </p>
 
       {/* 3D illustration viewport */}
-      <div className="relative z-10 mt-6 h-36 overflow-hidden rounded-2xl bg-white/10 backdrop-blur-sm sm:h-40">
+      <div className="relative z-10 mt-6 h-44 overflow-hidden rounded-2xl bg-white/10 backdrop-blur-sm sm:h-48">
         <Scene>{illustration}</Scene>
       </div>
 

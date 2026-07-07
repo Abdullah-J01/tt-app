@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -12,8 +11,16 @@ import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
 import { loginSchema, type LoginValues } from "./schemas";
 
-/** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up. */
-export function LoginFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
+/** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up, `onForgot` to password reset. */
+export function LoginFace({
+  onSwitch,
+  onForgot,
+  onClose,
+}: {
+  onSwitch: () => void;
+  onForgot: () => void;
+  onClose: () => void;
+}) {
   // Honors ?callbackUrl= when a guard bounced the user here (e.g. /admin).
   // Otherwise routes through /post-login, which checks the session role —
   // admins land on the admin dashboard, everyone else on the device default
@@ -71,12 +78,14 @@ export function LoginFace({ onSwitch, onClose }: { onSwitch: () => void; onClose
           {...register("password")}
         />
         <div className="-mt-0.5 flex justify-end">
-          <Link
-            href="/forgot-password"
+          <Button
+            unstyled
+            type="button"
+            onClick={onForgot}
             className="text-violet hover:text-violet-dark text-[13px] font-semibold"
           >
             Forgot password?
-          </Link>
+          </Button>
         </div>
         <Button type="submit" block size="lg">
           Continue

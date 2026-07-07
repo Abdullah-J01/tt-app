@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { ForgotPasswordCard } from "@/components/auth/ForgotPasswordCard";
+import { AuthCard } from "@/components/auth/AuthCard";
 
 export const metadata: Metadata = { title: "Reset password" };
 
-/** Forgot / reset password (UI brief §6.2). */
+/** Forgot / reset password (UI brief §6.2). Shares the flip card with log-in and sign-up. */
 export default function ForgotPasswordPage() {
-  return <ForgotPasswordCard />;
+  return <AuthCard initialMode="forgot" />;
 }
