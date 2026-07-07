@@ -6,8 +6,9 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Heart, Share2, Bookmark } from "lucide-react";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
+import { toast } from "@/components/ui/Toaster";
 import { floatHeart, flyHeartToButton } from "./likeEffects";
-import type { FeedCardData } from "./feedData";
+import { feedPath, type FeedCardData } from "./feedData";
 
 const ACTION_BTN =
   "w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white shadow-lift flex items-center justify-center";
@@ -57,7 +58,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
   const requireAuth = () => {
     if (status === "authenticated") return true;
     if (status === "unauthenticated") {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/feed?slug=${card.slug}`)}`);
+      router.push(`/login?callbackUrl=${encodeURIComponent(feedPath(card.slug))}`);
     }
     return false;
   };
@@ -69,6 +70,21 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
   const onLikeClick = () => {
     if (!liked) floatHeart(likeBtnRef.current);
     toggleLiked(toEntry(card));
+  };
+
+  /** Share the card's canonical deep-link — Web Share sheet, clipboard fallback. */
+  const onShareClick = async () => {
+    const url = new URL(feedPath(card.slug), window.location.origin).toString();
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: card.title, url });
+      } else if (navigator.clipboard) {
+        await navigator.clipboard.writeText(url);
+        toast("Link copied");
+      }
+    } catch {
+      /* user cancelled / clipboard blocked — ignore */
+    }
   };
 
   useImperativeHandle(
@@ -112,6 +128,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
       <div className="flex flex-col items-center gap-1">
         <motion.button
           type="button"
+          onClick={onShareClick}
           whileTap={{ scale: 0.85 }}
           aria-label="Share"
           className={ACTION_BTN}

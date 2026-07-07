@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { BookTileSkeleton, CardTileSkeleton, LibraryGridSkeleton } from "@/components/skeletons";
+import { feedPath } from "@/components/feed/feedData";
 import { useLazyList } from "@/lib/useLazyList";
 import { usePersistedChoice } from "@/lib/usePersistedChoice";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
@@ -331,7 +332,7 @@ function FeedCardTile({
       {/* ambient glow blob for depth, matches feed card treatment */}
       <div className="pointer-events-none absolute -top-8 -right-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
 
-      <Link href={`/feed?slug=${entry.cardSlug}`} className="relative flex h-full flex-col p-3.5">
+      <Link href={feedPath(entry.cardSlug)} className="relative flex h-full flex-col p-3.5">
         <div className="flex items-start justify-between gap-2">
           <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-medium text-white backdrop-blur">
             {entry.subject}
