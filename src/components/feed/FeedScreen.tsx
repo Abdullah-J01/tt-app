@@ -15,50 +15,17 @@ import { createFilterPredicate } from "@/features/explore/filters";
 import { FilterDrawer } from "@/features/explore/components/FilterDrawer";
 import { FilterPanel } from "@/features/explore/components/FilterPanel";
 import type { FeedItem } from "@/lib/api";
-import { slugify, type FeedCardData } from "./feedData";
+import { feedPath, withSlugs, type FeedCardData } from "./feedData";
 
 const TRANSITION = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
 const INSTANT = { duration: 0 };
 // Slightly above the slide duration so a new gesture can land right as it settles.
 const LOCK_MS = 420;
 
-function toCardData({ card, book }: FeedItem, slug: string): FeedCardData {
-  return {
-    id: card.id,
-    slug,
-    streakDays: 7,
-    subject: book.subjectSlug,
-    grade: book.grade,
-    title: card.heading,
-    description: card.body,
-    bookTitle: book.title,
-    bookAuthor: book.author,
-    bookSubject: book.subjectSlug,
-    bookSlug: book.slug,
-    cover: book.cover,
-    likes: "",
-    shares: "",
-  };
-}
-
-/**
- * Map feed items to cards, giving each a unique, readable slug. Headings can
- * repeat across studybooks (e.g. "Why it matters"), so collisions get a numeric
- * suffix — keeping every card's `?slug=` deep-link unique.
- */
-function withSlugs(items: FeedItem[]): FeedCardData[] {
-  const seen = new Map<string, number>();
-  return items.map((item) => {
-    const base = slugify(item.card.heading) || item.card.id;
-    const n = (seen.get(base) ?? 0) + 1;
-    seen.set(base, n);
-    return toCardData(item, n === 1 ? base : `${base}-${n}`);
-  });
-}
-
-/** Read the active-card slug from the current URL. */
+/** Read the active-card slug from the current URL (`/feed/[slug]`). */
 function slugFromUrl(): string | null {
-  return new URLSearchParams(window.location.search).get("slug");
+  const slug = window.location.pathname.match(/^\/feed\/([^/]+)/)?.[1];
+  return slug ? decodeURIComponent(slug) : null;
 }
 
 /** Feed items whose studybook matches the checked filters, mapped to cards. */
@@ -94,7 +61,8 @@ export default function FeedScreen() {
   const draftCount = useMemo(() => filteredCards(items, draft).length, [items, draft]);
 
   // Load the feed from /api/feed (data stays server-side — the upstream fetch
-  // cache applies there), then restore the active card from ?slug= (default: first).
+  // cache applies there), then restore the active card from /feed/[slug]
+  // (default: first).
   useEffect(() => {
     let active = true;
     fetch("/api/feed")
@@ -118,7 +86,7 @@ export default function FeedScreen() {
           // syncs the router's canonical URL/tree. Passing window.history.state
           // carries Next's `__NA` flag, which makes Next treat this as an internal
           // call and skip that sync — corrupting router.back() after you leave the feed.
-          window.history.replaceState(null, "", `?slug=${mapped[start].slug}`);
+          window.history.replaceState(null, "", feedPath(mapped[start].slug));
         }
       })
       .catch((err) => {
@@ -150,7 +118,7 @@ export default function FeedScreen() {
     setFiltersOpen(false);
     setIndex(0);
     const first = filteredCards(items, draft)[0];
-    if (first) window.history.replaceState(null, "", `?slug=${first.slug}`);
+    if (first) window.history.replaceState(null, "", feedPath(first.slug));
   }, [draft, items]);
 
   const clearApplied = useCallback(() => {
@@ -191,7 +159,7 @@ export default function FeedScreen() {
         // new entry AND syncs the router URL/tree. Passing window.history.state
         // carries `__NA`, which makes Next skip that sync and breaks router.back()
         // after you leave the feed for a detail page.
-        window.history.pushState(null, "", `?slug=${slug}`);
+        window.history.pushState(null, "", feedPath(slug));
       }
       window.setTimeout(() => {
         lockRef.current = false;
