@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -10,20 +9,22 @@ import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
 import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
-import { signupSchema } from "./schemas";
+import { signupSchema, type SignupValues } from "./schemas";
 
 /** Sign-up face of the auth flip card (UI brief §6.2). `onSwitch` flips to log-in. */
 export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
-  const router = useRouter();
-
   const form = useZodForm(signupSchema);
   const {
     register,
     formState: { errors },
   } = form;
 
-  // TODO(team): create the account via TT/NextAuth. Dummy: continue to onboarding.
-  const onSubmit = () => router.push("/onboarding");
+  // Dev stub: create a real session via the credentials provider carrying the
+  // entered name + email, so the profile shows the new account (not placeholder
+  // data), then continue to onboarding.
+  // TODO(team): swap this for TT's real sign-up endpoint.
+  const onSubmit = ({ name, email, password }: SignupValues) =>
+    signIn("credentials", { name, email, password, callbackUrl: "/onboarding" });
 
   return (
     <div className={GLASS_CARD}>
