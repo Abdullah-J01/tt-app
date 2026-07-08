@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,7 @@ const GRADE_OPTIONS = GRADES.filter((g) => g.slug !== "all");
  * `useOnboardingState`; final persistence to TT happens in `finishOnboarding`.
  */
 export function OnboardingFlow() {
+  const t = useTranslations("components_onboarding_OnboardingFlow");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const { data, update, hydrated, clear } = useOnboardingState();
@@ -118,7 +120,7 @@ export function OnboardingFlow() {
       </div>
 
       <Button block size="lg" disabled={!canContinue} loading={pending} onClick={handlePrimary}>
-        {isLastStep ? "Start learning" : "Continue"}
+        {isLastStep ? t("startLearning") : t("continue")}
       </Button>
     </div>
   );

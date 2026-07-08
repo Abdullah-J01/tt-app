@@ -1,4 +1,5 @@
 import { Construction } from "lucide-react";
+import { getTranslations } from "@/i18n/server";
 import { findSettingsItem } from "../../config";
 import { NotificationsSettings } from "./NotificationsSettings";
 import { EmailSettings } from "./EmailSettings";
@@ -8,7 +9,8 @@ import { AppPreferences } from "./AppPreferences";
 import { AppIconSettings } from "./AppIconSettings";
 
 /** Renders the right settings detail screen for a section id. */
-export function SettingsScreen({ section }: { section: string }) {
+export async function SettingsScreen({ section }: { section: string }) {
+  const t = await getTranslations("features_profile_components_settings_SettingsScreen");
   switch (section) {
     case "notifications":
       return <NotificationsSettings />;
@@ -23,20 +25,21 @@ export function SettingsScreen({ section }: { section: string }) {
     case "app-icon":
       return <AppIconSettings />;
     default:
-      return <Placeholder label={findSettingsItem(section)?.label ?? "Settings"} />;
+      return <Placeholder label={findSettingsItem(section)?.label ?? t("settings")} />;
   }
 }
 
 /** Not-yet-built sections (subscription, legal, help…) get a clear placeholder. */
-function Placeholder({ label }: { label: string }) {
+async function Placeholder({ label }: { label: string }) {
+  const t = await getTranslations("features_profile_components_settings_SettingsScreen");
   return (
     <div className="mt-10 flex flex-col items-center text-center">
       <span className="grid h-16 w-16 place-items-center rounded-full bg-lavender text-violet">
         <Construction className="h-8 w-8" />
       </span>
-      <p className="mt-4 font-semibold">{label} is coming soon</p>
+      <p className="mt-4 font-semibold">{t("comingSoon", { label })}</p>
       <p className="mt-1 max-w-xs text-sm text-muted">
-        This screen will be wired up once the account &amp; TaskuTark APIs are connected.
+        {t("placeholderBody")}
       </p>
     </div>
   );

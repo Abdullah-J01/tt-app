@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight, Bookmark, BookOpen, Zap } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { SUBJECTS } from "@/config/subjects";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
@@ -18,11 +19,12 @@ function subjectName(slug: string) {
  * Reused across Explore rows, subject grids and search.
  */
 export function CoverCard({ book }: { book: Studybook }) {
+  const t = useTranslations("features_explore_components_CoverCard");
   const [flipped, setFlipped] = useState(false);
   const cards = book.cards.length;
   const minutes = Math.max(1, Math.round(cards * 0.5));
   const subject = subjectName(book.subjectSlug);
-  const price = book.priceEur != null ? `€${book.priceEur.toFixed(2)}` : "Free";
+  const price = book.priceEur != null ? `€${book.priceEur.toFixed(2)}` : t("free");
 
   return (
     <Link href={`/studybook/${book.slug}`} className="group block aspect-[7/10] [perspective:1200px]">
@@ -55,7 +57,7 @@ export function CoverCard({ book }: { book: Studybook }) {
             )}
             {!book.cover && (
               <span className="absolute inset-0 grid place-items-center font-mono text-xs tracking-[0.3em] text-white/40">
-                book cover
+                {t("bookCover")}
               </span>
             )}
 
@@ -78,15 +80,15 @@ export function CoverCard({ book }: { book: Studybook }) {
               <span className="flex min-w-0 items-center gap-1 sm:gap-1.5">
                 <BookOpen className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate whitespace-nowrap">
-                  {cards} cards
+                  {t("cards", { count: cards })}
                   <span className="hidden sm:inline">
                     {" "}
-                    <span className="text-white/40">·</span> ~ {minutes} min
+                    <span className="text-white/40">·</span> {t("minutes", { count: minutes })}
                   </span>
                 </span>
               </span>
               <span className="inline-flex shrink-0 items-center gap-1 font-semibold text-white">
-                Open <ArrowRight className="h-3.5 w-3.5" />
+                {t("open")} <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </div>
           </div>
@@ -117,10 +119,10 @@ export function CoverCard({ book }: { book: Studybook }) {
             <p className="mt-1 line-clamp-1 text-xs text-white/80 sm:text-sm">{book.author}</p>
             <div className="mt-2 flex items-center justify-between gap-2 text-xs sm:mt-3 sm:text-sm">
               <span className="min-w-0 truncate whitespace-nowrap text-white/70">
-                {cards} cards
+                {t("cards", { count: cards })}
                 <span className="hidden sm:inline">
                   {" "}
-                  <span className="text-white/40">·</span> ~ {minutes} min
+                  <span className="text-white/40">·</span> {t("minutes", { count: minutes })}
                 </span>
               </span>
               <span className="shrink-0 font-bold uppercase tracking-wide text-white">{price}</span>

@@ -3,60 +3,8 @@
 import { motion, useMotionValue, useSpring, useTransform, useInView } from "framer-motion";
 import { useEffect, useRef } from "react";
 import { Sparkles, Target, Users, BookOpenCheck, Quote } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
-
-const stats = [
-  { label: "Learners building streaks", value: 12000, suffix: "+" },
-  { label: "Studybooks in the catalog", value: 4300, suffix: "+" },
-  { label: "Cards read every day", value: 86000, suffix: "+" },
-  { label: "Average daily streak", value: 11, suffix: " days" },
-];
-
-const values = [
-  {
-    icon: Sparkles,
-    title: "Bite-sized, not dumbed-down",
-    body: "Every card is written to respect your time and your intelligence — five seconds, real substance.",
-  },
-  {
-    icon: Target,
-    title: "Built for the habit, not the binge",
-    body: "We optimize for a daily streak that lasts a year, not a weekend of doom-scrolling.",
-  },
-  {
-    icon: BookOpenCheck,
-    title: "Sourced from real studybooks",
-    body: "Nothing is invented. Every card traces back to a real author, a real page, a real idea.",
-  },
-  {
-    icon: Users,
-    title: "Made with learners, for learners",
-    body: "Our roadmap is shaped by the people using StudyBooks every single day.",
-  },
-];
-
-const timeline = [
-  {
-    year: "2022",
-    title: "The idea",
-    body: "Two former teachers, tired of watching students scroll past anything longer than a paragraph, started sketching a different kind of feed.",
-  },
-  {
-    year: "2023",
-    title: "First 1,000 cards",
-    body: "We partnered with independent authors to turn real studybooks into short, structured insight cards.",
-  },
-  {
-    year: "2024",
-    title: "The habit loop",
-    body: "Streaks, reminders, and a redesigned feed helped our first cohort read every single day for a month.",
-  },
-  {
-    year: "2026",
-    title: "12,000+ learners",
-    body: "StudyBooks is now a daily ritual for tens of thousands of curious minds — and we're just getting started.",
-  },
-];
 
 function Counter({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null);
@@ -79,6 +27,61 @@ function Counter({ value, suffix }: { value: number; suffix: string }) {
 }
 
 export default function AboutPage() {
+  const t = useTranslations("app_marketing_about_page");
+
+  const stats = [
+    { label: t("statLearners"), value: 12000, suffix: "+" },
+    { label: t("statStudybooks"), value: 4300, suffix: "+" },
+    { label: t("statCards"), value: 86000, suffix: "+" },
+    { label: t("statStreak"), value: 11, suffix: t("daysSuffix") },
+  ];
+
+  const values = [
+    {
+      icon: Sparkles,
+      title: t("value1Title"),
+      body: t("value1Body"),
+    },
+    {
+      icon: Target,
+      title: t("value2Title"),
+      body: t("value2Body"),
+    },
+    {
+      icon: BookOpenCheck,
+      title: t("value3Title"),
+      body: t("value3Body"),
+    },
+    {
+      icon: Users,
+      title: t("value4Title"),
+      body: t("value4Body"),
+    },
+  ];
+
+  const timeline = [
+    {
+      year: "2022",
+      title: t("timeline1Title"),
+      body: t("timeline1Body"),
+    },
+    {
+      year: "2023",
+      title: t("timeline2Title"),
+      body: t("timeline2Body"),
+    },
+    {
+      year: "2024",
+      title: t("timeline3Title"),
+      body: t("timeline3Body"),
+    },
+    {
+      year: "2026",
+      title: t("timeline4Title"),
+      body: t("timeline4Body"),
+    },
+  ];
+
   return (
     <main className="relative min-h-screen bg-white">
       {/* Hero */}
@@ -90,7 +93,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6 }}
           className="text-caption text-violet mb-4 font-semibold tracking-widest uppercase"
         >
-          About StudyBooks
+          {t("eyebrow")}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
@@ -98,8 +101,8 @@ export default function AboutPage() {
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="font-display text-h1 text-ink max-w-3xl sm:text-[3.25rem]"
         >
-          We believe learning shouldn&apos;t compete with scrolling.
-          <span className="text-gradient-violet"> So we made it the same thing.</span>
+          {t("titleMain")}
+          <span className="text-gradient-violet"> {t("titleAccent")}</span>
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -107,8 +110,7 @@ export default function AboutPage() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-body text-muted mt-6 max-w-xl"
         >
-          StudyBooks turns real, published studybooks into short, beautifully designed cards — so
-          the five minutes you already spend scrolling can leave you a little smarter.
+          {t("subtitle")}
         </motion.p>
       </section>
 
@@ -142,7 +144,7 @@ export default function AboutPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-h2 text-ink mb-10 sm:text-3xl"
         >
-          What we optimize for
+          {t("valuesHeading")}
         </motion.h2>
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
           {values.map((v, i) => (
@@ -174,13 +176,13 @@ export default function AboutPage() {
           transition={{ duration: 0.5 }}
           className="font-display text-h2 text-ink mb-10 sm:text-3xl"
         >
-          Our story so far
+          {t("timelineHeading")}
         </motion.h2>
         <div className="relative pl-8 sm:pl-10">
           <div className="bg-border absolute top-2 bottom-2 left-[7px] w-px sm:left-[9px]" />
-          {timeline.map((t, i) => (
+          {timeline.map((item, i) => (
             <motion.div
-              key={t.year}
+              key={item.year}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true, margin: "-80px" }}
@@ -195,10 +197,10 @@ export default function AboutPage() {
                 className="bg-violet ring-violet-tint absolute top-1 -left-8 h-4 w-4 rounded-full ring-4 sm:-left-10"
               />
               <p className="text-caption text-violet mb-1 font-semibold tracking-wider uppercase">
-                {t.year}
+                {item.year}
               </p>
-              <h3 className="font-display text-h3 text-ink mb-1.5">{t.title}</h3>
-              <p className="text-body text-muted max-w-xl">{t.body}</p>
+              <h3 className="font-display text-h3 text-ink mb-1.5">{item.title}</h3>
+              <p className="text-body text-muted max-w-xl">{item.body}</p>
             </motion.div>
           ))}
         </div>
@@ -222,11 +224,10 @@ export default function AboutPage() {
           />
           <Quote className="mx-auto mb-4 text-white/50" size={28} />
           <p className="font-display relative z-10 mx-auto max-w-2xl text-xl leading-snug text-white sm:text-2xl">
-            &ldquo;We&apos;re not trying to replace books. We&apos;re trying to be the reason you
-            finally pick one up.&rdquo;
+            {t("quote")}
           </p>
           <p className="text-caption relative z-10 mt-4 text-white/60">
-            — The StudyBooks founding team
+            {t("quoteAuthor")}
           </p>
         </motion.div>
       </section>

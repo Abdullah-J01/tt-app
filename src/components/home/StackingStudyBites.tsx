@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import Image from "next/image";
+import { useTranslations } from "@/i18n/client";
 import { Globe2 } from "lucide-react";
 import {
   motion,
@@ -49,6 +50,7 @@ function StackCard({
   progress: MotionValue<number>;
   reduce: boolean;
 }) {
+  const t = useTranslations("components_home_StackingStudyBites");
   const isLast = index === total - 1;
   // Deeper in the deck → recedes to a smaller final scale; the top card stays 1.
   const targetScale = 1 - (total - 1 - index) * 0.05;
@@ -79,7 +81,7 @@ function StackCard({
           title={bite.title}
           description={bite.description}
           price={formatPrice(bite.priceEur)}
-          pricePrefix="from"
+          pricePrefix={t("pricePrefix")}
           className="shadow-soft"
           media={
             bite.image ? (

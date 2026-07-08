@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +12,7 @@ export default function SearchBar() {
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const t = useTranslations("components_home_SearchBar");
 
   const submit = (q: string) => {
     router.push(`/explore/search?q=${encodeURIComponent(q)}`);
@@ -47,8 +49,8 @@ export default function SearchBar() {
           const q = value.trim();
           if (e.key === "Enter" && q) submit(q);
         }}
-        placeholder="Search studybooks, subjects…"
-        aria-label="Search studybooks, subjects"
+        placeholder={t("placeholder")}
+        aria-label={t("ariaLabel")}
         className="text-ink placeholder:text-muted w-full bg-transparent text-sm outline-none"
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}

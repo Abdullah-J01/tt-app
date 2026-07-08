@@ -2,6 +2,7 @@
 
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { ArrowDown, ArrowUp, Check, Layers, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -32,6 +33,7 @@ interface CardEditorProps {
  */
 export function CardEditor({ slug, initialCards }: CardEditorProps) {
   const router = useRouter();
+  const t = useTranslations("features_admin_components_CardEditor");
   const counter = useRef(0);
   const [cards, setCards] = useState<EditorCard[]>(() =>
     initialCards.map((c) => ({ key: c.id, id: c.id, heading: c.heading, body: c.body })),
@@ -70,13 +72,13 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
   const save = () => {
     const parsed = cardsSchema.safeParse(cards.map(({ id, heading, body }) => ({ id, heading, body })));
     if (!parsed.success) {
-      setError("Every card needs a heading and body text.");
+      setError(t("validationError"));
       return;
     }
     startTransition(async () => {
       const result = await saveStudybookCards(slug, parsed.data);
       if (!result.ok) {
-        setError(result.error ?? "Something went wrong — try again.");
+        setError(result.error ?? t("genericError"));
         return;
       }
       setDirty(false);
@@ -86,16 +88,16 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
   };
 
   return (
-    <section aria-label="Bite cards" className="flex flex-col gap-4">
+    <section aria-label={t("cardsAriaLabel")} className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="font-display text-ink text-lg font-bold">Bite cards ({cards.length})</h2>
+          <h2 className="font-display text-ink text-lg font-bold">{t("title", { count: cards.length })}</h2>
           <p className="text-muted text-sm">
-            The swipeable feed cards for this studybook, in reading order.
+            {t("subtitle")}
           </p>
         </div>
         <Button variant="secondary" size="sm" leadingIcon={<Plus />} onClick={addCard}>
-          Add card
+          {t("addCard")}
         </Button>
       </div>
 
@@ -103,8 +105,8 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
         <Card>
           <EmptyState
             icon={<Layers />}
-            title="No cards yet"
-            description="Add the first bite card — a one-line insight with a few supporting lines."
+            title={t("emptyTitle")}
+            description={t("emptyBody")}
           />
         </Card>
       ) : (
@@ -118,14 +120,14 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
                       {i + 1}
                     </span>
                     <span className="text-muted text-xs font-semibold tracking-wide uppercase">
-                      Card {i + 1}
+                      {t("cardLabel", { number: i + 1 })}
                     </span>
                   </span>
                   <span className="flex items-center gap-1">
                     <Button
                       unstyled
                       type="button"
-                      aria-label={`Move card ${i + 1} up`}
+                      aria-label={t("moveUp", { number: i + 1 })}
                       disabled={i === 0}
                       onClick={() => moveCard(i, -1)}
                       className="text-muted hover:bg-lavender hover:text-violet disabled:text-faint grid h-8 w-8 place-items-center rounded-lg transition-colors disabled:hover:bg-transparent"
@@ -135,7 +137,7 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
                     <Button
                       unstyled
                       type="button"
-                      aria-label={`Move card ${i + 1} down`}
+                      aria-label={t("moveDown", { number: i + 1 })}
                       disabled={i === cards.length - 1}
                       onClick={() => moveCard(i, 1)}
                       className="text-muted hover:bg-lavender hover:text-violet disabled:text-faint grid h-8 w-8 place-items-center rounded-lg transition-colors disabled:hover:bg-transparent"
@@ -145,7 +147,7 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
                     <Button
                       unstyled
                       type="button"
-                      aria-label={`Delete card ${i + 1}`}
+                      aria-label={t("deleteCard", { number: i + 1 })}
                       onClick={() => removeCard(card.key)}
                       className="text-muted hover:bg-danger-tint hover:text-danger grid h-8 w-8 place-items-center rounded-lg transition-colors"
                     >
@@ -154,15 +156,15 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
                   </span>
                 </div>
                 <Input
-                  aria-label={`Card ${i + 1} heading`}
-                  placeholder="Heading — the one-line insight"
+                  aria-label={t("headingAriaLabel", { number: i + 1 })}
+                  placeholder={t("headingPlaceholder")}
                   containerClassName="h-11"
                   value={card.heading}
                   onChange={(e) => setField(card.key, "heading", e.target.value)}
                 />
                 <Textarea
-                  aria-label={`Card ${i + 1} body`}
-                  placeholder="2–4 short supporting lines"
+                  aria-label={t("bodyAriaLabel", { number: i + 1 })}
+                  placeholder={t("bodyPlaceholder")}
                   rows={3}
                   containerClassName="min-h-0"
                   value={card.body}
@@ -176,16 +178,16 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
 
       <div className="flex flex-wrap items-center gap-3">
         <Button onClick={save} loading={pending} disabled={!dirty}>
-          Save cards
+          {t("saveCards")}
         </Button>
         <span aria-live="polite" className="flex items-center gap-1.5">
           {saved && (
             <>
               <Check className="text-green-dark h-4 w-4" aria-hidden />
-              <span className="text-green-dark text-sm font-medium">Saved</span>
+              <span className="text-green-dark text-sm font-medium">{t("saved")}</span>
             </>
           )}
-          {dirty && !pending && <span className="text-muted text-sm">Unsaved changes</span>}
+          {dirty && !pending && <span className="text-muted text-sm">{t("unsavedChanges")}</span>}
         </span>
         <FieldError>{error}</FieldError>
       </div>

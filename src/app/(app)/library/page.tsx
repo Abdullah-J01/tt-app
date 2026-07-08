@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import Image from "next/image";
@@ -51,6 +52,7 @@ const tileVariants = {
 
 /** Personal library / stash (UI brief §6.6). Liked/saved cards from the feed. */
 export default function LibraryPage() {
+  const t = useTranslations("app_app_library_page");
   // Active tab + cards filter survive hard reloads (non-sensitive UI state).
   const [tab, setTab] = usePersistedChoice<Tab>("tt:library-tab", "cards", TABS);
   const [filter, setFilter] = usePersistedChoice<CardsFilter>(
@@ -148,7 +150,7 @@ export default function LibraryPage() {
         transition={{ duration: 0.4, ease: easeOut }}
         className="text-ink text-2xl font-bold tracking-tight"
       >
-        Library
+        {t("title")}
       </motion.h1>
 
       {/* Segmented tab control with a sliding active pill */}
@@ -159,10 +161,10 @@ export default function LibraryPage() {
         className="bg-lavender/50 mt-6 inline-flex gap-1 rounded-full p-1"
       >
         <TabButton active={tab === "cards"} onClick={() => setTab("cards")}>
-          Saved cards
+          {t("tabCards")}
         </TabButton>
         <TabButton active={tab === "studybooks"} onClick={() => setTab("studybooks")}>
-          Studybooks
+          {t("tabStudybooks")}
         </TabButton>
       </motion.div>
 
@@ -177,10 +179,10 @@ export default function LibraryPage() {
           >
             <div className="mt-4 flex gap-2">
               <Chip selected={filter === "saved"} onClick={() => setFilter("saved")}>
-                Saved
+                {t("filterSaved")}
               </Chip>
               <Chip selected={filter === "liked"} onClick={() => setFilter("liked")}>
-                Liked
+                {t("filterLiked")}
               </Chip>
             </div>
           </motion.div>
@@ -274,16 +276,14 @@ export default function LibraryPage() {
             <Bookmark className="h-8 w-8" />
           </motion.span>
           <p className="text-ink mt-4 font-semibold">
-            {tab === "cards" ? "No saved cards yet" : "No studybooks yet"}
+            {tab === "cards" ? t("emptyCardsTitle") : t("emptyBooksTitle")}
           </p>
           <p className="text-muted mt-1 max-w-xs text-sm">
-            {loggedOut
-              ? "Log in to save cards from the feed and find them here."
-              : "Tap the bookmark on any card to save it here for later."}
+            {loggedOut ? t("emptyLoggedOutBody") : t("emptyBody")}
           </p>
           <Link href={loggedOut ? "/login?callbackUrl=%2Flibrary" : "/feed"} className="mt-6">
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button>{loggedOut ? "Log in" : "Go to feed"}</Button>
+              <Button>{loggedOut ? t("login") : t("goToFeed")}</Button>
             </motion.div>
           </Link>
         </motion.div>
@@ -305,6 +305,7 @@ function FeedCardTile({
   liked: boolean;
   onRemove: () => void;
 }) {
+  const t = useTranslations("app_app_library_page");
   return (
     <motion.div
       whileHover={{ y: -4 }}
@@ -342,7 +343,7 @@ function FeedCardTile({
               unstyled
               type="button"
               onClick={onRemove}
-              aria-label={`Remove ${entry.heading}`}
+              aria-label={t("removeAria", { heading: entry.heading })}
               className="absolute top-4 right-2 flex h-8 w-8 items-center justify-center"
             >
               <Heart className="h-3.5 w-3.5 shrink-0 fill-white/80 text-white/80" />{" "}

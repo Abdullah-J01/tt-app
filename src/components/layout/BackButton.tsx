@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -12,7 +13,7 @@ import { cn } from "@/lib/utils";
  */
 export function BackButton({
   fallbackHref = "/explore",
-  label = "Back",
+  label,
   icon,
   className,
 }: {
@@ -23,12 +24,14 @@ export function BackButton({
   className?: string;
 }) {
   const router = useRouter();
+  const t = useTranslations("components_layout_BackButton");
+  const resolvedLabel = label ?? t("back");
 
   return (
     <Button
       unstyled
       type="button"
-      aria-label={label || "Back"}
+      aria-label={resolvedLabel || t("back")}
       onClick={() => {
         if (window.history.length > 1) router.back();
         else router.push(fallbackHref);
@@ -39,7 +42,7 @@ export function BackButton({
       )}
     >
       {icon ?? <ArrowLeft className="h-5 w-5" />}
-      {label && <span className="hidden sm:inline">{label}</span>}
+      {resolvedLabel && <span className="hidden sm:inline">{resolvedLabel}</span>}
     </Button>
   );
 }

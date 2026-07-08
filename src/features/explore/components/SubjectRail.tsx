@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { Check, ChevronDown, X } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
 import { selectableSurface } from "@/components/ui/SelectableCard";
@@ -26,6 +28,7 @@ interface SubjectRailProps {
  * with an inline "See more" fold. Rows reuse the shared selectable surface.
  */
 export function SubjectRail({ selected, onToggle, className }: SubjectRailProps) {
+  const t = useTranslations("features_explore_components_SubjectRail");
   const [showAll, setShowAll] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -37,7 +40,7 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
 
   return (
     <section className={cn("rail-in min-w-0 xl:sticky xl:top-6", className)}>
-      <h2 className="text-lg font-bold">Subjects</h2>
+      <h2 className="text-lg font-bold">{t("title")}</h2>
 
       <div className="xl:rounded-card xl:border-hairline xl:bg-surface mt-3 flex flex-wrap gap-2 xl:flex-col xl:flex-nowrap xl:gap-1.5 xl:border xl:p-2">
         {SUBJECTS.map((subject, i) => {
@@ -69,7 +72,7 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
             onClick={() => setSheetOpen(true)}
             className="border-hairline text-violet hover:border-violet hover:bg-lavender/40 flex shrink-0 items-center gap-1 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors active:scale-95 xl:hidden"
           >
-            More ({hiddenMobile})
+            {t("more", { count: hiddenMobile })}
           </Button>
         )}
 
@@ -81,7 +84,7 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
             onClick={() => setShowAll((v) => !v)}
             className="text-violet hover:bg-lavender/40 hidden w-full items-center justify-center gap-1 rounded-xl py-2 text-sm font-semibold transition-colors xl:flex"
           >
-            {showAll ? "See less" : `See more (${hidden})`}
+            {showAll ? t("seeLess") : t("seeMore", { count: hidden })}
             <ChevronDown
               className={cn("h-4 w-4 transition-transform duration-300", showAll && "rotate-180")}
             />
@@ -118,6 +121,7 @@ function SubjectChip({
   fullWidth?: boolean;
   className?: string;
 }) {
+  const subjectName = useSubjectName();
   const Icon = subject.icon;
   return (
     <Button
@@ -158,7 +162,7 @@ function SubjectChip({
           checked && "font-semibold",
         )}
       >
-        {subject.name}
+        {subjectName(subject.slug, subject.name)}
       </span>
       <span
         className={cn(
@@ -185,6 +189,7 @@ function SubjectSheet({
   selected: ReadonlySet<string>;
   onToggle: (compositeKey: string) => void;
 }) {
+  const t = useTranslations("features_explore_components_SubjectRail");
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -203,17 +208,17 @@ function SubjectSheet({
       className="fixed inset-0 z-50 xl:hidden"
       role="dialog"
       aria-modal="true"
-      aria-label="Choose subjects"
+      aria-label={t("chooseSubjects")}
     >
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="drawer-left bg-surface absolute inset-y-0 left-0 flex w-[96%] max-w-2xl flex-col rounded-r-2xl">
         <div className="border-hairline flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-lg font-bold">Subjects</h2>
+          <h2 className="text-lg font-bold">{t("title")}</h2>
           <Button
             unstyled
             type="button"
             onClick={onClose}
-            aria-label="Close subjects"
+            aria-label={t("closeSubjects")}
             className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
           >
             <X className="h-5 w-5" />
@@ -244,7 +249,7 @@ function SubjectSheet({
             onClick={onClose}
             className="bg-violet hover:bg-violet-dark h-11 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.98]"
           >
-            {count > 0 ? `Done · ${count} selected` : "Done"}
+            {count > 0 ? t("doneCount", { count }) : t("done")}
           </Button>
         </div>
       </div>

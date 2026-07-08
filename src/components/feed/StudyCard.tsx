@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { ActionRail } from "./ActionRail";
 import type { LibraryEntry } from "@/features/library/useLibrary";
@@ -29,11 +32,12 @@ export function StudyCard({
   index,
   total,
 }: StudyCardProps) {
+  const t = useTranslations("components_feed_StudyCard");
   return (
     <article className="snap-card relative flex h-[100svh] w-full flex-col justify-between overflow-hidden bg-plum p-6 text-white">
       {/* Top: progress + subject */}
       <div className="flex flex-col gap-3">
-        <div className="flex gap-1" aria-label={`Card ${index + 1} of ${total}`}>
+        <div className="flex gap-1" aria-label={t("cardProgress", { current: index + 1, total })}>
           {Array.from({ length: total }).map((_, i) => (
             <span
               key={i}

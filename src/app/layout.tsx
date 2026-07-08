@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins, Inter } from "next/font/google";
+import { TranslationsProvider } from "@/i18n/client";
+import { getLocale, getMessages } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
 import "./globals.css";
 import SmoothScroll from "@/components/home/SmoothScroll";
 import { Toaster } from "@/components/ui/Toaster";
@@ -37,22 +40,26 @@ export const viewport: Viewport = {
   viewportFit: "cover",
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const locale = await getLocale();
+  const messages = await getMessages(locale);
   return (
-    <html lang="en" className={`${poppins.variable} ${inter.variable}`}>
+    <html lang={locale} className={`${poppins.variable} ${inter.variable}`}>
       <body className="font-body antialiased">
-        <Providers>
-          <SmoothScroll>{children}</SmoothScroll>
-          {/* Persistent mobile bottom nav — rendered once here so it stays on
+        <TranslationsProvider locale={locale as Locale} messages={messages}>
+          <Providers>
+            <SmoothScroll>{children}</SmoothScroll>
+            {/* Persistent mobile bottom nav — rendered once here so it stays on
               every screen (below md). Pages own their top header; this owns the
               bottom bar, so no page can accidentally drop it. */}
-          <MobileNav />
-          {/* Floating back-to-top (desktop only) — shows once scrolled down. */}
-          <ScrollToTop />
-          {/* Global auth dialog — login/sign-up over the current page. */}
-          <AuthModal />
-        </Providers>
-        <Toaster />
+            <MobileNav />
+            {/* Floating back-to-top (desktop only) — shows once scrolled down. */}
+            <ScrollToTop />
+            {/* Global auth dialog — login/sign-up over the current page. */}
+            <AuthModal />
+            <Toaster />
+          </Providers>
+        </TranslationsProvider>
         <div className="noise-overlay" aria-hidden="true" />
       </body>
     </html>

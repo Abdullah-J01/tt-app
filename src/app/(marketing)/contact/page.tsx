@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MapPin, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
+import { useTranslations } from "@/i18n/client";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 import FloatingCircle from "@/components/home/FloatingCircle";
 import { Button } from "@/components/ui/Button";
@@ -12,29 +13,6 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { useZodForm } from "@/components/ui/Form";
 
-const channels = [
-  {
-    icon: Mail,
-    title: "Email us",
-    detail: "hello@studybooks.app",
-    body: "For partnerships, press, or anything that needs a paper trail.",
-  },
-  {
-    icon: MessageCircle,
-    title: "Live chat",
-    detail: "Mon–Fri, 9am–6pm",
-    body: "In-app chat inside the StudyBooks app gets the fastest reply.",
-  },
-  {
-    icon: MapPin,
-    title: "Studio",
-    detail: "Berlin, Germany",
-    body: "We're a small, remote-first team based across three timezones.",
-  },
-];
-
-const topics = ["General question", "Partnership", "Press", "Bug report", "Something else"];
-
 const contactSchema = z.object({
   name: z.string().min(1, "Please enter your name"),
   email: z.string().min(1, "Email is required").pipe(z.email("Enter a valid email")),
@@ -42,6 +20,37 @@ const contactSchema = z.object({
 });
 
 export default function ContactPage() {
+  const t = useTranslations("app_marketing_contact_page");
+
+  const channels = [
+    {
+      icon: Mail,
+      title: t("channel1Title"),
+      detail: "hello@studybooks.app",
+      body: t("channel1Body"),
+    },
+    {
+      icon: MessageCircle,
+      title: t("channel2Title"),
+      detail: t("channel2Detail"),
+      body: t("channel2Body"),
+    },
+    {
+      icon: MapPin,
+      title: t("channel3Title"),
+      detail: t("channel3Detail"),
+      body: t("channel3Body"),
+    },
+  ];
+
+  const topics = [
+    t("topicGeneral"),
+    t("topicPartnership"),
+    t("topicPress"),
+    t("topicBug"),
+    t("topicOther"),
+  ];
+
   const [topic, setTopic] = useState(topics[0]);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -73,7 +82,7 @@ export default function ContactPage() {
           transition={{ duration: 0.6 }}
           className="text-caption text-violet mb-4 font-semibold tracking-widest uppercase"
         >
-          Contact
+          {t("eyebrow")}
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 22, filter: "blur(8px)" }}
@@ -81,7 +90,7 @@ export default function ContactPage() {
           transition={{ duration: 0.7, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="font-display text-h1 text-ink max-w-2xl sm:text-[3.25rem]"
         >
-          Say hello. We actually read these.
+          {t("title")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -89,8 +98,7 @@ export default function ContactPage() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-body text-muted mt-6 max-w-lg"
         >
-          Questions, feedback, partnership ideas, or just want to tell us your current streak? Pick
-          a channel below or use the form.
+          {t("subtitle")}
         </motion.p>
       </section>
 
@@ -145,9 +153,9 @@ export default function ContactPage() {
                   >
                     <CheckCircle2 size={44} className="text-brand-green mb-4" />
                   </motion.div>
-                  <h3 className="font-display text-h3 text-ink mb-1.5">Message sent</h3>
+                  <h3 className="font-display text-h3 text-ink mb-1.5">{t("successTitle")}</h3>
                   <p className="text-body text-muted max-w-xs">
-                    Thanks for reaching out — we usually reply within one business day.
+                    {t("successBody")}
                   </p>
                   <Button
                     unstyled
@@ -157,7 +165,7 @@ export default function ContactPage() {
                     }}
                     className="text-violet hover:text-violet-dark mt-6 text-sm font-medium transition-colors"
                   >
-                    Send another message
+                    {t("sendAnother")}
                   </Button>
                 </motion.div>
               ) : (
@@ -173,7 +181,7 @@ export default function ContactPage() {
                 >
                   <div className="grid gap-5 sm:grid-cols-2">
                     <label className="block">
-                      <span className="text-caption text-ink mb-1.5 block font-medium">Name</span>
+                      <span className="text-caption text-ink mb-1.5 block font-medium">{t("nameLabel")}</span>
                       <Input
                         unstyled
                         type="text"
@@ -184,7 +192,7 @@ export default function ContactPage() {
                       <FieldError className="mt-1.5">{errors.name?.message}</FieldError>
                     </label>
                     <label className="block">
-                      <span className="text-caption text-ink mb-1.5 block font-medium">Email</span>
+                      <span className="text-caption text-ink mb-1.5 block font-medium">{t("emailLabel")}</span>
                       <Input
                         unstyled
                         type="email"
@@ -197,39 +205,39 @@ export default function ContactPage() {
                   </div>
 
                   <div>
-                    <span className="text-caption text-ink mb-2 block font-medium">Topic</span>
+                    <span className="text-caption text-ink mb-2 block font-medium">{t("topicLabel")}</span>
                     <div className="flex flex-wrap gap-2">
-                      {topics.map((t) => (
+                      {topics.map((option) => (
                         <Button
                           unstyled
                           type="button"
-                          key={t}
-                          onClick={() => setTopic(t)}
+                          key={option}
+                          onClick={() => setTopic(option)}
                           className={`relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                            topic === t
+                            topic === option
                               ? "text-white"
                               : "text-muted hover:text-ink border-border border"
                           }`}
                         >
-                          {topic === t && (
+                          {topic === option && (
                             <motion.span
                               layoutId="topic-pill"
                               className="bg-violet absolute inset-0 rounded-full"
                               transition={{ type: "spring", stiffness: 300, damping: 28 }}
                             />
                           )}
-                          <span className="relative z-10">{t}</span>
+                          <span className="relative z-10">{option}</span>
                         </Button>
                       ))}
                     </div>
                   </div>
 
                   <label className="block">
-                    <span className="text-caption text-ink mb-1.5 block font-medium">Message</span>
+                    <span className="text-caption text-ink mb-1.5 block font-medium">{t("messageLabel")}</span>
                     <Textarea
                       unstyled
                       rows={5}
-                      placeholder="Tell us what's on your mind..."
+                      placeholder={t("messagePlaceholder")}
                       className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full resize-none rounded-xl border px-4 py-3 text-sm transition-all outline-none focus:ring-2"
                       {...register("message")}
                     />
@@ -252,7 +260,7 @@ export default function ContactPage() {
                     ) : (
                       <Send size={15} />
                     )}
-                    {loading ? "Sending…" : "Send message"}
+                    {loading ? t("sending") : t("sendMessage")}
                   </motion.button>
                 </motion.form>
               )}

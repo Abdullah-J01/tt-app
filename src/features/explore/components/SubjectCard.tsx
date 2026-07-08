@@ -1,10 +1,14 @@
 import Link from "next/link";
+import { getTranslations } from "@/i18n/server";
+import { getSubjectName } from "@/i18n/subjectName";
 import { cn } from "@/lib/utils";
 import type { Subject } from "@/config/subjects";
 
 /** Subject tile: colored icon on top, bold name, muted count. On hover the
  *  border, icon and text turn violet (design §6.4). */
-export function SubjectCard({ subject }: { subject: Subject }) {
+export async function SubjectCard({ subject }: { subject: Subject }) {
+  const t = await getTranslations("features_explore_components_SubjectCard");
+  const subjectName = await getSubjectName();
   const Icon = subject.icon;
   return (
     <Link
@@ -17,10 +21,10 @@ export function SubjectCard({ subject }: { subject: Subject }) {
       />
       <span className="min-w-0">
         <span className="block truncate font-semibold text-ink transition-colors group-hover:text-violet">
-          {subject.name}
+          {subjectName(subject.slug, subject.name)}
         </span>
         <span className="block text-sm text-muted transition-colors group-hover:text-violet/70">
-          {subject.count.toLocaleString()} items
+          {t("itemsCount", { count: subject.count.toLocaleString() })}
         </span>
       </span>
     </Link>

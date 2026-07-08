@@ -1,8 +1,12 @@
 import Link from "next/link";
+import { getTranslations } from "@/i18n/server";
+import { getSubjectName } from "@/i18n/subjectName";
 import type { Subject } from "@/config/subjects";
 
 /** TT-style subject card: circular icon badge, bold name, muted count. */
-export function SubjectCard({ subject }: { subject: Subject }) {
+export async function SubjectCard({ subject }: { subject: Subject }) {
+  const t = await getTranslations("components_ui_SubjectCard");
+  const subjectName = await getSubjectName();
   const Icon = subject.icon;
   return (
     <Link
@@ -13,9 +17,9 @@ export function SubjectCard({ subject }: { subject: Subject }) {
         <Icon className="h-6 w-6" aria-hidden />
       </span>
       <span className="min-w-0">
-        <span className="block truncate font-semibold text-ink">{subject.name}</span>
+        <span className="block truncate font-semibold text-ink">{subjectName(subject.slug, subject.name)}</span>
         <span className="block text-sm text-muted">
-          {subject.count.toLocaleString()} items
+          {t("itemsCount", { count: subject.count.toLocaleString() })}
         </span>
       </span>
     </Link>

@@ -2,14 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { BookOpen, LayoutDashboard, Tags, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/admin/studybooks", label: "Studybooks", icon: BookOpen, exact: false },
-  { href: "/admin/subjects", label: "Subjects", icon: Tags, exact: false },
-  { href: "/admin/users", label: "Users", icon: Users, exact: false },
+  { href: "/admin", label: "dashboard", icon: LayoutDashboard, exact: true },
+  { href: "/admin/studybooks", label: "studybooks", icon: BookOpen, exact: false },
+  { href: "/admin/subjects", label: "subjects", icon: Tags, exact: false },
+  { href: "/admin/users", label: "users", icon: Users, exact: false },
 ] as const;
 
 /**
@@ -18,10 +19,11 @@ const NAV = [
  */
 export function AdminSidebar() {
   const pathname = usePathname();
+  const t = useTranslations("features_admin_components_AdminSidebar");
 
   return (
     <nav
-      aria-label="Admin sections"
+      aria-label={t("ariaLabel")}
       className="no-scrollbar shrink-0 max-md:-mx-4 max-md:overflow-x-auto max-md:px-4 md:sticky md:top-6 md:w-52 md:self-start"
     >
       <ul className="flex gap-1 max-md:pb-1 md:flex-col">
@@ -40,7 +42,7 @@ export function AdminSidebar() {
                 )}
               >
                 <Icon className="h-4.5 w-4.5 shrink-0" aria-hidden />
-                {label}
+                {t(label)}
               </Link>
             </li>
           );

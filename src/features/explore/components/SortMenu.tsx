@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -27,6 +28,7 @@ export function sortBooks<T extends { title: string; year: number; cards: unknow
 
 /** Pill-style sort dropdown shared by the Explore and subject toolbars. */
 export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort) => void }) {
+  const t = useTranslations("features_explore_components_SortMenu");
   const [open, setOpen] = useState(false);
 
   return (
@@ -38,7 +40,7 @@ export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort
         aria-expanded={open}
         className="border-hairline hover:bg-lavender flex h-9 items-center gap-1 rounded-full border px-3 text-sm font-medium"
       >
-        {SORTS.find((s) => s.key === sort)?.label}
+        {t(sort)}
         <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
       </Button>
       {open && (
@@ -66,7 +68,7 @@ export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort
                     s.key === sort ? "text-violet font-semibold" : "text-ink",
                   )}
                 >
-                  {s.label}
+                  {t(s.key)}
                 </Button>
               </li>
             ))}

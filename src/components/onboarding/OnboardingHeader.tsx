@@ -1,4 +1,7 @@
+"use client";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 import { ProgressDots } from "@/components/ui/ProgressDots";
 
@@ -25,6 +28,7 @@ export function OnboardingHeader({
   onForward,
   onSkip,
 }: OnboardingHeaderProps) {
+  const t = useTranslations("components_onboarding_OnboardingHeader");
   return (
     <div className="flex flex-col gap-3.5">
       <div className="flex items-center justify-between">
@@ -34,21 +38,21 @@ export function OnboardingHeader({
               unstyled
               type="button"
               onClick={onBack}
-              aria-label="Go back"
+              aria-label={t("goBack")}
               className={`-ml-1.5 ${arrowClass}`}
             >
               <ChevronLeft className="h-5 w-5" aria-hidden />
             </Button>
           )}
           <span className="text-muted text-xs font-semibold">
-            Step {step + 1} of {total}
+            {t("stepOf", { current: step + 1, total })}
           </span>
           {onForward && (
             <Button
               unstyled
               type="button"
               onClick={onForward}
-              aria-label="Go forward"
+              aria-label={t("goForward")}
               className={arrowClass}
             >
               <ChevronRight className="h-5 w-5" aria-hidden />
@@ -62,7 +66,7 @@ export function OnboardingHeader({
             onClick={onSkip}
             className="text-violet hover:text-violet-dark text-sm font-semibold"
           >
-            Skip
+            {t("skip")}
           </Button>
         )}
       </div>

@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { ChevronRight, Trophy } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { useAchievements } from "../useAchievements";
 
 export function AchievementsCard() {
+  const t = useTranslations("features_achievements_components_AchievementsCard");
   const { unlocked, unlockedCount, total } = useAchievements();
   const preview = unlocked.slice(0, 4);
 
@@ -17,9 +19,9 @@ export function AchievementsCard() {
         <Trophy className="h-6 w-6" />
       </span>
       <span className="min-w-0 flex-1">
-        <span className="text-ink block font-bold">Achievements</span>
+        <span className="text-ink block font-bold">{t("title")}</span>
         <span className="text-muted block text-sm">
-          {unlockedCount} / {total} unlocked
+          {t("unlockedCount", { unlocked: unlockedCount, total })}
         </span>
         {preview.length > 0 && (
           <span className="mt-1.5 flex -space-x-1.5">

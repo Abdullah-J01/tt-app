@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "@/i18n/client";
 import { Portal } from "@/lib/Portal";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { AuthCard } from "./AuthCard";
@@ -14,6 +15,7 @@ import { useAuthModal } from "./useAuthModal";
  */
 export function AuthModal() {
   const { open, mode, closeAuth } = useAuthModal();
+  const t = useTranslations("components_auth_AuthModal");
   useScrollLock(open);
 
   return (
@@ -24,7 +26,7 @@ export function AuthModal() {
             {/* Dimmed + blurred backdrop over the live page behind it */}
             <motion.button
               type="button"
-              aria-label="Close"
+              aria-label={t("close")}
               onClick={closeAuth}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

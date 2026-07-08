@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -15,6 +16,7 @@ interface StudybookRowActionsProps {
 
 /** Edit link + guarded delete for a studybook table row. */
 export function StudybookRowActions({ slug, title }: StudybookRowActionsProps) {
+  const t = useTranslations("features_admin_components_StudybookRowActions");
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
@@ -24,7 +26,7 @@ export function StudybookRowActions({ slug, title }: StudybookRowActionsProps) {
     startTransition(async () => {
       const result = await deleteStudybook(slug);
       if (!result.ok) {
-        setError(result.error ?? "Something went wrong — try again.");
+        setError(result.error ?? t("genericError"));
         return;
       }
       setConfirming(false);
@@ -35,7 +37,7 @@ export function StudybookRowActions({ slug, title }: StudybookRowActionsProps) {
     <div className="flex items-center justify-end gap-1">
       <Link
         href={`/admin/studybooks/${slug}`}
-        aria-label={`Edit ${title}`}
+        aria-label={t("editAria", { title })}
         className="text-muted hover:bg-lavender hover:text-violet grid h-8 w-8 place-items-center rounded-lg transition-colors"
       >
         <Pencil className="h-4 w-4" aria-hidden />
@@ -43,7 +45,7 @@ export function StudybookRowActions({ slug, title }: StudybookRowActionsProps) {
       <Button
         unstyled
         type="button"
-        aria-label={`Delete ${title}`}
+        aria-label={t("deleteAria", { title })}
         onClick={() => {
           setError(null);
           setConfirming(true);
@@ -55,9 +57,9 @@ export function StudybookRowActions({ slug, title }: StudybookRowActionsProps) {
 
       <ConfirmDialog
         open={confirming}
-        title={`Delete “${title}”?`}
-        description={error ?? "This removes the studybook and all of its cards. This can't be undone."}
-        confirmLabel="Delete"
+        title={t("confirmTitle", { title })}
+        description={error ?? t("confirmDescription")}
+        confirmLabel={t("confirmLabel")}
         destructive
         loading={pending}
         onConfirm={onConfirm}

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import { SettingsScreen, findSettingsItem } from "@/features/profile";
 import { BackButton } from "@/components/layout/BackButton";
 
@@ -8,7 +9,8 @@ export async function generateMetadata({
   params: Promise<{ section: string }>;
 }): Promise<Metadata> {
   const { section } = await params;
-  return { title: findSettingsItem(section)?.label ?? "Settings" };
+  const t = await getTranslations("app_app_profile_settings_section_page");
+  return { title: findSettingsItem(section)?.label ?? t("settings") };
 }
 
 /** A settings detail screen (Notifications, App Preferences, App Icon, …). */
@@ -18,7 +20,8 @@ export default async function SettingsDetailPage({
   params: Promise<{ section: string }>;
 }) {
   const { section } = await params;
-  const title = findSettingsItem(section)?.label ?? "Settings";
+  const t = await getTranslations("app_app_profile_settings_section_page");
+  const title = findSettingsItem(section)?.label ?? t("settings");
 
   return (
     <>

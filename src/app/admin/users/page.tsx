@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import { Users } from "lucide-react";
 import {
   Table,
@@ -12,7 +13,10 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Pill } from "@/components/ui/Pill";
 import { AdminPager, SearchParamInput, adminListUsers } from "@/features/admin";
 
-export const metadata: Metadata = { title: "Users" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_admin_users_page");
+  return { title: t("metaTitle") };
+}
 
 interface UsersPageProps {
   searchParams: Promise<{ q?: string; page?: string }>;
@@ -25,39 +29,39 @@ const joinedFormat = new Intl.DateTimeFormat("en-GB", { dateStyle: "medium" });
  * (docs/TT_API_ENDPOINTS.md §B) — the table and search are wired and ready.
  */
 export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
+  const t = await getTranslations("app_admin_users_page");
   const { q, page } = await searchParams;
   const result = await adminListUsers({ q, page: Number(page) || 1 });
 
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="font-display text-ink text-2xl font-bold">Users</h1>
+        <h1 className="font-display text-ink text-2xl font-bold">{t("title")}</h1>
         <p className="text-muted mt-1 text-sm">
-          {result.total} user{result.total === 1 ? "" : "s"} · sample data until TT exposes a users
-          endpoint.
+          {t("subtitle", { count: result.total })}
         </p>
       </div>
 
       <div className="max-w-md">
-        <SearchParamInput placeholder="Search by name or email…" />
+        <SearchParamInput placeholder={t("searchPlaceholder")} />
       </div>
 
       {result.items.length === 0 ? (
         <EmptyState
           icon={<Users />}
-          title="No users match"
-          description="Try a different name or email."
+          title={t("emptyTitle")}
+          description={t("emptyBody")}
         />
       ) : (
         <>
           <Table>
             <TableHead>
               <tr>
-                <TableHeaderCell>Name</TableHeaderCell>
-                <TableHeaderCell>Email</TableHeaderCell>
-                <TableHeaderCell>Role</TableHeaderCell>
-                <TableHeaderCell>Plan</TableHeaderCell>
-                <TableHeaderCell>Joined</TableHeaderCell>
+                <TableHeaderCell>{t("colName")}</TableHeaderCell>
+                <TableHeaderCell>{t("colEmail")}</TableHeaderCell>
+                <TableHeaderCell>{t("colRole")}</TableHeaderCell>
+                <TableHeaderCell>{t("colPlan")}</TableHeaderCell>
+                <TableHeaderCell>{t("colJoined")}</TableHeaderCell>
               </tr>
             </TableHead>
             <TableBody>
@@ -66,13 +70,13 @@ export default async function AdminUsersPage({ searchParams }: UsersPageProps) {
                   <TableCell className="text-ink font-medium">{user.name}</TableCell>
                   <TableCell className="text-muted">{user.email}</TableCell>
                   <TableCell>
-                    {user.role === "admin" ? <Pill variant="solid">Admin</Pill> : <Pill variant="mist">User</Pill>}
+                    {user.role === "admin" ? <Pill variant="solid">{t("roleAdmin")}</Pill> : <Pill variant="mist">{t("roleUser")}</Pill>}
                   </TableCell>
                   <TableCell>
                     {user.plan === "premium" ? (
-                      <Pill variant="green">Premium</Pill>
+                      <Pill variant="green">{t("planPremium")}</Pill>
                     ) : (
-                      <Pill variant="mist">Free</Pill>
+                      <Pill variant="mist">{t("planFree")}</Pill>
                     )}
                   </TableCell>
                   <TableCell className="text-muted whitespace-nowrap">

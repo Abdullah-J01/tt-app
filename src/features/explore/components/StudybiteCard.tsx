@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "@/i18n/client";
 import { Pill } from "@/components/ui/Pill";
 import { SUBJECTS } from "@/config/subjects";
 import type { Studybite } from "../data";
@@ -13,6 +16,7 @@ function subjectName(slug: string) {
  * heading, a snippet, and price + subject pills. Opens the studybook's reader.
  */
 export function StudybiteCard({ bite }: { bite: Studybite }) {
+  const t = useTranslations("features_explore_components_StudybiteCard");
   const { card, book } = bite;
   return (
     <Link
@@ -33,7 +37,7 @@ export function StudybiteCard({ bite }: { bite: Studybite }) {
           {book.priceEur != null ? (
             <Pill>€{book.priceEur.toFixed(2)}</Pill>
           ) : (
-            <Pill className="bg-brand-green/10 text-brand-green">Included</Pill>
+            <Pill className="bg-brand-green/10 text-brand-green">{t("included")}</Pill>
           )}
           <Pill className="bg-lavender">{subjectName(book.subjectSlug)}</Pill>
         </div>

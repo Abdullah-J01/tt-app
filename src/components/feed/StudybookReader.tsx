@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -45,6 +46,7 @@ const cardVariants = {
  */
 export default function StudybookReader({ book }: { book: Studybook }) {
   const router = useRouter();
+  const t = useTranslations("components_feed_StudybookReader");
   const cards = book.cards;
   const total = cards.length;
   const [index, setIndex] = useState(0);
@@ -204,7 +206,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             <button
               type="button"
               onClick={goBack}
-              aria-label="Back to studybook"
+              aria-label={t("backToStudybook")}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 backdrop-blur transition-transform active:scale-90"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -227,7 +229,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               ))}
             </div>
             <p className="mt-2 text-xs font-medium text-white/55">
-              Card {index + 1} of {total}
+              {t("cardProgress", { current: index + 1, total })}
             </p>
           </div>
 
@@ -275,7 +277,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           <button
             type="button"
             onClick={goNext}
-            aria-label="Next card"
+            aria-label={t("nextCard")}
             className="absolute inset-x-0 bottom-8 z-20 flex flex-col items-center gap-1 text-white/60"
           >
             <motion.span
@@ -284,7 +286,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             >
               <ChevronUp className="h-5 w-5" />
             </motion.span>
-            <span className="text-xs font-medium">Swipe up · next card</span>
+            <span className="text-xs font-medium">{t("swipeHint")}</span>
           </button>
         </div>
 
@@ -309,6 +311,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
 /** Top-bar save toggle — persists the whole book to the library (Studybooks tab). */
 function TopSave({ book }: { book: Studybook }) {
   const router = useRouter();
+  const t = useTranslations("components_feed_StudybookReader");
   const { status } = useSession();
   const { isBookSaved, toggleBook } = useLibrary();
   const saved = isBookSaved(book.slug);
@@ -336,7 +339,7 @@ function TopSave({ book }: { book: Studybook }) {
     <button
       type="button"
       onClick={toggle}
-      aria-label={saved ? "Saved" : "Save"}
+      aria-label={saved ? t("saved") : t("save")}
       className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 backdrop-blur transition-transform active:scale-90"
     >
       <Bookmark className={`h-5 w-5 ${saved ? "fill-white" : ""}`} />

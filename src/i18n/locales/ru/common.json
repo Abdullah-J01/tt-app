@@ -1,0 +1,1111 @@
+{
+  "common": {
+    "appName": "TaskuTark",
+    "search": "Search",
+    "searchPlaceholder": "Search studybooks, subjects…",
+    "language": "Language",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "save": "Save",
+    "close": "Close",
+    "loading": "Loading…"
+  },
+  "nav": {
+    "feed": "Feed",
+    "explore": "Explore",
+    "library": "Library",
+    "profile": "Profile",
+    "more": "More",
+    "login": "Log in",
+    "logout": "Log out",
+    "signedInAs": "Signed in as",
+    "viewApp": "View app",
+    "adminDashboard": "Admin dashboard",
+    "viewProfile": "View profile"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "welcomeSubtitle": "Pick up your streak where you left off.",
+    "createTitle": "Create your account",
+    "createSubtitle": "Start your daily learning habit in minutes.",
+    "name": "Name",
+    "email": "Email",
+    "password": "Password",
+    "namePlaceholder": "Your name",
+    "emailPlaceholder": "Enter your email",
+    "loginPasswordPlaceholder": "Enter your password",
+    "signupPasswordPlaceholder": "Create a password",
+    "forgotPassword": "Forgot password?",
+    "continueButton": "Continue",
+    "createButton": "Create account",
+    "or": "or",
+    "continueWithGoogle": "Continue with Google",
+    "newHere": "New here?",
+    "createAccountLink": "Create account",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Log in",
+    "resetTitle": "Reset your password",
+    "resetSubtitle": "Enter your email and we'll send you a link with instructions to reset your password.",
+    "requestReset": "Request a new password",
+    "checkEmailTitle": "Check your email",
+    "checkEmailBody": "If an account exists for {email}, we've sent a link to reset your password.",
+    "useDifferentEmail": "Use a different email",
+    "backToLogin": "Back to log in",
+    "rememberPassword": "Remember your password?"
+  },
+  "app_app_explore_subject_page": {
+    "metadataFallback": "Subject",
+    "backToExplore": "Back to Explore"
+  },
+  "app_app_explore_page": {
+    "metadataTitle": "Explore"
+  },
+  "app_app_explore_search_page": {
+    "title": "Search",
+    "subjects": "Subjects",
+    "studybooks": "Studybooks",
+    "studybites": "Studybites",
+    "recent": "Recent",
+    "suggested": "Suggested",
+    "browseSubjects": "Browse subjects",
+    "noMatches": "No matches for “{query}”",
+    "noMatchesHint": "Try a subject, a studybook title, or a broader word."
+  },
+  "app_app_feed_slug_page": {
+    "fallbackTitle": "Feed — TaskuTark",
+    "fallbackDescription": "Swipe through bite-sized studybook cards, one insight at a time.",
+    "cardTitle": "{title} — {book} | StudyBooks"
+  },
+  "app_studybook_slug_page": {
+    "metadataTitle": "Studybook",
+    "breadcrumb": "Studybook",
+    "bookCover": "book cover",
+    "byAuthor": "by {author} · {year}",
+    "cardsMinutes": "{count} cards · ~{minutes} min",
+    "startLearning": "Start learning",
+    "preview": "Preview",
+    "aboutTitle": "About this studybook",
+    "cardsPreview": "Cards preview",
+    "all": "All {count}",
+    "youMayAlsoLike": "You may also like",
+    "more": "More",
+    "cover": "cover",
+    "free": "Free",
+    "preschool": "Preschool",
+    "gymnasium": "Gymnasium",
+    "grade": "Grade {grade}"
+  },
+  "components_account_LogoutButton": {
+    "logOut": "Log out"
+  },
+  "components_account_PremiumBanner": {
+    "title": "Go Premium",
+    "subtitle": "Unlock every studybook & offline."
+  },
+  "components_account_ProfileHeader": {
+    "editProfile": "Edit profile"
+  },
+  "components_auth_AuthHeader": {
+    "close": "Close"
+  },
+  "components_auth_AuthModal": {
+    "close": "Close"
+  },
+  "components_auth_ForgotPasswordFace": {
+    "backToLogin": "Back to log in",
+    "sentTitle": "Check your email",
+    "sentBody": "If an account exists for <email></email>, we've sent a link to reset your password.",
+    "useDifferentEmail": "Use a different email",
+    "resetTitle": "Reset your password",
+    "resetSubtitle": "Enter your email and we'll send you a link with instructions to reset your password.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "requestNewPassword": "Request a new password",
+    "rememberPassword": "Remember your password?",
+    "login": "Log in"
+  },
+  "components_auth_LoginFace": {
+    "title": "Welcome back",
+    "subtitle": "Pick up your streak where you left off.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "forgotPassword": "Forgot password?",
+    "continue": "Continue",
+    "continueWithGoogle": "Continue with Google",
+    "newHere": "New here?",
+    "createAccount": "Create account"
+  },
+  "components_auth_OrDivider": {
+    "or": "or"
+  },
+  "components_auth_PasswordField": {
+    "label": "Password",
+    "show": "Show password",
+    "hide": "Hide password"
+  },
+  "components_auth_SignupFace": {
+    "title": "Create your account",
+    "subtitle": "Start your daily learning habit in minutes.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Your name",
+    "emailLabel": "Email",
+    "emailPlaceholder": "Enter your email",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Create a password",
+    "submit": "Create account",
+    "continueGoogle": "Continue with Google",
+    "haveAccount": "Already have an account?",
+    "login": "Log in"
+  },
+  "components_feed_ActionRail": {
+    "share": "Share",
+    "openBook": "Open studybook"
+  },
+  "components_feed_FeedCard": {
+    "didYouKnow": "Did you know",
+    "byline": "by {author} · {subject}",
+    "openBook": "Open {title}"
+  },
+  "components_feed_FeedScreen": {
+    "carouselLabel": "Study cards feed",
+    "loading": "Loading study cards…",
+    "cardPosition": "Card {index} of {total}: {title}",
+    "emptyTitle": "Nothing matches your filters",
+    "emptyBody": "Try removing a filter or two to see more cards.",
+    "editFilters": "Edit filters",
+    "clearFilters": "Clear filters"
+  },
+  "components_feed_FeedTopBar": {
+    "forYou": "For You",
+    "filterFeed": "Filter feed"
+  },
+  "components_feed_NavControls": {
+    "previousCard": "Previous card",
+    "nextCard": "Next card"
+  },
+  "components_feed_SideActions": {
+    "like": "Like",
+    "share": "Share",
+    "save": "Save",
+    "linkCopied": "Link copied"
+  },
+  "components_feed_StudyCard": {
+    "cardProgress": "Card {current} of {total}"
+  },
+  "components_feed_StudybookReader": {
+    "backToStudybook": "Back to studybook",
+    "cardProgress": "Card {current} of {total}",
+    "nextCard": "Next card",
+    "swipeHint": "Swipe up · next card",
+    "saved": "Saved",
+    "save": "Save"
+  },
+  "components_home_AnimatedFeed": {
+    "didYouKnow": "Did you know",
+    "like": "Like",
+    "bookmark": "Bookmark",
+    "share": "Share",
+    "catPhysics": "Physics",
+    "catBiology": "Biology",
+    "catHistory": "History",
+    "catPsychology": "Psychology",
+    "fact1": "Sunlight is 8½ minutes old when it reaches you.",
+    "fact2": "Octopuses have three hearts and blue blood.",
+    "fact3": "The Great Wall isn't visible from space.",
+    "fact4": "Habits form faster when tied to an existing routine.",
+    "book1": "Everyday Astronomy",
+    "book2": "Life Under the Sea",
+    "book3": "Myths We Believe",
+    "book4": "The Shape of Habit"
+  },
+  "components_home_AnimatedHeadline": {
+    "headline1": "Learn something new in the time it takes to scroll.",
+    "headline2": "Understand difficult ideas in seconds, not hours.",
+    "headline3": "Master concepts quickly, one card at a time.",
+    "headline4": "Build a reading habit that actually sticks."
+  },
+  "components_home_FeatureCards": {
+    "card1Title": "Bite sized cards",
+    "card1Body": "Learn with quick five-second insights designed to be memorable and easy to revisit anytime.",
+    "card2Title": "Thousands of studybooks",
+    "card2Body": "Dive into a rich collection of books redesigned as clear, interactive learning cards.",
+    "card3Title": "Learn on any device",
+    "card3Body": "Continue learning seamlessly across your phone, tablet, and web without losing progress.",
+    "card4Title": "Learn together",
+    "card4Body": "Collaborate with friends, share study decks, and stay motivated through friendly challenges.",
+    "card5Title": "Earn as you go",
+    "card5Body": "Unlock badges, gain experience, and celebrate every milestone throughout learning journey.",
+    "card6Title": "Keep your streak",
+    "card6Body": "Build lasting study habits with daily reminders, streaks, and motivating progress tracking."
+  },
+  "components_home_Hero": {
+    "badge": "Bite-sized learning",
+    "subtitle": "A vertical feed of short, beautifully designed cards drawn from real studybooks. Save what matters. Build a daily habit.",
+    "getStarted": "Get started",
+    "seeFeed": "See the feed",
+    "howItWorks": "How it works",
+    "socialProof": "12,000+ learners building streaks"
+  },
+  "components_home_NoiseHero": {
+    "learn": "Learn",
+    "somethingNew": "Something New",
+    "tagline": "In the time it takes to scroll."
+  },
+  "components_home_Plans": {
+    "freeName": "Free",
+    "freeTagline": "Dip a toe in",
+    "freeFeat1": "15 flashcards a day",
+    "freeFeat2": "2 subjects unlocked",
+    "freeFeat3": "20 saved cards",
+    "freeFeat4": "Ads between sessions",
+    "scholarName": "Scholar",
+    "scholarTagline": "For steady study habits",
+    "scholarFeat1": "Unlimited flashcards",
+    "scholarFeat2": "All subjects unlocked",
+    "scholarFeat3": "Unlimited saved cards",
+    "scholarFeat4": "Ad-free, always",
+    "scholarFeat5": "Offline studybooks",
+    "geniusName": "Genius",
+    "geniusTagline": "For the exam-week grind",
+    "geniusFeat1": "Everything in Scholar",
+    "geniusFeat2": "Personal study plans",
+    "geniusFeat3": "Progress analytics",
+    "geniusFeat4": "Priority support",
+    "geniusFeat5": "Early access to new subjects",
+    "savePercent": "Save {pct}%",
+    "premium": "Premium",
+    "title": "Study more, forget less",
+    "subtitle": "Pick a plan that keeps up with how you actually study. Cancel anytime.",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "mostPopular": "Most popular",
+    "perMonthMonthly": "/month",
+    "perMonthYearly": "/month, billed yearly",
+    "currentPlan": "Current plan",
+    "choose": "Choose {name}"
+  },
+  "app_app_library_page": {
+    "title": "Library",
+    "tabCards": "Saved cards",
+    "tabStudybooks": "Studybooks",
+    "filterSaved": "Saved",
+    "filterLiked": "Liked",
+    "emptyCardsTitle": "No saved cards yet",
+    "emptyBooksTitle": "No studybooks yet",
+    "emptyLoggedOutBody": "Log in to save cards from the feed and find them here.",
+    "emptyBody": "Tap the bookmark on any card to save it here for later.",
+    "login": "Log in",
+    "goToFeed": "Go to feed",
+    "removeAria": "Remove {heading}"
+  },
+  "app_app_profile_achievements_page": {
+    "metaTitle": "Achievements"
+  },
+  "app_app_profile_invite_page": {
+    "metaTitle": "Invite Friends"
+  },
+  "app_app_profile_page": {
+    "metaTitle": "Profile"
+  },
+  "components_home_SearchBar": {
+    "placeholder": "Search studybooks, subjects…",
+    "ariaLabel": "Search studybooks, subjects"
+  },
+  "components_home_StackingStudyBites": {
+    "pricePrefix": "from"
+  },
+  "components_home_SubjectGrid": {
+    "items": "{count} items"
+  },
+  "components_home_SubjectReveal": {
+    "learn": "Learn",
+    "somethingNew": "Something New",
+    "scrollTagline": "In the time it takes to scroll.",
+    "exploreBySubject": "Explore by subject",
+    "diveIn": "Dive into {count} subjects",
+    "more": "{count} more",
+    "close": "Close",
+    "items": "{count} items"
+  },
+  "components_home_UniverseCarousel": {
+    "from": "from",
+    "freshlyDigitized": "Freshly digitized"
+  },
+  "components_home_page": {
+    "bitesTitle": "New study bites",
+    "bitesSubtitle": "Study bites help you focus on one specific topic.",
+    "moreBites": "More bites",
+    "digitizedTitle": "Freshly digitized",
+    "digitizedSubtitle": "Digital textbooks and workbooks — study anywhere, anytime.",
+    "allEbooks": "All e-books"
+  },
+  "components_layout_BackButton": {
+    "back": "Back"
+  },
+  "components_layout_BottomNav": {
+    "home": "Home",
+    "explore": "Explore",
+    "library": "Library",
+    "profile": "Profile"
+  },
+  "components_layout_Footer": {
+    "headline": "Turn <wasted>wasted</wasted> minutes<br></br>into things<br></br>you'll <keep>actually keep</keep>",
+    "cta": "Join over <b>10M+ people</b> who swapped the feed for bite-sized studybooks. Free to start.",
+    "downloadOn": "Download on the",
+    "appStore": "App Store",
+    "getItOn": "Get it on",
+    "googlePlay": "Google Play",
+    "statMinutes": "<b>3 min</b> a day",
+    "statStudybooks": "<b>18k+</b> studybooks",
+    "statRating": "<b>4.9★</b> App Store",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "contact": "Contact",
+    "about": "About"
+  },
+  "components_layout_ProfileMenu": {
+    "profile": "Profile",
+    "you": "You",
+    "viewProfile": "View profile",
+    "adminDashboard": "Admin dashboard",
+    "logOut": "Log out"
+  },
+  "components_layout_ScrollToTop": {
+    "scrollToTop": "Scroll to top"
+  },
+  "components_layout_TopNav": {
+    "searchPlaceholder": "Search studybooks, subjects…",
+    "login": "Log in"
+  },
+  "components_onboarding_OnboardingFlow": {
+    "startLearning": "Start learning",
+    "continue": "Continue"
+  },
+  "components_onboarding_OnboardingHeader": {
+    "goBack": "Go back",
+    "stepOf": "Step {current} of {total}",
+    "goForward": "Go forward",
+    "skip": "Skip"
+  },
+  "components_onboarding_StepDailyGoal": {
+    "title": "Set a daily goal",
+    "subtitle": "Small and steady wins. Change it later.",
+    "unit": "cards / day",
+    "reminderTitle": "Daily reminder",
+    "reminderBody": "A nudge at 7pm to keep your streak.",
+    "illustrationCaption": "3D streak / calendar illustration"
+  },
+  "components_onboarding_StepGrade": {
+    "title": "What grade are you in?",
+    "subtitle": "We'll tune your feed to the right level.",
+    "groupLabel": "Grade"
+  },
+  "components_onboarding_StepInterests": {
+    "title": "Pick your interests",
+    "subtitle": "Choose at least {min}. Add more anytime.",
+    "groupLabel": "Interests",
+    "remaining": "<b>{count}</b> more to choose",
+    "selected": "<b>{count}</b> selected"
+  },
+  "components_ui_ConfirmDialog": {
+    "confirm": "Confirm",
+    "cancel": "Cancel"
+  },
+  "components_ui_Pagination": {
+    "resultsPages": "Results pages",
+    "previousPage": "Previous page",
+    "nextPage": "Next page",
+    "page": "Page {number}"
+  },
+  "app_app_profile_settings_section_page": {
+    "settings": "Settings"
+  },
+  "app_app_profile_settings_page": {
+    "title": "Settings"
+  },
+  "app_auth_forgot_password_page": {
+    "title": "Reset password"
+  },
+  "components_ui_SubjectCard": {
+    "itemsCount": "{count} items"
+  },
+  "components_ui_Toaster": {
+    "dismiss": "Dismiss"
+  },
+  "features_achievements_components_AchievementsCard": {
+    "title": "Achievements",
+    "unlockedCount": "{unlocked} / {total} unlocked"
+  },
+  "features_achievements_components_AchievementsView": {
+    "title": "Achievements",
+    "unlockedCount": "{unlocked} / {total} unlocked",
+    "unlockedHeading": "Unlocked",
+    "lockedHeading": "Locked"
+  },
+  "features_admin_components_AdminLogoutButton": {
+    "logout": "Log out"
+  },
+  "features_admin_components_AdminSidebar": {
+    "ariaLabel": "Admin sections",
+    "dashboard": "Dashboard",
+    "studybooks": "Studybooks",
+    "subjects": "Subjects",
+    "users": "Users"
+  },
+  "features_admin_components_AdminTopbar": {
+    "signedInAs": "Signed in as <name>{value}</name>",
+    "viewApp": "View app"
+  },
+  "features_admin_components_CardEditor": {
+    "cardsAriaLabel": "Bite cards",
+    "title": "Bite cards ({count})",
+    "subtitle": "The swipeable feed cards for this studybook, in reading order.",
+    "addCard": "Add card",
+    "emptyTitle": "No cards yet",
+    "emptyBody": "Add the first bite card — a one-line insight with a few supporting lines.",
+    "cardLabel": "Card {number}",
+    "moveUp": "Move card {number} up",
+    "moveDown": "Move card {number} down",
+    "deleteCard": "Delete card {number}",
+    "headingPlaceholder": "Heading — the one-line insight",
+    "headingAriaLabel": "Card {number} heading",
+    "bodyPlaceholder": "2–4 short supporting lines",
+    "bodyAriaLabel": "Card {number} body",
+    "saveCards": "Save cards",
+    "saved": "Saved",
+    "unsavedChanges": "Unsaved changes",
+    "validationError": "Every card needs a heading and body text.",
+    "genericError": "Something went wrong — try again."
+  },
+  "features_admin_components_StudybookFilters": {
+    "filterBySubject": "Filter by subject",
+    "allSubjects": "All subjects",
+    "filterByGrade": "Filter by grade",
+    "allGrades": "All grades"
+  },
+  "features_admin_components_StudybookForm": {
+    "genericError": "Something went wrong — try again.",
+    "titleLabel": "Title",
+    "titlePlaceholder": "e.g. A Very Serious Snowman Story",
+    "authorLabel": "Author",
+    "authorPlaceholder": "e.g. Johanna Unt",
+    "yearLabel": "Year",
+    "categoryLabel": "Category",
+    "categoryPlaceholder": "e.g. Textbook, Novel, Study guide",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "Select a subject…",
+    "gradeLabel": "Grade",
+    "gradePlaceholder": "Select a grade…",
+    "coverLabel": "Cover image URL",
+    "coverHint": "Optional — shown on catalog cards.",
+    "priceLabel": "Price (EUR)",
+    "priceHint": "Leave empty for a free studybook.",
+    "synopsisLabel": "Synopsis",
+    "synopsisPlaceholder": "What is this studybook about, and who is it for?",
+    "saveChanges": "Save changes",
+    "createStudybook": "Create studybook",
+    "backToStudybooks": "Back to studybooks",
+    "saved": "Saved"
+  },
+  "features_admin_components_StudybookRowActions": {
+    "genericError": "Something went wrong — try again.",
+    "editAria": "Edit {title}",
+    "deleteAria": "Delete {title}",
+    "confirmTitle": "Delete “{title}”?",
+    "confirmDescription": "This removes the studybook and all of its cards. This can't be undone.",
+    "confirmLabel": "Delete"
+  },
+  "features_admin_components_StudybookTable": {
+    "title": "Title",
+    "subject": "Subject",
+    "grade": "Grade",
+    "cards": "Cards",
+    "price": "Price",
+    "actions": "Actions",
+    "free": "Free"
+  },
+  "features_explore_components_ActiveFilters": {
+    "clearAll": "Clear all"
+  },
+  "features_explore_components_CoverCard": {
+    "free": "Free",
+    "bookCover": "book cover",
+    "cards": "{count, plural, one {# card} other {# cards}}",
+    "minutes": "~ {count} min",
+    "open": "Open"
+  },
+  "features_explore_components_ExploreView": {
+    "title": "Explore",
+    "search": "Search",
+    "catalogContent": "Catalog content",
+    "studybooks": "Studybooks",
+    "studybites": "Studybites",
+    "filters": "Filters",
+    "gridView": "Grid view",
+    "listView": "List view",
+    "free": "Free",
+    "cards": "{count, plural, one {# card} other {# cards}}",
+    "emptyState": "Nothing here for this filter yet. Try removing a filter or two."
+  },
+  "features_explore_components_FilterDrawer": {
+    "dialogLabel": "Filter materials",
+    "title": "Filters",
+    "close": "Close filters",
+    "showResults": "Show {count, plural, one {# result} other {# results}}"
+  },
+  "features_explore_components_FilterPanel": {
+    "title": "Filter materials",
+    "resultCount": "{count} results",
+    "searchPlaceholder": "Search filters…",
+    "searchAria": "Search filters",
+    "clearAll": "Clear all ({count})",
+    "noMatch": "No filters match “{query}”.",
+    "collapse": "Collapse",
+    "expand": "Expand"
+  },
+  "features_explore_components_SearchBar": {
+    "back": "Back",
+    "placeholder": "Search studybooks, subjects…",
+    "clearSearch": "Clear search"
+  },
+  "features_explore_components_SortMenu": {
+    "popular": "Popular",
+    "newest": "Newest",
+    "az": "A–Z"
+  },
+  "features_explore_components_StudybiteCard": {
+    "included": "Included"
+  },
+  "features_explore_components_SubjectBooks": {
+    "count": "{count, plural, one {# studybook} other {# studybooks}}",
+    "filterMaterials": "Filter materials",
+    "filters": "Filters",
+    "empty": "No studybooks for this filter yet."
+  },
+  "features_explore_components_SubjectCard": {
+    "itemsCount": "{count} items"
+  },
+  "features_explore_components_SubjectRail": {
+    "title": "Subjects",
+    "more": "More ({count})",
+    "seeLess": "See less",
+    "seeMore": "See more ({count})",
+    "chooseSubjects": "Choose subjects",
+    "closeSubjects": "Close subjects",
+    "done": "Done",
+    "doneCount": "Done · {count} selected"
+  },
+  "features_profile_components_InviteView": {
+    "shareMessage": "Join me on {name} — bite-sized learning you'll actually finish. {url}",
+    "title": "{name} is better with friends!",
+    "subtitle": "Send invites to your friends to build a daily learning habit together.",
+    "inviteVia": "Invite via",
+    "textMessage": "Text Message",
+    "copied": "Copied!",
+    "copyLink": "Copy Link",
+    "others": "Others"
+  },
+  "features_profile_components_Paywall": {
+    "close": "Close",
+    "featEverything": "Every studybook & studybite",
+    "featSaves": "Unlimited saves & collections",
+    "featOffline": "Offline reading",
+    "featAudio": "Listen with audio cards",
+    "unlockTitle": "Unlock every studybook",
+    "unlockSubtitle": "This one's Premium. Go unlimited and keep the streak growing.",
+    "annual": "Annual",
+    "annualNote": "7-day free trial",
+    "save40": "Save 40%",
+    "monthly": "Monthly",
+    "monthlyNote": "Cancel anytime",
+    "perMonth": "/month",
+    "startTrial": "Start 7-day free trial",
+    "goPremium": "Go Premium",
+    "renewNote": "Then 1.90€/mo · Cancel anytime ·",
+    "restore": "Restore",
+    "premiumTitle": "You're Premium!",
+    "premiumSubtitle": "Every studybook is unlocked and your saves are unlimited. Time to dive in.",
+    "annualRenews": "Annual plan · renews 1 Jul 2027",
+    "monthlyRenews": "Monthly plan · renews 1 Jul 2027",
+    "savesActive": "Unlimited saves active",
+    "offlineOn": "Offline reading on",
+    "startLearning": "Start learning"
+  },
+  "features_profile_components_ProfileView": {
+    "title": "Profile",
+    "settings": "Settings",
+    "editProfile": "Edit profile",
+    "dayStreak": "{count}-day streak",
+    "statCardsLearned": "Cards learned",
+    "statDayStreak": "Day streak",
+    "statCompleted": "Completed",
+    "goPremium": "Go Premium",
+    "goPremiumSubtitle": "Unlock every studybook & offline.",
+    "account": "Account",
+    "notifications": "Notifications",
+    "language": "Language",
+    "english": "English",
+    "estonian": "Estonian",
+    "russian": "Russian",
+    "logOut": "Log out"
+  },
+  "features_profile_components_SettingsList": {
+    "deleteConfirm": "Delete your account? This can't be undone."
+  },
+  "features_profile_components_StreakMoment": {
+    "close": "Close",
+    "title": "{count}-day streak!",
+    "body": "You've learned something new {count, plural, one {# day} other {# days}} in a row. Keep the fire going.",
+    "cta": "Keep it going"
+  },
+  "app_auth_login_page": {
+    "title": "Log in"
+  },
+  "app_auth_signup_page": {
+    "title": "Sign up"
+  },
+  "features_profile_components_settings_AppIconSettings": {
+    "defaultLabel": "Default",
+    "defaultDesc": "Our latest icon design",
+    "streakLabel": "On Fire!",
+    "streakDesc": "Unlocked with a 7-day streak",
+    "proLabel": "Feel like a Pro",
+    "proDesc": "Unlocked with a Pro subscription"
+  },
+  "features_profile_components_settings_AppPreferences": {
+    "appearance": "Appearance",
+    "theme_system": "System",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "oledTitle": "Dark OLED Theme",
+    "oledSubtitle": "Use a very dark theme when choosing dark mode or when system settings detect dark mode",
+    "readingAnimTitle": "Reading Animation",
+    "readingAnimSubtitle": "Enable the background curtain animation while reading",
+    "soundsTitle": "Sounds",
+    "soundsSubtitle": "Enable in-app sounds",
+    "vibrationsTitle": "Vibrations",
+    "vibrationsSubtitle": "Enable vibrations for main actions",
+    "autoScrollTitle": "Automatic Scroll",
+    "autoScrollSubtitle": "Scroll to the first unread idea",
+    "screenshotTitle": "Show Screenshot drawer",
+    "screenshotSubtitle": "Show a drawer with share options after taking a screenshot.",
+    "readSpeedTitle": "Reading Speed",
+    "readSpeedSubtitle": "Change the speed of the reading animation",
+    "listenSpeedTitle": "Listening Speed",
+    "listenSpeedSubtitle": "Change the playback rate for audio"
+  },
+  "features_profile_components_settings_EmailSettings": {
+    "dailyTitle": "Daily Recommendations",
+    "dailySubtitle": "Recommended stories and impactful ideas",
+    "weeklyTitle": "Weekly Progress",
+    "weeklySubtitle": "Review of your reading habits and stashed ideas",
+    "productTitle": "Product Announcements",
+    "productSubtitle": "New features to upgrade your {name} experience"
+  },
+  "features_profile_components_settings_FollowedTopics": {
+    "suggestedTitle": "Suggested Topics",
+    "following": "Following",
+    "follow": "Follow",
+    "topic_entrepreneurship": "Entrepreneurship",
+    "topic_personalDevelopment": "Personal Development",
+    "topic_productivity": "Productivity",
+    "topic_timeManagement": "Time Management",
+    "topic_health": "Health",
+    "topic_money": "Money & Investments",
+    "topic_love": "Love & Relationships",
+    "topic_psychology": "Psychology",
+    "topic_philosophy": "Philosophy"
+  },
+  "features_profile_components_settings_NotificationsSettings": {
+    "contentTitle": "Content Recommendations",
+    "contentDesc": "Daily and weekly ideas curated for you plus a few exceptional suggestions from our team",
+    "contentAria": "Content recommendations",
+    "newContent": "You get new content at <b>{time}</b> daily.",
+    "streakTitle": "Streak & Reading Habit",
+    "streakSubtitle": "Keep your streak going and win weekly reading challenges",
+    "streakAria": "Streak & reading habit",
+    "deviceSettings": "Open device settings"
+  },
+  "features_profile_components_settings_PersonalInformation": {
+    "changePhoto": "Change photo",
+    "profilePhoto": "Profile Photo",
+    "remove": "Remove",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "username": "Username",
+    "tapToEdit": "Tap any field to edit it."
+  },
+  "features_profile_components_settings_SettingsScreen": {
+    "settings": "Settings",
+    "comingSoon": "{label} is coming soon",
+    "placeholderBody": "This screen will be wired up once the account & TaskuTark APIs are connected."
+  },
+  "features_streak_components_StreakButton": {
+    "ariaLabel": "Reading streak: {count, plural, one {# day} other {# days}}"
+  },
+  "features_streak_components_StreakCalendar": {
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "sun": "Sun",
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "january": "January",
+    "february": "February",
+    "march": "March",
+    "april": "April",
+    "may": "May",
+    "june": "June",
+    "july": "July",
+    "august": "August",
+    "september": "September",
+    "october": "October",
+    "november": "November",
+    "december": "December"
+  },
+  "features_streak_components_StreakCompletion": {
+    "dialogLabel": "Studybook complete",
+    "close": "Close",
+    "eyebrow": "Studybook complete",
+    "heading": "Nice — {count} cards learned!",
+    "streakBadge": "🔥 Streak +1 · now {streak}",
+    "cardsBadge": "📚 +{count} cards",
+    "saveAll": "Save all to Library",
+    "nextStudybook": "Next studybook",
+    "backToFeed": "Back to feed"
+  },
+  "features_streak_components_StreakFreezesInfo": {
+    "recover": "Freezes are used to <strong>recover your lost streak</strong>.",
+    "automatic": "When you have more than the number of days you missed, they will be <strong>automatically used</strong> to restore your streak.",
+    "maxFreezes": "You can have up to <strong>{count} streaks</strong> at a time.",
+    "freezesLabel": "freezes",
+    "pro": "PRO",
+    "proInfo": "You get <strong>2 freezes</strong> / week & through streak challenges."
+  },
+  "features_streak_components_StreakInfoSheet": {
+    "continue": "Continue"
+  },
+  "features_streak_components_StreakMilestones": {
+    "intro": "Streak milestones earn you <strong>exclusive rewards</strong>. Losing your streak resets the challenge and your rewards.",
+    "extraFreezes": "You also get <strong>extra freezes</strong> upon reaching a milestone.",
+    "dayStreak": "{days}-Day Streak",
+    "unlocksBadge": "Unlocks <strong>{badge}</strong> Profile Badge",
+    "reachPct": "{pct}% reach this",
+    "untilNext": "You have <strong>{days, plural, one {# day} other {# days}}</strong> until the next reward."
+  },
+  "features_streak_components_StreakPanel": {
+    "panelLabel": "Reading streak",
+    "closeLabel": "Close streak",
+    "title": "Streak Milestones",
+    "startTitle": "Start your streak",
+    "startBody": "Read a studybook today to light your flame and begin a streak.",
+    "continueReading": "Continue reading",
+    "milestones": "Milestones",
+    "daysToMilestone": "{days, plural, one {# day} other {# days}} to {milestone}-day streak",
+    "milestoneDetails": "{days}-day milestone details",
+    "maxStreakLabel": "max streak",
+    "streakLabel": "streak",
+    "freezesLabel": "freezes",
+    "milestonesSheetTitle": "Streak Milestones",
+    "freezesSheetTitle": "Streak Freezes"
+  },
+  "features_studybook_StudybookActions": {
+    "share": "Share",
+    "saved": "Saved",
+    "save": "Save"
+  },
+  "features_studybook_StudybookPreview": {
+    "previewOf": "Preview of {title}",
+    "closePreview": "Close preview",
+    "slideOf": "Slide {current} of {total}",
+    "categoryPreview": "{category} · Preview",
+    "moreCardsInside": "{count, plural, one {# more card inside} other {# more cards inside}}",
+    "previewEnd": "That's the preview",
+    "unlockPrice": "Unlock the full studybook for €{price}.",
+    "keepGoing": "Keep going in the full reader.",
+    "startLearning": "Start learning",
+    "previousCard": "Previous card",
+    "nextCard": "Next card"
+  },
+  "app_marketing_about_page": {
+    "eyebrow": "About StudyBooks",
+    "titleMain": "We believe learning shouldn't compete with scrolling.",
+    "titleAccent": "So we made it the same thing.",
+    "subtitle": "StudyBooks turns real, published studybooks into short, beautifully designed cards — so the five minutes you already spend scrolling can leave you a little smarter.",
+    "statLearners": "Learners building streaks",
+    "statStudybooks": "Studybooks in the catalog",
+    "statCards": "Cards read every day",
+    "statStreak": "Average daily streak",
+    "daysSuffix": " days",
+    "valuesHeading": "What we optimize for",
+    "value1Title": "Bite-sized, not dumbed-down",
+    "value1Body": "Every card is written to respect your time and your intelligence — five seconds, real substance.",
+    "value2Title": "Built for the habit, not the binge",
+    "value2Body": "We optimize for a daily streak that lasts a year, not a weekend of doom-scrolling.",
+    "value3Title": "Sourced from real studybooks",
+    "value3Body": "Nothing is invented. Every card traces back to a real author, a real page, a real idea.",
+    "value4Title": "Made with learners, for learners",
+    "value4Body": "Our roadmap is shaped by the people using StudyBooks every single day.",
+    "timelineHeading": "Our story so far",
+    "timeline1Title": "The idea",
+    "timeline1Body": "Two former teachers, tired of watching students scroll past anything longer than a paragraph, started sketching a different kind of feed.",
+    "timeline2Title": "First 1,000 cards",
+    "timeline2Body": "We partnered with independent authors to turn real studybooks into short, structured insight cards.",
+    "timeline3Title": "The habit loop",
+    "timeline3Body": "Streaks, reminders, and a redesigned feed helped our first cohort read every single day for a month.",
+    "timeline4Title": "12,000+ learners",
+    "timeline4Body": "StudyBooks is now a daily ritual for tens of thousands of curious minds — and we're just getting started.",
+    "quote": "“We're not trying to replace books. We're trying to be the reason you finally pick one up.”",
+    "quoteAuthor": "— The StudyBooks founding team"
+  },
+  "app_marketing_contact_page": {
+    "eyebrow": "Contact",
+    "title": "Say hello. We actually read these.",
+    "subtitle": "Questions, feedback, partnership ideas, or just want to tell us your current streak? Pick a channel below or use the form.",
+    "channel1Title": "Email us",
+    "channel1Body": "For partnerships, press, or anything that needs a paper trail.",
+    "channel2Title": "Live chat",
+    "channel2Detail": "Mon–Fri, 9am–6pm",
+    "channel2Body": "In-app chat inside the StudyBooks app gets the fastest reply.",
+    "channel3Title": "Studio",
+    "channel3Detail": "Berlin, Germany",
+    "channel3Body": "We're a small, remote-first team based across three timezones.",
+    "topicGeneral": "General question",
+    "topicPartnership": "Partnership",
+    "topicPress": "Press",
+    "topicBug": "Bug report",
+    "topicOther": "Something else",
+    "successTitle": "Message sent",
+    "successBody": "Thanks for reaching out — we usually reply within one business day.",
+    "sendAnother": "Send another message",
+    "nameLabel": "Name",
+    "emailLabel": "Email",
+    "topicLabel": "Topic",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Tell us what's on your mind...",
+    "sending": "Sending…",
+    "sendMessage": "Send message"
+  },
+  "app_marketing_privacy_page": {
+    "title": "Privacy Policy",
+    "subtitle": "Last updated July 1, 2026. This explains what we collect, why, and the choices you have.",
+    "s1Title": "Information we collect",
+    "s1Body1": "We collect the information you give us directly — your name, email address, and any reading preferences you set up when you create a StudyBooks account.",
+    "s1Body2": "We also collect usage data automatically: which cards you read, how long you spend on them, and your streak history. This helps us build a feed that actually fits how you learn.",
+    "s2Title": "How we use your information",
+    "s2Body1": "Your data powers the core product: personalizing your feed, tracking your streak, and syncing your progress across devices.",
+    "s2Body2": "We use aggregated, de-identified usage data to improve card design and decide which studybooks to license next. We never sell your personal data to advertisers.",
+    "s3Title": "When we share information",
+    "s3Body1": "We share data with service providers who help us run StudyBooks — hosting, analytics, and customer support tools — under contracts that limit what they can do with it.",
+    "s3Body2": "We may disclose information if required by law, or to protect the rights, property, or safety of StudyBooks, our users, or the public.",
+    "s4Title": "Your choices and rights",
+    "s4Body1": "You can access, correct, or delete your account data at any time from Settings, or by contacting us directly.",
+    "s4Body2": "Depending on where you live, you may have additional rights under laws like the GDPR or CCPA — including the right to data portability and the right to object to certain processing.",
+    "s5Title": "How we protect your data",
+    "s5Body1": "We use industry-standard encryption in transit and at rest, and limit internal access to personal data on a need-to-know basis.",
+    "s5Body2": "No method of transmission or storage is 100% secure, so while we work hard to protect your information, we can't guarantee absolute security.",
+    "s6Title": "Changes to this policy",
+    "s6Body1": "We'll update this page if our practices change, and for material changes we'll let you know via email or an in-app notice before they take effect.",
+    "questions": "Questions about this policy? Reach us at <link>our contact page</link>."
+  },
+  "app_marketing_terms_page": {
+    "title": "Terms of Service",
+    "subtitle": "Last updated July 1, 2026. The short version: be decent, don't resell our content, and we'll keep building the best five minutes of your day.",
+    "s1Title": "1. Using StudyBooks",
+    "s1Body": "You must be at least 13 years old to create a StudyBooks account. You're responsible for keeping your login credentials secure and for all activity that happens under your account. Don't use StudyBooks for anything illegal, or in a way that disrupts the service for other learners.",
+    "s2Title": "2. Your content and our license",
+    "s2Body": "Any notes, highlights, or lists you create remain yours. By using StudyBooks, you grant us a limited license to store and display that content back to you, and — only if you explicitly choose to share it — to other users.",
+    "s3Title": "3. Studybook licensing",
+    "s3Body": "Card content is drawn from studybooks we've licensed from authors and publishers. You may not copy, redistribute, or resell card content outside the app. Screenshots for personal, non-commercial sharing are fine.",
+    "s4Title": "4. Subscriptions and billing",
+    "s4Body": "Premium plans renew automatically at the end of each billing cycle unless cancelled beforehand. Prices are shown in your local currency at checkout and may change with 30 days' notice for existing subscribers.",
+    "s5Title": "5. Cancellations and refunds",
+    "s5Body": "You can cancel anytime from Settings — you'll keep access until the end of your current billing period. Refunds are handled case-by-case; contact support within 14 days of a charge if something went wrong.",
+    "s6Title": "6. Termination",
+    "s6Body": "We may suspend or terminate accounts that violate these terms, misuse the platform, or attempt to extract card content at scale. You can delete your account at any time from Settings.",
+    "s7Title": "7. Disclaimers",
+    "s7Body": "StudyBooks is provided \"as is.\" We work hard to keep the catalog accurate, but we don't guarantee that every summary is complete or error-free — cards are meant to spark curiosity, not replace the full studybook.",
+    "s8Title": "8. Changes to these terms",
+    "s8Body": "We may update these terms as the product evolves. We'll notify you of material changes by email or in-app notice before they take effect.",
+    "questions": "Questions about these terms? Reach us at <link>our contact page</link>."
+  },
+  "app_admin_error": {
+    "title": "Something went wrong",
+    "description": "The admin panel hit an unexpected error. Try again — if it keeps happening, check the server logs.",
+    "tryAgain": "Try again"
+  },
+  "app_admin_layout": {
+    "title": "Admin",
+    "titleTemplate": "%s · Admin · StudyBooks"
+  },
+  "app_admin_loading": {
+    "loading": "Loading"
+  },
+  "app_admin_page": {
+    "studybooks": "Studybooks",
+    "biteCards": "Bite cards",
+    "subjects": "Subjects",
+    "users": "Users",
+    "title": "Dashboard",
+    "subtitle": "What's in the catalog right now.",
+    "newStudybook": "New studybook",
+    "recentStudybooks": "Recent studybooks",
+    "viewAll": "View all"
+  },
+  "app_admin_studybooks_slug_page": {
+    "editTitle": "Edit · {title}",
+    "fallbackTitle": "Studybook",
+    "viewInApp": "View in app"
+  },
+  "app_admin_studybooks_new_page": {
+    "metaTitle": "New studybook",
+    "title": "New studybook",
+    "subtitle": "Set the metadata first — you can add bite cards right after creating it."
+  },
+  "app_admin_studybooks_page": {
+    "metaTitle": "Studybooks",
+    "title": "Studybooks",
+    "count": "{count, plural, one {# studybook} other {# studybooks}}{filtered, select, true { matching your filters} other {}}",
+    "newStudybook": "New studybook",
+    "searchPlaceholder": "Search by title or author…",
+    "emptyMatchTitle": "No studybooks match",
+    "emptyTitle": "No studybooks yet",
+    "emptyMatchBody": "Try a different search or clear the filters.",
+    "emptyBody": "Create the first studybook to start building the catalog."
+  },
+  "app_admin_subjects_page": {
+    "metaTitle": "Subjects",
+    "title": "Subjects",
+    "subtitle": "{count} subjects. The taxonomy is managed in TaskuTark — counts below are from this catalog.",
+    "colSubject": "Subject",
+    "colSlug": "Slug",
+    "colStudybooks": "Studybooks",
+    "colMaterials": "TT materials"
+  },
+  "app_admin_users_page": {
+    "metaTitle": "Users",
+    "title": "Users",
+    "subtitle": "{count, plural, one {# user} other {# users}} · sample data until TT exposes a users endpoint.",
+    "searchPlaceholder": "Search by name or email…",
+    "emptyTitle": "No users match",
+    "emptyBody": "Try a different name or email.",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colRole": "Role",
+    "colPlan": "Plan",
+    "colJoined": "Joined",
+    "roleAdmin": "Admin",
+    "roleUser": "User",
+    "planPremium": "Premium",
+    "planFree": "Free"
+  },
+  "app_not_found": {
+    "metaTitle": "Page not found",
+    "kicker": "Lost in transit",
+    "title": "This page is still 8½ minutes away.",
+    "subtitle": "The link you followed drifted off course. Like sunlight, some things just take a while to reach you — or never arrive at all.",
+    "backToFeed": "Back to For You",
+    "exploreStudybooks": "Explore studybooks"
+  },
+  "app_onboarding_page": {
+    "metaTitle": "Get started"
+  },
+  "catalog": {
+    "facet": {
+      "target": "Целевая группа",
+      "subject": "Предмет",
+      "material": "Тип материала",
+      "price": "Цена",
+      "publisher": "Издательство",
+      "language": "Язык",
+      "special": "Особое"
+    },
+    "target": {
+      "preschool": "Дошкольное и детский сад",
+      "1-3": "1–3 классы",
+      "4-6": "4–6 классы",
+      "7-9": "7–9 классы",
+      "gymnasium": "Гимназия",
+      "self-study": "Самообучение",
+      "parents": "Для родителей",
+      "teachers": "Для учителей"
+    },
+    "material": {
+      "studybook": "Учебник",
+      "support": "Вспомогательный материал",
+      "bite": "Фрагмент",
+      "topic": "Тема",
+      "article": "Статья",
+      "test": "Тест"
+    },
+    "price": {
+      "free": "Бесплатно",
+      "paid": "Платно"
+    },
+    "publisher": {
+      "moorish": "Moorish",
+      "meaningful-talks": "Meaningful Talks",
+      "epr": "Эстонская организация переработки упаковки"
+    },
+    "language": {
+      "et": "Эстонский",
+      "ru": "Русский"
+    },
+    "special": {
+      "et-second": "Эстонский как второй язык"
+    },
+    "group": {
+      "languages": "Языки",
+      "mathematics": "Математика",
+      "sciences": "Естественные науки",
+      "social": "Социальные предметы",
+      "arts": "Искусство и культура",
+      "practical": "Практические предметы"
+    },
+    "subject": {
+      "history": "История",
+      "biology": "Биология",
+      "estonian": "Эстонский язык",
+      "entrepreneurship": "Предпринимательство",
+      "physics": "Физика",
+      "geography": "География",
+      "english": "Английский язык",
+      "human-education": "Человековедение",
+      "chemistry": "Химия",
+      "literature": "Литература",
+      "art-history": "История искусств",
+      "traffic": "Дорожное движение",
+      "nature": "Природоведение",
+      "math": "Математика",
+      "media": "Медиа",
+      "music-history": "История музыки",
+      "music": "Музыка",
+      "defense": "Государственная оборона",
+      "german": "Немецкий язык",
+      "finnish": "Финский язык",
+      "social-studies": "Обществознание",
+      "religion": "Религиоведение",
+      "russian": "Русский язык"
+    },
+    "category": {
+      "studyBite": "Учебный фрагмент"
+    },
+    "synopsis": "Компактный учебник по предмету «{subject}», вдохновлённый книгой «{title}» — короткие карточки, которые можно пройти между занятиями.",
+    "synopsisPlain": "Компактный учебник, вдохновлённый книгой «{title}» — короткие карточки, которые можно пройти между занятиями.",
+    "card": {
+      "bigIdeaHeading": "Главная идея книги «{title}»",
+      "bigIdeaBody": "Быстрый вход в тему «{subject}»: одна ключевая идея из «{title}», сжатая в один фрагмент, который действительно запомнится.",
+      "rememberHeading": "Одна вещь, которую стоит запомнить",
+      "rememberBody": "Большая часть темы «{subject}» держится на нескольких простых идеях. Эта карточка выделяет ту, что делает основную работу.",
+      "mattersHeading": "Почему это важно",
+      "mattersBody": "Где это встречается в реальной жизни — и почему стоит потратить две минуты на изучение."
+    },
+    "unknownAuthor": "Автор неизвестен"
+  }
+}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { Check, Flame, GraduationCap, Lock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -8,24 +9,18 @@ import { Button } from "@/components/ui/Button";
 const ICONS = [
   {
     id: "default",
-    label: "Default",
-    desc: "Our latest icon design",
     icon: GraduationCap,
     gradient: "from-brand-green to-violet",
     locked: false,
   },
   {
     id: "streak",
-    label: "On Fire!",
-    desc: "Unlocked with a 7-day streak",
     icon: Flame,
     gradient: "from-amber to-red-500",
     locked: true,
   },
   {
     id: "pro",
-    label: "Feel like a Pro",
-    desc: "Unlocked with a Pro subscription",
     icon: Flame,
     gradient: "from-violet to-plum-1",
     locked: false,
@@ -33,6 +28,7 @@ const ICONS = [
 ];
 
 export function AppIconSettings() {
+  const t = useTranslations("features_profile_components_settings_AppIconSettings");
   const [selected, setSelected] = useState("default");
 
   return (
@@ -58,8 +54,8 @@ export function AppIconSettings() {
               <Icon className="h-7 w-7" />
             </span>
             <span className="min-w-0 flex-1">
-              <span className="text-ink block font-bold">{ic.label}</span>
-              <span className="text-muted block text-sm">{ic.desc}</span>
+              <span className="text-ink block font-bold">{t(`${ic.id}Label`)}</span>
+              <span className="text-muted block text-sm">{t(`${ic.id}Desc`)}</span>
             </span>
             {ic.locked ? (
               <Lock className="text-muted h-5 w-5" />

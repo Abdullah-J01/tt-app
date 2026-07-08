@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,7 @@ import type { Studybook } from "@/types";
 
 /** Share the current studybook (Web Share API, clipboard fallback). */
 export function ShareButton({ title, className }: { title: string; className?: string }) {
+  const t = useTranslations("features_studybook_StudybookActions");
   const share = async () => {
     const url = typeof window !== "undefined" ? window.location.href : "";
     if (navigator.share) {
@@ -32,7 +34,7 @@ export function ShareButton({ title, className }: { title: string; className?: s
       unstyled
       type="button"
       onClick={share}
-      aria-label="Share"
+      aria-label={t("share")}
       className={cn(
         "text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full active:scale-95",
         className,
@@ -48,6 +50,7 @@ export function ShareButton({ title, className }: { title: string; className?: s
  * (Studybooks tab). `full` renders a labelled button; otherwise an icon.
  */
 export function SaveButton({ book, full = false }: { book: Studybook; full?: boolean }) {
+  const t = useTranslations("features_studybook_StudybookActions");
   const router = useRouter();
   const { status } = useSession();
   const { isBookSaved, toggleBook } = useLibrary();
@@ -87,7 +90,7 @@ export function SaveButton({ book, full = false }: { book: Studybook; full?: boo
         )}
       >
         <Bookmark className={cn("h-5 w-5", saved && "fill-current")} />
-        {saved ? "Saved" : "Save"}
+        {saved ? t("saved") : t("save")}
       </Button>
     );
   }
@@ -97,7 +100,7 @@ export function SaveButton({ book, full = false }: { book: Studybook; full?: boo
       unstyled
       type="button"
       onClick={toggle}
-      aria-label={saved ? "Saved" : "Save"}
+      aria-label={saved ? t("saved") : t("save")}
       className="text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full active:scale-95"
     >
       <Bookmark className={cn("h-5 w-5", saved && "text-violet fill-current")} />

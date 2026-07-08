@@ -3,45 +3,24 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, FileText } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 import { Button } from "@/components/ui/Button";
 
-const terms = [
-  {
-    title: "1. Using StudyBooks",
-    body: "You must be at least 13 years old to create a StudyBooks account. You're responsible for keeping your login credentials secure and for all activity that happens under your account. Don't use StudyBooks for anything illegal, or in a way that disrupts the service for other learners.",
-  },
-  {
-    title: "2. Your content and our license",
-    body: "Any notes, highlights, or lists you create remain yours. By using StudyBooks, you grant us a limited license to store and display that content back to you, and — only if you explicitly choose to share it — to other users.",
-  },
-  {
-    title: "3. Studybook licensing",
-    body: "Card content is drawn from studybooks we've licensed from authors and publishers. You may not copy, redistribute, or resell card content outside the app. Screenshots for personal, non-commercial sharing are fine.",
-  },
-  {
-    title: "4. Subscriptions and billing",
-    body: "Premium plans renew automatically at the end of each billing cycle unless cancelled beforehand. Prices are shown in your local currency at checkout and may change with 30 days' notice for existing subscribers.",
-  },
-  {
-    title: "5. Cancellations and refunds",
-    body: "You can cancel anytime from Settings — you'll keep access until the end of your current billing period. Refunds are handled case-by-case; contact support within 14 days of a charge if something went wrong.",
-  },
-  {
-    title: "6. Termination",
-    body: "We may suspend or terminate accounts that violate these terms, misuse the platform, or attempt to extract card content at scale. You can delete your account at any time from Settings.",
-  },
-  {
-    title: "7. Disclaimers",
-    body: 'StudyBooks is provided "as is." We work hard to keep the catalog accurate, but we don\'t guarantee that every summary is complete or error-free — cards are meant to spark curiosity, not replace the full studybook.',
-  },
-  {
-    title: "8. Changes to these terms",
-    body: "We may update these terms as the product evolves. We'll notify you of material changes by email or in-app notice before they take effect.",
-  },
-];
-
 export default function TermsPage() {
+  const t = useTranslations("app_marketing_terms_page");
+
+  const terms = [
+    { title: t("s1Title"), body: t("s1Body") },
+    { title: t("s2Title"), body: t("s2Body") },
+    { title: t("s3Title"), body: t("s3Body") },
+    { title: t("s4Title"), body: t("s4Body") },
+    { title: t("s5Title"), body: t("s5Body") },
+    { title: t("s6Title"), body: t("s6Body") },
+    { title: t("s7Title"), body: t("s7Body") },
+    { title: t("s8Title"), body: t("s8Body") },
+  ];
+
   const { scrollYProgress } = useScroll();
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 24 });
   const [open, setOpen] = useState<number | null>(0);
@@ -70,7 +49,7 @@ export default function TermsPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="font-display text-h1 text-ink sm:text-[3rem]"
         >
-          Terms of Service
+          {t("title")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -78,8 +57,7 @@ export default function TermsPage() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="text-body text-muted mt-4 max-w-lg"
         >
-          Last updated July 1, 2026. The short version: be decent, don&apos;t resell our content,
-          and we&apos;ll keep building the best five minutes of your day.
+          {t("subtitle")}
         </motion.p>
       </section>
 
@@ -136,11 +114,13 @@ export default function TermsPage() {
           transition={{ duration: 0.5 }}
           className="text-caption text-muted mt-8"
         >
-          Questions about these terms? Reach us at{" "}
-          <a href="/contact" className="text-violet hover:underline">
-            our contact page
-          </a>
-          .
+          {t.rich("questions", {
+            link: (chunks) => (
+              <a href="/contact" className="text-violet hover:underline">
+                {chunks}
+              </a>
+            ),
+          })}
         </motion.p>
       </section>
     </main>

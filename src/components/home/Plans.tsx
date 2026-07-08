@@ -2,6 +2,7 @@
 
 import { useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslations } from "@/i18n/client";
 import { Check, Crown, Sparkles, X, Zap } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -34,50 +35,45 @@ interface Plan {
 const PLANS: Plan[] = [
   {
     id: "free",
-    name: "Free",
-    tagline: "Dip a toe in",
+    name: "freeName",
+    tagline: "freeTagline",
     icon: <Sparkles className="h-5 w-5" />,
     monthly: 0,
     yearly: 0,
     gradient: "from-[#8A8A9E] to-[#B7B7C6]",
-    features: [
-      "15 flashcards a day",
-      "2 subjects unlocked",
-      "20 saved cards",
-      "Ads between sessions",
-    ],
+    features: ["freeFeat1", "freeFeat2", "freeFeat3", "freeFeat4"],
   },
   {
     id: "scholar",
-    name: "Scholar",
-    tagline: "For steady study habits",
+    name: "scholarName",
+    tagline: "scholarTagline",
     icon: <Zap className="h-5 w-5" />,
     monthly: 6,
     yearly: 4.5,
     popular: true,
     gradient: "from-violet to-violet-dark",
     features: [
-      "Unlimited flashcards",
-      "All subjects unlocked",
-      "Unlimited saved cards",
-      "Ad-free, always",
-      "Offline studybooks",
+      "scholarFeat1",
+      "scholarFeat2",
+      "scholarFeat3",
+      "scholarFeat4",
+      "scholarFeat5",
     ],
   },
   {
     id: "genius",
-    name: "Genius",
-    tagline: "For the exam-week grind",
+    name: "geniusName",
+    tagline: "geniusTagline",
     icon: <Crown className="h-5 w-5" />,
     monthly: 12,
     yearly: 9,
     gradient: "from-[#5A3ED0] to-[#B0793B]",
     features: [
-      "Everything in Scholar",
-      "Personal study plans",
-      "Progress analytics",
-      "Priority support",
-      "Early access to new subjects",
+      "geniusFeat1",
+      "geniusFeat2",
+      "geniusFeat3",
+      "geniusFeat4",
+      "geniusFeat5",
     ],
   },
 ];
@@ -111,6 +107,7 @@ const FEATURE_ROWS: FeatureRow[] = [
 const HIGHLIGHT_COL_INDEX = 2;
 
 export default function PremiumPlansPage() {
+  const t = useTranslations("components_home_Plans");
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const [stickyToggle, setStickyToggle] = useState(false);
 
@@ -125,8 +122,8 @@ export default function PremiumPlansPage() {
   const savingsLabel = useMemo(() => {
     const p = PLANS.find((p) => p.id === "genius")!;
     const pct = Math.round((1 - p.yearly / p.monthly) * 100);
-    return `Save ${pct}%`;
-  }, []);
+    return t("savePercent", { pct });
+  }, [t]);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
@@ -328,12 +325,12 @@ export default function PremiumPlansPage() {
           transition={{ duration: 0.5, ease: easeOut }}
           className="relative text-center"
         >
-          <Pill className="bg-lavender text-violet mx-auto w-fit">Premium</Pill>
+          <Pill className="bg-lavender text-violet mx-auto w-fit">{t("premium")}</Pill>
           <h1 className="text-ink mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-            Study more, forget less
+            {t("title")}
           </h1>
           <p className="text-muted mx-auto mt-3 max-w-md text-sm md:text-base">
-            Pick a plan that keeps up with how you actually study. Cancel anytime.
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -349,14 +346,14 @@ export default function PremiumPlansPage() {
               onClick={() => setCycle("monthly")}
               layoutKey="cycle-pill"
             >
-              Monthly
+              {t("monthly")}
             </CycleButton>
             <CycleButton
               active={cycle === "yearly"}
               onClick={() => setCycle("yearly")}
               layoutKey="cycle-pill"
             >
-              Yearly
+              {t("yearly")}
             </CycleButton>
           </div>
           <AnimatePresence>
@@ -396,7 +393,9 @@ export default function PremiumPlansPage() {
 }
 
 function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
+  const t = useTranslations("components_home_Plans");
   const price = cycle === "monthly" ? plan.monthly : plan.yearly;
+  const name = t(plan.name);
 
   return (
     <motion.div
@@ -426,7 +425,7 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
           transition={{ delay: 0.3, duration: 0.4, ease: easeOut }}
           className="bg-violet absolute top-0 right-6 rounded-b-full px-3 py-1 text-[10px] font-semibold tracking-wide text-white uppercase"
         >
-          Most popular
+          {t("mostPopular")}
         </motion.span>
       )}
 
@@ -442,10 +441,10 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
       <h3
         className={cn("relative mt-4 text-lg font-bold", plan.popular ? "text-white" : "text-ink")}
       >
-        {plan.name}
+        {name}
       </h3>
       <p className={cn("relative mt-1 text-sm", plan.popular ? "text-white/60" : "text-muted")}>
-        {plan.tagline}
+        {t(plan.tagline)}
       </p>
 
       <div className="relative mt-5 flex items-end gap-1">
@@ -463,7 +462,7 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
         </AnimatePresence>
         {price > 0 && (
           <span className={cn("mb-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-            /month{cycle === "yearly" ? ", billed yearly" : ""}
+            {cycle === "yearly" ? t("perMonthYearly") : t("perMonthMonthly")}
           </span>
         )}
       </div>
@@ -480,7 +479,7 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
               <Check className={cn("h-2.5 w-2.5", plan.popular ? "text-white" : "text-violet")} />
             </span>
             <span className={cn("text-sm", plan.popular ? "text-white/80" : "text-ink/80")}>
-              {feature}
+              {t(feature)}
             </span>
           </li>
         ))}
@@ -493,7 +492,7 @@ function PricingCard({ plan, cycle }: { plan: Plan; cycle: Cycle }) {
             plan.popular ? "text-violet bg-white hover:bg-white/90" : undefined,
           )}
         >
-          {plan.id === "free" ? "Current plan" : `Choose ${plan.name}`}
+          {plan.id === "free" ? t("currentPlan") : t("choose", { name })}
         </Button>
       </motion.div>
     </motion.div>

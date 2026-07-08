@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
@@ -18,7 +19,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const book = await getStudybook(slug);
-  return { title: book?.title ?? "Studybook" };
+  const t = await getTranslations("app_studybook_slug_page");
+  return { title: book?.title ?? t("metadataTitle") };
 }
 
 const CARD_GRADIENTS = [
@@ -32,11 +34,6 @@ const CARD_GRADIENTS = [
 function subjectName(slug: string) {
   return SUBJECTS.find((s) => s.slug === slug)?.name ?? slug;
 }
-function gradeLabel(g: string) {
-  if (g === "preschool") return "Preschool";
-  if (g === "gymnasium") return "Gymnasium";
-  return `Grade ${g}`;
-}
 
 /** Studybook detail — mobile-first (UI brief §6.3). */
 export default async function StudybookPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -44,10 +41,18 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
   const book = await getStudybook(slug);
   if (!book) notFound();
 
+  const t = await getTranslations("app_studybook_slug_page");
+  const gradeLabel = (g: string) =>
+    g === "preschool"
+      ? t("preschool")
+      : g === "gymnasium"
+        ? t("gymnasium")
+        : t("grade", { grade: g });
+
   const related = (await listStudybooks()).filter((b) => b.id !== book.id).slice(0, 4);
   const subject = subjectName(book.subjectSlug);
   const minutes = Math.max(1, Math.round(book.cards.length * 0.5));
-  const price = book.priceEur != null ? `€${book.priceEur.toFixed(2)}` : "Free";
+  const price = book.priceEur != null ? `€${book.priceEur.toFixed(2)}` : t("free");
 
   return (
     <>
@@ -60,7 +65,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
         <div className="mx-auto max-w-5xl px-4 pt-24 pb-6 md:pt-28 md:pb-10">
           <nav className="text-muted flex items-center gap-1 text-xs">
             <Link href="/explore" className="hover:text-violet">
-              Studybook
+              {t("breadcrumb")}
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
             <Link
@@ -88,7 +93,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
                 />
               ) : (
                 <span className="absolute inset-0 grid place-items-center font-mono text-[10px] tracking-[0.2em] text-white/40">
-                  book cover
+                  {t("bookCover")}
                 </span>
               )}
             </div>
@@ -97,7 +102,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
             <div className="min-w-0">
               <h1 className="text-2xl leading-tight font-bold md:text-3xl">{book.title}</h1>
               <p className="text-muted mt-1 text-sm">
-                by {book.author} · {book.year}
+                {t("byAuthor", { author: book.author, year: book.year })}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Pill className="bg-white">{subject}</Pill>
@@ -105,7 +110,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
               </div>
               <div className="text-muted mt-3 flex items-center gap-1.5 text-sm">
                 <BookOpen className="h-4 w-4" />
-                {book.cards.length} cards · ~{minutes} min
+                {t("cardsMinutes", { count: book.cards.length, minutes })}
               </div>
             </div>
 
@@ -115,7 +120,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
                 href={`/studybook/${book.slug}/read`}
                 className="bg-violet hover:bg-violet-dark flex h-13 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
-                Start learning
+                {t("startLearning")}
                 <Pill className="bg-white/20 text-white">{price}</Pill>
               </Link>
               <div className="grid grid-cols-2 gap-3">
@@ -124,7 +129,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
                   scroll={false}
                   className="border-hairline text-ink hover:bg-lavender flex h-11 w-full items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors"
                 >
-                  <PlayCircle className="h-5 w-5" /> Preview
+                  <PlayCircle className="h-5 w-5" /> {t("preview")}
                 </Link>
                 <SaveButton book={book} full />
               </div>
@@ -135,18 +140,18 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
 
       {/* Body */}
       <main className="mx-auto max-w-5xl px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
-        <h2 className="text-lg font-bold">About this studybook</h2>
+        <h2 className="text-lg font-bold">{t("aboutTitle")}</h2>
         <p className="text-ink/80 mt-3 max-w-2xl leading-relaxed">{book.synopsis}</p>
 
         {/* Cards preview */}
         <div className="mt-8 flex items-center justify-between">
-          <h2 className="text-lg font-bold">Cards preview</h2>
+          <h2 className="text-lg font-bold">{t("cardsPreview")}</h2>
           <Link
             href={`/studybook/${book.slug}?preview=1`}
             scroll={false}
             className="text-violet flex items-center gap-0.5 text-sm font-semibold hover:underline"
           >
-            All {book.cards.length}
+            {t("all", { count: book.cards.length })}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -169,12 +174,12 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
 
         {/* You may also like */}
         <div className="mt-10 flex items-center justify-between">
-          <h2 className="text-lg font-bold">You may also like</h2>
+          <h2 className="text-lg font-bold">{t("youMayAlsoLike")}</h2>
           <Link
             href="/explore"
             className="text-violet flex items-center gap-0.5 text-sm font-semibold hover:underline"
           >
-            More
+            {t("more")}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
@@ -192,7 +197,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
                   />
                 ) : (
                   <span className="absolute inset-0 grid place-items-center font-mono text-[10px] tracking-[0.2em] text-white/40">
-                    cover
+                    {t("cover")}
                   </span>
                 )}
               </div>

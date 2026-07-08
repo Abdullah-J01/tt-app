@@ -3,59 +3,45 @@
 import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 
-const sections = [
-  {
-    id: "information-we-collect",
-    title: "Information we collect",
-    body: [
-      "We collect the information you give us directly — your name, email address, and any reading preferences you set up when you create a StudyBooks account.",
-      "We also collect usage data automatically: which cards you read, how long you spend on them, and your streak history. This helps us build a feed that actually fits how you learn.",
-    ],
-  },
-  {
-    id: "how-we-use-it",
-    title: "How we use your information",
-    body: [
-      "Your data powers the core product: personalizing your feed, tracking your streak, and syncing your progress across devices.",
-      "We use aggregated, de-identified usage data to improve card design and decide which studybooks to license next. We never sell your personal data to advertisers.",
-    ],
-  },
-  {
-    id: "sharing",
-    title: "When we share information",
-    body: [
-      "We share data with service providers who help us run StudyBooks — hosting, analytics, and customer support tools — under contracts that limit what they can do with it.",
-      "We may disclose information if required by law, or to protect the rights, property, or safety of StudyBooks, our users, or the public.",
-    ],
-  },
-  {
-    id: "your-choices",
-    title: "Your choices and rights",
-    body: [
-      "You can access, correct, or delete your account data at any time from Settings, or by contacting us directly.",
-      "Depending on where you live, you may have additional rights under laws like the GDPR or CCPA — including the right to data portability and the right to object to certain processing.",
-    ],
-  },
-  {
-    id: "security",
-    title: "How we protect your data",
-    body: [
-      "We use industry-standard encryption in transit and at rest, and limit internal access to personal data on a need-to-know basis.",
-      "No method of transmission or storage is 100% secure, so while we work hard to protect your information, we can't guarantee absolute security.",
-    ],
-  },
-  {
-    id: "changes",
-    title: "Changes to this policy",
-    body: [
-      "We'll update this page if our practices change, and for material changes we'll let you know via email or an in-app notice before they take effect.",
-    ],
-  },
-];
-
 export default function PrivacyPage() {
+  const t = useTranslations("app_marketing_privacy_page");
+
+  const sections = [
+    {
+      id: "information-we-collect",
+      title: t("s1Title"),
+      body: [t("s1Body1"), t("s1Body2")],
+    },
+    {
+      id: "how-we-use-it",
+      title: t("s2Title"),
+      body: [t("s2Body1"), t("s2Body2")],
+    },
+    {
+      id: "sharing",
+      title: t("s3Title"),
+      body: [t("s3Body1"), t("s3Body2")],
+    },
+    {
+      id: "your-choices",
+      title: t("s4Title"),
+      body: [t("s4Body1"), t("s4Body2")],
+    },
+    {
+      id: "security",
+      title: t("s5Title"),
+      body: [t("s5Body1"), t("s5Body2")],
+    },
+    {
+      id: "changes",
+      title: t("s6Title"),
+      body: [t("s6Body1")],
+    },
+  ];
+
   const [active, setActive] = useState(sections[0]?.id ?? "");
   const refs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -91,7 +77,7 @@ export default function PrivacyPage() {
           transition={{ duration: 0.6, delay: 0.1 }}
           className="font-display text-h1 text-ink sm:text-[3rem]"
         >
-          Privacy Policy
+          {t("title")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 16 }}
@@ -99,7 +85,7 @@ export default function PrivacyPage() {
           transition={{ duration: 0.6, delay: 0.25 }}
           className="text-body text-muted mt-4 max-w-lg"
         >
-          Last updated July 1, 2026. This explains what we collect, why, and the choices you have.
+          {t("subtitle")}
         </motion.p>
       </section>
 
@@ -170,11 +156,13 @@ export default function PrivacyPage() {
               className="border-border border-t pt-4 pl-9"
             >
               <p className="text-caption text-muted">
-                Questions about this policy? Reach us at{" "}
-                <a href="/contact" className="text-violet hover:underline">
-                  our contact page
-                </a>
-                .
+                {t.rich("questions", {
+                  link: (chunks) => (
+                    <a href="/contact" className="text-violet hover:underline">
+                      {chunks}
+                    </a>
+                  ),
+                })}
               </p>
             </motion.div>
           </div>

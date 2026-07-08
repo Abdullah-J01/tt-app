@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Heart, Bookmark, Share2, Zap } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 
 type Card = {
-  category: string;
-  title: string;
-  book: string;
+  categoryKey: string;
+  titleKey: string;
+  bookKey: string;
   author: string;
   gradient: string;
   progress: number;
@@ -16,33 +17,33 @@ type Card = {
 
 const cards: Card[] = [
   {
-    category: "Physics",
-    title: "Sunlight is 8½ minutes old when it reaches you.",
-    book: "Everyday Astronomy",
+    categoryKey: "catPhysics",
+    titleKey: "fact1",
+    bookKey: "book1",
     author: "E.V.F",
     gradient: "from-plum-start to-plum-end",
     progress: 62,
   },
   {
-    category: "Biology",
-    title: "Octopuses have three hearts and blue blood.",
-    book: "Life Under the Sea",
+    categoryKey: "catBiology",
+    titleKey: "fact2",
+    bookKey: "book2",
     author: "R. Tamm",
     gradient: "from-green-mid to-green-bright",
     progress: 34,
   },
   {
-    category: "History",
-    title: "The Great Wall isn't visible from space.",
-    book: "Myths We Believe",
+    categoryKey: "catHistory",
+    titleKey: "fact3",
+    bookKey: "book3",
     author: "K. Isaac",
     gradient: "from-violet-dark to-violet-light",
     progress: 81,
   },
   {
-    category: "Psychology",
-    title: "Habits form faster when tied to an existing routine.",
-    book: "The Shape of Habit",
+    categoryKey: "catPsychology",
+    titleKey: "fact4",
+    bookKey: "book4",
     author: "M. Kask",
     gradient: "from-amber-brown to-amber",
     progress: 20,
@@ -50,6 +51,7 @@ const cards: Card[] = [
 ];
 
 export default function AnimatedFeed() {
+  const t = useTranslations("components_home_AnimatedFeed");
   const [index, setIndex] = useState(0);
   const [liked, setLiked] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -65,6 +67,8 @@ export default function AnimatedFeed() {
 
   const card = cards[index];
   if (!card) return null;
+
+  const bookTitle = t(card.bookKey);
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -104,16 +108,16 @@ export default function AnimatedFeed() {
           {/* top: category */}
           <div className="relative z-10 flex items-center gap-1.5 text-xs font-medium text-white/90">
             <Zap size={13} className="fill-white/90" />
-            {card.category}
+            {t(card.categoryKey)}
           </div>
 
           {/* middle: title */}
           <div className="relative z-10">
             <p className="mb-1.5 text-[10px] font-medium tracking-wider text-white/60 uppercase">
-              Did you know
+              {t("didYouKnow")}
             </p>
             <p className="font-display text-xl leading-snug font-semibold text-white">
-              {card.title}
+              {t(card.titleKey)}
             </p>
           </div>
 
@@ -121,10 +125,10 @@ export default function AnimatedFeed() {
           <div className="relative z-10 flex items-end justify-between">
             <div className="flex max-w-[65%] items-center gap-2">
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white/25 text-[10px] font-semibold text-white">
-                {card.book[0]}
+                {bookTitle.charAt(0)}
               </div>
               <div className="min-w-0">
-                <p className="truncate text-xs font-medium text-white">{card.book}</p>
+                <p className="truncate text-xs font-medium text-white">{bookTitle}</p>
                 <p className="truncate text-[10px] text-white/60">{card.author}</p>
               </div>
             </div>
@@ -132,7 +136,7 @@ export default function AnimatedFeed() {
             <div className="flex flex-col items-center gap-3">
               <Button
                 unstyled
-                aria-label="Like"
+                aria-label={t("like")}
                 onClick={() => setLiked((v) => !v)}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-lg transition-transform active:scale-90"
               >
@@ -140,7 +144,7 @@ export default function AnimatedFeed() {
               </Button>
               <Button
                 unstyled
-                aria-label="Bookmark"
+                aria-label={t("bookmark")}
                 onClick={() => setSaved((v) => !v)}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition-transform active:scale-90"
               >
@@ -148,7 +152,7 @@ export default function AnimatedFeed() {
               </Button>
               <Button
                 unstyled
-                aria-label="Share"
+                aria-label={t("share")}
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 transition-transform active:scale-90"
               >
                 <Share2 size={15} className="text-white" />

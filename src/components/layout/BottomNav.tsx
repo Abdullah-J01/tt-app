@@ -1,20 +1,22 @@
 "use client";
 
 import Link from "next/link";
+import { useTranslations } from "@/i18n/client";
 import { usePathname } from "next/navigation";
 import { Home, Compass, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
-  { href: "/feed", label: "Home", icon: Home },
-  { href: "/explore", label: "Explore", icon: Compass },
-  { href: "/library", label: "Library", icon: Bookmark },
-  { href: "/profile", label: "Profile", icon: User },
-];
+  { href: "/feed", labelKey: "home", icon: Home },
+  { href: "/explore", labelKey: "explore", icon: Compass },
+  { href: "/library", labelKey: "library", icon: Bookmark },
+  { href: "/profile", labelKey: "profile", icon: User },
+] as const;
 
 /** Mobile bottom tab bar (UI brief §3). Hidden on md+ where TopNav is used. */
 export function BottomNav() {
   const pathname = usePathname();
+  const t = useTranslations("components_layout_BottomNav");
 
   return (
     <nav className="border-hairline bg-surface/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur md:hidden">
@@ -32,7 +34,7 @@ export function BottomNav() {
                 )}
               >
                 <Icon className="h-6 w-6" aria-hidden />
-                {tab.label}
+                {t(tab.labelKey)}
               </Link>
             </li>
           );

@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { Flame } from "lucide-react";
 import { useStreak } from "../useStreak";
 import { StreakPanel } from "./StreakPanel";
 
 export function StreakButton() {
+  const t = useTranslations("features_streak_components_StreakButton");
   const [open, setOpen] = useState(false);
   const { streak } = useStreak();
   const lit = streak > 0;
@@ -15,7 +17,7 @@ export function StreakButton() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        aria-label={`Reading streak: ${streak} ${streak === 1 ? "day" : "days"}`}
+        aria-label={t("ariaLabel", { count: streak })}
         aria-haspopup="dialog"
         className="text-ink/80 hover:text-ink inline-flex items-center gap-1 text-sm font-semibold leading-none transition-colors active:scale-95"
       >

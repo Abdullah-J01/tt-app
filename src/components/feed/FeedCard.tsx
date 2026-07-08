@@ -3,6 +3,7 @@
 import { memo } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { Zap, BookOpen } from "lucide-react";
 // import { cn } from "@/lib/utils"; // used by the progress strip (hidden for now)
@@ -36,6 +37,7 @@ function FeedCard({
   onOpenFilters,
   filterCount = 0,
 }: Props) {
+  const t = useTranslations("components_feed_FeedCard");
   // One segment per card for short feeds; proportional fill once the feed
   // outgrows the strip (hundreds of hairline slivers help nobody).
   // Kept for when the progress strip below is re-enabled.
@@ -121,7 +123,7 @@ function FeedCard({
           transition={{ duration: 0.35, delay: 0.1 }}
           className="mb-3 text-[11px] font-semibold tracking-[0.15em] text-white/55 uppercase"
         >
-          Did you know
+          {t("didYouKnow")}
         </motion.p>
         <motion.h2
           initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
@@ -165,7 +167,7 @@ function FeedCard({
         <div className="min-w-0">
           <p className="truncate text-sm font-medium text-white">{card.bookTitle}</p>
           <p className="truncate text-xs text-white/55">
-            by {card.bookAuthor} · {card.bookSubject}
+            {t("byline", { author: card.bookAuthor, subject: card.bookSubject })}
           </p>
         </div>
       </motion.div>
@@ -174,7 +176,7 @@ function FeedCard({
           Only the active (in-view) card is focusable/clickable. */}
       <Link
         href={`/studybook/${card.bookSlug}`}
-        aria-label={`Open ${card.bookTitle}`}
+        aria-label={t("openBook", { title: card.bookTitle })}
         tabIndex={active ? 0 : -1}
         className={`absolute inset-0 z-20 ${active ? "" : "pointer-events-none"}`}
       />

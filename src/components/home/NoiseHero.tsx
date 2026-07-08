@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "@/i18n/client";
 
 /** Smooth scalloped ("wavy") ring path — subtle organic inner ring. */
 function wavyPath(bumps = 8, rBase = 88, rBump = 5, size = 200) {
@@ -34,6 +35,7 @@ const WAVY = wavyPath();
  * orbiting dot). Our take on the Deepstash-style hero, in the brand palette.
  */
 export default function NoiseHero() {
+  const t = useTranslations("components_home_NoiseHero");
   return (
     <section className="relative flex min-h-[92vh] items-center justify-center overflow-hidden bg-surface px-6">
       {/* Soft violet glow */}
@@ -77,13 +79,13 @@ export default function NoiseHero() {
         className="relative z-10 text-center"
       >
         <h1 className="font-display font-extrabold uppercase leading-[0.82] tracking-tight">
-          <span className="block text-5xl text-ink sm:text-7xl md:text-8xl">Learn</span>
+          <span className="block text-5xl text-ink sm:text-7xl md:text-8xl">{t("learn")}</span>
           <span className="-mt-2 block text-5xl text-violet/25 sm:-mt-4 sm:text-7xl md:text-8xl">
-            Something New
+            {t("somethingNew")}
           </span>
         </h1>
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.35em] text-muted sm:text-sm">
-          In the time it takes to scroll.
+          {t("tagline")}
         </p>
       </motion.div>
     </section>

@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import { ExploreView, getCatalog } from "@/features/explore";
 
-export const metadata: Metadata = { title: "Explore" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_app_explore_page");
+  return { title: t("metadataTitle") };
+}
 
 /**
  * Catalog / browse (UI brief §6.4). TT-style three-panel catalog: faceted

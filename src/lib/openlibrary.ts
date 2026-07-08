@@ -12,6 +12,9 @@
  */
 import { SUBJECTS } from "@/config/subjects";
 import { MOCK_STUDYBOOKS } from "./mock-data";
+import { getTranslations } from "@/i18n/server";
+import type { Locale } from "@/i18n/config";
+import type { Translator } from "@/i18n/types";
 import type { Studybook } from "@/types";
 
 /** Our subject slug → an Open Library subject that reliably returns books. */
@@ -67,28 +70,27 @@ function hash(s: string): number {
 }
 
 /** Generic "bites" so the reader/preview have content (no book API provides these). */
-function synthCards(id: string, title: string, subject: string): Studybook["cards"] {
-  const s = subject.toLowerCase();
+function synthCards(id: string, title: string, subject: string, t: Translator): Studybook["cards"] {
   return [
     {
       id: `${id}-c1`,
-      heading: `The big idea behind ${title}`,
-      body: `A quick way into ${s}: one core idea from ${title}, distilled into a single bite you can actually remember.`,
+      heading: t("card.bigIdeaHeading", { title }),
+      body: t("card.bigIdeaBody", { subject, title }),
     },
     {
       id: `${id}-c2`,
-      heading: "One thing worth remembering",
-      body: `Most of ${s} rests on a few simple ideas. This card pulls out the one that does the heavy lifting here.`,
+      heading: t("card.rememberHeading"),
+      body: t("card.rememberBody", { subject }),
     },
     {
       id: `${id}-c3`,
-      heading: "Why it matters",
-      body: `Where this shows up in the real world — and why it's worth the two minutes it takes to learn.`,
+      heading: t("card.mattersHeading"),
+      body: t("card.mattersBody"),
     },
   ];
 }
 
-function mapWork(work: OLWork, subjectSlug: string, subjectName: string): Studybook | null {
+function mapWork(work: OLWork, subjectSlug: string, subjectName: string, t: Translator): Studybook | null {
   if (!work.title) return null;
   const olId = work.key.replace("/works/", "");
   const id = `ol_${olId}`;
@@ -98,22 +100,23 @@ function mapWork(work: OLWork, subjectSlug: string, subjectName: string): Studyb
     id,
     slug,
     title: work.title,
-    author: work.authors?.[0]?.name ?? "Unknown author",
+    author: work.authors?.[0]?.name ?? t("unknownAuthor"),
     year: work.first_publish_year ?? 2024,
     subjectSlug,
     grade: GRADES[seed % GRADES.length]!,
-    category: "Study bite",
-    synopsis: `A bite-sized ${subjectName.toLowerCase()} studybook inspired by "${work.title}" — short cards you can finish between classes.`,
+    category: t("category.studyBite"),
+    synopsis: t("synopsis", { subject: subjectName, title: work.title }),
     cover: work.cover_id
       ? `https://covers.openlibrary.org/b/id/${work.cover_id}-M.jpg`
       : undefined,
     priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-    cards: synthCards(id, work.title, subjectName),
+    cards: synthCards(id, work.title, subjectName, t),
   };
 }
 
-async function fetchSubject(subjectSlug: string, subjectName: string): Promise<Studybook[]> {
+async function fetchSubject(subjectSlug: string, t: Translator): Promise<Studybook[]> {
   const olSubject = OL_SUBJECT[subjectSlug] ?? "science";
+  const subjectName = t(`subject.${subjectSlug}`);
   try {
     const res = await fetch(
       `https://openlibrary.org/subjects/${olSubject}.json?limit=${PER_SUBJECT}`,
@@ -122,34 +125,31 @@ async function fetchSubject(subjectSlug: string, subjectName: string): Promise<S
     if (!res.ok) return [];
     const data = (await res.json()) as { works?: OLWork[] };
     return (data.works ?? [])
-      .map((w) => mapWork(w, subjectSlug, subjectName))
+      .map((w) => mapWork(w, subjectSlug, subjectName, t))
       .filter((b): b is Studybook => b !== null);
   } catch {
     return [];
   }
 }
 
-let cache: Promise<Studybook[]> | null = null;
+const cache = new Map<Locale, Promise<Studybook[]>>();
 
-/** The full dummy catalog (memoized). Falls back to local mock if OL is down. */
-export function getOpenLibraryCatalog(): Promise<Studybook[]> {
-  if (!cache) {
-    cache = (async () => {
-      const batches = await Promise.all(
-        SUBJECTS.map((s) => fetchSubject(s.slug, s.name)),
-      );
+/** The full dummy catalog for a locale (memoized). Falls back to local mock if OL is down. */
+export function getOpenLibraryCatalog(locale: Locale): Promise<Studybook[]> {
+  let hit = cache.get(locale);
+  if (!hit) {
+    hit = (async () => {
+      const t = await getTranslations({ locale, namespace: "catalog" });
+      const batches = await Promise.all(SUBJECTS.map((s) => fetchSubject(s.slug, t)));
       const books = batches.flat();
       // Guard against duplicate slugs (same work under multiple subjects).
       const seen = new Set<string>();
       const unique = books.filter((b) => (seen.has(b.slug) ? false : seen.add(b.slug)));
       return unique.length > 0 ? unique : MOCK_STUDYBOOKS;
     })().catch(() => MOCK_STUDYBOOKS);
+    cache.set(locale, hit);
   }
-  return cache;
-}
-
-function subjectNameOf(slug: string): string {
-  return SUBJECTS.find((s) => s.slug === slug)?.name ?? "General";
+  return hit;
 }
 
 /** Best-effort map an OL work's subjects back to one of our subject slugs. */
@@ -164,7 +164,7 @@ function matchSubject(subjects?: string[]): string {
 }
 
 /** Fetch a single OL work by id (parsed from the slug) and map it to a Studybook. */
-async function fetchWork(olId: string): Promise<Studybook | undefined> {
+async function fetchWork(olId: string, t: Translator): Promise<Studybook | undefined> {
   try {
     const res = await fetch(`https://openlibrary.org/works/${olId}.json`, {
       next: { revalidate: 60 * 60 * 24 },
@@ -184,7 +184,7 @@ async function fetchWork(olId: string): Promise<Studybook | undefined> {
     const subjectSlug = matchSubject(w.subjects);
 
     // Resolve the first author's name (one extra request).
-    let author = "Unknown author";
+    let author = t("unknownAuthor");
     const authorKey = w.authors?.[0]?.author?.key;
     if (authorKey) {
       try {
@@ -200,8 +200,6 @@ async function fetchWork(olId: string): Promise<Studybook | undefined> {
       }
     }
 
-    const rawDesc = typeof w.description === "string" ? w.description : w.description?.value;
-
     return {
       id,
       slug: `${slugify(w.title)}-${olId.toLowerCase()}`,
@@ -210,15 +208,15 @@ async function fetchWork(olId: string): Promise<Studybook | undefined> {
       year: 2024,
       subjectSlug,
       grade: GRADES[seed % GRADES.length]!,
-      category: "Study bite",
-      synopsis:
-        rawDesc?.slice(0, 320) ??
-        `A bite-sized studybook inspired by "${w.title}" — short cards you can finish between classes.`,
+      category: t("category.studyBite"),
+      // Use the localized template (not OL's English description) so detail
+      // pages are fully translated too.
+      synopsis: t("synopsisPlain", { title: w.title }),
       cover: w.covers?.[0]
         ? `https://covers.openlibrary.org/b/id/${w.covers[0]}-M.jpg`
         : undefined,
       priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-      cards: synthCards(id, w.title, subjectNameOf(subjectSlug)),
+      cards: synthCards(id, w.title, t(`subject.${subjectSlug}`), t),
     };
   } catch {
     return undefined;
@@ -230,11 +228,12 @@ async function fetchWork(olId: string): Promise<Studybook | undefined> {
  * catalog doesn't contain it this request, we fetch the exact work by the OL id
  * embedded in the slug (…-olXXXXw) so detail links never 404.
  */
-export async function getOpenLibraryStudybook(slug: string): Promise<Studybook | undefined> {
-  const hit = (await getOpenLibraryCatalog()).find((b) => b.slug === slug);
+export async function getOpenLibraryStudybook(slug: string, locale: Locale): Promise<Studybook | undefined> {
+  const hit = (await getOpenLibraryCatalog(locale)).find((b) => b.slug === slug);
   if (hit) return hit;
 
   const m = slug.match(/-(ol\d+w)$/i);
   if (!m) return undefined;
-  return fetchWork(m[1]!.toUpperCase());
+  const t = await getTranslations({ locale, namespace: "catalog" });
+  return fetchWork(m[1]!.toUpperCase(), t);
 }

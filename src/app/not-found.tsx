@@ -1,13 +1,18 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 
-export const metadata: Metadata = { title: "Page not found" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_not_found");
+  return { title: t("metaTitle") };
+}
 
 /**
  * Playful, on-brand 404: plum gradient, an orbiting "planet" as the middle 0,
  * and an astronomy-flavoured message. Pure CSS/SVG motion (respects reduced-motion).
  */
-export default function NotFound() {
+export default async function NotFound() {
+  const t = await getTranslations("app_not_found");
   return (
     <main className="bg-plum relative isolate flex min-h-[100svh] flex-col items-center justify-center overflow-hidden px-6 py-16 text-center text-white">
       {/* Top glow + twinkling stars (behind content, non-interactive) */}
@@ -19,7 +24,7 @@ export default function NotFound() {
 
       <div className="relative z-10 w-full max-w-md">
         <p className="text-xs font-semibold uppercase tracking-[0.35em] text-white/50">
-          Lost in transit
+          {t("kicker")}
         </p>
 
         {/* 404 with an orbit as the middle 0 */}
@@ -30,11 +35,10 @@ export default function NotFound() {
         </div>
 
         <h1 className="mt-8 text-3xl font-bold leading-tight text-white sm:text-4xl">
-          This page is still 8½ minutes away.
+          {t("title")}
         </h1>
         <p className="mt-4 leading-relaxed text-white/70">
-          The link you followed drifted off course. Like sunlight, some things just take a while to
-          reach you — or never arrive at all.
+          {t("subtitle")}
         </p>
 
         <div className="mt-10 space-y-3">
@@ -42,13 +46,13 @@ export default function NotFound() {
             href="/feed"
             className="flex h-14 w-full items-center justify-center rounded-2xl bg-violet text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
           >
-            Back to For You
+            {t("backToFeed")}
           </Link>
           <Link
             href="/explore"
             className="flex h-14 w-full items-center justify-center rounded-2xl bg-white/10 text-base font-semibold text-white ring-1 ring-inset ring-white/15 transition-colors hover:bg-white/15"
           >
-            Explore studybooks
+            {t("exploreStudybooks")}
           </Link>
         </div>
       </div>

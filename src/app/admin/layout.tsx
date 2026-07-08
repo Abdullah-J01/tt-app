@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import { requireAdmin } from "@/lib/auth";
 import { AdminSidebar } from "@/features/admin";
 import Navbar from "@/components/layout/Navbar";
 
-export const metadata: Metadata = {
-  title: { default: "Admin", template: "%s · Admin · StudyBooks" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_admin_layout");
+  return {
+    title: { default: t("title"), template: t("titleTemplate") },
+  };
+}
 
 /**
  * Shell for the Admin CMS (UI brief §6.10): the shared site header (Navbar) +

@@ -1,11 +1,16 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
+import { getSubjectName } from "@/i18n/subjectName";
 import { Clock, SearchX } from "lucide-react";
 import { SearchBar, CoverCard, StudybiteCard, searchCatalog } from "@/features/explore";
 import { SUBJECTS, type Subject } from "@/config/subjects";
 
-export const metadata: Metadata = { title: "Search" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_app_explore_search_page");
+  return { title: t("title") };
+}
 
 /** Sample quick-search entries. TODO(team): persist real recents per user. */
 const RECENT = ["the water cycle", "photosynthesis", "ancient Rome"];
@@ -18,6 +23,7 @@ export default async function SearchPage({
 }) {
   const { q = "" } = await searchParams;
   const query = q.trim();
+  const t = await getTranslations("app_app_explore_search_page");
   const results = await searchCatalog(query);
   const hasResults =
     results.subjects.length + results.studybooks.length + results.studybites.length > 0;
@@ -36,7 +42,7 @@ export default async function SearchPage({
         <div className="space-y-8 py-2">
           {/* Subjects */}
           {results.subjects.length > 0 && (
-            <Group title="Subjects">
+            <Group title={t("subjects")}>
               <div className="flex flex-wrap gap-2">
                 {results.subjects.map((s) => (
                   <SubjectChip key={s.slug} subject={s} />
@@ -47,7 +53,7 @@ export default async function SearchPage({
 
           {/* Studybooks */}
           {results.studybooks.length > 0 && (
-            <Group title="Studybooks">
+            <Group title={t("studybooks")}>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
                 {results.studybooks.map((b) => (
                   <CoverCard key={b.id} book={b} />
@@ -58,7 +64,7 @@ export default async function SearchPage({
 
           {/* Studybites */}
           {results.studybites.length > 0 && (
-            <Group title="Studybites">
+            <Group title={t("studybites")}>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {results.studybites.map((bite) => (
                   <StudybiteCard key={bite.card.id} bite={bite} />
@@ -82,11 +88,12 @@ function Group({ title, children }: { title: string; children: React.ReactNode }
 }
 
 /** Recent + suggested queries + subject chips (shown when the query is empty). */
-function EmptyState() {
+async function EmptyState() {
+  const t = await getTranslations("app_app_explore_search_page");
   return (
     <div className="space-y-8 py-2">
       <section>
-        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">Recent</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">{t("recent")}</h2>
         <ul className="mt-2">
           {RECENT.map((term) => (
             <li key={term}>
@@ -103,7 +110,7 @@ function EmptyState() {
       </section>
 
       <section>
-        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">Suggested</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">{t("suggested")}</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {SUGGESTED.map((term) => (
             <QueryChip key={term} query={term} />
@@ -112,7 +119,7 @@ function EmptyState() {
       </section>
 
       <section>
-        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">Browse subjects</h2>
+        <h2 className="text-xs font-bold uppercase tracking-wide text-muted">{t("browseSubjects")}</h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {SUBJECTS.map((s) => (
             <SubjectChip key={s.slug} subject={s} />
@@ -123,7 +130,8 @@ function EmptyState() {
   );
 }
 
-function SubjectChip({ subject }: { subject: Subject }) {
+async function SubjectChip({ subject }: { subject: Subject }) {
+  const subjectName = await getSubjectName();
   const Icon = subject.icon;
   return (
     <Link
@@ -131,7 +139,7 @@ function SubjectChip({ subject }: { subject: Subject }) {
       className="inline-flex items-center gap-2 rounded-full bg-lavender px-4 py-2 text-sm font-medium text-ink transition-colors hover:bg-violet/10"
     >
       <Icon className={`h-4 w-4 ${subject.color}`} aria-hidden />
-      {subject.name}
+      {subjectName(subject.slug, subject.name)}
     </Link>
   );
 }
@@ -147,16 +155,15 @@ function QueryChip({ query }: { query: string }) {
   );
 }
 
-function NoResults({ query }: { query: string }) {
+async function NoResults({ query }: { query: string }) {
+  const t = await getTranslations("app_app_explore_search_page");
   return (
     <div className="flex flex-col items-center py-16 text-center">
       <span className="grid h-16 w-16 place-items-center rounded-full bg-lavender text-violet">
         <SearchX className="h-8 w-8" />
       </span>
-      <p className="mt-4 font-semibold">No matches for “{query}”</p>
-      <p className="mt-1 max-w-xs text-sm text-muted">
-        Try a subject, a studybook title, or a broader word.
-      </p>
+      <p className="mt-4 font-semibold">{t("noMatches", { query })}</p>
+      <p className="mt-1 max-w-xs text-sm text-muted">{t("noMatchesHint")}</p>
     </div>
   );
 }

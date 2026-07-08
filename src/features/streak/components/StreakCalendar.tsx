@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { toKey } from "../useStreak";
 
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAYS = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
 const MONTHS = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
+  "january", "february", "march", "april", "may", "june",
+  "july", "august", "september", "october", "november", "december",
 ];
 
 interface StreakCalendarProps {
@@ -15,6 +16,7 @@ interface StreakCalendarProps {
 }
 
 export function StreakCalendar({ activeDays }: StreakCalendarProps) {
+  const t = useTranslations("features_streak_components_StreakCalendar");
   const today = new Date();
   const [view, setView] = useState(() => new Date(today.getFullYear(), today.getMonth(), 1));
 
@@ -37,18 +39,18 @@ export function StreakCalendar({ activeDays }: StreakCalendarProps) {
         <button
           type="button"
           onClick={() => step(-1)}
-          aria-label="Previous month"
+          aria-label={t("previousMonth")}
           className="text-faint hover:text-ink hover:bg-lavender grid h-8 w-8 place-items-center rounded-full transition-colors"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
         <h3 className="text-ink font-display text-base font-bold">
-          {MONTHS[month]} {year}
+          {t(MONTHS[month]!)} {year}
         </h3>
         <button
           type="button"
           onClick={() => step(1)}
-          aria-label="Next month"
+          aria-label={t("nextMonth")}
           className="text-faint hover:text-ink hover:bg-lavender grid h-8 w-8 place-items-center rounded-full transition-colors"
         >
           <ChevronRight className="h-5 w-5" />
@@ -58,7 +60,7 @@ export function StreakCalendar({ activeDays }: StreakCalendarProps) {
       <div className="text-muted grid grid-cols-7 gap-1 text-center text-xs font-medium">
         {WEEKDAYS.map((d) => (
           <span key={d} className="py-1">
-            {d}
+            {t(d)}
           </span>
         ))}
       </div>

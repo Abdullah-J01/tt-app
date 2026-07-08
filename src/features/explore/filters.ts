@@ -5,6 +5,8 @@ import type { Studybook } from "@/types";
 export interface FilterOption {
   value: string;
   label: string;
+  /** Translation key under the `catalog` namespace (localized at render). */
+  labelKey: string;
   /** Material count shown next to the label (subjects only for now). */
   count?: number;
   children?: FilterOption[];
@@ -13,6 +15,8 @@ export interface FilterOption {
 export interface Facet {
   key: string;
   label: string;
+  /** Translation key under the `catalog` namespace (localized at render). */
+  labelKey: string;
   icon: LucideIcon;
   options: FilterOption[];
 }
@@ -33,11 +37,21 @@ function subjectOptions(): FilterOption[] {
   return Object.entries(SUBJECT_GROUPS).map(([value, group]) => {
     const children = group.slugs.flatMap((slug) => {
       const subject = SUBJECT_BY_SLUG.get(slug);
-      return subject ? [{ value: subject.slug, label: subject.name, count: subject.count }] : [];
+      return subject
+        ? [
+            {
+              value: subject.slug,
+              label: subject.name,
+              labelKey: `subject.${subject.slug}`,
+              count: subject.count,
+            },
+          ]
+        : [];
     });
     return {
       value,
       label: group.label,
+      labelKey: `group.${value}`,
       count: children.reduce((sum, c) => sum + (c.count ?? 0), 0),
       children,
     };
@@ -54,70 +68,77 @@ export const FACETS: Facet[] = [
   {
     key: "target",
     label: "Target Group",
+    labelKey: "facet.target",
     icon: Users,
     options: [
-      { value: "preschool", label: "Preschool and Kindergarten" },
-      { value: "1-3", label: "1-3 grades" },
-      { value: "4-6", label: "4-6 grades" },
-      { value: "7-9", label: "7-9 grades" },
-      { value: "gymnasium", label: "Gymnasium" },
-      { value: "self-study", label: "Self-study" },
-      { value: "parents", label: "For Parents" },
-      { value: "teachers", label: "For Teachers" },
+      { value: "preschool", label: "Preschool and Kindergarten", labelKey: "target.preschool" },
+      { value: "1-3", label: "1-3 grades", labelKey: "target.1-3" },
+      { value: "4-6", label: "4-6 grades", labelKey: "target.4-6" },
+      { value: "7-9", label: "7-9 grades", labelKey: "target.7-9" },
+      { value: "gymnasium", label: "Gymnasium", labelKey: "target.gymnasium" },
+      { value: "self-study", label: "Self-study", labelKey: "target.self-study" },
+      { value: "parents", label: "For Parents", labelKey: "target.parents" },
+      { value: "teachers", label: "For Teachers", labelKey: "target.teachers" },
     ],
   },
   {
     key: "subject",
     label: "Subject",
+    labelKey: "facet.subject",
     icon: BookOpen,
     options: subjectOptions(),
   },
   {
     key: "material",
     label: "Material Type",
+    labelKey: "facet.material",
     icon: Shapes,
     options: [
-      { value: "studybook", label: "Studybook" },
-      { value: "support", label: "Support Material" },
-      { value: "bite", label: "Bite" },
-      { value: "topic", label: "Topic" },
-      { value: "article", label: "Article" },
-      { value: "test", label: "Test" },
+      { value: "studybook", label: "Studybook", labelKey: "material.studybook" },
+      { value: "support", label: "Support Material", labelKey: "material.support" },
+      { value: "bite", label: "Bite", labelKey: "material.bite" },
+      { value: "topic", label: "Topic", labelKey: "material.topic" },
+      { value: "article", label: "Article", labelKey: "material.article" },
+      { value: "test", label: "Test", labelKey: "material.test" },
     ],
   },
   {
     key: "price",
     label: "Price",
+    labelKey: "facet.price",
     icon: Tag,
     options: [
-      { value: "free", label: "Free" },
-      { value: "paid", label: "Paid" },
+      { value: "free", label: "Free", labelKey: "price.free" },
+      { value: "paid", label: "Paid", labelKey: "price.paid" },
     ],
   },
   {
     key: "publisher",
     label: "Publisher",
+    labelKey: "facet.publisher",
     icon: Store,
     options: [
-      { value: "moorish", label: "Moorish" },
-      { value: "meaningful-talks", label: "Meaningful Talks" },
-      { value: "epr", label: "Estonian Packaging Recycling" },
+      { value: "moorish", label: "Moorish", labelKey: "publisher.moorish" },
+      { value: "meaningful-talks", label: "Meaningful Talks", labelKey: "publisher.meaningful-talks" },
+      { value: "epr", label: "Estonian Packaging Recycling", labelKey: "publisher.epr" },
     ],
   },
   {
     key: "language",
     label: "Language",
+    labelKey: "facet.language",
     icon: Globe,
     options: [
-      { value: "et", label: "Estonian" },
-      { value: "ru", label: "Russian" },
+      { value: "et", label: "Estonian", labelKey: "language.et" },
+      { value: "ru", label: "Russian", labelKey: "language.ru" },
     ],
   },
   {
     key: "special",
     label: "Special",
+    labelKey: "facet.special",
     icon: Sparkles,
-    options: [{ value: "et-second", label: "Estonian as a second language" }],
+    options: [{ value: "et-second", label: "Estonian as a second language", labelKey: "special.et-second" }],
   },
 ];
 
@@ -201,4 +222,22 @@ export function optionLabel(compositeKey: string): string {
 
   const facet = FACETS.find((f) => f.key === facetKey);
   return (facet && walk(facet.options)) ?? value;
+}
+
+/** `catalog`-namespace translation key for a composite "facetKey:value" key. */
+export function optionLabelKey(compositeKey: string): string | undefined {
+  const i = compositeKey.indexOf(":");
+  const facetKey = compositeKey.slice(0, i);
+  const value = compositeKey.slice(i + 1);
+
+  const walk = (options: FilterOption[]): string | undefined => {
+    for (const option of options) {
+      if (option.value === value) return option.labelKey;
+      const fromChild = option.children && walk(option.children);
+      if (fromChild) return fromChild;
+    }
+  };
+
+  const facet = FACETS.find((f) => f.key === facetKey);
+  return facet && walk(facet.options);
 }

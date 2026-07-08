@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { getTranslations } from "@/i18n/server";
 import Link from "next/link";
 import { BookOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -11,7 +12,10 @@ import {
   adminListStudybooks,
 } from "@/features/admin";
 
-export const metadata: Metadata = { title: "Studybooks" };
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app_admin_studybooks_page");
+  return { title: t("metaTitle") };
+}
 
 interface StudybooksPageProps {
   searchParams: Promise<{ q?: string; subject?: string; grade?: string; page?: string }>;
@@ -19,6 +23,7 @@ interface StudybooksPageProps {
 
 /** Studybook management: searchable, filterable, paginated catalog table. */
 export default async function AdminStudybooksPage({ searchParams }: StudybooksPageProps) {
+  const t = await getTranslations("app_admin_studybooks_page");
   const { q, subject, grade, page } = await searchParams;
   const result = await adminListStudybooks({ q, subject, grade, page: Number(page) || 1 });
   const filtered = Boolean(q || subject || grade);
@@ -27,22 +32,21 @@ export default async function AdminStudybooksPage({ searchParams }: StudybooksPa
     <div className="flex flex-col gap-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-ink text-2xl font-bold">Studybooks</h1>
+          <h1 className="font-display text-ink text-2xl font-bold">{t("title")}</h1>
           <p className="text-muted mt-1 text-sm">
-            {result.total} studybook{result.total === 1 ? "" : "s"}
-            {filtered && " matching your filters"}
+            {t("count", { count: result.total, filtered: String(filtered) })}
           </p>
         </div>
         <Link href="/admin/studybooks/new">
           <Button size="sm" leadingIcon={<Plus />}>
-            New studybook
+            {t("newStudybook")}
           </Button>
         </Link>
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="min-w-56 flex-1">
-          <SearchParamInput placeholder="Search by title or author…" />
+          <SearchParamInput placeholder={t("searchPlaceholder")} />
         </div>
         <StudybookFilters />
       </div>
@@ -50,17 +54,13 @@ export default async function AdminStudybooksPage({ searchParams }: StudybooksPa
       {result.items.length === 0 ? (
         <EmptyState
           icon={<BookOpen />}
-          title={filtered ? "No studybooks match" : "No studybooks yet"}
-          description={
-            filtered
-              ? "Try a different search or clear the filters."
-              : "Create the first studybook to start building the catalog."
-          }
+          title={filtered ? t("emptyMatchTitle") : t("emptyTitle")}
+          description={filtered ? t("emptyMatchBody") : t("emptyBody")}
           action={
             !filtered && (
               <Link href="/admin/studybooks/new">
                 <Button size="sm" leadingIcon={<Plus />}>
-                  New studybook
+                  {t("newStudybook")}
                 </Button>
               </Link>
             )
