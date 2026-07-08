@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { stripLocale } from "@/i18n/Link";
 import { Footer } from "./Footer";
 
 /**
@@ -9,8 +10,7 @@ import { Footer } from "./Footer";
  * unchanged — the footer shows wherever it's rendered.
  */
 export function ResponsiveFooter() {
-  const pathname = usePathname();
-  const isHome = pathname === "/";
+  const isHome = stripLocale(usePathname()) === "/";
   return (
     <div className={isHome ? undefined : "hidden md:block"}>
       <Footer />

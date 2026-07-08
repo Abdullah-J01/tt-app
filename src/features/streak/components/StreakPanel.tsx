@@ -2,7 +2,7 @@
 
 import { Fragment, useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/client";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { ChevronLeft, ChevronRight, Flame, Star, Trophy } from "lucide-react";
 import { STREAK_MILESTONES, useStreak } from "../useStreak";
 import { StreakCalendar } from "./StreakCalendar";

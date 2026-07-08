@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { getTranslations } from "@/i18n/server";
 import { getSubjectName } from "@/i18n/subjectName";
 import { SUBJECTS } from "@/config/subjects";

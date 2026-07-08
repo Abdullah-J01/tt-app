@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { ShieldCheck } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
+import Link from "@/i18n/Link";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 
 export default function PrivacyPage() {
@@ -158,9 +159,9 @@ export default function PrivacyPage() {
               <p className="text-caption text-muted">
                 {t.rich("questions", {
                   link: (chunks) => (
-                    <a href="/contact" className="text-violet hover:underline">
+                    <Link href="/contact" className="text-violet hover:underline">
                       {chunks}
-                    </a>
+                    </Link>
                   ),
                 })}
               </p>

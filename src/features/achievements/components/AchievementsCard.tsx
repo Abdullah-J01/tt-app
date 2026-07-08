@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { ChevronRight, Trophy } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
 import { useAchievements } from "../useAchievements";

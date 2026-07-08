@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Image from "next/image";
 import { useTranslations } from "@/i18n/client";
 import { Pill } from "@/components/ui/Pill";

@@ -1,5 +1,5 @@
 "use client";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { PlayCircle } from "lucide-react";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useTranslations } from "@/i18n/client";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import {

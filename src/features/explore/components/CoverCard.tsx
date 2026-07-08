@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Image from "next/image";
 import { ArrowRight, Bookmark, BookOpen, Zap } from "lucide-react";
 import { useTranslations } from "@/i18n/client";

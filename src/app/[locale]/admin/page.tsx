@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { ArrowRight, BookOpen, Layers, Plus, Tags, Users } from "lucide-react";
 import { getTranslations } from "@/i18n/server";
 import { Button } from "@/components/ui/Button";

@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useTranslations } from "@/i18n/client";
 import { Search } from "lucide-react";
 import { Logo } from "./Logo";

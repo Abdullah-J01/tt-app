@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { ChevronDown, FileText } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
+import Link from "@/i18n/Link";
 import BackgroundGradient from "@/components/home/BackgroundGradient";
 import { Button } from "@/components/ui/Button";
 
@@ -116,9 +117,9 @@ export default function TermsPage() {
         >
           {t.rich("questions", {
             link: (chunks) => (
-              <a href="/contact" className="text-violet hover:underline">
+              <Link href="/contact" className="text-violet hover:underline">
                 {chunks}
-              </a>
+              </Link>
             ),
           })}
         </motion.p>

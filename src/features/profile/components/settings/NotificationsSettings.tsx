@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useTranslations } from "@/i18n/client";
 import { ChevronRight } from "lucide-react";
 import { List, Row, Toggle, ValueChip } from "./ui";

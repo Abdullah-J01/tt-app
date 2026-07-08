@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import {
   BadgeCheck,
   Bell,

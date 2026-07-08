@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import Link, { stripLocale } from "@/i18n/Link";
 import { useSession } from "next-auth/react";
 import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
@@ -22,11 +22,12 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const path = stripLocale(pathname);
   const openAuth = useAuthModal((s) => s.openAuth);
   const t = useTranslations();
   // On the admin CMS the shared header swaps its consumer controls (nav, search,
   // streak) for the CMS ones (badge, "View app", session info, log out).
-  const onAdmin = pathname.startsWith("/admin");
+  const onAdmin = path.startsWith("/admin");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -68,17 +69,17 @@ export default function Navbar() {
             {!onAdmin && (
               <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm md:flex">
                 {SITE.nav.map((item) => {
-                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const active = path === item.href || path.startsWith(`${item.href}/`);
                   return (
                     <li key={item.href}>
-                      <a
+                      <Link
                         href={item.href}
                         className={`underline-anim ${
                           active ? "text-ink font-medium" : "hover:text-ink"
                         }`}
                       >
                         {t(`nav.${item.href.slice(1)}` as "nav.feed")}
-                      </a>
+                      </Link>
                     </li>
                   );
                 })}

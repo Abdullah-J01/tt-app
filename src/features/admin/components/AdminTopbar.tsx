@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { getTranslations } from "@/i18n/server";
 import { ExternalLink } from "lucide-react";
 import { Logo } from "@/components/layout/Logo";

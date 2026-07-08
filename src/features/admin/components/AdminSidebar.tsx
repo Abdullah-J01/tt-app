@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Link, { stripLocale } from "@/i18n/Link";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "@/i18n/client";
 import { BookOpen, LayoutDashboard, Tags, Users } from "lucide-react";
@@ -18,7 +18,7 @@ const NAV = [
  * mobile (the CMS is desktop-first per the UI brief, but stays usable anywhere).
  */
 export function AdminSidebar() {
-  const pathname = usePathname();
+  const path = stripLocale(usePathname());
   const t = useTranslations("features_admin_components_AdminSidebar");
 
   return (
@@ -28,7 +28,7 @@ export function AdminSidebar() {
     >
       <ul className="flex gap-1 max-md:pb-1 md:flex-col">
         {NAV.map(({ href, label, icon: Icon, exact }) => {
-          const active = exact ? pathname === href : pathname.startsWith(href);
+          const active = exact ? path === href : path.startsWith(href);
           return (
             <li key={href} className="max-md:shrink-0">
               <Link

@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import type { Metadata } from "next";
 import { getTranslations } from "@/i18n/server";
 import { getSubjectName } from "@/i18n/subjectName";

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { useSession } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, BookOpen, Heart, X } from "lucide-react";

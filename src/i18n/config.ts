@@ -5,8 +5,8 @@ export type Locale = (typeof LOCALES)[number];
 /** Locales offered in the language selector (Russian hidden for now). */
 export const SELECTABLE_LOCALES: Locale[] = ["en", "et"];
 
-/** English is the default locale. */
-export const DEFAULT_LOCALE: Locale = "en";
+/** Estonian is the default locale. */
+export const DEFAULT_LOCALE: Locale = "et";
 
 /** Cookie that mirrors the active locale (also read by the middleware). */
 export const LOCALE_COOKIE = "NEXT_LOCALE";

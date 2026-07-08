@@ -2,7 +2,7 @@
 
 import { useTranslations } from "@/i18n/client";
 import { signOut } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";

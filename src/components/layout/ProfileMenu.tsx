@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { LogOut, ShieldCheck, User } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
