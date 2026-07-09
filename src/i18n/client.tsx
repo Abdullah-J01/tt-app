@@ -2,8 +2,9 @@
 
 import i18next, { type i18n as I18nInstance } from "i18next";
 import { initReactI18next, I18nextProvider, useTranslation } from "react-i18next";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, type ReactNode } from "react";
-import { DEFAULT_LOCALE, LOCALES, NAMESPACE, type Locale } from "./config";
+import { DEFAULT_LOCALE, LOCALES, NAMESPACE, isLocale, type Locale } from "./config";
 import { lookup, formatMessage, formatRich } from "./format";
 import type { Translator, TranslateValues, RichValues } from "./types";
 import enMessages from "./locales/en/common.json";
@@ -36,6 +37,25 @@ function createI18n(locale: Locale): I18nInstance {
 }
 
 /**
+ * Keeps the client language locked to the URL's locale segment. usePathname
+ * updates on every client navigation (switcher, links, back/forward), so this
+ * makes a single click switch the language and never drift out of sync — even
+ * though the root-layout provider itself doesn't re-render on navigation.
+ */
+function LocaleSync() {
+  const { i18n } = useTranslation(NAMESPACE);
+  const pathname = usePathname();
+  const seg = pathname.split("/")[1];
+  const urlLocale: Locale = isLocale(seg) ? seg : DEFAULT_LOCALE;
+
+  useEffect(() => {
+    if (i18n.language !== urlLocale) void i18n.changeLanguage(urlLocale);
+  }, [i18n, urlLocale]);
+
+  return null;
+}
+
+/**
  * Client i18n root — seeds react-i18next with every locale bundle so the first
  * render matches the server and language switches happen instantly in place.
  */
@@ -50,13 +70,12 @@ export function TranslationsProvider({
 }) {
   const instance = useMemo(() => createI18n(locale), []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  useEffect(() => {
-    if (instance.language !== locale) {
-      void instance.changeLanguage(locale);
-    }
-  }, [instance, locale]);
-
-  return <I18nextProvider i18n={instance}>{children}</I18nextProvider>;
+  return (
+    <I18nextProvider i18n={instance}>
+      <LocaleSync />
+      {children}
+    </I18nextProvider>
+  );
 }
 
 /** next-intl-compatible `useTranslations` on top of react-i18next + ICU. */
