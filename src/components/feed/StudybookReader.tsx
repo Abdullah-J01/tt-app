@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, BookOpen, Bookmark, ChevronUp, Zap } from "lucide-react";
+import { ArrowLeft, Bookmark, ChevronUp, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
 import { SUBJECTS } from "@/config/subjects";
@@ -216,7 +216,8 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             <TopSave book={book} />
           </div>
 
-          {/* Progress */}
+          {/* Progress + meta — fixed header block, stays put while cards swipe:
+              bars, then card count (left) and category (right) on one row. */}
           <div className="absolute inset-x-0 top-[68px] z-20 px-5">
             <div className="flex gap-1">
               {cards.map((c, i) => (
@@ -226,13 +227,22 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                 />
               ))}
             </div>
-            <p className="mt-2 text-xs font-medium text-white/55">
-              Card {index + 1} of {total}
-            </p>
+            <div className="mt-2 flex items-baseline justify-between gap-3">
+              <p className="text-xs font-medium text-white/55">
+                Card {index + 1} of {total}
+              </p>
+              <p className="truncate text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
+                {subject}
+              </p>
+            </div>
           </div>
 
-          {/* Card content */}
-          <div className="absolute inset-0 flex items-center px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
+          {/* Card content — insets keep it clear of the header (bars + meta)
+              above and the swipe hint below. Centering comes from my-auto on
+              the card (not items-center): auto margins collapse to 0 when the
+              card is taller than the area, so it top-aligns and overflows
+              downward instead of riding up under the header. */}
+          <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
             <AnimatePresence mode="popLayout" custom={dir} initial={false}>
               <motion.div
                 key={active.id}
@@ -242,18 +252,16 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                 animate="center"
                 exit="exit"
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="w-full max-w-md pr-16"
+                className="my-auto w-full max-w-md pr-16"
               >
-                <p className="mb-3 text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
-                  {subject}
-                </p>
-                <h2 className="font-display text-3xl leading-tight font-bold text-white sm:text-3xl">
+                <h2 className="font-display text-2xl leading-tight font-bold text-white sm:text-3xl">
                   {active.heading}
                 </h2>
 
-                {/* Book cover */}
-                <div className="relative my-6 flex h-44 items-center justify-center overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4 sm:h-36">
-                  {book.cover ? (
+                {/* Book cover — optional media; without it the text just flows,
+                    no empty placeholder box. */}
+                {book.cover && (
+                  <div className="relative my-5 h-36 overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4">
                     <Image
                       src={book.cover}
                       alt={book.title}
@@ -261,12 +269,14 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                       sizes="(max-width: 640px) 90vw, 420px"
                       className="object-contain p-2"
                     />
-                  ) : (
-                    <BookOpen className="h-8 w-8 text-white/40" />
-                  )}
-                </div>
+                  </div>
+                )}
 
-                <p className="text-[15px] leading-relaxed text-white/75">{active.body}</p>
+                <p
+                  className={`text-[15px] leading-relaxed text-white/75 ${book.cover ? "" : "mt-5"}`}
+                >
+                  {active.body}
+                </p>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -276,7 +286,9 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             type="button"
             onClick={goNext}
             aria-label="Next card"
-            className="absolute inset-x-0 bottom-8 z-20 flex flex-col items-center gap-1 text-white/60"
+            // Mobile: cleared above the fixed bottom nav (its height + safe
+            // area); sm+ the reader is a windowed card, so back to bottom-8.
+            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-20 flex flex-col items-center gap-1 text-white/60 sm:bottom-8"
           >
             <motion.span
               animate={{ y: [0, -5, 0] }}

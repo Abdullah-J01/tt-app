@@ -78,7 +78,10 @@ export function StudybookPreview({ book }: { book: Studybook }) {
 
   return (
     <div
-      className="fade-in fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-0 backdrop-blur-sm md:p-6"
+      // z-[60]: above the fixed MobileNav (z-50, later in the DOM), which
+      // otherwise sits on top of this dialog and swallows taps on the
+      // Prev/Next controls at the bottom of the sheet.
+      className="fade-in fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-0 backdrop-blur-sm md:p-6"
       role="dialog"
       aria-modal="true"
       aria-label={`Preview of ${book.title}`}
@@ -151,7 +154,10 @@ export function StudybookPreview({ book }: { book: Studybook }) {
                   ? `Unlock the full studybook for €${book.priceEur.toFixed(2)}.`
                   : "Keep going in the full reader."}
               </p>
-              <Link href={`/studybook/${book.slug}/read`} className="mt-6 w-full max-w-xs">
+              {/* replace: swap the ?preview history entry for /read, so Back
+                  from the reader returns to the clean detail page instead of
+                  reopening this overlay (which reads as "back is broken"). */}
+              <Link href={`/studybook/${book.slug}/read`} replace className="mt-6 w-full max-w-xs">
                 <Button size="lg" variant="secondary" className="w-full">
                   Start learning
                 </Button>

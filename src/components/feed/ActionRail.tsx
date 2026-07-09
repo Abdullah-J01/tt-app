@@ -142,27 +142,27 @@ export function ActionRail({
   };
 
   return (
-    <div className="flex flex-col items-center gap-5 text-white">
+    <div className="flex flex-col items-center gap-4 text-white">
       <RailButton
         label={countLabel(saveCount + (saved ? 1 : 0))}
         active={saved}
         onClick={withAuth(() => toggleSaved(entry))}
-        icon={<Bookmark className={cn("h-7 w-7", saved && "fill-current")} />}
+        icon={<Bookmark className={cn("h-5 w-5", saved && "fill-current")} />}
       />
       <RailButton
         label={countLabel(likeCount + (liked ? 1 : 0))}
         active={liked}
         onClick={withAuth(toggleLike)}
         iconRef={heartRef}
-        icon={<Heart className={cn("h-7 w-7", liked && "fill-current text-red-500")} />}
+        icon={<Heart className={cn("h-5 w-5", liked && "fill-current text-red-500")} />}
       />
-      <RailButton label="Share" onClick={share} icon={<Share2 className="h-7 w-7" />} />
+      <RailButton label="Share" onClick={share} icon={<Share2 className="h-5 w-5" />} />
       {onOpenBook && (
         <Button
           unstyled
           onClick={onOpenBook}
           aria-label="Open studybook"
-          className="mt-1 h-11 w-11 rounded-full border-2 border-white/80 bg-white/20"
+          className="mt-1 h-9 w-9 rounded-full border-2 border-white/80 bg-white/20"
         />
       )}
     </div>
@@ -184,19 +184,21 @@ function RailButton({
   iconRef?: Ref<HTMLSpanElement>;
 }) {
   return (
-    <Button unstyled onClick={onClick} className="flex flex-col items-center gap-1">
+    <Button unstyled onClick={onClick} className="relative flex flex-col items-center">
       <span
         ref={iconRef}
         className={cn(
-          "grid h-12 w-12 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
+          "grid h-10 w-10 place-items-center rounded-full bg-black/20 backdrop-blur transition-transform active:scale-90",
           active && "bg-black/30",
         )}
       >
         {icon}
       </span>
-      {/* Always reserve the label row so a count appearing/changing (0 → 1)
-          doesn't grow the button and shift the rail. */}
-      <span className="h-4 text-xs leading-4 font-medium">{label}</span>
+      {/* Label floats in the flex gap below the circle (absolute, zero layout
+          height) so a count appearing/changing (0 → 1) never resizes the rail. */}
+      <span className="pointer-events-none absolute top-full left-1/2 h-4 -translate-x-1/2 text-[11px] leading-4 font-medium whitespace-nowrap">
+        {label}
+      </span>
     </Button>
   );
 }

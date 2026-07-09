@@ -404,6 +404,15 @@ body {
   will-change: backdrop-filter;
 }
 
+/* Dark twin of .glass for immersive dark surfaces (studybook reader) — the
+   surface underneath bleeds through the blur, so the bar harmonizes with any
+   card gradient without per-theme colors. */
+.glass-dark {
+  background: rgb(var(--color-ink-rgb) / 0.45);
+  backdrop-filter: blur(20px) saturate(160%);
+  will-change: backdrop-filter;
+}
+
 .text-gradient-violet {
   background: linear-gradient(
     135deg,

@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bookmark,
@@ -49,6 +50,15 @@ export default function MobileNav() {
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const pathname = usePathname();
+
+  // The studybook reader (full page and intercepted modal both end in /read)
+  // is an immersive dark plum surface — the bar switches to its dark-glass
+  // variant there so it blends with the card instead of floating as a light
+  // strip. Overlays (More panel, search) keep the light glass: they open
+  // above a dimmed page, not on the plum surface.
+  const onDark = pathname.endsWith("/read");
+  const tabIdle = onDark ? "text-white/60 hover:text-white" : "text-ink/60 hover:text-ink";
 
   // Lock body scroll and close on Escape whenever an overlay is showing.
   useEffect(() => {
@@ -241,7 +251,12 @@ export default function MobileNav() {
 
         <nav
           aria-label="Primary"
-          className="glass border-border border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
+          className={cn(
+            "border-t pb-[env(safe-area-inset-bottom)]",
+            onDark
+              ? "glass-dark border-white/10"
+              : "glass border-border shadow-[0_-8px_30px_rgba(30,26,46,0.08)]",
+          )}
         >
           <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6 lg:px-8">
             {SITE.nav.map((item, i) => {
@@ -252,7 +267,7 @@ export default function MobileNav() {
                     href={item.href}
                     className={cn(
                       "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                      i === 0 ? "text-ink" : "text-ink/60 hover:text-ink",
+                      i === 0 ? (onDark ? "text-white" : "text-ink") : tabIdle,
                     )}
                   >
                     <Icon className="h-[22px] w-[22px]" aria-hidden />
@@ -266,7 +281,10 @@ export default function MobileNav() {
               <li>
                 <Link
                   href="/profile"
-                  className="text-ink/60 hover:text-ink flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95"
+                  className={cn(
+                    "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
+                    tabIdle,
+                  )}
                 >
                   <User className="h-[22px] w-[22px]" aria-hidden />
                   Profile
@@ -285,7 +303,7 @@ export default function MobileNav() {
                 aria-controls="mobile-more-panel"
                 className={cn(
                   "flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                  moreOpen ? "text-violet" : "text-ink/60 hover:text-ink",
+                  moreOpen ? (onDark ? "text-white" : "text-violet") : tabIdle,
                 )}
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />
