@@ -86,7 +86,9 @@ export function Button({
       ) : (
         leadingIcon && <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{leadingIcon}</span>
       )}
-      {children}
+      {/* Wrapped so translators (Google Translate swaps bare text nodes for <font>)
+          can't break React's insertBefore anchor when the loading slot toggles. */}
+      {children != null && children !== false && <span>{children}</span>}
       {trailingIcon && (
         <span className="flex shrink-0 [&_svg]:h-5 [&_svg]:w-5">{trailingIcon}</span>
       )}
