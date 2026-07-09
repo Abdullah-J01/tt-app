@@ -1,10 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { Award, Bookmark, Check, Cloud, X } from "lucide-react";
+import { Award, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { formatPrice, PLAN_DISPLAY, startCheckout } from "@/features/billing";
 
 const FEATURES = [
   "Every studybook & studybite",
@@ -13,11 +13,14 @@ const FEATURES = [
   "Listen with audio cards",
 ];
 
-/** Premium paywall bottom sheet → confirmation (UI: Paywall · Confirmation). */
+// The paywall upsells the recommended "Scholar" plan; the /premium page is the
+// full comparison for anyone who wants Genius.
+const PLAN = PLAN_DISPLAY.scholar;
+
+/** Premium paywall bottom sheet → real Stripe Checkout (UI: Paywall). */
 export function Paywall({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const router = useRouter();
-  const [plan, setPlan] = useState<"annual" | "monthly">("annual");
-  const [done, setDone] = useState(false);
+  const [cycle, setCycle] = useState<"yearly" | "monthly">("yearly");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!open) return;
@@ -25,11 +28,24 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
-      setDone(false);
+      setLoading(false);
     };
   }, [open]);
 
   if (!open) return null;
+
+  const savings = Math.round((1 - PLAN.yearly / PLAN.monthly) * 100);
+
+  async function handleCheckout() {
+    setLoading(true);
+    try {
+      await startCheckout(PLAN.id, cycle); // redirects to Stripe on success
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      alert("Something went wrong starting checkout. Please try again.");
+    }
+  }
 
   return (
     <div
@@ -49,89 +65,46 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
           <X className="h-5 w-5" />
         </Button>
 
-        {!done ? (
-          <>
-            <span className="bg-violet mx-auto grid h-14 w-14 place-items-center rounded-full text-white">
-              <Award className="h-7 w-7" />
-            </span>
-            <h2 className="mt-4 text-center text-2xl font-bold">Unlock every studybook</h2>
-            <p className="text-muted mt-2 text-center text-sm">
-              This one&apos;s Premium. Go unlimited and keep the streak growing.
-            </p>
+        <span className="bg-violet mx-auto grid h-14 w-14 place-items-center rounded-full text-white">
+          <Award className="h-7 w-7" />
+        </span>
+        <h2 className="mt-4 text-center text-2xl font-bold">Unlock every studybook</h2>
+        <p className="text-muted mt-2 text-center text-sm">
+          This one&apos;s Premium. Go unlimited and keep the streak growing.
+        </p>
 
-            <ul className="mt-5 space-y-2.5">
-              {FEATURES.map((f) => (
-                <li key={f} className="flex items-center gap-2 text-sm">
-                  <Check className="text-brand-green h-4 w-4 shrink-0" /> {f}
-                </li>
-              ))}
-            </ul>
+        <ul className="mt-5 space-y-2.5">
+          {FEATURES.map((f) => (
+            <li key={f} className="flex items-center gap-2 text-sm">
+              <Check className="text-brand-green h-4 w-4 shrink-0" /> {f}
+            </li>
+          ))}
+        </ul>
 
-            <div className="mt-5 space-y-3">
-              <PlanRow
-                selected={plan === "annual"}
-                onClick={() => setPlan("annual")}
-                title="Annual"
-                note="7-day free trial"
-                price="1.90€"
-                badge="Save 40%"
-              />
-              <PlanRow
-                selected={plan === "monthly"}
-                onClick={() => setPlan("monthly")}
-                title="Monthly"
-                note="Cancel anytime"
-                price="2.90€"
-              />
-            </div>
+        <div className="mt-5 space-y-3">
+          <PlanRow
+            selected={cycle === "yearly"}
+            onClick={() => setCycle("yearly")}
+            title="Annual"
+            note="30-day free trial"
+            price={formatPrice(PLAN.yearly)}
+            badge={savings > 0 ? `Save ${savings}%` : undefined}
+          />
+          <PlanRow
+            selected={cycle === "monthly"}
+            onClick={() => setCycle("monthly")}
+            title="Monthly"
+            note="30-day free trial"
+            price={formatPrice(PLAN.monthly)}
+          />
+        </div>
 
-            <Button
-              unstyled
-              type="button"
-              onClick={() => setDone(true)}
-              className="bg-violet hover:bg-violet-dark mt-5 h-13 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.99]"
-            >
-              {plan === "annual" ? "Start 7-day free trial" : "Go Premium"}
-            </Button>
-            <p className="text-muted mt-3 text-center text-xs">
-              Then 1.90€/mo · Cancel anytime ·{" "}
-              <span className="text-ink font-semibold">Restore</span>
-            </p>
-          </>
-        ) : (
-          <>
-            <span className="bg-brand-green/15 text-brand-green mx-auto grid h-14 w-14 place-items-center rounded-full">
-              <Check className="h-8 w-8" />
-            </span>
-            <h2 className="mt-4 text-center text-2xl font-bold">You&apos;re Premium!</h2>
-            <p className="text-muted mt-2 text-center text-sm">
-              Every studybook is unlocked and your saves are unlimited. Time to dive in.
-            </p>
-            <div className="rounded-card border-hairline mt-5 space-y-3 border p-4 text-sm">
-              <p className="flex items-center gap-2">
-                <Award className="text-violet h-4 w-4 shrink-0" />
-                {plan === "annual" ? "Annual" : "Monthly"} plan · renews 1 Jul 2027
-              </p>
-              <p className="flex items-center gap-2">
-                <Bookmark className="text-violet h-4 w-4 shrink-0" /> Unlimited saves active
-              </p>
-              <p className="flex items-center gap-2">
-                <Cloud className="text-violet h-4 w-4 shrink-0" /> Offline reading on
-              </p>
-            </div>
-            <Button
-              unstyled
-              type="button"
-              onClick={() => {
-                onClose();
-                router.push("/feed");
-              }}
-              className="bg-violet hover:bg-violet-dark mt-5 h-13 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.99]"
-            >
-              Start learning
-            </Button>
-          </>
-        )}
+        <Button block loading={loading} onClick={handleCheckout} className="mt-5" size="lg">
+          Start 30-day free trial
+        </Button>
+        <p className="text-muted mt-3 text-center text-xs">
+          Then {formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly)}/mo · Cancel anytime
+        </p>
       </div>
     </div>
   );
