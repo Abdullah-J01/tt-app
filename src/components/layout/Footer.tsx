@@ -1,5 +1,8 @@
-import Link from "next/link";
+"use client";
+
+import Link from "@/i18n/Link";
 import { Apple, Play } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { ParallaxBlobs } from "./ParallaxBlobs";
 
 /**
@@ -10,6 +13,7 @@ import { ParallaxBlobs } from "./ParallaxBlobs";
  * Rendered on every page so the same footer design appears everywhere.
  */
 export function Footer() {
+  const t = useTranslations("components_layout_Footer");
   return (
     <footer className="px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 md:pb-8">
       <div className="bg-plum-gradient shadow-lift relative mx-auto max-w-7xl overflow-hidden rounded-3xl text-white">
@@ -27,26 +31,27 @@ export function Footer() {
           <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
             {/* Headline */}
             <h2 className="font-display text-4xl leading-[1.05] font-bold text-white sm:text-5xl">
-              Turn{" "}
-              <span className="relative whitespace-nowrap">
-                <span className="text-white/90">wasted</span>
-                <span
-                  aria-hidden
-                  className="bg-violet absolute top-1/2 left-0 h-1 w-full -translate-y-1/2 rounded-full"
-                />
-              </span>{" "}
-              minutes
-              <br />
-              into things
-              <br />
-              you&apos;ll <span className="text-lilac">actually keep</span>
+              {t.rich("headline", {
+                wasted: (chunks) => (
+                  <span className="relative whitespace-nowrap">
+                    <span className="text-white/90">{chunks}</span>
+                    <span
+                      aria-hidden
+                      className="bg-violet absolute top-1/2 left-0 h-1 w-full -translate-y-1/2 rounded-full"
+                    />
+                  </span>
+                ),
+                keep: (chunks) => <span className="text-lilac">{chunks}</span>,
+                br: () => <br />,
+              })}
             </h2>
 
             {/* CTA */}
             <div className="lg:justify-self-end">
               <p className="max-w-sm text-white/70">
-                Join over <strong className="font-bold text-white">10M+ people</strong> who swapped
-                the feed for bite-sized studybooks. Free to start.
+                {t.rich("cta", {
+                  b: (chunks) => <strong className="font-bold text-white">{chunks}</strong>,
+                })}
               </p>
 
               <div className="mt-6 flex flex-col gap-3">
@@ -57,9 +62,9 @@ export function Footer() {
                   <Apple className="h-7 w-7 shrink-0" />
                   <span className="text-left leading-tight">
                     <span className="block text-[10px] font-semibold tracking-wide text-white/70 uppercase">
-                      Download on the
+                      {t("downloadOn")}
                     </span>
-                    <span className="block text-lg font-bold">App Store</span>
+                    <span className="block text-lg font-bold">{t("appStore")}</span>
                   </span>
                 </a>
 
@@ -70,9 +75,9 @@ export function Footer() {
                   <Play className="h-6 w-6 shrink-0 fill-current" />
                   <span className="text-left leading-tight">
                     <span className="block text-[10px] font-semibold tracking-wide text-white/70 uppercase">
-                      Get it on
+                      {t("getItOn")}
                     </span>
-                    <span className="block text-lg font-bold">Google Play</span>
+                    <span className="block text-lg font-bold">{t("googlePlay")}</span>
                   </span>
                 </a>
               </div>
@@ -82,31 +87,37 @@ export function Footer() {
           {/* Stats */}
           <div className="mt-10 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/10 pt-6 text-sm text-white/50">
             <span>
-              <strong className="font-bold text-white">3 min</strong> a day
+              {t.rich("statMinutes", {
+                b: (chunks) => <strong className="font-bold text-white">{chunks}</strong>,
+              })}
             </span>
             <span className="text-white/25">·</span>
             <span>
-              <strong className="font-bold text-white">18k+</strong> studybooks
+              {t.rich("statStudybooks", {
+                b: (chunks) => <strong className="font-bold text-white">{chunks}</strong>,
+              })}
             </span>
             <span className="text-white/25">·</span>
             <span>
-              <strong className="font-bold text-white">4.9★</strong> App Store
+              {t.rich("statRating", {
+                b: (chunks) => <strong className="font-bold text-white">{chunks}</strong>,
+              })}
             </span>
           </div>
 
           {/* Bottom links */}
           <div className="mt-6 flex flex-wrap gap-x-5 gap-y-2 border-t border-white/10 pt-6 text-sm text-white/60">
             <Link href="/terms" className="hover:text-white">
-              Terms
+              {t("terms")}
             </Link>
             <Link href="/privacy" className="hover:text-white">
-              Privacy
+              {t("privacy")}
             </Link>
             <Link href="/contact" className="hover:text-white">
-              Contact
+              {t("contact")}
             </Link>
             <Link href="/about" className="hover:text-white">
-              About
+              {t("about")}
             </Link>
           </div>
         </div>

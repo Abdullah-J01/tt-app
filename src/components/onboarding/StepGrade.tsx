@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { IconBadge } from "@/components/ui/IconBadge";
 import { SelectableCard } from "@/components/ui/SelectableCard";
 import type { Grade } from "@/config/subjects";
@@ -11,14 +14,15 @@ interface StepGradeProps {
 
 /** Onboarding step 1 — single-select grade cards (UI brief §6.1). */
 export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
+  const t = useTranslations("components_onboarding_StepGrade");
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="font-display text-2xl font-bold text-ink">What grade are you in?</h1>
-        <p className="mt-1.5 text-muted">We&apos;ll tune your feed to the right level.</p>
+        <h1 className="font-display text-2xl font-bold text-ink">{t("title")}</h1>
+        <p className="mt-1.5 text-muted">{t("subtitle")}</p>
       </div>
 
-      <div role="group" aria-label="Grade" className="flex flex-col gap-3">
+      <div role="group" aria-label={t("groupLabel")} className="flex flex-col gap-3">
         {grades.map((g, i) => {
           const Icon = g.icon;
           const isSelected = selected === g.slug;

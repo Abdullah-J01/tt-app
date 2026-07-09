@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { ArrowLeft, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +12,7 @@ import { forgotPasswordSchema, type ForgotPasswordValues } from "./schemas";
 
 /** Back-to-login flip trigger, shared by both states. */
 function BackToLogin({ onSwitch }: { onSwitch: () => void }) {
+  const t = useTranslations("components_auth_ForgotPasswordFace");
   return (
     <Button
       unstyled
@@ -19,7 +21,7 @@ function BackToLogin({ onSwitch }: { onSwitch: () => void }) {
       className="inline-flex items-center gap-1.5 text-sm font-semibold text-white/90 hover:text-white"
     >
       <ArrowLeft className="h-4 w-4" aria-hidden />
-      Back to log in
+      {t("backToLogin")}
     </Button>
   );
 }
@@ -35,6 +37,7 @@ export function ForgotPasswordFace({
   onSwitch: () => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("components_auth_ForgotPasswordFace");
   const [sentEmail, setSentEmail] = useState("");
   const [sent, setSent] = useState(false);
 
@@ -60,15 +63,16 @@ export function ForgotPasswordFace({
           </span>
           <div>
             <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">
-              Check your email
+              {t("sentTitle")}
             </h1>
             <p className="text-muted mt-1.5 text-[13px]">
-              If an account exists for <span className="text-ink font-semibold">{sentEmail}</span>
-              , we&apos;ve sent a link to reset your password.
+              {t.rich("sentBody", {
+                email: () => <span className="text-ink font-semibold">{sentEmail}</span>,
+              })}
             </p>
           </div>
           <Button variant="secondary" block size="lg" onClick={() => setSent(false)}>
-            Use a different email
+            {t("useDifferentEmail")}
           </Button>
           <BackToLogin onSwitch={onSwitch} />
         </div>
@@ -76,21 +80,18 @@ export function ForgotPasswordFace({
         <>
           <div className="mb-5 text-center">
             <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">
-              Reset your password
+              {t("resetTitle")}
             </h1>
-            <p className="text-muted mt-1 text-[13px]">
-              Enter your email and we&apos;ll send you a link with instructions to reset your
-              password.
-            </p>
+            <p className="text-muted mt-1 text-[13px]">{t("resetSubtitle")}</p>
           </div>
 
           <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-4">
             <Input
               id="reset-email"
               type="email"
-              label="Email"
+              label={t("emailLabel")}
               labelClassName={GLASS_LABEL}
-              placeholder="Enter your email"
+              placeholder={t("emailPlaceholder")}
               autoComplete="email"
               error={errors.email?.message}
               containerClassName={GLASS_FIELD}
@@ -98,19 +99,19 @@ export function ForgotPasswordFace({
               {...register("email")}
             />
             <Button type="submit" block size="lg">
-              Request a new password
+              {t("requestNewPassword")}
             </Button>
           </Form>
 
           <p className="text-muted mt-5 text-center text-[13px]">
-            Remember your password?{" "}
+            {t("rememberPassword")}{" "}
             <Button
               unstyled
               type="button"
               onClick={onSwitch}
               className="text-violet hover:text-violet-dark font-semibold"
             >
-              Log in
+              {t("login")}
             </Button>
           </p>
         </>

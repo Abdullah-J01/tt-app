@@ -1,7 +1,8 @@
 "use client";
 
 import { X } from "lucide-react";
-import { optionLabel } from "../filters";
+import { useTranslations } from "@/i18n/client";
+import { useOptionLabel } from "../useCatalog";
 import { Button } from "@/components/ui/Button";
 
 interface ActiveFiltersProps {
@@ -13,6 +14,8 @@ interface ActiveFiltersProps {
 
 /** Checked filters as removable pills, popping in as they're added. */
 export function ActiveFilters({ selected, onToggle, onClear }: ActiveFiltersProps) {
+  const t = useTranslations("features_explore_components_ActiveFilters");
+  const optionLabel = useOptionLabel();
   if (selected.size === 0) return null;
 
   return (
@@ -38,7 +41,7 @@ export function ActiveFilters({ selected, onToggle, onClear }: ActiveFiltersProp
         onClick={onClear}
         className="pill-in text-violet text-sm font-semibold hover:underline"
       >
-        Clear all
+        {t("clearAll")}
       </Button>
     </div>
   );

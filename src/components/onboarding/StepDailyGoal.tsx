@@ -1,4 +1,7 @@
+"use client";
+
 import { Bell } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Card } from "@/components/ui/Card";
 import { GoalTile } from "@/components/ui/GoalTile";
 import { IconBadge } from "@/components/ui/IconBadge";
@@ -21,11 +24,12 @@ export function StepDailyGoal({
   reminders,
   onToggleReminders,
 }: StepDailyGoalProps) {
+  const t = useTranslations("components_onboarding_StepDailyGoal");
   return (
     <div className="flex flex-col gap-5">
       <div>
-        <h1 className="font-display text-2xl font-bold text-ink">Set a daily goal</h1>
-        <p className="mt-1.5 text-muted">Small and steady wins. Change it later.</p>
+        <h1 className="font-display text-2xl font-bold text-ink">{t("title")}</h1>
+        <p className="mt-1.5 text-muted">{t("subtitle")}</p>
       </div>
 
       <div className="flex gap-2.5">
@@ -33,7 +37,7 @@ export function StepDailyGoal({
           <GoalTile
             key={g}
             value={g}
-            unit="cards / day"
+            unit={t("unit")}
             selected={selected === g}
             onSelect={() => onSelect(g)}
           />
@@ -43,14 +47,14 @@ export function StepDailyGoal({
       <Card className="flex items-center gap-3.5 p-4">
         <IconBadge icon={<Bell />} variant="amber" />
         <div className="flex-1">
-          <p className="font-display text-[15px] font-semibold text-ink">Daily reminder</p>
-          <p className="text-xs text-muted">A nudge at 7pm to keep your streak.</p>
+          <p className="font-display text-[15px] font-semibold text-ink">{t("reminderTitle")}</p>
+          <p className="text-xs text-muted">{t("reminderBody")}</p>
         </div>
-        <Toggle checked={reminders} onChange={onToggleReminders} label="Daily reminder" />
+        <Toggle checked={reminders} onChange={onToggleReminders} label={t("reminderTitle")} />
       </Card>
 
       <IllustrationPlaceholder
-        caption="3D streak / calendar illustration"
+        caption={t("illustrationCaption")}
         className="h-24"
       />
     </div>

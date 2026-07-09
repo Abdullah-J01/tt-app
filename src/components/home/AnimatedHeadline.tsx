@@ -2,13 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
-
-const headlines = [
-  "Learn something new in the time it takes to scroll.",
-  "Understand difficult ideas in seconds, not hours.",
-  "Master concepts quickly, one card at a time.",
-  "Build a reading habit that actually sticks.",
-];
+import { useTranslations } from "@/i18n/client";
 
 const container: Variants = {
   hidden: {},
@@ -37,7 +31,15 @@ const letter: Variants = {
 };
 
 export default function AnimatedHeadline() {
+  const t = useTranslations("components_home_AnimatedHeadline");
   const [index, setIndex] = useState(0);
+
+  const headlines = [
+    t("headline1"),
+    t("headline2"),
+    t("headline3"),
+    t("headline4"),
+  ];
 
   useEffect(() => {
     const id = setInterval(() => {

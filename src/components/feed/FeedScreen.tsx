@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
 // import FeedNavbar from "./FeedNavbar";
@@ -37,6 +38,7 @@ function filteredCards(items: FeedItem[], selected: ReadonlySet<string>): FeedCa
 }
 
 export default function FeedScreen() {
+  const t = useTranslations("components_feed_FeedScreen");
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   // Applied filters drive the feed; the draft only lives while the drawer is
@@ -323,13 +325,13 @@ export default function FeedScreen() {
         className="relative min-h-0 flex-1 overflow-hidden"
         role="region"
         aria-roledescription="carousel"
-        aria-label="Study cards feed"
+        aria-label={t("carouselLabel")}
       >
         {/* live region for screen readers */}
         <p className="sr-only" aria-live="polite">
           {loading
-            ? "Loading study cards…"
-            : `Card ${index + 1} of ${total}: ${cards[index]?.title}`}
+            ? t("loading")
+            : t("cardPosition", { index: index + 1, total, title: cards[index]?.title ?? "" })}
         </p>
 
         {loading && <NavControlsSkeleton />}
@@ -387,15 +389,15 @@ export default function FeedScreen() {
                 <div className="bg-surface absolute inset-0 grid place-items-center">
                   <EmptyState
                     icon={<SlidersHorizontal className="h-5 w-5" aria-hidden />}
-                    title="Nothing matches your filters"
-                    description="Try removing a filter or two to see more cards."
+                    title={t("emptyTitle")}
+                    description={t("emptyBody")}
                     action={
                       <div className="flex flex-wrap items-center justify-center gap-2">
                         <Button variant="secondary" size="sm" onClick={openFilters}>
-                          Edit filters
+                          {t("editFilters")}
                         </Button>
                         <Button size="sm" onClick={clearApplied}>
-                          Clear filters
+                          {t("clearFilters")}
                         </Button>
                       </div>
                     }

@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Image from "next/image";
+import { useTranslations } from "@/i18n/client";
 import { BookOpen } from "lucide-react";
 import {
   motion,
@@ -63,6 +64,7 @@ function DrumCard({
   focus: MotionValue<number>;
   dims: Dims;
 }) {
+  const t = useTranslations("components_home_UniverseCarousel");
   const { cardW, cardH, spreadX } = dims;
 
   const transform = useTransform(focus, (f) => {
@@ -128,7 +130,7 @@ function DrumCard({
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {price && (
               <Pill variant="solid">
-                <span className="font-medium opacity-80">from</span>
+                <span className="font-medium opacity-80">{t("from")}</span>
                 {price}
               </Pill>
             )}
@@ -142,8 +144,9 @@ function DrumCard({
 
 /** Motion-free fallback: the original horizontal rail of vertical cards. */
 function Rail({ books }: { books: Studybook[] }) {
+  const t = useTranslations("components_home_UniverseCarousel");
   return (
-    <CardRail itemWidth="w-40 sm:w-48" label="Freshly digitized">
+    <CardRail itemWidth="w-40 sm:w-48" label={t("freshlyDigitized")}>
       {books.map((book, i) => (
         <ContentCard
           key={book.id}

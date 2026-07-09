@@ -2,11 +2,20 @@ import { create } from "zustand";
 
 type Mode = "login" | "signup";
 
+interface OpenOptions {
+  /** When the dialog is dismissed, go back in history (e.g. return to explore). */
+  backOnClose?: boolean;
+  /** Optional message shown above the card (e.g. "Log in to start learning"). */
+  reason?: string;
+}
+
 interface AuthModalState {
   open: boolean;
   mode: Mode;
+  backOnClose: boolean;
+  reason?: string;
   /** Open the auth dialog over the current page (defaults to log in). */
-  openAuth: (mode?: Mode) => void;
+  openAuth: (mode?: Mode, opts?: OpenOptions) => void;
   closeAuth: () => void;
 }
 
@@ -19,6 +28,9 @@ interface AuthModalState {
 export const useAuthModal = create<AuthModalState>((set) => ({
   open: false,
   mode: "login",
-  openAuth: (mode = "login") => set({ open: true, mode }),
-  closeAuth: () => set({ open: false }),
+  backOnClose: false,
+  reason: undefined,
+  openAuth: (mode = "login", opts) =>
+    set({ open: true, mode, backOnClose: opts?.backOnClose ?? false, reason: opts?.reason }),
+  closeAuth: () => set({ open: false, backOnClose: false, reason: undefined }),
 }));

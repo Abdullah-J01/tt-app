@@ -2,6 +2,7 @@
 
 import { useEffect, type ReactNode } from "react";
 import { X } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 
 interface FilterDrawerProps {
@@ -23,6 +24,7 @@ interface FilterDrawerProps {
  * it while open. Shared by Explore and the subject page.
  */
 export function FilterDrawer({ open, onClose, resultCount, onApply, children }: FilterDrawerProps) {
+  const t = useTranslations("features_explore_components_FilterDrawer");
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -39,17 +41,17 @@ export function FilterDrawer({ open, onClose, resultCount, onApply, children }: 
       className="fixed inset-0 z-50"
       role="dialog"
       aria-modal="true"
-      aria-label="Filter materials"
+      aria-label={t("dialogLabel")}
     >
       <div className="fade-in absolute inset-0 bg-black/40" onClick={onClose} />
       <div className="drawer-up md-drawer-right bg-surface absolute inset-x-0 bottom-0 flex max-h-[85vh] flex-col rounded-t-2xl md:inset-y-0 md:right-0 md:left-auto md:max-h-none md:w-full md:max-w-sm md:rounded-none md:rounded-l-2xl">
         <div className="border-hairline flex items-center justify-between border-b px-4 py-3">
-          <h2 className="text-lg font-bold">Filters</h2>
+          <h2 className="text-lg font-bold">{t("title")}</h2>
           <Button
             unstyled
             type="button"
             onClick={onClose}
-            aria-label="Close filters"
+            aria-label={t("close")}
             className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
           >
             <X className="h-5 w-5" />
@@ -63,7 +65,7 @@ export function FilterDrawer({ open, onClose, resultCount, onApply, children }: 
             onClick={onApply ?? onClose}
             className="bg-violet hover:bg-violet-dark h-11 w-full rounded-xl font-semibold text-white transition-transform active:scale-[0.98]"
           >
-            Show {resultCount} results
+            {t("showResults", { count: resultCount })}
           </Button>
         </div>
       </div>

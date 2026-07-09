@@ -1,4 +1,7 @@
+"use client";
+
 import { Pencil, User } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 
 interface ProfileHeaderProps {
@@ -9,6 +12,7 @@ interface ProfileHeaderProps {
 
 /** Profile header — avatar, name, handle, edit affordance (UI brief §6.7). */
 export function ProfileHeader({ name, handle }: ProfileHeaderProps) {
+  const t = useTranslations("components_account_ProfileHeader");
   return (
     <div className="flex items-center gap-4">
       <div className="bg-lavender text-violet flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-full">
@@ -22,7 +26,7 @@ export function ProfileHeader({ name, handle }: ProfileHeaderProps) {
       <Button
         unstyled
         type="button"
-        aria-label="Edit profile"
+        aria-label={t("editProfile")}
         className="text-muted hover:bg-lavender hover:text-ink flex h-10 w-10 items-center justify-center rounded-full transition-colors"
       >
         <Pencil className="h-5 w-5" aria-hidden />

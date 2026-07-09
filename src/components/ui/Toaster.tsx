@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type ReactNode } from "react";
+import { useTranslations } from "@/i18n/client";
 import { AnimatePresence, motion } from "framer-motion";
 import { Bookmark, Heart, X } from "lucide-react";
 
@@ -79,6 +80,7 @@ export function toastLiked(onUndo: () => void) {
 
 /** Mounted once (in the root layout) — renders whatever is in the store. */
 export function Toaster() {
+  const t = useTranslations("components_ui_Toaster");
   const [list, setList] = useState<ToastItem[]>([]);
 
   useEffect(() => {
@@ -92,9 +94,9 @@ export function Toaster() {
   return (
     <div className="pointer-events-none fixed inset-x-0 bottom-6 z-[100] flex flex-col items-center gap-2 px-4">
       <AnimatePresence>
-        {list.map((t) => (
+        {list.map((toast) => (
           <motion.div
-            key={t.id}
+            key={toast.id}
             layout
             initial={{ opacity: 0, y: 20, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -104,21 +106,21 @@ export function Toaster() {
             aria-live="polite"
             className="shadow-lift bg-ink/95 pointer-events-auto flex items-center gap-3 rounded-xl py-2.5 pr-2 pl-4 text-sm text-white backdrop-blur"
           >
-            {t.icon}
-            <span className="font-medium">{t.message}</span>
-            {t.action && (
+            {toast.icon}
+            <span className="font-medium">{toast.message}</span>
+            {toast.action && (
               <button
                 type="button"
-                onClick={t.action.onClick}
+                onClick={toast.action.onClick}
                 className="text-lilac ml-2 font-semibold hover:underline"
               >
-                {t.action.label}
+                {toast.action.label}
               </button>
             )}
             <button
               type="button"
-              onClick={() => dismiss(t.id)}
-              aria-label="Dismiss"
+              onClick={() => dismiss(toast.id)}
+              aria-label={t("dismiss")}
               className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-white/60 hover:bg-white/10 hover:text-white"
             >
               <X className="h-4 w-4" aria-hidden />

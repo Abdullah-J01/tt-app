@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "./Button";
 
 interface ConfirmDialogProps {
@@ -27,13 +28,14 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = "Confirm",
-  cancelLabel = "Cancel",
+  confirmLabel,
+  cancelLabel,
   destructive = false,
   loading = false,
   onConfirm,
   onClose,
 }: ConfirmDialogProps) {
+  const t = useTranslations("components_ui_ConfirmDialog");
   useEffect(() => {
     if (!open) return;
     const previous = document.body.style.overflow;
@@ -67,7 +69,7 @@ export function ConfirmDialog({
         {description && <p className="text-muted mt-2 text-sm">{description}</p>}
         <div className="mt-6 flex justify-end gap-2">
           <Button variant="secondary" size="sm" onClick={dismiss} disabled={loading}>
-            {cancelLabel}
+            {cancelLabel ?? t("cancel")}
           </Button>
           <Button
             variant={destructive ? "danger" : "primary"}
@@ -75,7 +77,7 @@ export function ConfirmDialog({
             onClick={onConfirm}
             loading={loading}
           >
-            {confirmLabel}
+            {confirmLabel ?? t("confirm")}
           </Button>
         </div>
       </div>

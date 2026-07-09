@@ -1,13 +1,15 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import Image from "next/image";
 import { LayoutGrid, List, Search, SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Chip } from "@/components/ui/Chip";
 import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
-import { GRADES, SUBJECTS } from "@/config/subjects";
+import { GRADES } from "@/config/subjects";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import {
@@ -42,6 +44,7 @@ interface ExploreViewProps {
  * middle column. One selection set drives the chips, rail, panel and results.
  */
 export function ExploreView({ books, studybites }: ExploreViewProps) {
+  const t = useTranslations("features_explore_components_ExploreView");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("books");
@@ -119,11 +122,11 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
           sticky bar here would slide under it and look cropped. Search lives in
           the navbar on md+; mobile gets a shortcut to the full-screen search */}
       <div className="flex items-center justify-between pt-6 md:block md:pt-0">
-        <h1 className="text-2xl font-bold">Explore</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <Link
           href="/explore/search"
-          aria-label="Search"
+          aria-label={t("search")}
           className="border-hairline bg-lavender/50 text-muted hover:border-violet grid h-10 w-10 place-items-center rounded-full border transition-colors md:hidden"
         >
           <Search className="h-4 w-4" />
@@ -194,9 +197,9 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
         >
           {/* Tabs + toolbar */}
           <div className="border-hairline flex flex-wrap items-end justify-between gap-x-3 gap-y-2 border-b">
-            <div role="tablist" aria-label="Catalog content" className="flex gap-5">
+            <div role="tablist" aria-label={t("catalogContent")} className="flex gap-5">
               <TabButton
-                label="Studybooks"
+                label={t("studybooks")}
                 count={booksF.length}
                 active={tab === "books"}
                 onClick={() => {
@@ -205,7 +208,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                 }}
               />
               <TabButton
-                label="Studybites"
+                label={t("studybites")}
                 count={bitesF.length}
                 active={tab === "bites"}
                 onClick={() => {
@@ -223,7 +226,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                 className="border-hairline hover:border-violet hover:bg-lavender flex h-9 items-center gap-2 rounded-full border px-3 text-sm font-medium transition-colors active:scale-95 lg:hidden"
               >
                 <SlidersHorizontal className="h-4 w-4" aria-hidden />
-                <span>Filters</span>
+                <span>{t("filters")}</span>
                 {selected.size > 0 && (
                   <span
                     key={selected.size}
@@ -256,7 +259,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                 />
                 <div className="border-hairline flex overflow-hidden rounded-full border">
                   <ViewButton
-                    label="Grid view"
+                    label={t("gridView")}
                     active={view === "grid"}
                     onClick={() => {
                       setView("grid");
@@ -266,7 +269,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                     <LayoutGrid className="h-4 w-4" aria-hidden />
                   </ViewButton>
                   <ViewButton
-                    label="List view"
+                    label={t("listView")}
                     active={view === "list"}
                     onClick={() => {
                       setView("list");
@@ -426,7 +429,9 @@ function ViewButton({
 
 /** List-view row: cover thumb, title/author, synopsis snippet, price + subject pills. */
 function BookRow({ book }: { book: Studybook }) {
-  const subject = SUBJECTS.find((s) => s.slug === book.subjectSlug)?.name ?? book.subjectSlug;
+  const t = useTranslations("features_explore_components_ExploreView");
+  const subjectName = useSubjectName();
+  const subject = subjectName(book.subjectSlug);
   return (
     <Link
       href={`/studybook/${book.slug}`}
@@ -447,10 +452,10 @@ function BookRow({ book }: { book: Studybook }) {
           {book.priceEur != null ? (
             <Pill>€{book.priceEur.toFixed(2)}</Pill>
           ) : (
-            <Pill className="bg-brand-green/10 text-brand-green">Free</Pill>
+            <Pill className="bg-brand-green/10 text-brand-green">{t("free")}</Pill>
           )}
           <Pill className="bg-lavender">{subject}</Pill>
-          <span className="text-muted text-xs">{book.cards.length} cards</span>
+          <span className="text-muted text-xs">{t("cards", { count: book.cards.length })}</span>
         </div>
       </div>
     </Link>
@@ -458,9 +463,10 @@ function BookRow({ book }: { book: Studybook }) {
 }
 
 function EmptyState() {
+  const t = useTranslations("features_explore_components_ExploreView");
   return (
     <p className="rounded-card border-hairline text-muted border border-dashed p-8 text-center text-sm">
-      Nothing here for this filter yet. Try removing a filter or two.
+      {t("emptyState")}
     </p>
   );
 }

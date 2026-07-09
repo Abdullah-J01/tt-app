@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import { useTranslations } from "@/i18n/client";
+import Link from "@/i18n/Link";
 import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -23,6 +24,7 @@ import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthModal } from "@/components/auth/useAuthModal";
+import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -47,6 +49,8 @@ export default function MobileNav() {
   const { data: session, status } = useSession();
   const isAdmin = session?.user?.role === "admin";
   const openAuth = useAuthModal((s) => s.openAuth);
+  const t = useTranslations();
+  const { locale, toggle: toggleLocale } = useLocaleSwitch();
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -192,13 +196,14 @@ export default function MobileNav() {
                 unstyled
                 type="button"
                 role="menuitem"
+                onClick={toggleLocale}
                 className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
               >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
                   <Globe size={18} className="text-ink/70" aria-hidden />
                 </span>
-                <span className="flex-1 text-left">Language</span>
-                <span className="text-muted shrink-0 text-sm">EN</span>
+                <span className="flex-1 text-left">{t("common.language")}</span>
+                <span className="text-muted shrink-0 text-sm">{locale.toUpperCase()}</span>
               </Button>
 
               {isAdmin && (

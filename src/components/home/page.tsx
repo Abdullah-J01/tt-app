@@ -1,4 +1,5 @@
-import Link from "next/link";
+import Link from "@/i18n/Link";
+import { getTranslations } from "@/i18n/server";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
 import { TopNav } from "@/components/layout/TopNav";
 import { Button } from "@/components/ui/Button";
@@ -32,6 +33,7 @@ const FEATURES = [
 
 /** Marketing landing page (UI brief §6.8). */
 export default async function LandingPage() {
+  const t = await getTranslations("components_home_page");
   const books = await listStudybooks();
 
   return (
@@ -45,12 +47,12 @@ export default async function LandingPage() {
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <SectionHeader
-          title="New study bites"
-          subtitle="Study bites help you focus on one specific topic."
+          title={t("bitesTitle")}
+          subtitle={t("bitesSubtitle")}
           action={
             <Link href="/explore">
               <Button variant="secondary" size="sm">
-                More bites
+                {t("moreBites")}
               </Button>
             </Link>
           }
@@ -60,12 +62,12 @@ export default async function LandingPage() {
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <SectionHeader
-          title="Freshly digitized"
-          subtitle="Digital textbooks and workbooks — study anywhere, anytime."
+          title={t("digitizedTitle")}
+          subtitle={t("digitizedSubtitle")}
           action={
             <Link href="/library">
               <Button variant="secondary" size="sm">
-                All e-books
+                {t("allEbooks")}
               </Button>
             </Link>
           }

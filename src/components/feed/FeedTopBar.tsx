@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "@/i18n/client";
 import { Flame, SlidersHorizontal } from "lucide-react";
 import { useStreak } from "@/features/streak";
 import { cn } from "@/lib/utils";
@@ -30,6 +31,7 @@ export default function FeedTopBar({
   filterCount = 0,
   className,
 }: Props) {
+  const t = useTranslations("components_feed_FeedTopBar");
   const { streak } = useStreak();
 
   return (
@@ -54,7 +56,7 @@ export default function FeedTopBar({
         transition={{ duration: 0.35, delay: 0.08 }}
         className="flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-white"
       >
-        For You
+        {t("forYou")}
       </motion.div>
       <motion.div
         initial={{ opacity: 0, y: -10 }}
@@ -65,7 +67,7 @@ export default function FeedTopBar({
           <button
             type="button"
             onClick={onOpenFilters}
-            aria-label="Filter feed"
+            aria-label={t("filterFeed")}
             className="pointer-events-auto relative flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white/90 transition-transform hover:bg-white/15 active:scale-95"
           >
             <SlidersHorizontal size={20} className="fill-white/90" />

@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { LogOut, ShieldCheck, User } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 
 /**
@@ -12,6 +13,7 @@ import { Button } from "@/components/ui/Button";
  * /profile, an admin shortcut, and a log-out action.
  */
 export default function ProfileMenu() {
+  const t = useTranslations("components_layout_ProfileMenu");
   const { data: session } = useSession();
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -34,7 +36,7 @@ export default function ProfileMenu() {
     };
   }, [open]);
 
-  const name = session?.user?.name ?? "You";
+  const name = session?.user?.name ?? t("you");
   const email = session?.user?.email ?? "";
   const isAdmin = session?.user?.role === "admin";
 
@@ -44,7 +46,7 @@ export default function ProfileMenu() {
         unstyled
         type="button"
         onClick={() => setOpen((v) => !v)}
-        aria-label="Profile"
+        aria-label={t("profile")}
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls="navbar-profile-menu"
@@ -57,7 +59,7 @@ export default function ProfileMenu() {
         <div
           id="navbar-profile-menu"
           role="menu"
-          aria-label="Profile"
+          aria-label={t("profile")}
           className="glass border-border shadow-lift absolute top-full right-0 z-50 mt-3 w-64 overflow-hidden rounded-2xl border p-2"
         >
           <div className="flex items-center gap-3 px-3 py-3">
@@ -79,7 +81,7 @@ export default function ProfileMenu() {
             className="text-ink hover:bg-ink/5 active:bg-ink/10 mt-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
           >
             <User size={16} className="text-ink/70" aria-hidden />
-            View profile
+            {t("viewProfile")}
           </Link>
 
           {isAdmin && (
@@ -90,7 +92,7 @@ export default function ProfileMenu() {
               className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors"
             >
               <ShieldCheck size={16} className="text-ink/70" aria-hidden />
-              Admin dashboard
+              {t("adminDashboard")}
             </Link>
           )}
 
@@ -105,7 +107,7 @@ export default function ProfileMenu() {
             className="hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-red-600 transition-colors"
           >
             <LogOut size={16} aria-hidden />
-            Log out
+            {t("logOut")}
           </Button>
         </div>
       )}

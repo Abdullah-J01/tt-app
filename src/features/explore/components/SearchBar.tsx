@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/Input";
  * the empty (recent / suggested) state.
  */
 export function SearchBar() {
+  const t = useTranslations("features_explore_components_SearchBar");
   const router = useRouter();
   const params = useSearchParams();
   const paramQ = params.get("q") ?? "";
@@ -50,7 +52,7 @@ export function SearchBar() {
       <Button
         unstyled
         type="button"
-        aria-label="Back"
+        aria-label={t("back")}
         onClick={() => router.push("/explore")}
         className="text-ink hover:bg-lavender grid h-10 w-10 shrink-0 place-items-center rounded-full active:scale-95"
       >
@@ -65,14 +67,14 @@ export function SearchBar() {
           type="search"
           value={value}
           onChange={(e) => setValue(e.target.value)}
-          placeholder="Search studybooks, subjects…"
+          placeholder={t("placeholder")}
           className="border-hairline bg-lavender/50 focus:border-violet h-11 w-full rounded-full border pr-9 pl-9 text-sm outline-none"
         />
         {value && (
           <Button
             unstyled
             type="button"
-            aria-label="Clear search"
+            aria-label={t("clearSearch")}
             onClick={() => setValue("")}
             className="text-muted hover:bg-hairline absolute top-1/2 right-2 grid h-6 w-6 -translate-y-1/2 place-items-center rounded-full"
           >

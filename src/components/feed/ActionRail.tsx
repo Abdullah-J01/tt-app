@@ -1,8 +1,8 @@
 "use client";
 
 import { useRef, type Ref } from "react";
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
+import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Bookmark, Heart, Share2 } from "lucide-react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
@@ -96,8 +96,8 @@ export function ActionRail({
   shareUrl,
   shareTitle,
 }: ActionRailProps) {
-  const router = useRouter();
-  const { status } = useSession();
+  const t = useTranslations("components_feed_ActionRail");
+  const { requireAuth } = useAuthGuard();
   const { isLiked, isSaved, toggleLiked, toggleSaved } = useLibrary();
   const heartRef = useRef<HTMLSpanElement>(null);
 
@@ -105,18 +105,11 @@ export function ActionRail({
   const liked = isLiked(entry.cardId);
 
   /**
-   * Liking/saving requires a session — send guests to login and back here.
-   * Taps while the session is still resolving are ignored (no login bounce,
-   * no writes under the anonymous storage key).
+   * Liking/saving requires a session — guests get the login popup instead. Taps
+   * while auth is still resolving are ignored (no writes under the anon key).
    */
   const withAuth = (action: () => void) => () => {
-    if (status === "loading") return;
-    if (status !== "authenticated") {
-      const back = `/studybook/${entry.bookSlug}/read`;
-      router.push(`/login?callbackUrl=${encodeURIComponent(back)}`);
-      return;
-    }
-    action();
+    requireAuth(action, t("loginToSave"));
   };
 
   const toggleLike = () => {
@@ -156,12 +149,12 @@ export function ActionRail({
         iconRef={heartRef}
         icon={<Heart className={cn("h-5 w-5", liked && "fill-current text-red-500")} />}
       />
-      <RailButton label="Share" onClick={share} icon={<Share2 className="h-5 w-5" />} />
+      <RailButton label={t("share")} onClick={share} icon={<Share2 className="h-5 w-5" />} />
       {onOpenBook && (
         <Button
           unstyled
           onClick={onOpenBook}
-          aria-label="Open studybook"
+          aria-label={t("openBook")}
           className="mt-1 h-9 w-9 rounded-full border-2 border-white/80 bg-white/20"
         />
       )}

@@ -1,10 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Lock, X } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
+import { useCurrentLocale, localizeHref } from "@/i18n/Link";
+import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
@@ -18,7 +20,10 @@ const PREVIEW_LIMIT = 3;
  * "Cards preview" tiles can both open it (and it's deep-linkable / shareable).
  */
 export function StudybookPreview({ book }: { book: Studybook }) {
+  const t = useTranslations("features_studybook_StudybookPreview");
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const { requireAuth } = useAuthGuard();
   const pathname = usePathname();
   const params = useSearchParams();
   const open = params.has("preview");
@@ -84,7 +89,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       className="fade-in fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-0 backdrop-blur-sm md:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label={`Preview of ${book.title}`}
+      aria-label={t("previewOf", { title: book.title })}
       onClick={close}
     >
       <div
@@ -98,13 +103,13 @@ export function StudybookPreview({ book }: { book: Studybook }) {
               unstyled
               type="button"
               onClick={close}
-              aria-label="Close preview"
+              aria-label={t("closePreview")}
               className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/15 backdrop-blur hover:bg-white/25"
             >
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <div className="flex gap-1" aria-label={`Slide ${index + 1} of ${slideCount}`}>
+          <div className="flex gap-1" aria-label={t("slideOf", { current: index + 1, total: slideCount })}>
             {Array.from({ length: slideCount }).map((_, i) => (
               <span
                 key={i}
@@ -119,7 +124,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           {!isCta && card ? (
             <>
               <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-                {book.category} · Preview
+                {t("categoryPreview", { category: book.category })}
               </span>
               <div>
                 <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
@@ -145,23 +150,30 @@ export function StudybookPreview({ book }: { book: Studybook }) {
                 </span>
               )}
               <h2 className="mt-5 text-2xl font-bold text-white">
-                {remaining > 0
-                  ? `${remaining} more card${remaining === 1 ? "" : "s"} inside`
-                  : "That's the preview"}
+                {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
               </h2>
               <p className="mt-2 max-w-xs text-white/80">
                 {book.priceEur != null
-                  ? `Unlock the full studybook for €${book.priceEur.toFixed(2)}.`
-                  : "Keep going in the full reader."}
+                  ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
+                  : t("keepGoing")}
               </p>
               {/* replace: swap the ?preview history entry for /read, so Back
                   from the reader returns to the clean detail page instead of
-                  reopening this overlay (which reads as "back is broken"). */}
-              <Link href={`/studybook/${book.slug}/read`} replace className="mt-6 w-full max-w-xs">
-                <Button size="lg" variant="secondary" className="w-full">
-                  Start learning
-                </Button>
-              </Link>
+                  reopening this overlay (which reads as "back is broken").
+                  Gated: guests get the login popup instead of navigating. */}
+              <Button
+                size="lg"
+                variant="secondary"
+                className="mt-6 w-full max-w-xs"
+                onClick={() =>
+                  requireAuth(
+                    () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
+                    t("loginToLearn"),
+                  )
+                }
+              >
+                {t("startLearning")}
+              </Button>
             </div>
           )}
         </div>
@@ -173,7 +185,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
             type="button"
             onClick={() => setIndex((i) => Math.max(i - 1, 0))}
             disabled={index === 0}
-            aria-label="Previous card"
+            aria-label={t("previousCard")}
             className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
           >
             <ChevronLeft className="h-6 w-6" />
@@ -186,7 +198,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
             type="button"
             onClick={() => setIndex((i) => Math.min(i + 1, slideCount - 1))}
             disabled={index >= slideCount - 1}
-            aria-label="Next card"
+            aria-label={t("nextCard")}
             className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
           >
             <ChevronRight className="h-6 w-6" />

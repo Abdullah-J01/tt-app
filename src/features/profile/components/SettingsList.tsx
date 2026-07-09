@@ -1,7 +1,8 @@
 "use client";
 
+import { useTranslations } from "@/i18n/client";
 import { signOut } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useRouter } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -11,13 +12,14 @@ import { Button } from "@/components/ui/Button";
 
 /** Grouped settings list. Links navigate; sign-out / delete run client actions. */
 export function SettingsList() {
+  const t = useTranslations("features_profile_components_SettingsList");
   const router = useRouter();
 
   const runAction = (id: string) => {
     if (id === "sign-out") {
       signOut({ callbackUrl: "/login" });
     } else if (id === "delete") {
-      if (window.confirm("Delete your account? This can't be undone.")) {
+      if (window.confirm(t("deleteConfirm"))) {
         router.push("/login");
       }
     }

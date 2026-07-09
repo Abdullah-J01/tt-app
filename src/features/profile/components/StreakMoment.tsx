@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "@/i18n/client";
 import { Flame, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,7 @@ import { Portal } from "@/lib/Portal";
 
 /** Celebratory streak overlay (UI: Streak moment). */
 export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const t = useTranslations("features_profile_components_StreakMoment");
   const { streak } = useStreak();
   const DAYS = Array.from({ length: 7 }, (_, i) => i < streak);
 
@@ -26,7 +28,7 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
           unstyled
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("close")}
           className="absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/20 active:scale-90"
         >
           <X className="h-5 w-5" />
@@ -35,11 +37,8 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
         <span className="animate-floaty from-amber grid h-28 w-28 place-items-center rounded-full bg-gradient-to-br to-orange-500 text-white shadow-[0_0_60px_rgba(244,169,59,0.6)]">
           <Flame className="h-14 w-14" />
         </span>
-        <h2 className="mt-8 text-3xl font-bold text-white">{streak}-day streak!</h2>
-        <p className="mt-2 max-w-xs text-white/70">
-          You&apos;ve learned something new {streak} {streak === 1 ? "day" : "days"} in a row. Keep
-          the fire going.
-        </p>
+        <h2 className="mt-8 text-3xl font-bold text-white">{t("title", { count: streak })}</h2>
+        <p className="mt-2 max-w-xs text-white/70">{t("body", { count: streak })}</p>
 
         <div className="mt-6 flex gap-2">
           {DAYS.map((on, i) => (
@@ -61,7 +60,7 @@ export function StreakMoment({ open, onClose }: { open: boolean; onClose: () => 
           onClick={onClose}
           className="text-ink mt-8 w-full rounded-xl bg-white py-3.5 font-semibold transition-transform hover:bg-white/90 active:scale-[0.99]"
         >
-          Keep it going
+          {t("cta")}
         </Button>
       </div>
     </div>

@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Link from "next/link";
+import Link, { stripLocale } from "@/i18n/Link";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
-import { ExternalLink, Globe } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import SearchBar from "../home/SearchBar";
 import { Logo } from "./Logo";
+import { LanguageMenu } from "./LanguageMenu";
 import ProfileMenu from "./ProfileMenu";
 import { StreakButton } from "@/features/streak";
 import { AdminLogoutButton } from "@/features/admin";
@@ -20,10 +22,12 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const { data: session, status } = useSession();
   const pathname = usePathname();
+  const path = stripLocale(pathname);
   const openAuth = useAuthModal((s) => s.openAuth);
+  const t = useTranslations();
   // On the admin CMS the shared header swaps its consumer controls (nav, search,
   // streak) for the CMS ones (badge, "View app", session info, log out).
-  const onAdmin = pathname.startsWith("/admin");
+  const onAdmin = path.startsWith("/admin");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -65,17 +69,17 @@ export default function Navbar() {
             {!onAdmin && (
               <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm md:flex">
                 {SITE.nav.map((item) => {
-                  const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                  const active = path === item.href || path.startsWith(`${item.href}/`);
                   return (
                     <li key={item.href}>
-                      <a
+                      <Link
                         href={item.href}
                         className={`underline-anim ${
                           active ? "text-ink font-medium" : "hover:text-ink"
                         }`}
                       >
-                        {item.label}
-                      </a>
+                        {t(`nav.${item.href.slice(1)}` as "nav.feed")}
+                      </Link>
                     </li>
                   );
                 })}
@@ -87,14 +91,15 @@ export default function Navbar() {
                 <>
                   {session?.user?.name && (
                     <span className="text-muted text-sm whitespace-nowrap max-md:hidden">
-                      Signed in as <span className="text-ink font-medium">{session.user.name}</span>
+                      {t("nav.signedInAs")}{" "}
+                      <span className="text-ink font-medium">{session.user.name}</span>
                     </span>
                   )}
                   <Link
                     href="/feed"
                     className="text-violet hover:bg-lavender flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors"
                   >
-                    View app
+                    {t("nav.viewApp")}
                     <ExternalLink className="h-3.5 w-3.5" aria-hidden />
                   </Link>
                   <AdminLogoutButton />
@@ -102,14 +107,9 @@ export default function Navbar() {
               ) : (
                 <>
                   <SearchBar />
-                  <Button
-                    unstyled
-                    className="text-ink/80 hover:text-ink hidden items-center gap-1.5 text-sm transition-colors md:flex"
-                    aria-label="Select language"
-                  >
-                    <Globe size={16} />
-                    EN
-                  </Button>
+                  <div className="hidden md:flex">
+                    <LanguageMenu />
+                  </div>
                   {status === "authenticated" && (
                     <>
                       <StreakButton />
@@ -125,7 +125,7 @@ export default function Navbar() {
                       onClick={() => openAuth("login")}
                       className="shadow-soft hover:shadow-glow rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300"
                     >
-                      Log in
+                      {t("nav.login")}
                     </Button>
                   )}
                 </>

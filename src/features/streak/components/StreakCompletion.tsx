@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslations } from "@/i18n/client";
 import { BookmarkCheck, X } from "lucide-react";
 import { useStreak } from "../useStreak";
 import { StreakFlame } from "./StreakFlame";
@@ -24,6 +25,7 @@ export function StreakCompletion({
   onNextStudybook,
   onBackToFeed,
 }: StreakCompletionProps) {
+  const t = useTranslations("features_streak_components_StreakCompletion");
   const { markToday, streak } = useStreak();
 
   useScrollLock(open);
@@ -49,7 +51,7 @@ export function StreakCompletion({
       className="fixed inset-0 z-[80] grid place-items-center p-4"
       role="dialog"
       aria-modal="true"
-      aria-label="Studybook complete"
+      aria-label={t("dialogLabel")}
     >
       <div className="fade-in absolute inset-0 bg-black/50" onClick={onClose} />
 
@@ -57,7 +59,7 @@ export function StreakCompletion({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("close")}
           className="absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20 active:scale-90"
         >
           <X className="h-5 w-5" />
@@ -66,19 +68,19 @@ export function StreakCompletion({
         <StreakFlame size={80} />
 
         <p className="mt-6 text-xs font-semibold tracking-[0.18em] text-white/55 uppercase">
-          Studybook complete
+          {t("eyebrow")}
         </p>
         <h1 className="font-display mt-2 text-3xl leading-tight font-bold text-white">
-          Nice — {cardsLearned ?? 0} cards learned!
+          {t("heading", { count: cardsLearned ?? 0 })}
         </h1>
 
         <div className="mt-5 flex flex-wrap items-center justify-center gap-2">
           <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-            🔥 Streak +1 · now {streak}
+            {t("streakBadge", { streak })}
           </span>
           {cardsLearned != null && (
             <span className="rounded-full bg-white/10 px-4 py-1.5 text-sm font-semibold">
-              📚 +{cardsLearned} cards
+              {t("cardsBadge", { count: cardsLearned })}
             </span>
           )}
         </div>
@@ -89,21 +91,21 @@ export function StreakCompletion({
           className="text-violet-dark mt-8 flex w-full items-center justify-center gap-2 rounded-full bg-white py-3.5 font-semibold transition-transform active:scale-[0.98]"
         >
           <BookmarkCheck className="h-5 w-5" />
-          Save all to Library
+          {t("saveAll")}
         </button>
         <button
           type="button"
           onClick={onNextStudybook ?? onClose}
           className="mt-3 w-full rounded-full bg-white/10 py-3.5 font-semibold transition-transform hover:bg-white/15 active:scale-[0.98]"
         >
-          Next studybook
+          {t("nextStudybook")}
         </button>
         <button
           type="button"
           onClick={onBackToFeed ?? onClose}
           className="mt-4 py-1 text-sm font-semibold text-white/80 transition-colors hover:text-white"
         >
-          Back to feed
+          {t("backToFeed")}
         </button>
       </div>
     </div>

@@ -1,0 +1,1139 @@
+{
+  "common": {
+    "appName": "TaskuTark",
+    "search": "Otsi",
+    "searchPlaceholder": "Otsi õpiraamatuid, teemasid…",
+    "language": "Keel",
+    "continue": "Jätka",
+    "cancel": "Tühista",
+    "save": "Salvesta",
+    "close": "Sulge",
+    "loading": "Laadimine…"
+  },
+  "nav": {
+    "feed": "Voog",
+    "explore": "Avasta",
+    "library": "Raamatukogu",
+    "profile": "Profiil",
+    "more": "Rohkem",
+    "login": "Logi sisse",
+    "logout": "Logi välja",
+    "signedInAs": "Sisse logitud kui",
+    "viewApp": "Vaata rakendust",
+    "adminDashboard": "Halduspaneel",
+    "viewProfile": "Vaata profiili"
+  },
+  "auth": {
+    "welcomeBack": "Tere tulemast tagasi",
+    "welcomeSubtitle": "Jätka sealt, kus pooleli jäid.",
+    "createTitle": "Loo oma konto",
+    "createSubtitle": "Alusta igapäevast õpiharjumust mõne minutiga.",
+    "name": "Nimi",
+    "email": "E-post",
+    "password": "Parool",
+    "namePlaceholder": "Sinu nimi",
+    "emailPlaceholder": "Sisesta oma e-post",
+    "loginPasswordPlaceholder": "Sisesta oma parool",
+    "signupPasswordPlaceholder": "Loo parool",
+    "forgotPassword": "Unustasid parooli?",
+    "continueButton": "Jätka",
+    "createButton": "Loo konto",
+    "or": "või",
+    "continueWithGoogle": "Jätka Google'iga",
+    "newHere": "Uus siin?",
+    "createAccountLink": "Loo konto",
+    "haveAccount": "Kas sul on juba konto?",
+    "loginLink": "Logi sisse",
+    "resetTitle": "Lähtesta oma parool",
+    "resetSubtitle": "Sisesta oma e-post ja saadame sulle lingi juhistega parooli lähtestamiseks.",
+    "requestReset": "Küsi uus parool",
+    "checkEmailTitle": "Kontrolli oma e-posti",
+    "checkEmailBody": "Kui konto aadressiga {email} on olemas, saatsime lingi parooli lähtestamiseks.",
+    "useDifferentEmail": "Kasuta teist e-posti",
+    "backToLogin": "Tagasi sisselogimisse",
+    "rememberPassword": "Kas mäletad oma parooli?"
+  },
+  "app_app_explore_subject_page": {
+    "metadataFallback": "Õppeaine",
+    "backToExplore": "Tagasi avastamise juurde"
+  },
+  "app_app_explore_page": {
+    "metadataTitle": "Avasta"
+  },
+  "app_app_explore_search_page": {
+    "title": "Otsing",
+    "subjects": "Ained",
+    "studybooks": "Õpikud",
+    "studybites": "Õpiampsud",
+    "recent": "Hiljutised",
+    "suggested": "Soovitatud",
+    "browseSubjects": "Sirvi aineid",
+    "noMatches": "Päringule „{query}“ vasteid ei leitud",
+    "noMatchesHint": "Proovi ainet, õpiku pealkirja või üldisemat sõna."
+  },
+  "app_app_feed_slug_page": {
+    "fallbackTitle": "Voog — TaskuTark",
+    "fallbackDescription": "Sirvi ampsusuuruseid õpikukaarte, üks teadmine korraga.",
+    "cardTitle": "{title} — {book} | StudyBooks"
+  },
+  "app_studybook_slug_page": {
+    "metadataTitle": "Õpik",
+    "breadcrumb": "Õpik",
+    "bookCover": "raamatu kaas",
+    "byAuthor": "autor {author} · {year}",
+    "cardsMinutes": "{count} kaarti · ~{minutes} min",
+    "startLearning": "Alusta õppimist",
+    "preview": "Eelvaade",
+    "aboutTitle": "Selle õpiku kohta",
+    "cardsPreview": "Kaartide eelvaade",
+    "all": "Kõik {count}",
+    "youMayAlsoLike": "Sulle võib meeldida ka",
+    "more": "Rohkem",
+    "cover": "kaas",
+    "free": "Tasuta",
+    "preschool": "Koolieelne",
+    "gymnasium": "Gümnaasium",
+    "grade": "{grade}. klass"
+  },
+  "components_account_LogoutButton": {
+    "logOut": "Logi välja"
+  },
+  "components_account_PremiumBanner": {
+    "title": "Vali Premium",
+    "subtitle": "Ava kõik õpikud ja võrguühenduseta režiim."
+  },
+  "components_account_ProfileHeader": {
+    "editProfile": "Muuda profiili"
+  },
+  "components_auth_AuthHeader": {
+    "close": "Sulge"
+  },
+  "components_auth_AuthModal": {
+    "close": "Sulge"
+  },
+  "components_auth_ForgotPasswordFace": {
+    "backToLogin": "Tagasi sisselogimisse",
+    "sentTitle": "Kontrolli oma e-posti",
+    "sentBody": "Kui aadressil <email></email> on konto olemas, saatsime sulle lingi parooli lähtestamiseks.",
+    "useDifferentEmail": "Kasuta teist e-posti aadressi",
+    "resetTitle": "Lähtesta oma parool",
+    "resetSubtitle": "Sisesta oma e-posti aadress ja saadame sulle juhistega lingi parooli lähtestamiseks.",
+    "emailLabel": "E-post",
+    "emailPlaceholder": "Sisesta oma e-posti aadress",
+    "requestNewPassword": "Küsi uus parool",
+    "rememberPassword": "Kas mäletad oma parooli?",
+    "login": "Logi sisse"
+  },
+  "components_auth_LoginFace": {
+    "title": "Tere tulemast tagasi",
+    "subtitle": "Jätka oma seeriat sealt, kus pooleli jäid.",
+    "emailLabel": "E-post",
+    "emailPlaceholder": "Sisesta oma e-posti aadress",
+    "passwordLabel": "Parool",
+    "passwordPlaceholder": "Sisesta oma parool",
+    "forgotPassword": "Unustasid parooli?",
+    "continue": "Jätka",
+    "continueWithGoogle": "Jätka Google'iga",
+    "newHere": "Oled uus siin?",
+    "createAccount": "Loo konto"
+  },
+  "components_auth_OrDivider": {
+    "or": "või"
+  },
+  "components_auth_PasswordField": {
+    "label": "Parool",
+    "show": "Näita parooli",
+    "hide": "Peida parool"
+  },
+  "components_auth_SignupFace": {
+    "title": "Loo oma konto",
+    "subtitle": "Alusta oma igapäevast õpiharjumust vaid mõne minutiga.",
+    "nameLabel": "Nimi",
+    "namePlaceholder": "Sinu nimi",
+    "emailLabel": "E-post",
+    "emailPlaceholder": "Sisesta oma e-post",
+    "passwordLabel": "Parool",
+    "passwordPlaceholder": "Loo parool",
+    "submit": "Loo konto",
+    "continueGoogle": "Jätka Google'iga",
+    "haveAccount": "Kas sul on juba konto?",
+    "login": "Logi sisse"
+  },
+  "components_feed_ActionRail": {
+    "share": "Jaga",
+    "openBook": "Ava õpik",
+    "loginToSave": "Salvestamiseks ja meeldimiseks logi sisse",
+    "loginToLearn": "Õppimise alustamiseks logi sisse"
+  },
+  "components_feed_FeedCard": {
+    "didYouKnow": "Kas teadsid",
+    "byline": "autor {author} · {subject}",
+    "openBook": "Ava {title}"
+  },
+  "components_feed_FeedScreen": {
+    "carouselLabel": "Õppekaartide voog",
+    "loading": "Õppekaartide laadimine…",
+    "cardPosition": "Kaart {index} / {total}: {title}",
+    "emptyTitle": "Ükski kaart ei vasta sinu filtritele",
+    "emptyBody": "Eemalda mõni filter, et näha rohkem kaarte.",
+    "editFilters": "Muuda filtreid",
+    "clearFilters": "Tühjenda filtrid"
+  },
+  "components_feed_FeedTopBar": {
+    "forYou": "Sinu jaoks",
+    "filterFeed": "Filtreeri voogu"
+  },
+  "components_feed_NavControls": {
+    "previousCard": "Eelmine kaart",
+    "nextCard": "Järgmine kaart"
+  },
+  "components_feed_SideActions": {
+    "like": "Meeldib",
+    "share": "Jaga",
+    "save": "Salvesta",
+    "linkCopied": "Link kopeeritud"
+  },
+  "components_feed_StudyCard": {
+    "cardProgress": "Kaart {current}/{total}"
+  },
+  "components_feed_StudybookReader": {
+    "backToStudybook": "Tagasi õpikusse",
+    "cardProgress": "Kaart {current}/{total}",
+    "nextCard": "Järgmine kaart",
+    "swipeHint": "Pühi üles · järgmine kaart",
+    "saved": "Salvestatud",
+    "save": "Salvesta"
+  },
+  "components_home_AnimatedFeed": {
+    "didYouKnow": "Kas teadsid",
+    "like": "Meeldib",
+    "bookmark": "Järjehoidja",
+    "share": "Jaga",
+    "catPhysics": "Füüsika",
+    "catBiology": "Bioloogia",
+    "catHistory": "Ajalugu",
+    "catPsychology": "Psühholoogia",
+    "fact1": "Päikesevalgus on sinuni jõudes 8½ minutit vana.",
+    "fact2": "Kaheksajalgadel on kolm südant ja sinine veri.",
+    "fact3": "Suurt Hiina müüri ei ole kosmosest näha.",
+    "fact4": "Harjumused tekivad kiiremini, kui siduda need olemasoleva rutiiniga.",
+    "book1": "Igapäevane astronoomia",
+    "book2": "Elu mere all",
+    "book3": "Müüdid, mida usume",
+    "book4": "Harjumuse kuju"
+  },
+  "components_home_AnimatedHeadline": {
+    "headline1": "Õpi midagi uut sama kiiresti, kui jõuad kerida.",
+    "headline2": "Mõista keerulisi ideid sekunditega, mitte tundidega.",
+    "headline3": "Omanda mõisted kiiresti, üks kaart korraga.",
+    "headline4": "Kujunda lugemisharjumus, mis tõesti püsib."
+  },
+  "components_home_FeatureCards": {
+    "card1Title": "Väikesed kaardid",
+    "card1Body": "Õpi kiirete viiesekundiliste teadmiste abil, mis on loodud meeldejäävaks ja igal ajal hõlpsasti üle vaadatavaks.",
+    "card2Title": "Tuhandeid õpiraamatuid",
+    "card2Body": "Sukeldu rikkalikku raamatukogusse, kus raamatud on kujundatud selgeteks ja interaktiivseteks õpikaartideks.",
+    "card3Title": "Õpi igas seadmes",
+    "card3Body": "Jätka õppimist sujuvalt telefonis, tahvelarvutis ja veebis ilma edu kaotamata.",
+    "card4Title": "Õppige koos",
+    "card4Body": "Tee koostööd sõpradega, jaga õpipakke ja püsi motiveerituna sõbralike väljakutsete kaudu.",
+    "card5Title": "Teeni õppides",
+    "card5Body": "Ava märke, kogu kogemust ja tähista igat verstaposti kogu õpiteekonna jooksul.",
+    "card6Title": "Hoia oma seeriat",
+    "card6Body": "Kujunda püsivad õpiharjumused igapäevaste meeldetuletuste, seeriate ja motiveeriva edu jälgimise abil."
+  },
+  "components_home_Hero": {
+    "badge": "Väikeste tükkidena õppimine",
+    "subtitle": "Vertikaalne voog lühikesi ja kaunilt kujundatud kaarte, mis on loodud päris õpiraamatute põhjal. Salvesta oluline. Kujunda igapäevane harjumus.",
+    "getStarted": "Alusta",
+    "seeFeed": "Vaata voogu",
+    "howItWorks": "Kuidas see töötab",
+    "socialProof": "12 000+ õppijat, kes ehitavad seeriaid"
+  },
+  "components_home_NoiseHero": {
+    "learn": "Õpi",
+    "somethingNew": "Midagi uut",
+    "tagline": "Sama ajaga, mis kulub kerimiseks."
+  },
+  "components_home_Plans": {
+    "freeName": "Tasuta",
+    "freeTagline": "Proovi järele",
+    "freeFeat1": "15 sõnakaarti päevas",
+    "freeFeat2": "2 avatud õppeainet",
+    "freeFeat3": "20 salvestatud kaarti",
+    "freeFeat4": "Reklaamid seansside vahel",
+    "scholarName": "Õppur",
+    "scholarTagline": "Püsivate õpiharjumuste jaoks",
+    "scholarFeat1": "Piiramatud sõnakaardid",
+    "scholarFeat2": "Kõik õppeained avatud",
+    "scholarFeat3": "Piiramatult salvestatud kaarte",
+    "scholarFeat4": "Reklaamivaba, alati",
+    "scholarFeat5": "Õpikud võrguühenduseta",
+    "geniusName": "Geenius",
+    "geniusTagline": "Eksaminädala rassimiseks",
+    "geniusFeat1": "Kõik Õppuri funktsioonid",
+    "geniusFeat2": "Isiklikud õppekavad",
+    "geniusFeat3": "Edenemise analüütika",
+    "geniusFeat4": "Prioriteetne tugi",
+    "geniusFeat5": "Varajane juurdepääs uutele õppeainetele",
+    "savePercent": "Säästa {pct}%",
+    "premium": "Premium",
+    "title": "Õpi rohkem, unusta vähem",
+    "subtitle": "Vali plaan, mis peab sammu sellega, kuidas sa tegelikult õpid. Tühista igal ajal.",
+    "monthly": "Kuus",
+    "yearly": "Aastas",
+    "mostPopular": "Kõige populaarsem",
+    "perMonthMonthly": "/kuus",
+    "perMonthYearly": "/kuus, arveldatakse kord aastas",
+    "currentPlan": "Praegune plaan",
+    "choose": "Vali {name}"
+  },
+  "app_app_library_page": {
+    "title": "Raamatukogu",
+    "tabCards": "Salvestatud kaardid",
+    "tabStudybooks": "Õpikud",
+    "filterSaved": "Salvestatud",
+    "filterLiked": "Meeldib",
+    "emptyCardsTitle": "Salvestatud kaarte veel pole",
+    "emptyBooksTitle": "Õpikuid veel pole",
+    "emptyLoggedOutBody": "Logi sisse, et salvestada voost kaarte ja leida need siit.",
+    "emptyBody": "Puuduta ükskõik millise kaardi järjehoidjat, et see hilisemaks siia salvestada.",
+    "login": "Logi sisse",
+    "goToFeed": "Mine voogu",
+    "removeAria": "Eemalda {heading}"
+  },
+  "app_app_profile_achievements_page": {
+    "metaTitle": "Saavutused"
+  },
+  "app_app_profile_invite_page": {
+    "metaTitle": "Kutsu sõpru"
+  },
+  "app_app_profile_page": {
+    "metaTitle": "Profiil"
+  },
+  "components_home_SearchBar": {
+    "placeholder": "Otsi õpikuid, aineid…",
+    "ariaLabel": "Otsi õpikuid, aineid"
+  },
+  "components_home_StackingStudyBites": {
+    "pricePrefix": "alates"
+  },
+  "components_home_SubjectGrid": {
+    "items": "{count} õppematerjali"
+  },
+  "components_home_SubjectReveal": {
+    "learn": "Õpi",
+    "somethingNew": "Midagi uut",
+    "scrollTagline": "Sama ajaga, mis kulub kerimiseks.",
+    "exploreBySubject": "Avasta õppeainete kaupa",
+    "diveIn": "Sukeldu {count} õppeainesse",
+    "more": "veel {count}",
+    "close": "Sulge",
+    "items": "{count} õppematerjali"
+  },
+  "components_home_UniverseCarousel": {
+    "from": "alates",
+    "freshlyDigitized": "Värskelt digiteeritud"
+  },
+  "components_home_page": {
+    "bitesTitle": "Uued õpipalad",
+    "bitesSubtitle": "Õpipalad aitavad sul keskenduda ühele kindlale teemale.",
+    "moreBites": "Rohkem palasid",
+    "digitizedTitle": "Värskelt digiteeritud",
+    "digitizedSubtitle": "Digitaalsed õpikud ja töövihikud — õpi kõikjal ja igal ajal.",
+    "allEbooks": "Kõik e-raamatud"
+  },
+  "components_layout_BackButton": {
+    "back": "Tagasi"
+  },
+  "components_layout_BottomNav": {
+    "home": "Avaleht",
+    "explore": "Avasta",
+    "library": "Raamatukogu",
+    "profile": "Profiil"
+  },
+  "components_layout_Footer": {
+    "headline": "Muuda <wasted>raisatud</wasted> minutid<br></br>millekski, mida<br></br>sa <keep>tõesti alles hoiad</keep>",
+    "cta": "Liitu enam kui <b>10M+ inimesega</b>, kes vahetasid uudisvoo väikeste õpiraamatute vastu. Alusta tasuta.",
+    "downloadOn": "Laadi alla",
+    "appStore": "App Store",
+    "getItOn": "Saadaval",
+    "googlePlay": "Google Play",
+    "statMinutes": "<b>3 min</b> päevas",
+    "statStudybooks": "<b>18k+</b> õpiraamatut",
+    "statRating": "<b>4.9★</b> App Store",
+    "terms": "Tingimused",
+    "privacy": "Privaatsus",
+    "contact": "Kontakt",
+    "about": "Meist"
+  },
+  "components_layout_ProfileMenu": {
+    "profile": "Profiil",
+    "you": "Sina",
+    "viewProfile": "Vaata profiili",
+    "adminDashboard": "Administraatori töölaud",
+    "logOut": "Logi välja"
+  },
+  "components_layout_ScrollToTop": {
+    "scrollToTop": "Keri üles"
+  },
+  "components_layout_TopNav": {
+    "searchPlaceholder": "Otsi õpikuid, aineid…",
+    "login": "Logi sisse"
+  },
+  "components_onboarding_OnboardingFlow": {
+    "startLearning": "Alusta õppimist",
+    "continue": "Jätka"
+  },
+  "components_onboarding_OnboardingHeader": {
+    "goBack": "Tagasi",
+    "stepOf": "Samm {current}/{total}",
+    "goForward": "Edasi",
+    "skip": "Jäta vahele"
+  },
+  "components_onboarding_StepDailyGoal": {
+    "title": "Sea päevane eesmärk",
+    "subtitle": "Väike ja püsiv edu. Muuda seda hiljem.",
+    "unit": "kaarti / päevas",
+    "reminderTitle": "Igapäevane meeldetuletus",
+    "reminderBody": "Väike müks kell 19, et seeria püsiks.",
+    "illustrationCaption": "3D seeria / kalendri illustratsioon"
+  },
+  "components_onboarding_StepGrade": {
+    "title": "Mitmendas klassis sa käid?",
+    "subtitle": "Häälestame su voo õigele tasemele.",
+    "groupLabel": "Klass"
+  },
+  "components_onboarding_StepInterests": {
+    "title": "Vali oma huvid",
+    "subtitle": "Vali vähemalt {min}. Lisa juurde igal ajal.",
+    "groupLabel": "Huvid",
+    "remaining": "veel <b>{count}</b> valida",
+    "selected": "<b>{count}</b> valitud"
+  },
+  "components_ui_ConfirmDialog": {
+    "confirm": "Kinnita",
+    "cancel": "Tühista"
+  },
+  "components_ui_Pagination": {
+    "resultsPages": "Tulemuste lehed",
+    "previousPage": "Eelmine leht",
+    "nextPage": "Järgmine leht",
+    "page": "Leht {number}"
+  },
+  "app_app_profile_settings_section_page": {
+    "settings": "Seaded"
+  },
+  "app_app_profile_settings_page": {
+    "title": "Seaded"
+  },
+  "app_auth_forgot_password_page": {
+    "title": "Lähtesta parool"
+  },
+  "components_ui_SubjectCard": {
+    "itemsCount": "{count} üksust"
+  },
+  "components_ui_Toaster": {
+    "dismiss": "Sulge"
+  },
+  "features_achievements_components_AchievementsCard": {
+    "title": "Saavutused",
+    "unlockedCount": "{unlocked} / {total} avatud"
+  },
+  "features_achievements_components_AchievementsView": {
+    "title": "Saavutused",
+    "unlockedCount": "{unlocked} / {total} avatud",
+    "unlockedHeading": "Avatud",
+    "lockedHeading": "Lukustatud"
+  },
+  "features_admin_components_AdminLogoutButton": {
+    "logout": "Logi välja"
+  },
+  "features_admin_components_AdminSidebar": {
+    "ariaLabel": "Administraatori jaotised",
+    "dashboard": "Töölaud",
+    "studybooks": "Õpikud",
+    "subjects": "Ained",
+    "users": "Kasutajad"
+  },
+  "features_admin_components_AdminTopbar": {
+    "signedInAs": "Sisse logitud kasutajana <name>{value}</name>",
+    "viewApp": "Ava rakendus"
+  },
+  "features_admin_components_CardEditor": {
+    "cardsAriaLabel": "Killukaardid",
+    "title": "Killukaardid ({count})",
+    "subtitle": "Selle õpiku libistatavad voo kaardid lugemise järjekorras.",
+    "addCard": "Lisa kaart",
+    "emptyTitle": "Kaarte pole veel",
+    "emptyBody": "Lisa esimene killukaart — üherealine mõte koos paari toetava reaga.",
+    "cardLabel": "Kaart {number}",
+    "moveUp": "Liiguta kaart {number} üles",
+    "moveDown": "Liiguta kaart {number} alla",
+    "deleteCard": "Kustuta kaart {number}",
+    "headingPlaceholder": "Pealkiri — üherealine mõte",
+    "headingAriaLabel": "Kaardi {number} pealkiri",
+    "bodyPlaceholder": "2–4 lühikest toetavat rida",
+    "bodyAriaLabel": "Kaardi {number} sisu",
+    "saveCards": "Salvesta kaardid",
+    "saved": "Salvestatud",
+    "unsavedChanges": "Salvestamata muudatused",
+    "validationError": "Iga kaart vajab pealkirja ja sisuteksti.",
+    "genericError": "Midagi läks valesti — proovi uuesti."
+  },
+  "features_admin_components_StudybookFilters": {
+    "filterBySubject": "Filtreeri aine järgi",
+    "allSubjects": "Kõik ained",
+    "filterByGrade": "Filtreeri klassi järgi",
+    "allGrades": "Kõik klassid"
+  },
+  "features_admin_components_StudybookForm": {
+    "genericError": "Midagi läks valesti — proovi uuesti.",
+    "titleLabel": "Pealkiri",
+    "titlePlaceholder": "nt Väga tõsine lumememme lugu",
+    "authorLabel": "Autor",
+    "authorPlaceholder": "nt Johanna Unt",
+    "yearLabel": "Aasta",
+    "categoryLabel": "Kategooria",
+    "categoryPlaceholder": "nt õpik, romaan, õppejuhend",
+    "subjectLabel": "Aine",
+    "subjectPlaceholder": "Vali aine…",
+    "gradeLabel": "Klass",
+    "gradePlaceholder": "Vali klass…",
+    "coverLabel": "Kaanepildi URL",
+    "coverHint": "Valikuline — kuvatakse kataloogi kaartidel.",
+    "priceLabel": "Hind (EUR)",
+    "priceHint": "Jäta tühjaks tasuta õpperaamatu jaoks.",
+    "synopsisLabel": "Sisukokkuvõte",
+    "synopsisPlaceholder": "Millest see õpperaamat räägib ja kellele see mõeldud on?",
+    "saveChanges": "Salvesta muudatused",
+    "createStudybook": "Loo õpperaamat",
+    "backToStudybooks": "Tagasi õpperaamatute juurde",
+    "saved": "Salvestatud"
+  },
+  "features_admin_components_StudybookRowActions": {
+    "genericError": "Midagi läks valesti — proovi uuesti.",
+    "editAria": "Muuda {title}",
+    "deleteAria": "Kustuta {title}",
+    "confirmTitle": "Kas kustutada „{title}“?",
+    "confirmDescription": "See eemaldab õpperaamatu ja kõik selle kaardid. Seda ei saa tagasi võtta.",
+    "confirmLabel": "Kustuta"
+  },
+  "features_admin_components_StudybookTable": {
+    "title": "Pealkiri",
+    "subject": "Aine",
+    "grade": "Klass",
+    "cards": "Kaardid",
+    "price": "Hind",
+    "actions": "Toimingud",
+    "free": "Tasuta"
+  },
+  "features_explore_components_ActiveFilters": {
+    "clearAll": "Tühjenda kõik"
+  },
+  "features_explore_components_CoverCard": {
+    "free": "Tasuta",
+    "bookCover": "raamatu kaas",
+    "cards": "{count, plural, one {# kaart} other {# kaarti}}",
+    "minutes": "~ {count} min",
+    "open": "Ava"
+  },
+  "features_explore_components_ExploreView": {
+    "title": "Avasta",
+    "search": "Otsi",
+    "catalogContent": "Kataloogi sisu",
+    "studybooks": "Õpiraamatud",
+    "studybites": "Õpitükid",
+    "filters": "Filtrid",
+    "gridView": "Ruudustikvaade",
+    "listView": "Loendivaade",
+    "free": "Tasuta",
+    "cards": "{count, plural, one {# kaart} other {# kaarti}}",
+    "emptyState": "Selle filtri jaoks pole veel midagi. Proovi eemaldada mõni filter."
+  },
+  "features_explore_components_FilterDrawer": {
+    "dialogLabel": "Filtreeri materjale",
+    "title": "Filtrid",
+    "close": "Sulge filtrid",
+    "showResults": "Näita {count, plural, one {# tulemust} other {# tulemust}}"
+  },
+  "features_explore_components_FilterPanel": {
+    "title": "Filtreeri materjale",
+    "resultCount": "{count} tulemust",
+    "searchPlaceholder": "Otsi filtreid…",
+    "searchAria": "Otsi filtreid",
+    "clearAll": "Tühjenda kõik ({count})",
+    "noMatch": "Ükski filter ei vasta päringule „{query}”.",
+    "collapse": "Ahenda",
+    "expand": "Laienda"
+  },
+  "features_explore_components_SearchBar": {
+    "back": "Tagasi",
+    "placeholder": "Otsi õpikuid, aineid…",
+    "clearSearch": "Tühjenda otsing"
+  },
+  "features_explore_components_SortMenu": {
+    "popular": "Populaarsed",
+    "newest": "Uusimad",
+    "az": "A–Ü"
+  },
+  "features_explore_components_StudybiteCard": {
+    "included": "Sisaldub"
+  },
+  "features_explore_components_SubjectBooks": {
+    "count": "{count, plural, one {# õpik} other {# õpikut}}",
+    "filterMaterials": "Filtreeri materjale",
+    "filters": "Filtrid",
+    "empty": "Selle filtri jaoks pole veel ühtegi õpikut."
+  },
+  "features_explore_components_SubjectCard": {
+    "itemsCount": "{count} üksust"
+  },
+  "features_explore_components_SubjectRail": {
+    "title": "Ained",
+    "more": "Veel ({count})",
+    "seeLess": "Näita vähem",
+    "seeMore": "Näita rohkem ({count})",
+    "chooseSubjects": "Vali ained",
+    "closeSubjects": "Sulge ained",
+    "done": "Valmis",
+    "doneCount": "Valmis · {count} valitud"
+  },
+  "features_profile_components_InviteView": {
+    "shareMessage": "Liitu minuga {name}-s — pisikeste õppetükkide kaupa õppimine, mille sa päriselt lõpetad. {url}",
+    "title": "{name} on sõpradega parem!",
+    "subtitle": "Saada sõpradele kutseid, et luua koos igapäevane õpiharjumus.",
+    "inviteVia": "Kutsu kaudu",
+    "textMessage": "Tekstisõnum",
+    "copied": "Kopeeritud!",
+    "copyLink": "Kopeeri link",
+    "others": "Muud"
+  },
+  "features_profile_components_Paywall": {
+    "close": "Sulge",
+    "featEverything": "Kõik õpikud ja õpihamps",
+    "featSaves": "Piiramatu salvestamine ja kogud",
+    "featOffline": "Võrguühenduseta lugemine",
+    "featAudio": "Kuula helikaartidega",
+    "unlockTitle": "Ava kõik õpikud",
+    "unlockSubtitle": "See on Premium. Mine piiramatuks ja hoia seeria kasvamas.",
+    "annual": "Aastane",
+    "annualNote": "7-päevane tasuta prooviperiood",
+    "save40": "Säästa 40%",
+    "monthly": "Kuine",
+    "monthlyNote": "Tühista igal ajal",
+    "perMonth": "/kuus",
+    "startTrial": "Alusta 7-päevast tasuta prooviperioodi",
+    "goPremium": "Mine Premiumile",
+    "renewNote": "Seejärel 1.90€/kuus · Tühista igal ajal ·",
+    "restore": "Taasta",
+    "premiumTitle": "Sul on Premium!",
+    "premiumSubtitle": "Kõik õpikud on avatud ja salvestamine on piiramatu. Aeg sukelduda.",
+    "annualRenews": "Aastane pakett · uueneb 1. juuli 2027",
+    "monthlyRenews": "Kuine pakett · uueneb 1. juuli 2027",
+    "savesActive": "Piiramatu salvestamine aktiivne",
+    "offlineOn": "Võrguühenduseta lugemine sees",
+    "startLearning": "Alusta õppimist"
+  },
+  "features_profile_components_ProfileView": {
+    "title": "Profiil",
+    "settings": "Seaded",
+    "editProfile": "Muuda profiili",
+    "dayStreak": "{count}-päevane seeria",
+    "statCardsLearned": "Õpitud kaarte",
+    "statDayStreak": "Päevaseeria",
+    "statCompleted": "Lõpetatud",
+    "goPremium": "Mine Premiumile",
+    "goPremiumSubtitle": "Ava kõik õpikud ja võrguühenduseta lugemine.",
+    "account": "Konto",
+    "notifications": "Teavitused",
+    "language": "Keel",
+    "english": "Inglise",
+    "estonian": "Eesti",
+    "russian": "Vene",
+    "logOut": "Logi välja"
+  },
+  "features_profile_components_SettingsList": {
+    "deleteConfirm": "Kustutada sinu konto? Seda ei saa tagasi võtta."
+  },
+  "features_profile_components_StreakMoment": {
+    "close": "Sulge",
+    "title": "{count}-päevane seeria!",
+    "body": "Oled õppinud midagi uut {count, plural, one {# päev} other {# päeva}} järjest. Hoia leek põlemas.",
+    "cta": "Jätka samas vaimus"
+  },
+  "app_auth_login_page": {
+    "title": "Logi sisse"
+  },
+  "app_auth_signup_page": {
+    "title": "Registreeru"
+  },
+  "features_profile_components_settings_AppIconSettings": {
+    "defaultLabel": "Vaikimisi",
+    "defaultDesc": "Meie uusim ikoonikujundus",
+    "streakLabel": "Täies hoos!",
+    "streakDesc": "Avaneb 7-päevase seeriaga",
+    "proLabel": "Tunne end profina",
+    "proDesc": "Avaneb Pro-tellimusega"
+  },
+  "features_profile_components_settings_AppPreferences": {
+    "appearance": "Välimus",
+    "theme_system": "Süsteem",
+    "theme_light": "Hele",
+    "theme_dark": "Tume",
+    "oledTitle": "Tume OLED-teema",
+    "oledSubtitle": "Kasuta väga tumedat teemat tumeda režiimi valimisel või kui süsteemiseaded tuvastavad tumeda režiimi",
+    "readingAnimTitle": "Lugemisanimatsioon",
+    "readingAnimSubtitle": "Luba lugemise ajal taustal eesriide animatsioon",
+    "soundsTitle": "Helid",
+    "soundsSubtitle": "Luba rakendusesisesed helid",
+    "vibrationsTitle": "Vibratsioonid",
+    "vibrationsSubtitle": "Luba vibratsioonid põhitegevuste jaoks",
+    "autoScrollTitle": "Automaatne kerimine",
+    "autoScrollSubtitle": "Keri esimese lugemata mõtteni",
+    "screenshotTitle": "Näita ekraanipildi sahtlit",
+    "screenshotSubtitle": "Näita pärast ekraanipildi tegemist jagamisvalikutega sahtlit.",
+    "readSpeedTitle": "Lugemiskiirus",
+    "readSpeedSubtitle": "Muuda lugemisanimatsiooni kiirust",
+    "listenSpeedTitle": "Kuulamiskiirus",
+    "listenSpeedSubtitle": "Muuda heli esitamise kiirust"
+  },
+  "features_profile_components_settings_EmailSettings": {
+    "dailyTitle": "Igapäevased soovitused",
+    "dailySubtitle": "Soovitatud lood ja mõjukad mõtted",
+    "weeklyTitle": "Nädala edenemine",
+    "weeklySubtitle": "Ülevaade sinu lugemisharjumustest ja salvestatud mõtetest",
+    "productTitle": "Tooteteated",
+    "productSubtitle": "Uued funktsioonid, mis täiustavad sinu {name} kogemust"
+  },
+  "features_profile_components_settings_FollowedTopics": {
+    "suggestedTitle": "Soovitatud teemad",
+    "following": "Jälgid",
+    "follow": "Jälgi",
+    "topic_entrepreneurship": "Ettevõtlus",
+    "topic_personalDevelopment": "Eneseareng",
+    "topic_productivity": "Produktiivsus",
+    "topic_timeManagement": "Ajajuhtimine",
+    "topic_health": "Tervis",
+    "topic_money": "Raha ja investeeringud",
+    "topic_love": "Armastus ja suhted",
+    "topic_psychology": "Psühholoogia",
+    "topic_philosophy": "Filosoofia"
+  },
+  "features_profile_components_settings_NotificationsSettings": {
+    "contentTitle": "Sisusoovitused",
+    "contentDesc": "Sinu jaoks kokku pandud igapäevased ja iganädalased ideed ning mõned meie meeskonna erakordsed soovitused",
+    "contentAria": "Sisusoovitused",
+    "newContent": "Saad uut sisu iga päev kell <b>{time}</b>.",
+    "streakTitle": "Seeria ja lugemisharjumus",
+    "streakSubtitle": "Hoia oma seeriat käigus ja võida iganädalasi lugemisväljakutseid",
+    "streakAria": "Seeria ja lugemisharjumus",
+    "deviceSettings": "Ava seadme seaded"
+  },
+  "features_profile_components_settings_PersonalInformation": {
+    "changePhoto": "Muuda fotot",
+    "profilePhoto": "Profiilifoto",
+    "remove": "Eemalda",
+    "firstName": "Eesnimi",
+    "lastName": "Perekonnanimi",
+    "email": "E-post",
+    "username": "Kasutajanimi",
+    "tapToEdit": "Puuduta mis tahes välja selle muutmiseks."
+  },
+  "features_profile_components_settings_SettingsScreen": {
+    "settings": "Seaded",
+    "comingSoon": "{label} on peagi tulemas",
+    "placeholderBody": "See ekraan ühendatakse, kui konto ja TaskuTark API-d on ühendatud."
+  },
+  "features_streak_components_StreakButton": {
+    "ariaLabel": "Lugemisseeria: {count, plural, one {# päev} other {# päeva}}"
+  },
+  "features_streak_components_StreakCalendar": {
+    "previousMonth": "Eelmine kuu",
+    "nextMonth": "Järgmine kuu",
+    "sun": "P",
+    "mon": "E",
+    "tue": "T",
+    "wed": "K",
+    "thu": "N",
+    "fri": "R",
+    "sat": "L",
+    "january": "jaanuar",
+    "february": "veebruar",
+    "march": "märts",
+    "april": "aprill",
+    "may": "mai",
+    "june": "juuni",
+    "july": "juuli",
+    "august": "august",
+    "september": "september",
+    "october": "oktoober",
+    "november": "november",
+    "december": "detsember"
+  },
+  "features_streak_components_StreakCompletion": {
+    "dialogLabel": "Õpivihik lõpetatud",
+    "close": "Sulge",
+    "eyebrow": "Õpivihik lõpetatud",
+    "heading": "Tubli — õppisid {count} kaarti!",
+    "streakBadge": "🔥 Seeria +1 · nüüd {streak}",
+    "cardsBadge": "📚 +{count} kaarti",
+    "saveAll": "Salvesta kõik teeki",
+    "nextStudybook": "Järgmine õpivihik",
+    "backToFeed": "Tagasi voogu"
+  },
+  "features_streak_components_StreakFreezesInfo": {
+    "recover": "Külmutusi kasutatakse <strong>kaotatud seeria taastamiseks</strong>.",
+    "automatic": "Kui sul on rohkem külmutusi kui vahele jäänud päevi, kasutatakse need <strong>automaatselt</strong> sinu seeria taastamiseks.",
+    "maxFreezes": "Korraga võib sul olla kuni <strong>{count} külmutust</strong>.",
+    "freezesLabel": "külmutused",
+    "pro": "PRO",
+    "proInfo": "Saad <strong>2 külmutust</strong> nädalas ja seeriaväljakutsete kaudu."
+  },
+  "features_streak_components_StreakInfoSheet": {
+    "continue": "Jätka"
+  },
+  "features_streak_components_StreakMilestones": {
+    "intro": "Seeria verstapostid teenivad sulle <strong>eksklusiivseid auhindu</strong>. Seeria kaotamine lähtestab väljakutse ja sinu auhinnad.",
+    "extraFreezes": "Verstaposti saavutamisel saad ka <strong>lisakülmutusi</strong>.",
+    "dayStreak": "{days}-päevane seeria",
+    "unlocksBadge": "Avab <strong>{badge}</strong> profiilimärgi",
+    "reachPct": "{pct}% jõuab siia",
+    "untilNext": "Järgmise auhinnani on jäänud <strong>{days, plural, one {# päev} other {# päeva}}</strong>."
+  },
+  "features_streak_components_StreakPanel": {
+    "panelLabel": "Lugemisseeria",
+    "closeLabel": "Sulge seeria",
+    "title": "Seeria verstapostid",
+    "startTitle": "Alusta oma seeriat",
+    "startBody": "Loe täna õpikut, et süüdata oma leek ja alustada seeriat.",
+    "continueReading": "Jätka lugemist",
+    "milestones": "Verstapostid",
+    "daysToMilestone": "{days, plural, one {# päev} other {# päeva}} {milestone}-päevase seeriani",
+    "milestoneDetails": "{days}-päevase verstaposti üksikasjad",
+    "maxStreakLabel": "pikim seeria",
+    "streakLabel": "seeria",
+    "freezesLabel": "külmutused",
+    "milestonesSheetTitle": "Seeria verstapostid",
+    "freezesSheetTitle": "Seeria külmutused"
+  },
+  "features_studybook_StudybookActions": {
+    "share": "Jaga",
+    "saved": "Salvestatud",
+    "save": "Salvesta",
+    "loginToSave": "Salvestamiseks logi sisse"
+  },
+  "features_studybook_StudybookPreview": {
+    "previewOf": "Raamatu {title} eelvaade",
+    "closePreview": "Sulge eelvaade",
+    "slideOf": "Slaid {current} / {total}",
+    "categoryPreview": "{category} · Eelvaade",
+    "moreCardsInside": "{count, plural, one {veel # kaart peidus} other {veel # kaarti peidus}}",
+    "previewEnd": "See oli eelvaade",
+    "unlockPrice": "Ava kogu õpiraamat hinnaga €{price}.",
+    "keepGoing": "Jätka täisvaates lugejas.",
+    "startLearning": "Alusta õppimist",
+    "previousCard": "Eelmine kaart",
+    "nextCard": "Järgmine kaart",
+    "loginToLearn": "Õppimise alustamiseks logi sisse"
+  },
+  "app_marketing_about_page": {
+    "eyebrow": "StudyBooksist",
+    "titleMain": "Usume, et õppimine ei peaks konkureerima kerimisega.",
+    "titleAccent": "Nii tegime neist ühe ja sama.",
+    "subtitle": "StudyBooks muudab päris, avaldatud õpiraamatud lühikesteks ja kauni kujundusega kaartideks — nii et need viis minutit, mille sa niikuinii kerimisele kulutad, teevad sind veidi targemaks.",
+    "statLearners": "Õppijat kogub sarju",
+    "statStudybooks": "Õpiraamatut kataloogis",
+    "statCards": "Kaarti loetakse iga päev",
+    "statStreak": "Keskmine päevane sari",
+    "daysSuffix": " päeva",
+    "valuesHeading": "Mille nimel me pingutame",
+    "value1Title": "Ampsusuurune, mitte lihtsustatud",
+    "value1Body": "Iga kaart on kirjutatud austusega sinu aja ja mõistuse vastu — viis sekundit, päris sisu.",
+    "value2Title": "Loodud harjumuseks, mitte õgimiseks",
+    "value2Body": "Optimeerime aastapikkuse igapäevase sarja jaoks, mitte nädalavahetuse mõttetu kerimise jaoks.",
+    "value3Title": "Pärit päris õpiraamatutest",
+    "value3Body": "Midagi pole välja mõeldud. Iga kaart viib tagasi päris autori, päris lehekülje ja päris mõtte juurde.",
+    "value4Title": "Loodud koos õppijatega, õppijatele",
+    "value4Body": "Meie teekaardi kujundavad inimesed, kes kasutavad StudyBooksi iga päev.",
+    "timelineHeading": "Meie senine lugu",
+    "timeline1Title": "Idee",
+    "timeline1Body": "Kaks endist õpetajat, kes olid tüdinenud vaatamast, kuidas õpilased kerivad mööda kõigest, mis on lõigust pikem, hakkasid visandama teistsugust voogu.",
+    "timeline2Title": "Esimesed 1000 kaarti",
+    "timeline2Body": "Tegime koostööd sõltumatute autoritega, et muuta päris õpiraamatud lühikesteks, struktureeritud teadmusekaartideks.",
+    "timeline3Title": "Harjumuse ring",
+    "timeline3Body": "Sarjad, meeldetuletused ja ümberkujundatud voog aitasid meie esimesel rühmal lugeda iga päev terve kuu vältel.",
+    "timeline4Title": "12 000+ õppijat",
+    "timeline4Body": "StudyBooks on nüüd igapäevane rituaal kümnetele tuhandetele uudishimulikele meeltele — ja me alles alustame.",
+    "quote": "“Me ei püüa raamatuid asendada. Me püüame olla põhjus, miks sa lõpuks ühe kätte võtad.”",
+    "quoteAuthor": "— StudyBooksi asutajmeeskond"
+  },
+  "app_marketing_contact_page": {
+    "eyebrow": "Kontakt",
+    "title": "Tere öelda. Me tõesti loeme neid.",
+    "subtitle": "Küsimused, tagasiside, koostööideed või tahad lihtsalt öelda oma praeguse sarja pikkuse? Vali allpool kanal või kasuta vormi.",
+    "channel1Title": "Kirjuta meile",
+    "channel1Body": "Koostöö, meedia või kõige jaoks, mis vajab kirjalikku jälge.",
+    "channel2Title": "Reaalajavestlus",
+    "channel2Detail": "E–R, 9–18",
+    "channel2Body": "Rakendusesisene vestlus StudyBooksi äpis saab kiireima vastuse.",
+    "channel3Title": "Stuudio",
+    "channel3Detail": "Berliin, Saksamaa",
+    "channel3Body": "Oleme väike, kaugtööle keskenduv meeskond kolmes ajavööndis.",
+    "topicGeneral": "Üldine küsimus",
+    "topicPartnership": "Koostöö",
+    "topicPress": "Meedia",
+    "topicBug": "Veateade",
+    "topicOther": "Midagi muud",
+    "successTitle": "Sõnum saadetud",
+    "successBody": "Aitäh, et ühendust võtsid — vastame tavaliselt ühe tööpäeva jooksul.",
+    "sendAnother": "Saada uus sõnum",
+    "nameLabel": "Nimi",
+    "emailLabel": "E-post",
+    "topicLabel": "Teema",
+    "messageLabel": "Sõnum",
+    "messagePlaceholder": "Räägi meile, mis sul mõttes on...",
+    "sending": "Saadan…",
+    "sendMessage": "Saada sõnum"
+  },
+  "app_marketing_privacy_page": {
+    "title": "Privaatsuspoliitika",
+    "subtitle": "Viimati uuendatud 1. juulil 2026. Siin selgitame, mida me kogume, miks ja millised valikud sul on.",
+    "s1Title": "Mida me kogume",
+    "s1Body1": "Kogume teavet, mille sa meile otse annad — sinu nimi, e-posti aadress ja lugemiseelistused, mille määrad StudyBooksi konto loomisel.",
+    "s1Body2": "Kogume automaatselt ka kasutusandmeid: milliseid kaarte loed, kui kaua nendega aega veedad ja sinu seeria ajalugu. See aitab meil koostada voo, mis tegelikult sobib sinu õppimisviisiga.",
+    "s2Title": "Kuidas me sinu teavet kasutame",
+    "s2Body1": "Sinu andmed toidavad põhitoodet: voo isikupärastamist, seeria jälgimist ja edenemise sünkroonimist eri seadmetes.",
+    "s2Body2": "Kasutame koondatud ja anonüümitud kasutusandmeid, et parandada kaartide kujundust ja otsustada, milliseid õpikuid järgmisena litsentsida. Me ei müü kunagi sinu isikuandmeid reklaamijatele.",
+    "s3Title": "Millal me teavet jagame",
+    "s3Body1": "Jagame andmeid teenusepakkujatega, kes aitavad meil StudyBooksi hallata — majutus, analüütika ja klienditoe tööriistad — lepingute alusel, mis piiravad, mida nad andmetega teha võivad.",
+    "s3Body2": "Võime teavet avaldada, kui seadus seda nõuab, või selleks, et kaitsta StudyBooksi, meie kasutajate või avalikkuse õigusi, vara või turvalisust.",
+    "s4Title": "Sinu valikud ja õigused",
+    "s4Body1": "Saad oma konto andmeid igal ajal vaadata, parandada või kustutada seadete kaudu või meiega otse ühendust võttes.",
+    "s4Body2": "Olenevalt sellest, kus sa elad, võib sul olla lisaõigusi selliste seaduste alusel nagu GDPR või CCPA — sealhulgas õigus andmete ülekantavusele ja õigus esitada vastuväiteid teatud töötlemisele.",
+    "s5Title": "Kuidas me sinu andmeid kaitseme",
+    "s5Body1": "Kasutame nii edastamisel kui ka salvestamisel valdkonna standarditele vastavat krüpteerimist ning piirame sisemist juurdepääsu isikuandmetele teadmisvajaduse põhimõttel.",
+    "s5Body2": "Ükski edastus- ega salvestusmeetod pole 100% turvaline, seega kuigi teeme sinu teabe kaitsmiseks kõvasti tööd, ei saa me täielikku turvalisust tagada.",
+    "s6Title": "Selle poliitika muudatused",
+    "s6Body1": "Uuendame seda lehte, kui meie tavad muutuvad, ning oluliste muudatuste korral anname sulle enne nende jõustumist teada e-posti või rakendusesisese teate kaudu.",
+    "questions": "Küsimusi selle poliitika kohta? Võta meiega ühendust <link>meie kontaktilehe</link> kaudu."
+  },
+  "app_marketing_terms_page": {
+    "title": "Kasutustingimused",
+    "subtitle": "Viimati uuendatud 1. juulil 2026. Lühiversioon: ole korralik, ära müü meie sisu edasi ja meie ehitame edasi su päeva parimat viit minutit.",
+    "s1Title": "1. StudyBooksi kasutamine",
+    "s1Body": "StudyBooksi konto loomiseks pead olema vähemalt 13-aastane. Vastutad oma sisselogimisandmete turvalisena hoidmise ja kõige eest, mis sinu kontol toimub. Ära kasuta StudyBooksi millekski ebaseaduslikuks ega viisil, mis häirib teenust teiste õppijate jaoks.",
+    "s2Title": "2. Sinu sisu ja meie litsents",
+    "s2Body": "Kõik märkmed, esiletõstud või loendid, mille lood, jäävad sinu omaks. StudyBooksi kasutades annad meile piiratud litsentsi selle sisu salvestamiseks ja sulle tagasi kuvamiseks ning — ainult juhul, kui otsustad seda selgesõnaliselt jagada — ka teistele kasutajatele.",
+    "s3Title": "3. Õpikute litsentsimine",
+    "s3Body": "Kaartide sisu pärineb õpikutest, mille oleme litsentsinud autoritelt ja kirjastajatelt. Sa ei tohi kaartide sisu rakendusest väljaspool kopeerida, edasi levitada ega edasi müüa. Ekraanipildid isiklikuks, mitteäriliseks jagamiseks on lubatud.",
+    "s4Title": "4. Tellimused ja arveldamine",
+    "s4Body": "Premium-paketid uuenevad iga arveldustsükli lõpus automaatselt, kui neid pole eelnevalt tühistatud. Hinnad kuvatakse maksmisel sinu kohalikus valuutas ning need võivad olemasolevate tellijate jaoks muutuda 30-päevase etteteatamisega.",
+    "s5Title": "5. Tühistamised ja tagasimaksed",
+    "s5Body": "Saad tellimuse igal ajal seadete kaudu tühistada — juurdepääs säilib jooksva arveldusperioodi lõpuni. Tagasimakseid käsitleme juhtumipõhiselt; kui midagi läks valesti, võta klienditoega ühendust 14 päeva jooksul pärast tasu võtmist.",
+    "s6Title": "6. Lõpetamine",
+    "s6Body": "Võime peatada või sulgeda kontod, mis rikuvad neid tingimusi, kuritarvitavad platvormi või üritavad kaartide sisu suures mahus välja hankida. Saad oma konto igal ajal seadete kaudu kustutada.",
+    "s7Title": "7. Vastutusest loobumine",
+    "s7Body": "StudyBooksi pakutakse „nagu on”. Teeme kõvasti tööd, et kataloog oleks täpne, kuid me ei garanteeri, et iga kokkuvõte on täielik või veatu — kaardid on mõeldud uudishimu äratamiseks, mitte terve õpiku asendamiseks.",
+    "s8Title": "8. Nende tingimuste muudatused",
+    "s8Body": "Võime neid tingimusi toote arenedes uuendada. Anname sulle olulistest muudatustest enne nende jõustumist teada e-posti või rakendusesisese teate kaudu.",
+    "questions": "Küsimusi nende tingimuste kohta? Võta meiega ühendust <link>meie kontaktilehe</link> kaudu."
+  },
+  "app_admin_error": {
+    "title": "Midagi läks valesti",
+    "description": "Adminpaneelis tekkis ootamatu viga. Proovi uuesti — kui see kordub, kontrolli serveri logisid.",
+    "tryAgain": "Proovi uuesti"
+  },
+  "app_admin_layout": {
+    "title": "Admin",
+    "titleTemplate": "%s · Admin · StudyBooks"
+  },
+  "app_admin_loading": {
+    "loading": "Laadimine"
+  },
+  "app_admin_page": {
+    "studybooks": "Õpikud",
+    "biteCards": "Ampsukaardid",
+    "subjects": "Ained",
+    "users": "Kasutajad",
+    "title": "Töölaud",
+    "subtitle": "Mis on praegu kataloogis.",
+    "newStudybook": "Uus õpik",
+    "recentStudybooks": "Hiljutised õpikud",
+    "viewAll": "Vaata kõiki"
+  },
+  "app_admin_studybooks_slug_page": {
+    "editTitle": "Muuda · {title}",
+    "fallbackTitle": "Õpik",
+    "viewInApp": "Vaata rakenduses"
+  },
+  "app_admin_studybooks_new_page": {
+    "metaTitle": "Uus õpik",
+    "title": "Uus õpik",
+    "subtitle": "Määra kõigepealt metaandmed — ampsukaardid saad lisada kohe pärast loomist."
+  },
+  "app_admin_studybooks_page": {
+    "metaTitle": "Õpikud",
+    "title": "Õpikud",
+    "count": "{count, plural, one {# õpik} other {# õpikut}}{filtered, select, true { vastavad teie filtritele} other {}}",
+    "newStudybook": "Uus õpik",
+    "searchPlaceholder": "Otsi pealkirja või autori järgi…",
+    "emptyMatchTitle": "Ühtki õpikut ei leitud",
+    "emptyTitle": "Õpikuid pole veel",
+    "emptyMatchBody": "Proovi teistsugust otsingut või tühjenda filtrid.",
+    "emptyBody": "Loo esimene õpik, et hakata kataloogi üles ehitama."
+  },
+  "app_admin_subjects_page": {
+    "metaTitle": "Õppeained",
+    "title": "Õppeained",
+    "subtitle": "{count} õppeainet. Taksonoomiat hallatakse TaskuTargas — allolevad arvud pärinevad sellest kataloogist.",
+    "colSubject": "Õppeaine",
+    "colSlug": "Lühikood",
+    "colStudybooks": "Õpikud",
+    "colMaterials": "TT materjalid"
+  },
+  "app_admin_users_page": {
+    "metaTitle": "Kasutajad",
+    "title": "Kasutajad",
+    "subtitle": "{count, plural, one {# kasutaja} other {# kasutajat}} · näidisandmed, kuni TT avab kasutajate lõpp-punkti.",
+    "searchPlaceholder": "Otsi nime või e-posti järgi…",
+    "emptyTitle": "Ühtki kasutajat ei leitud",
+    "emptyBody": "Proovi teist nime või e-posti.",
+    "colName": "Nimi",
+    "colEmail": "E-post",
+    "colRole": "Roll",
+    "colPlan": "Pakett",
+    "colJoined": "Liitunud",
+    "roleAdmin": "Administraator",
+    "roleUser": "Kasutaja",
+    "planPremium": "Premium",
+    "planFree": "Tasuta"
+  },
+  "app_not_found": {
+    "metaTitle": "Lehte ei leitud",
+    "kicker": "Teel kadunud",
+    "title": "See leht on veel 8½ minuti kaugusel.",
+    "subtitle": "Link, mida järgisid, kaldus kursilt kõrvale. Nagu päikesevalgus, võtavad mõned asjad lihtsalt aega, et sinuni jõuda — või ei jõuagi kohale.",
+    "backToFeed": "Tagasi Sinu jaoks juurde",
+    "exploreStudybooks": "Avasta õpikuid"
+  },
+  "app_onboarding_page": {
+    "metaTitle": "Alusta"
+  },
+  "catalog": {
+    "facet": {
+      "target": "Sihtrühm",
+      "subject": "Õppeaine",
+      "material": "Materjali tüüp",
+      "price": "Hind",
+      "publisher": "Kirjastus",
+      "language": "Keel",
+      "special": "Eriline"
+    },
+    "target": {
+      "preschool": "Koolieelne ja lasteaed",
+      "1-3": "1.–3. klass",
+      "4-6": "4.–6. klass",
+      "7-9": "7.–9. klass",
+      "gymnasium": "Gümnaasium",
+      "self-study": "Iseõpe",
+      "parents": "Vanematele",
+      "teachers": "Õpetajatele"
+    },
+    "material": {
+      "studybook": "Õpik",
+      "support": "Tugimaterjal",
+      "bite": "Amps",
+      "topic": "Teema",
+      "article": "Artikkel",
+      "test": "Test"
+    },
+    "price": {
+      "free": "Tasuta",
+      "paid": "Tasuline"
+    },
+    "publisher": {
+      "moorish": "Moorish",
+      "meaningful-talks": "Meaningful Talks",
+      "epr": "Eesti Pakendiringlus"
+    },
+    "language": {
+      "et": "Eesti keel",
+      "ru": "Vene keel"
+    },
+    "special": {
+      "et-second": "Eesti keel teise keelena"
+    },
+    "group": {
+      "languages": "Keeled",
+      "mathematics": "Matemaatika",
+      "sciences": "Loodusteadused",
+      "social": "Sotsiaalained",
+      "arts": "Kunst ja kultuur",
+      "practical": "Praktilised ained"
+    },
+    "subject": {
+      "history": "Ajalugu",
+      "biology": "Bioloogia",
+      "estonian": "Eesti keel",
+      "entrepreneurship": "Ettevõtlus",
+      "physics": "Füüsika",
+      "geography": "Geograafia",
+      "english": "Inglise keel",
+      "human-education": "Inimeseõpetus",
+      "chemistry": "Keemia",
+      "literature": "Kirjandus",
+      "art-history": "Kunstiajalugu",
+      "traffic": "Liiklus",
+      "nature": "Loodusõpetus",
+      "math": "Matemaatika",
+      "media": "Meedia",
+      "music-history": "Muusikaajalugu",
+      "music": "Muusika",
+      "defense": "Riigikaitse",
+      "german": "Saksa keel",
+      "finnish": "Soome keel",
+      "social-studies": "Ühiskonnaõpetus",
+      "religion": "Usuõpetus",
+      "russian": "Vene keel"
+    },
+    "category": {
+      "studyBite": "Õpiamps"
+    },
+    "synopsis": "Ampsusuurune {subject} õpik, mille aluseks on „{title}“ — lühikesed kaardid, mille jõuab läbida tundide vahel.",
+    "synopsisPlain": "Ampsusuurune õpik, mille aluseks on „{title}“ — lühikesed kaardid, mille jõuab läbida tundide vahel.",
+    "card": {
+      "bigIdeaHeading": "„{title}“ suur idee",
+      "bigIdeaBody": "Kiire sissejuhatus ainesse {subject}: üks põhiidee raamatust „{title}“, pakitud ühte ampsu, mille tõesti meelde jätad.",
+      "rememberHeading": "Üks asi, mida tasub meeles pidada",
+      "rememberBody": "Suurem osa ainest {subject} tugineb mõnele lihtsale ideele. See kaart toob välja selle, mis teeb siin kõige raskema töö.",
+      "mattersHeading": "Miks see oluline on",
+      "mattersBody": "Kus see päriselus esile kerkib — ja miks tasub need kaks minutit õppimiseks kulutada."
+    },
+    "unknownAuthor": "Tundmatu autor"
+  },
+  "components_auth_LoginRequired": {
+    "title": "Jätkamiseks logi sisse",
+    "message": "Selle nägemiseks loo konto või logi sisse.",
+    "login": "Logi sisse",
+    "createAccount": "Loo konto"
+  },
+  "studyBites": {
+    "nuputame-koos-transpordivahendid": {
+      "title": "NUPUTAME KOOS! Transpordivahendid",
+      "description": "Õpiamps „NUPUTAME KOOS! Transpordivahendid” kutsub 5–8-aastaseid lapsi nuputama, arvutama, võrdlema, järjestama ja tähelepanu arendama. Ampsu saab kasutada transpordivahendite teema õppimisel ja kordamisel."
+    },
+    "kas-ja-kuidas-suudab-eesti-end-kaitsta": {
+      "title": "Kas ja kuidas suudab Eesti end kaitsta?",
+      "description": "Õpiamps „Kas ja kuidas suudab Eesti end kaitsta?” aitab mõista, kuidas toimib Eesti riigikaitse, millised on peamised julgeolekuohud ning miks ei tähenda riigi kaitsmine üksnes sõjalist valmisolekut."
+    },
+    "matemaatika-videotund-tekstulesanded": {
+      "title": "Matemaatika videotund. Tekstülesanded",
+      "description": "Tekstülesannetel on koht nii põhikooli kui ka gümnaasiumi matemaatikas. Tekstülesanded aitavad meil igapäevaseid probleeme kirja panna matemaatika keeles ning seeläbi leida neile lahendusi."
+    },
+    "vaike-matemaatik-kujundid": {
+      "title": "Väike matemaatik: ring, kolmnurk, nelinurk, kera ja kuup",
+      "description": "Selles õpiampsus õpime tundma tasapinnalisi (ring, kolmnurk, nelinurk) ja ruumilisi kujundeid (kera, kuup) ning mõõdame tinglike mõõtühikute abil asjade pikkuseid ja suurusi."
+    }
+  }
+}

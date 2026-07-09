@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTranslations } from "@/i18n/client";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Zap, BookOpen, Smartphone, Flame, Users, Trophy } from "lucide-react";
@@ -19,54 +20,49 @@ gsap.registerPlugin(ScrollTrigger);
 const features = [
   {
     icon: Zap,
-    title: "Bite sized cards",
-    description:
-      "Learn with quick five-second insights designed to be memorable and easy to revisit anytime.",
+    titleKey: "card1Title",
+    descriptionKey: "card1Body",
     gradient: "bg-violet-gradient",
     illustration: <FloatingShard />,
   },
   {
     icon: BookOpen,
-    title: "Thousands of studybooks",
-    description:
-      "Dive into a rich collection of books redesigned as clear, interactive learning cards.",
+    titleKey: "card2Title",
+    descriptionKey: "card2Body",
     gradient: "bg-green-gradient",
     illustration: <FloatingBook />,
   },
   {
     icon: Smartphone,
-    title: "Learn on any device",
-    description:
-      "Continue learning seamlessly across your phone, tablet, and web without losing progress.",
+    titleKey: "card3Title",
+    descriptionKey: "card3Body",
     gradient: "bg-plum-gradient",
     illustration: <FloatingDevices />,
   },
   {
     icon: Users,
-    title: "Learn together",
-    description:
-      "Collaborate with friends, share study decks, and stay motivated through friendly challenges.",
+    titleKey: "card4Title",
+    descriptionKey: "card4Body",
     gradient: "bg-violet-gradient",
     illustration: <FloatingStack />,
   },
   {
     icon: Trophy,
-    title: "Earn as you go",
-    description:
-      "Unlock badges, gain experience, and celebrate every milestone throughout learning journey.",
+    titleKey: "card5Title",
+    descriptionKey: "card5Body",
     gradient: "bg-green-gradient",
     illustration: <FloatingPrism />,
   },
   {
     icon: Flame,
-    title: "Keep your streak",
-    description:
-      "Build lasting study habits with daily reminders, streaks, and motivating progress tracking.",
+    titleKey: "card6Title",
+    descriptionKey: "card6Body",
     gradient: "bg-plum-gradient",
     illustration: <FloatingRings />,
   },
 ];
 export default function FeatureCards() {
+  const t = useTranslations("components_home_FeatureCards");
   const sectionRef = useRef<HTMLElement>(null); // pinned to the viewport
   const trackRef = useRef<HTMLDivElement>(null); // the wide row we slide on X
 
@@ -144,11 +140,11 @@ export default function FeatureCards() {
       >
         {features.map((f, i) => (
           // Fixed-ish, responsive widths so the row overflows on every screen size.
-          <div key={f.title} className="w-fit shrink-0">
+          <div key={f.titleKey} className="w-fit shrink-0">
             <FeatureCard
               icon={f.icon}
-              title={f.title}
-              description={f.description}
+              title={t(f.titleKey)}
+              description={t(f.descriptionKey)}
               gradient={f.gradient}
               index={i}
               illustration={f.illustration}

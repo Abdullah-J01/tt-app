@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { Portal } from "@/lib/Portal";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { AuthCard } from "./AuthCard";
@@ -13,8 +15,16 @@ import { useAuthModal } from "./useAuthModal";
  * exists as a full page for direct links and guard redirects.
  */
 export function AuthModal() {
-  const { open, mode, closeAuth } = useAuthModal();
+  const { open, mode, backOnClose, reason, closeAuth } = useAuthModal();
+  const router = useRouter();
+  const t = useTranslations("components_auth_AuthModal");
   useScrollLock(open);
+
+  // When opened as a hard gate (e.g. from explore), dismissing goes back.
+  const handleClose = () => {
+    closeAuth();
+    if (backOnClose) router.back();
+  };
 
   return (
     <Portal>
@@ -24,8 +34,8 @@ export function AuthModal() {
             {/* Dimmed + blurred backdrop over the live page behind it */}
             <motion.button
               type="button"
-              aria-label="Close"
-              onClick={closeAuth}
+              aria-label={t("close")}
+              onClick={handleClose}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -41,7 +51,12 @@ export function AuthModal() {
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
               className="w-full max-w-[420px]"
             >
-              <AuthCard initialMode={mode} syncUrl={false} onClose={closeAuth} />
+              {reason && (
+                <p className="mb-3 rounded-xl bg-white/90 px-4 py-2.5 text-center text-sm font-medium text-ink shadow-lift backdrop-blur">
+                  {reason}
+                </p>
+              )}
+              <AuthCard initialMode={mode} syncUrl={false} onClose={handleClose} />
             </motion.div>
           </div>
         )}

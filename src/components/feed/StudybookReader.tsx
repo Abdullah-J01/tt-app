@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
@@ -8,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Bookmark, ChevronUp, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
-import { SUBJECTS } from "@/config/subjects";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
 import type { Studybook, StudyCard } from "@/types";
@@ -45,6 +46,7 @@ const cardVariants = {
  */
 export default function StudybookReader({ book }: { book: Studybook }) {
   const router = useRouter();
+  const t = useTranslations("components_feed_StudybookReader");
   const cards = book.cards;
   const total = cards.length;
   const [index, setIndex] = useState(0);
@@ -56,8 +58,9 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   // just over the narrow card surface (matters on desktop where the cursor
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
+  const subjectName = useSubjectName();
 
-  const subject = SUBJECTS.find((s) => s.slug === book.subjectSlug)?.name ?? book.subjectSlug;
+  const subject = subjectName(book.subjectSlug);
   const active = cards[index];
 
   const go = useCallback(
@@ -204,7 +207,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             <button
               type="button"
               onClick={goBack}
-              aria-label="Back to studybook"
+              aria-label={t("backToStudybook")}
               className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 backdrop-blur transition-transform active:scale-90"
             >
               <ArrowLeft className="h-5 w-5" />
@@ -229,7 +232,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             </div>
             <div className="mt-2 flex items-baseline justify-between gap-3">
               <p className="text-xs font-medium text-white/55">
-                Card {index + 1} of {total}
+                {t("cardProgress", { current: index + 1, total })}
               </p>
               <p className="truncate text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
                 {subject}
@@ -285,7 +288,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           <button
             type="button"
             onClick={goNext}
-            aria-label="Next card"
+            aria-label={t("nextCard")}
             // Mobile: cleared above the fixed bottom nav (its height + safe
             // area); sm+ the reader is a windowed card, so back to bottom-8.
             className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-20 flex flex-col items-center gap-1 text-white/60 sm:bottom-8"
@@ -296,7 +299,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             >
               <ChevronUp className="h-5 w-5" />
             </motion.span>
-            <span className="text-xs font-medium">Swipe up · next card</span>
+            <span className="text-xs font-medium">{t("swipeHint")}</span>
           </button>
         </div>
 
@@ -321,6 +324,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
 /** Top-bar save toggle — persists the whole book to the library (Studybooks tab). */
 function TopSave({ book }: { book: Studybook }) {
   const router = useRouter();
+  const t = useTranslations("components_feed_StudybookReader");
   const { status } = useSession();
   const { isBookSaved, toggleBook } = useLibrary();
   const saved = isBookSaved(book.slug);
@@ -348,7 +352,7 @@ function TopSave({ book }: { book: Studybook }) {
     <button
       type="button"
       onClick={toggle}
-      aria-label={saved ? "Saved" : "Save"}
+      aria-label={saved ? t("saved") : t("save")}
       className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/10 backdrop-blur transition-transform active:scale-90"
     >
       <Bookmark className={`h-5 w-5 ${saved ? "fill-white" : ""}`} />

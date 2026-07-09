@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 
@@ -12,6 +13,7 @@ import { ArrowUp } from "lucide-react";
  * doesn't stick while Lenis is driving the scroll).
  */
 export function ScrollToTop() {
+  const t = useTranslations("components_layout_ScrollToTop");
   const [visible, setVisible] = useState(false);
   const reduced = useReducedMotion();
 
@@ -33,7 +35,7 @@ export function ScrollToTop() {
         <motion.button
           type="button"
           onClick={toTop}
-          aria-label="Scroll to top"
+          aria-label={t("scrollToTop")}
           initial={{ opacity: 0, y: 16, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 16, scale: 0.9 }}

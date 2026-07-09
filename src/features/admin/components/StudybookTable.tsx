@@ -1,4 +1,5 @@
-import Link from "next/link";
+import Link from "@/i18n/Link";
+import { getTranslations } from "@/i18n/server";
 import {
   Table,
   TableBody,
@@ -19,19 +20,20 @@ interface StudybookTableProps {
 }
 
 /** Studybook listing used by the admin list page and the dashboard preview. */
-export function StudybookTable({ books, readOnly = false }: StudybookTableProps) {
+export async function StudybookTable({ books, readOnly = false }: StudybookTableProps) {
+  const t = await getTranslations("features_admin_components_StudybookTable");
   return (
     <Table>
       <TableHead>
         <tr>
-          <TableHeaderCell>Title</TableHeaderCell>
-          <TableHeaderCell>Subject</TableHeaderCell>
-          <TableHeaderCell>Grade</TableHeaderCell>
-          <TableHeaderCell>Cards</TableHeaderCell>
-          <TableHeaderCell>Price</TableHeaderCell>
+          <TableHeaderCell>{t("title")}</TableHeaderCell>
+          <TableHeaderCell>{t("subject")}</TableHeaderCell>
+          <TableHeaderCell>{t("grade")}</TableHeaderCell>
+          <TableHeaderCell>{t("cards")}</TableHeaderCell>
+          <TableHeaderCell>{t("price")}</TableHeaderCell>
           {!readOnly && (
             <TableHeaderCell>
-              <span className="sr-only">Actions</span>
+              <span className="sr-only">{t("actions")}</span>
             </TableHeaderCell>
           )}
         </tr>
@@ -57,7 +59,7 @@ export function StudybookTable({ books, readOnly = false }: StudybookTableProps)
               {b.priceEur != null ? (
                 <Pill variant="amber">€{b.priceEur.toFixed(2)}</Pill>
               ) : (
-                <Pill variant="green">Free</Pill>
+                <Pill variant="green">{t("free")}</Pill>
               )}
             </TableCell>
             {!readOnly && (

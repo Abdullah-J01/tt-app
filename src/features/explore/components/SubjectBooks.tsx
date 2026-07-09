@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { SlidersHorizontal } from "lucide-react";
 import { applyFilters } from "../filters";
 import { ActiveFilters } from "./ActiveFilters";
@@ -17,6 +18,7 @@ import type { Studybook } from "@/types";
  * facets filter the grid and a sort control orders it.
  */
 export function SubjectBooks({ books }: { books: Studybook[] }) {
+  const t = useTranslations("features_explore_components_SubjectBooks");
   const [sort, setSort] = useState<Sort>("popular");
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -38,7 +40,7 @@ export function SubjectBooks({ books }: { books: Studybook[] }) {
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-3">
         <p className="text-muted text-sm">
-          {visible.length} {visible.length === 1 ? "studybook" : "studybooks"}
+          {t("count", { count: visible.length })}
         </p>
 
         <div className="flex items-center gap-2">
@@ -47,11 +49,11 @@ export function SubjectBooks({ books }: { books: Studybook[] }) {
             unstyled
             type="button"
             onClick={() => setFiltersOpen(true)}
-            aria-label="Filter materials"
+            aria-label={t("filterMaterials")}
             className="border-hairline hover:border-violet hover:bg-lavender flex h-9 items-center gap-2 rounded-full border px-3 text-sm font-medium active:scale-95"
           >
             <SlidersHorizontal className="h-4 w-4" />
-            <span>Filters</span>
+            <span>{t("filters")}</span>
             {selected.size > 0 && (
               <span
                 key={selected.size}
@@ -71,7 +73,7 @@ export function SubjectBooks({ books }: { books: Studybook[] }) {
       {/* Grid */}
       <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {visible.length === 0 ? (
-          <p className="text-muted col-span-full">No studybooks for this filter yet.</p>
+          <p className="text-muted col-span-full">{t("empty")}</p>
         ) : (
           visible.map((b) => <CoverCard key={b.id} book={b} />)
         )}

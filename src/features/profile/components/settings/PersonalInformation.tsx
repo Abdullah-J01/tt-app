@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { Pencil, Trash2 } from "lucide-react";
 import { useProfile, type ProfileData } from "../../useProfile";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 
 export function PersonalInformation() {
+  const t = useTranslations("features_profile_components_settings_PersonalInformation");
   const { data, update } = useProfile();
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +37,7 @@ export function PersonalInformation() {
           <Button
             unstyled
             type="button"
-            aria-label="Change photo"
+            aria-label={t("changePhoto")}
             onClick={() => fileRef.current?.click()}
             className="bg-ink absolute right-1 bottom-1 grid h-9 w-9 place-items-center rounded-full text-white transition-transform hover:-translate-y-0.5 active:scale-95"
           >
@@ -50,7 +52,7 @@ export function PersonalInformation() {
             className="hidden"
           />
         </div>
-        <p className="text-muted mt-3 font-semibold">Profile Photo</p>
+        <p className="text-muted mt-3 font-semibold">{t("profilePhoto")}</p>
         {data.photo && (
           <Button
             unstyled
@@ -58,25 +60,25 @@ export function PersonalInformation() {
             onClick={() => update({ photo: undefined })}
             className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:underline"
           >
-            <Trash2 className="h-3.5 w-3.5" /> Remove
+            <Trash2 className="h-3.5 w-3.5" /> {t("remove")}
           </Button>
         )}
       </div>
 
       {/* Editable fields */}
       <div className="divide-hairline border-hairline divide-y border-y">
-        <Field label="First Name" value={data.firstName} onSave={(v) => update({ firstName: v })} />
-        <Field label="Last Name" value={data.lastName} onSave={(v) => update({ lastName: v })} />
-        <Field label="Email" type="email" value={data.email} onSave={(v) => update({ email: v })} />
+        <Field label={t("firstName")} value={data.firstName} onSave={(v) => update({ firstName: v })} />
+        <Field label={t("lastName")} value={data.lastName} onSave={(v) => update({ lastName: v })} />
+        <Field label={t("email")} type="email" value={data.email} onSave={(v) => update({ email: v })} />
         <Field
-          label="Username"
+          label={t("username")}
           value={data.handle}
           prefix="@"
           onSave={(v) => update({ handle: v.replace(/^@/, "") })}
         />
       </div>
 
-      <p className="text-muted mt-4 text-center text-sm">Tap any field to edit it.</p>
+      <p className="text-muted mt-4 text-center text-sm">{t("tapToEdit")}</p>
     </div>
   );
 }

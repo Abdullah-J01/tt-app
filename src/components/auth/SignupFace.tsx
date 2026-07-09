@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Form, useZodForm } from "@/components/ui/Form";
@@ -13,6 +14,7 @@ import { signupSchema, type SignupValues } from "./schemas";
 
 /** Sign-up face of the auth flip card (UI brief §6.2). `onSwitch` flips to log-in. */
 export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
+  const t = useTranslations("components_auth_SignupFace");
   const form = useZodForm(signupSchema);
   const {
     register,
@@ -30,17 +32,17 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
     <div className={GLASS_CARD}>
       <AuthHeader onClose={onClose} />
       <div className="mb-5 text-center">
-        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">Create your account</h1>
-        <p className="text-muted mt-1 text-[13px]">Start your daily learning habit in minutes.</p>
+        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">{t("title")}</h1>
+        <p className="text-muted mt-1 text-[13px]">{t("subtitle")}</p>
       </div>
 
       <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-3">
         <Input
           id="signup-name"
           type="text"
-          label="Name"
+          label={t("nameLabel")}
           labelClassName={GLASS_LABEL}
-          placeholder="Your name"
+          placeholder={t("namePlaceholder")}
           autoComplete="name"
           error={errors.name?.message}
           containerClassName={GLASS_FIELD}
@@ -50,9 +52,9 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
         <Input
           id="signup-email"
           type="email"
-          label="Email"
+          label={t("emailLabel")}
           labelClassName={GLASS_LABEL}
-          placeholder="Enter your email"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
           error={errors.email?.message}
           containerClassName={GLASS_FIELD}
@@ -61,9 +63,9 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
         />
         <PasswordField
           id="signup-password"
-          label="Password"
+          label={t("passwordLabel")}
           labelClassName={GLASS_LABEL}
-          placeholder="Create a password"
+          placeholder={t("passwordPlaceholder")}
           autoComplete="new-password"
           error={errors.password?.message}
           containerClassName={GLASS_FIELD}
@@ -71,7 +73,7 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
           {...register("password")}
         />
         <Button type="submit" block size="lg">
-          Create account
+          {t("submit")}
         </Button>
       </Form>
 
@@ -84,18 +86,18 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
         leadingIcon={<GoogleIcon />}
         onClick={() => signIn("google", { callbackUrl: "/onboarding" })}
       >
-        Continue with Google
+        {t("continueGoogle")}
       </Button>
 
       <p className="text-muted mt-5 text-center text-[13px]">
-        Already have an account?{" "}
+        {t("haveAccount")}{" "}
         <Button
           unstyled
           type="button"
           onClick={onSwitch}
           className="text-violet hover:text-violet-dark font-semibold"
         >
-          Log in
+          {t("login")}
         </Button>
       </p>
     </div>

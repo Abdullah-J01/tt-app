@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useScrollLock } from "@/lib/useScrollLock";
 import { Portal } from "@/lib/Portal";
 
@@ -12,7 +13,8 @@ interface StreakInfoSheetProps {
   cta?: string;
 }
 
-export function StreakInfoSheet({ open, onClose, title, children, cta = "Continue" }: StreakInfoSheetProps) {
+export function StreakInfoSheet({ open, onClose, title, children, cta }: StreakInfoSheetProps) {
+  const t = useTranslations("features_streak_components_StreakInfoSheet");
   useScrollLock(open);
 
   useEffect(() => {
@@ -47,7 +49,7 @@ export function StreakInfoSheet({ open, onClose, title, children, cta = "Continu
             onClick={onClose}
             className="bg-ink hover:bg-ink/90 w-full rounded-full py-3.5 font-semibold text-white transition-transform active:scale-[0.98]"
           >
-            {cta}
+            {cta ?? t("continue")}
           </button>
         </div>
       </div>

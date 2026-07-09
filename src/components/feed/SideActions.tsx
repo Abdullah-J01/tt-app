@@ -1,6 +1,7 @@
 "use client";
 
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import { useTranslations } from "@/i18n/client";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
@@ -42,6 +43,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
   ref,
 ) {
   const router = useRouter();
+  const t = useTranslations("components_feed_SideActions");
   const { status } = useSession();
   const { isLiked, isSaved, toggleLiked, toggleSaved } = useLibrary();
   const likeBtnRef = useRef<HTMLButtonElement>(null);
@@ -80,7 +82,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
         await navigator.share({ title: card.title, url });
       } else if (navigator.clipboard) {
         await navigator.clipboard.writeText(url);
-        toast("Link copied");
+        toast(t("linkCopied"));
       }
     } catch {
       /* user cancelled / clipboard blocked — ignore */
@@ -112,7 +114,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
           onClick={withAuth(onLikeClick)}
           whileTap={{ scale: 0.85 }}
           aria-pressed={liked}
-          aria-label="Like"
+          aria-label={t("like")}
           className={ACTION_BTN}
         >
           <motion.span
@@ -122,7 +124,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
             <Heart size={19} className={liked ? "fill-rose-500 text-rose-500" : "text-ink"} />
           </motion.span>
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">Like</span>
+        <span className="text-ink/70 text-xs font-medium">{t("like")}</span>
       </div>
 
       <div className="flex flex-col items-center gap-1">
@@ -130,12 +132,12 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
           type="button"
           onClick={onShareClick}
           whileTap={{ scale: 0.85 }}
-          aria-label="Share"
+          aria-label={t("share")}
           className={ACTION_BTN}
         >
           <Share2 size={18} className="text-ink" />
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">Share</span>
+        <span className="text-ink/70 text-xs font-medium">{t("share")}</span>
       </div>
 
       <div className="flex flex-col items-center gap-1">
@@ -144,12 +146,12 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
           onClick={withAuth(() => toggleSaved(toEntry(card)))}
           whileTap={{ scale: 0.85 }}
           aria-pressed={saved}
-          aria-label="Save"
+          aria-label={t("save")}
           className={ACTION_BTN}
         >
           <Bookmark size={18} className={saved ? "fill-violet text-violet" : "text-ink"} />
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">Save</span>
+        <span className="text-ink/70 text-xs font-medium">{t("save")}</span>
       </div>
     </div>
   );

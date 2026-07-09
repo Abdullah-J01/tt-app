@@ -1,18 +1,19 @@
-import Link from "next/link";
-import Image from "next/image";
-import { Pill } from "@/components/ui/Pill";
-import { SUBJECTS } from "@/config/subjects";
-import type { Studybite } from "../data";
+"use client";
 
-function subjectName(slug: string) {
-  return SUBJECTS.find((s) => s.slug === slug)?.name ?? slug;
-}
+import Link from "@/i18n/Link";
+import Image from "next/image";
+import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
+import { Pill } from "@/components/ui/Pill";
+import type { Studybite } from "../data";
 
 /**
  * A single "bite" (one card) shown as a horizontal card: cover thumb, the card
  * heading, a snippet, and price + subject pills. Opens the studybook's reader.
  */
 export function StudybiteCard({ bite }: { bite: Studybite }) {
+  const t = useTranslations("features_explore_components_StudybiteCard");
+  const subjectName = useSubjectName();
   const { card, book } = bite;
   return (
     <Link
@@ -33,7 +34,7 @@ export function StudybiteCard({ bite }: { bite: Studybite }) {
           {book.priceEur != null ? (
             <Pill>€{book.priceEur.toFixed(2)}</Pill>
           ) : (
-            <Pill className="bg-brand-green/10 text-brand-green">Included</Pill>
+            <Pill className="bg-brand-green/10 text-brand-green">{t("included")}</Pill>
           )}
           <Pill className="bg-lavender">{subjectName(book.subjectSlug)}</Pill>
         </div>

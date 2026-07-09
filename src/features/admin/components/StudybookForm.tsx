@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "@/i18n/client";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -23,6 +24,7 @@ interface StudybookFormProps {
 
 /** Create/edit form for a studybook's metadata. Cards are managed by `CardEditor`. */
 export function StudybookForm({ book }: StudybookFormProps) {
+  const t = useTranslations("features_admin_components_StudybookForm");
   const router = useRouter();
   const [serverError, setServerError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -49,7 +51,7 @@ export function StudybookForm({ book }: StudybookFormProps) {
     setSaved(false);
     const result = book ? await updateStudybook(book.slug, values) : await createStudybook(values);
     if (!result.ok) {
-      setServerError(result.error ?? "Something went wrong — try again.");
+      setServerError(result.error ?? t("genericError"));
       return;
     }
     if (book) {
@@ -65,21 +67,21 @@ export function StudybookForm({ book }: StudybookFormProps) {
     <Card className="p-6">
       <Form form={form} onSubmit={onSubmit} className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Input
-          label="Title"
+          label={t("titleLabel")}
           requiredMark
-          placeholder="e.g. A Very Serious Snowman Story"
+          placeholder={t("titlePlaceholder")}
           error={errors.title?.message}
           {...form.register("title")}
         />
         <Input
-          label="Author"
+          label={t("authorLabel")}
           requiredMark
-          placeholder="e.g. Johanna Unt"
+          placeholder={t("authorPlaceholder")}
           error={errors.author?.message}
           {...form.register("author")}
         />
         <Input
-          label="Year"
+          label={t("yearLabel")}
           requiredMark
           type="number"
           inputMode="numeric"
@@ -88,20 +90,20 @@ export function StudybookForm({ book }: StudybookFormProps) {
           {...form.register("year")}
         />
         <Input
-          label="Category"
+          label={t("categoryLabel")}
           requiredMark
-          placeholder="e.g. Textbook, Novel, Study guide"
+          placeholder={t("categoryPlaceholder")}
           error={errors.category?.message}
           {...form.register("category")}
         />
         <Select
-          label="Subject"
+          label={t("subjectLabel")}
           requiredMark
           error={errors.subjectSlug?.message}
           {...form.register("subjectSlug")}
         >
           <option value="" disabled>
-            Select a subject…
+            {t("subjectPlaceholder")}
           </option>
           {SUBJECTS.map((s) => (
             <option key={s.slug} value={s.slug}>
@@ -109,9 +111,9 @@ export function StudybookForm({ book }: StudybookFormProps) {
             </option>
           ))}
         </Select>
-        <Select label="Grade" requiredMark error={errors.grade?.message} {...form.register("grade")}>
+        <Select label={t("gradeLabel")} requiredMark error={errors.grade?.message} {...form.register("grade")}>
           <option value="" disabled>
-            Select a grade…
+            {t("gradePlaceholder")}
           </option>
           {GRADES.filter((g) => g.slug !== "all").map((g) => (
             <option key={g.slug} value={g.slug}>
@@ -120,29 +122,29 @@ export function StudybookForm({ book }: StudybookFormProps) {
           ))}
         </Select>
         <Input
-          label="Cover image URL"
+          label={t("coverLabel")}
           type="url"
           placeholder="https://…"
-          hint="Optional — shown on catalog cards."
+          hint={t("coverHint")}
           error={errors.cover?.message}
           {...form.register("cover")}
         />
         <Input
-          label="Price (EUR)"
+          label={t("priceLabel")}
           type="number"
           step="0.01"
           min="0"
           placeholder="0.00"
-          hint="Leave empty for a free studybook."
+          hint={t("priceHint")}
           error={errors.priceEur?.message}
           {...form.register("priceEur")}
         />
         <div className="md:col-span-2">
           <Textarea
-            label="Synopsis"
+            label={t("synopsisLabel")}
             requiredMark
             rows={4}
-            placeholder="What is this studybook about, and who is it for?"
+            placeholder={t("synopsisPlaceholder")}
             error={errors.synopsis?.message}
             {...form.register("synopsis")}
           />
@@ -150,19 +152,19 @@ export function StudybookForm({ book }: StudybookFormProps) {
 
         <div className="flex flex-wrap items-center gap-3 md:col-span-2">
           <Button type="submit" loading={isSubmitting}>
-            {book ? "Save changes" : "Create studybook"}
+            {book ? t("saveChanges") : t("createStudybook")}
           </Button>
           <Link
             href="/admin/studybooks"
             className="text-muted hover:text-ink rounded-lg px-2 py-1 text-sm font-medium transition-colors"
           >
-            Back to studybooks
+            {t("backToStudybooks")}
           </Link>
           <span aria-live="polite" className="flex items-center gap-1.5">
             {saved && (
               <>
                 <Check className="text-green-dark h-4 w-4" aria-hidden />
-                <span className="text-green-dark text-sm font-medium">Saved</span>
+                <span className="text-green-dark text-sm font-medium">{t("saved")}</span>
               </>
             )}
           </span>

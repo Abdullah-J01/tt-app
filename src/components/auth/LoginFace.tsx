@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Form, useZodForm } from "@/components/ui/Form";
@@ -21,6 +22,7 @@ export function LoginFace({
   onForgot: () => void;
   onClose: () => void;
 }) {
+  const t = useTranslations("components_auth_LoginFace");
   // Honors ?callbackUrl= when a guard bounced the user here (e.g. /admin).
   // Otherwise routes through /post-login, which checks the session role —
   // admins land on the admin dashboard, everyone else on the device default
@@ -49,17 +51,17 @@ export function LoginFace({
     <div className={GLASS_CARD}>
       <AuthHeader onClose={onClose} />
       <div className="mb-5 text-center">
-        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">Welcome back</h1>
-        <p className="text-muted mt-1 text-[13px]">Pick up your streak where you left off.</p>
+        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">{t("title")}</h1>
+        <p className="text-muted mt-1 text-[13px]">{t("subtitle")}</p>
       </div>
 
       <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-3">
         <Input
           id="login-email"
           type="email"
-          label="Email"
+          label={t("emailLabel")}
           labelClassName={GLASS_LABEL}
-          placeholder="Enter your email"
+          placeholder={t("emailPlaceholder")}
           autoComplete="email"
           error={errors.email?.message}
           containerClassName={GLASS_FIELD}
@@ -68,9 +70,9 @@ export function LoginFace({
         />
         <PasswordField
           id="login-password"
-          label="Password"
+          label={t("passwordLabel")}
           labelClassName={GLASS_LABEL}
-          placeholder="Enter your password"
+          placeholder={t("passwordPlaceholder")}
           autoComplete="current-password"
           error={errors.password?.message}
           containerClassName={GLASS_FIELD}
@@ -84,11 +86,11 @@ export function LoginFace({
             onClick={onForgot}
             className="text-violet hover:text-violet-dark text-[13px] font-semibold"
           >
-            Forgot password?
+            {t("forgotPassword")}
           </Button>
         </div>
         <Button type="submit" block size="lg">
-          Continue
+          {t("continue")}
         </Button>
       </Form>
 
@@ -101,18 +103,18 @@ export function LoginFace({
         leadingIcon={<GoogleIcon />}
         onClick={() => signIn("google", { callbackUrl: landingUrl() })}
       >
-        Continue with Google
+        {t("continueWithGoogle")}
       </Button>
 
       <p className="text-muted mt-5 text-center text-[13px]">
-        New here?{" "}
+        {t("newHere")}{" "}
         <Button
           unstyled
           type="button"
           onClick={onSwitch}
           className="text-violet hover:text-violet-dark font-semibold"
         >
-          Create account
+          {t("createAccount")}
         </Button>
       </p>
     </div>

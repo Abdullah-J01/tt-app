@@ -1,5 +1,6 @@
 "use client";
-import Link from "next/link";
+import Link from "@/i18n/Link";
+import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { PlayCircle } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -9,6 +10,7 @@ import FloatingCircle from "./FloatingCircle";
 import BackgroundGradient from "./BackgroundGradient";
 
 export default function Hero() {
+  const t = useTranslations("components_home_Hero");
   return (
     <section className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-36 pb-20 sm:px-8 sm:pt-44">
       <BackgroundGradient />
@@ -23,7 +25,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-caption bg-violet-tint text-violet mb-5 inline-block rounded-full px-3 py-1 font-semibold tracking-widest uppercase"
           >
-            Bite-sized learning
+            {t("badge")}
           </motion.p>
 
           <AnimatedHeadline />
@@ -34,8 +36,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.35 }}
             className="text-body text-muted mt-6 max-w-md"
           >
-            A vertical feed of short, beautifully designed cards drawn from real studybooks. Save
-            what matters. Build a daily habit.
+            {t("subtitle")}
           </motion.p>
 
           <motion.div
@@ -45,11 +46,11 @@ export default function Hero() {
             className="mt-8 flex flex-wrap gap-3"
           >
             <Link href="/onboarding">
-              <Button size="lg">Get started</Button>
+              <Button size="lg">{t("getStarted")}</Button>
             </Link>
             <Link href="/feed">
               <Button size="lg" variant="secondary">
-                See the feed
+                {t("seeFeed")}
               </Button>
             </Link>
           </motion.div>
@@ -68,7 +69,7 @@ export default function Hero() {
                 size={20}
                 className="transition-transform duration-300 group-hover:rotate-[20deg]"
               />
-              How it works
+              {t("howItWorks")}
             </Button>
           </motion.div>
           <motion.div
@@ -77,7 +78,7 @@ export default function Hero() {
             transition={{ duration: 0.6, delay: 0.65 }}
             className="text-caption text-muted mt-10"
           >
-            12,000+ learners building streaks
+            {t("socialProof")}
           </motion.div>
         </div>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslations } from "@/i18n/client";
 import { ChevronUp, ChevronDown } from "lucide-react";
 
 type Props = {
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function NavControls({ index, total, onPrev, onNext, onSelect }: Props) {
+  const t = useTranslations("components_feed_NavControls");
   return (
     <div className="absolute top-1/2 left-6 z-20 hidden -translate-y-1/2 flex-col items-center gap-4 lg:flex xl:left-10">
       <motion.button
@@ -20,7 +22,7 @@ export default function NavControls({ index, total, onPrev, onNext, onSelect }: 
         disabled={index === 0}
         whileHover={index !== 0 ? { scale: 1.08 } : {}}
         whileTap={index !== 0 ? { scale: 0.94 } : {}}
-        aria-label="Previous card"
+        aria-label={t("previousCard")}
         className="shadow-lift text-ink flex h-11 w-11 items-center justify-center rounded-full bg-white transition-opacity disabled:cursor-not-allowed disabled:opacity-30"
       >
         <ChevronUp size={20} />
@@ -54,7 +56,7 @@ export default function NavControls({ index, total, onPrev, onNext, onSelect }: 
         disabled={index === total - 1}
         whileHover={index !== total - 1 ? { scale: 1.08 } : {}}
         whileTap={index !== total - 1 ? { scale: 0.94 } : {}}
-        aria-label="Next card"
+        aria-label={t("nextCard")}
         className="shadow-lift text-ink flex h-11 w-11 items-center justify-center rounded-full bg-white transition-opacity disabled:cursor-not-allowed disabled:opacity-30"
       >
         <ChevronDown size={20} />

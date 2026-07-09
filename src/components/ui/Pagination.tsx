@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
 import { Button } from "./Button";
 import { cn } from "@/lib/utils";
 
@@ -30,14 +31,16 @@ function pageItems(page: number, totalPages: number): (number | "gap")[] {
 
 /** Numbered pager shown under a results grid or table. */
 export function Pagination({ page, totalPages, onChange, className }: PaginationProps) {
+  const t = useTranslations("components_ui_Pagination");
+
   if (totalPages <= 1) return null;
 
   return (
     <nav
-      aria-label="Results pages"
+      aria-label={t("resultsPages")}
       className={cn("flex items-center justify-center gap-1.5", className)}
     >
-      <PagerButton label="Previous page" disabled={page === 1} onClick={() => onChange(page - 1)}>
+      <PagerButton label={t("previousPage")} disabled={page === 1} onClick={() => onChange(page - 1)}>
         <ChevronLeft className="h-4 w-4" aria-hidden />
       </PagerButton>
 
@@ -52,7 +55,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
             key={item}
             type="button"
             onClick={() => onChange(item)}
-            aria-label={`Page ${item}`}
+            aria-label={t("page", { number: item })}
             aria-current={item === page ? "page" : undefined}
             className={cn(
               "grid h-9 min-w-9 place-items-center rounded-full px-1 text-sm font-semibold transition-all active:scale-95",
@@ -67,7 +70,7 @@ export function Pagination({ page, totalPages, onChange, className }: Pagination
       )}
 
       <PagerButton
-        label="Next page"
+        label={t("nextPage")}
         disabled={page === totalPages}
         onClick={() => onChange(page + 1)}
       >

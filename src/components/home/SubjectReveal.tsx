@@ -1,7 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
+import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import {
   motion,
   useMotionValue,
@@ -97,6 +99,8 @@ type SubjectCardData = { subject: (typeof SUBJECTS)[number]; dir: Dir };
  * card fades in that opens a scrollable dialog with every subject.
  */
 export function SubjectReveal() {
+  const t = useTranslations("components_home_SubjectReveal");
+  const subjectName = useSubjectName();
   const reduced = useReducedMotion();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
@@ -248,13 +252,13 @@ export function SubjectReveal() {
               </div>
               <div className="relative px-6 text-center">
                 <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
-                  <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">Learn</span>
+                  <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">{t("learn")}</span>
                   <span className="text-violet/25 -mt-1 block text-4xl sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
-                    Something New
+                    {t("somethingNew")}
                   </span>
                 </h2>
                 <p className="text-muted mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
-                  In the time it takes to scroll.
+                  {t("scrollTagline")}
                 </p>
               </div>
             </motion.div>
@@ -304,13 +308,13 @@ export function SubjectReveal() {
                   variants={CARD_ITEM}
                   className="text-xs font-semibold tracking-[0.18em] text-white uppercase"
                 >
-                  Explore by subject
+                  {t("exploreBySubject")}
                 </motion.p>
                 <motion.h3
                   variants={CARD_ITEM}
                   className="font-display text-lilac mt-2 text-3xl leading-tight font-bold"
                 >
-                  Dive into {SUBJECTS.length} subjects
+                  {t("diveIn", { count: SUBJECTS.length })}
                 </motion.h3>
 
                 {/* subject icon preview + "see more" */}
@@ -335,7 +339,7 @@ export function SubjectReveal() {
                     className="inline-flex h-11 items-center gap-1 rounded-xl bg-white/15 px-3 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/25"
                   >
                     <Plus className="h-4 w-4" />
-                    {SUBJECTS.length - 4} more
+                    {t("more", { count: SUBJECTS.length - 4 })}
                   </button>
                 </motion.div>
 
@@ -345,7 +349,7 @@ export function SubjectReveal() {
                   onClick={() => setOpen(true)}
                   className="bg-lilac relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
                 >
-                  <span className="relative z-10">Explore by subject</span>
+                  <span className="relative z-10">{t("exploreBySubject")}</span>
                   <motion.span
                     aria-hidden
                     className="absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
@@ -370,16 +374,16 @@ export function SubjectReveal() {
             className="fixed inset-0 z-[60] flex items-end justify-center md:items-center md:p-4"
             role="dialog"
             aria-modal="true"
-            aria-label="Explore by subject"
+            aria-label={t("exploreBySubject")}
           >
             <div className="fade-in absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
             <div className="drawer-up bg-surface relative flex max-h-[85vh] w-full flex-col rounded-t-2xl md:max-w-2xl md:rounded-2xl">
               <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
-                <h2 className="font-display text-ink text-lg font-bold">Explore by subject</h2>
+                <h2 className="font-display text-ink text-lg font-bold">{t("exploreBySubject")}</h2>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  aria-label="Close"
+                  aria-label={t("close")}
                   className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
                 >
                   <X className="h-5 w-5" />
@@ -397,9 +401,9 @@ export function SubjectReveal() {
                         className="border-ink/10 hover:border-violet flex flex-col items-center gap-1.5 rounded-2xl border bg-white p-3 text-center transition-colors active:scale-95"
                       >
                         <Icon className={cn("h-6 w-6", s.color)} strokeWidth={1.75} />
-                        <span className="text-ink text-xs font-medium sm:text-sm">{s.name}</span>
+                        <span className="text-ink text-xs font-medium sm:text-sm">{subjectName(s.slug, s.name)}</span>
                         <span className="text-ink/45 text-[10px] sm:text-xs">
-                          {s.count.toLocaleString()} items
+                          {t("items", { count: s.count.toLocaleString() })}
                         </span>
                       </Link>
                     );
@@ -428,6 +432,8 @@ function SubjectCard({
   total: number;
   reduced: boolean;
 }) {
+  const t = useTranslations("components_home_SubjectReveal");
+  const subjectName = useSubjectName();
   const off = offsetFor(card.dir);
   // Cards arrive only after the centre is fully gone (>0.5), staggered by index.
   const start = 0.52 + (index / Math.max(total, 1)) * 0.38;
@@ -452,8 +458,8 @@ function SubjectCard({
           className="border-ink/10 flex flex-col items-center gap-1.5 rounded-2xl border bg-white/80 p-3 text-center shadow-sm backdrop-blur-sm"
         >
           <Icon className={cn("h-6 w-6", card.subject.color)} strokeWidth={1.75} />
-          <span className="text-ink text-sm font-medium">{card.subject.name}</span>
-          <span className="text-ink/45 text-xs">{card.subject.count.toLocaleString()} items</span>
+          <span className="text-ink text-sm font-medium">{subjectName(card.subject.slug, card.subject.name)}</span>
+          <span className="text-ink/45 text-xs">{t("items", { count: card.subject.count.toLocaleString() })}</span>
         </motion.div>
       </Link>
     </motion.div>

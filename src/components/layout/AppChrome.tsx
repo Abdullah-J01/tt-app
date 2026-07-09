@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { stripLocale } from "@/i18n/Link";
 import Navbar from "@/components/layout/Navbar";
 import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 
@@ -14,7 +15,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   // Hide header + footer on /feed and all nested routes (immersive).
-  const hideChrome = pathname.startsWith("/feed");
+  const hideChrome = stripLocale(pathname).startsWith("/feed");
   return (
     <div className="bg-surface min-h-[100svh]">
       {!hideChrome && <Navbar />}

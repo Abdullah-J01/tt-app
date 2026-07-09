@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { signOut, useSession } from "next-auth/react";
-import Link from "next/link";
+import Link from "@/i18n/Link";
 import {
   BadgeCheck,
   Bell,
@@ -24,10 +25,11 @@ import { Button } from "@/components/ui/Button";
 import { useStreak } from "@/features/streak";
 import { AchievementsCard } from "@/features/achievements";
 
-const LANGS = ["English", "Estonian", "Russian"];
+const LANGS = ["english", "estonian", "russian"];
 
 /** Profile home: identity, streak, stats, Premium upsell and shortcuts. */
 export function ProfileView() {
+  const t = useTranslations("features_profile_components_ProfileView");
   const { data: session } = useSession();
   const { data, fullName } = useProfile();
   const { streak: streakDays } = useStreak();
@@ -36,9 +38,9 @@ export function ProfileView() {
   const [langIdx, setLangIdx] = useState(0);
 
   const STATS = [
-    { value: "428", label: "Cards learned" },
-    { value: `${streakDays}`, label: "Day streak" },
-    { value: "6", label: "Completed" },
+    { value: "428", label: t("statCardsLearned") },
+    { value: `${streakDays}`, label: t("statDayStreak") },
+    { value: "6", label: t("statCompleted") },
   ];
 
   // Prefer the signed-in user's details while the stored profile is still the
@@ -53,10 +55,10 @@ export function ProfileView() {
     <div className="mx-auto max-w-2xl px-4 pb-24 sm:px-6 md:pb-12 lg:px-8">
       {/* Header */}
       <div className="flex items-center justify-between pt-6">
-        <h1 className="text-2xl font-bold">Profile</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Link
           href="/profile/settings"
-          aria-label="Settings"
+          aria-label={t("settings")}
           className="bg-lavender text-ink hover:bg-violet/10 grid h-10 w-10 place-items-center rounded-full"
         >
           <Settings className="h-5 w-5" />
@@ -81,7 +83,7 @@ export function ProfileView() {
         </div>
         <Link
           href="/profile/settings/personal"
-          aria-label="Edit profile"
+          aria-label={t("editProfile")}
           className="border-hairline text-ink hover:bg-lavender grid h-10 w-10 place-items-center rounded-full border"
         >
           <Pencil className="h-4 w-4" />
@@ -96,7 +98,7 @@ export function ProfileView() {
           onClick={() => setStreak(true)}
           className="text-amber flex items-center gap-1 hover:underline"
         >
-          <Flame className="h-4 w-4" /> {streakDays}-day streak
+          <Flame className="h-4 w-4" /> {t("dayStreak", { count: streakDays })}
         </Button>
         <span className="text-brand-green flex items-center gap-1">
           <BadgeCheck className="h-4 w-4" /> {PROFILE.plan}
@@ -129,16 +131,16 @@ export function ProfileView() {
           <Crown className="h-5 w-5" />
         </span>
         <span className="flex-1">
-          <span className="block font-bold">Go Premium</span>
-          <span className="block text-sm text-white/80">Unlock every studybook &amp; offline.</span>
+          <span className="block font-bold">{t("goPremium")}</span>
+          <span className="block text-sm text-white/80">{t("goPremiumSubtitle")}</span>
         </span>
         <ChevronRight className="h-5 w-5" />
       </Button>
 
       {/* Shortcuts */}
       <div className="divide-hairline border-hairline mt-6 divide-y border-t">
-        <RowLink icon={User} label="Account" href="/profile/settings" />
-        <RowLink icon={Bell} label="Notifications" href="/profile/settings/notifications" />
+        <RowLink icon={User} label={t("account")} href="/profile/settings" />
+        <RowLink icon={Bell} label={t("notifications")} href="/profile/settings/notifications" />
         <Button
           unstyled
           type="button"
@@ -146,8 +148,8 @@ export function ProfileView() {
           className="flex w-full items-center gap-3 py-4 text-left"
         >
           <Globe className="text-ink h-5 w-5" />
-          <span className="flex-1 font-medium">Language</span>
-          <span className="text-violet text-sm font-semibold">{LANGS[langIdx]}</span>
+          <span className="flex-1 font-medium">{t("language")}</span>
+          <span className="text-violet text-sm font-semibold">{t(LANGS[langIdx]!)}</span>
           <ChevronRight className="text-muted h-5 w-5" />
         </Button>
         <Button
@@ -157,7 +159,7 @@ export function ProfileView() {
           className="flex w-full items-center gap-3 py-4 text-left text-red-600"
         >
           <LogOut className="h-5 w-5" />
-          <span className="font-semibold">Log out</span>
+          <span className="font-semibold">{t("logOut")}</span>
         </Button>
       </div>
 

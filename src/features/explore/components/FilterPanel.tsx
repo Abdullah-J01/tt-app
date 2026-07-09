@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "@/i18n/client";
 import { Check, ChevronDown, Search } from "lucide-react";
-import { FACETS, type FilterOption } from "../filters";
+import { type FilterOption } from "../filters";
+import { useLocalizedFacets } from "../useCatalog";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
@@ -47,6 +49,8 @@ export function FilterPanel({
   searchable = false,
   className,
 }: FilterPanelProps) {
+  const t = useTranslations("features_explore_components_FilterPanel");
+  const allFacets = useLocalizedFacets();
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(["target", "subject"]));
   const [openOptions, setOpenOptions] = useState<Set<string>>(new Set());
   const [query, setQuery] = useState("");
@@ -59,24 +63,24 @@ export function FilterPanel({
   };
 
   const facets = q
-    ? FACETS.flatMap((facet) => {
+    ? allFacets.flatMap((facet) => {
         const options = matchOptions(facet.options, q);
         return options.length ? [{ ...facet, options }] : [];
       })
-    : FACETS;
+    : allFacets;
 
   return (
     <div
       className={cn("rounded-card border-hairline bg-surface overflow-hidden border", className)}
     >
       <div className="flex items-center justify-between gap-3 px-4 pt-4">
-        <h2 className="text-lg font-bold">Filter materials</h2>
+        <h2 className="text-[15px] font-bold leading-tight">{t("title")}</h2>
         {/* keyed so the badge re-pops whenever the count changes */}
         <span
           key={resultCount}
-          className="pill-in bg-lavender text-ink rounded-full px-2.5 py-1 text-xs font-semibold"
+          className="pill-in bg-lavender text-ink shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap"
         >
-          {resultCount} results
+          {t("resultCount", { count: resultCount })}
         </span>
       </div>
 
@@ -88,8 +92,8 @@ export function FilterPanel({
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search filters…"
-            aria-label="Search filters"
+            placeholder={t("searchPlaceholder")}
+            aria-label={t("searchAria")}
             className="border-hairline bg-lavender/40 placeholder:text-muted focus:border-violet h-10 w-full rounded-full border pr-4 pl-9 text-sm transition-colors outline-none"
           />
         </div>
@@ -102,14 +106,14 @@ export function FilterPanel({
           onClick={onClear}
           className="pill-in text-violet px-4 pt-3 pb-1 text-sm font-semibold hover:underline"
         >
-          Clear all ({selected.size})
+          {t("clearAll", { count: selected.size })}
         </Button>
       )}
 
       <div className="mt-3">
         {facets.length === 0 && (
           <p className="border-hairline text-muted border-t px-4 py-6 text-center text-sm">
-            No filters match “{query.trim()}”.
+            {t("noMatch", { query: query.trim() })}
           </p>
         )}
         {facets.map((facet, i) => {
@@ -205,6 +209,7 @@ function OptionRow({
   onToggleOpen: (key: string) => void;
   forceOpen?: boolean;
 }) {
+  const t = useTranslations("features_explore_components_FilterPanel");
   const key = `${facetKey}:${option.value}`;
   const checked = selected.has(key);
   const hasChildren = !!option.children?.length;
@@ -247,7 +252,7 @@ function OptionRow({
             type="button"
             onClick={() => onToggleOpen(key)}
             aria-expanded={open}
-            aria-label={open ? "Collapse" : "Expand"}
+            aria-label={open ? t("collapse") : t("expand")}
             className="text-muted hover:bg-lavender mr-2 grid h-8 w-8 shrink-0 place-items-center rounded-full transition-colors"
           >
             <ChevronDown
