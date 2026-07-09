@@ -5,13 +5,9 @@ import Link from "@/i18n/Link";
 import Image from "next/image";
 import { ArrowRight, Bookmark, BookOpen, Zap } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
-import { SUBJECTS } from "@/config/subjects";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
-
-function subjectName(slug: string) {
-  return SUBJECTS.find((s) => s.slug === slug)?.name ?? slug;
-}
 
 /**
  * Rich studybook card with a 3D flip on hover: the front shows the big title +
@@ -20,6 +16,7 @@ function subjectName(slug: string) {
  */
 export function CoverCard({ book }: { book: Studybook }) {
   const t = useTranslations("features_explore_components_CoverCard");
+  const subjectName = useSubjectName();
   const [flipped, setFlipped] = useState(false);
   const cards = book.cards.length;
   const minutes = Math.max(1, Math.round(cards * 0.5));

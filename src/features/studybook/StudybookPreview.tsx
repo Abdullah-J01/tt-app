@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import Link from "@/i18n/Link";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Lock, X } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
+import { useCurrentLocale, localizeHref } from "@/i18n/Link";
+import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
@@ -21,6 +22,8 @@ const PREVIEW_LIMIT = 3;
 export function StudybookPreview({ book }: { book: Studybook }) {
   const t = useTranslations("features_studybook_StudybookPreview");
   const router = useRouter();
+  const locale = useCurrentLocale();
+  const { requireAuth } = useAuthGuard();
   const pathname = usePathname();
   const params = useSearchParams();
   const open = params.has("preview");
@@ -151,11 +154,19 @@ export function StudybookPreview({ book }: { book: Studybook }) {
                   ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
                   : t("keepGoing")}
               </p>
-              <Link href={`/studybook/${book.slug}/read`} className="mt-6 w-full max-w-xs">
-                <Button size="lg" variant="secondary" className="w-full">
-                  {t("startLearning")}
-                </Button>
-              </Link>
+              <Button
+                size="lg"
+                variant="secondary"
+                className="mt-6 w-full max-w-xs"
+                onClick={() =>
+                  requireAuth(
+                    () => router.push(localizeHref(`/studybook/${book.slug}/read`, locale)),
+                    t("loginToLearn"),
+                  )
+                }
+              >
+                {t("startLearning")}
+              </Button>
             </div>
           )}
         </div>

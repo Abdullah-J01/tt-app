@@ -74,11 +74,11 @@ export function FilterPanel({
       className={cn("rounded-card border-hairline bg-surface overflow-hidden border", className)}
     >
       <div className="flex items-center justify-between gap-3 px-4 pt-4">
-        <h2 className="text-lg font-bold">{t("title")}</h2>
+        <h2 className="text-[15px] font-bold leading-tight">{t("title")}</h2>
         {/* keyed so the badge re-pops whenever the count changes */}
         <span
           key={resultCount}
-          className="pill-in bg-lavender text-ink rounded-full px-2.5 py-1 text-xs font-semibold"
+          className="pill-in bg-lavender text-ink shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold whitespace-nowrap"
         >
           {t("resultCount", { count: resultCount })}
         </span>

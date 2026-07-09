@@ -3,13 +3,9 @@
 import Link from "@/i18n/Link";
 import Image from "next/image";
 import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { Pill } from "@/components/ui/Pill";
-import { SUBJECTS } from "@/config/subjects";
 import type { Studybite } from "../data";
-
-function subjectName(slug: string) {
-  return SUBJECTS.find((s) => s.slug === slug)?.name ?? slug;
-}
 
 /**
  * A single "bite" (one card) shown as a horizontal card: cover thumb, the card
@@ -17,6 +13,7 @@ function subjectName(slug: string) {
  */
 export function StudybiteCard({ bite }: { bite: Studybite }) {
   const t = useTranslations("features_explore_components_StudybiteCard");
+  const subjectName = useSubjectName();
   const { card, book } = bite;
   return (
     <Link

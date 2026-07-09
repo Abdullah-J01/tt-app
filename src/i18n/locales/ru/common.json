@@ -161,7 +161,9 @@
   },
   "components_feed_ActionRail": {
     "share": "Share",
-    "openBook": "Open studybook"
+    "openBook": "Open studybook",
+    "loginToSave": "Войдите, чтобы сохранять и ставить лайки",
+    "loginToLearn": "Войдите, чтобы начать обучение"
   },
   "components_feed_FeedCard": {
     "didYouKnow": "Did you know",
@@ -818,7 +820,8 @@
   "features_studybook_StudybookActions": {
     "share": "Share",
     "saved": "Saved",
-    "save": "Save"
+    "save": "Save",
+    "loginToSave": "Войдите, чтобы сохранить"
   },
   "features_studybook_StudybookPreview": {
     "previewOf": "Preview of {title}",
@@ -831,7 +834,8 @@
     "keepGoing": "Keep going in the full reader.",
     "startLearning": "Start learning",
     "previousCard": "Previous card",
-    "nextCard": "Next card"
+    "nextCard": "Next card",
+    "loginToLearn": "Войдите, чтобы начать обучение"
   },
   "app_marketing_about_page": {
     "eyebrow": "About StudyBooks",
@@ -1107,5 +1111,29 @@
       "mattersBody": "Где это встречается в реальной жизни — и почему стоит потратить две минуты на изучение."
     },
     "unknownAuthor": "Автор неизвестен"
+  },
+  "components_auth_LoginRequired": {
+    "title": "Войдите, чтобы продолжить",
+    "message": "Создайте аккаунт или войдите, чтобы увидеть это.",
+    "login": "Войти",
+    "createAccount": "Создать аккаунт"
+  },
+  "studyBites": {
+    "nuputame-koos-transpordivahendid": {
+      "title": "ДУМАЕМ ВМЕСТЕ! Транспортные средства",
+      "description": "Учебный фрагмент «ДУМАЕМ ВМЕСТЕ! Транспортные средства» приглашает детей 5–8 лет думать, считать, сравнивать, упорядочивать и развивать внимание. Фрагмент можно использовать при изучении и повторении темы транспорта."
+    },
+    "kas-ja-kuidas-suudab-eesti-end-kaitsta": {
+      "title": "Может ли и как Эстония защитить себя?",
+      "description": "Учебный фрагмент «Может ли и как Эстония защитить себя?» помогает понять, как работает государственная оборона Эстонии, каковы основные угрозы безопасности и почему защита страны не означает только военную готовность."
+    },
+    "matemaatika-videotund-tekstulesanded": {
+      "title": "Видеоурок математики. Текстовые задачи",
+      "description": "Текстовые задачи важны как в основной школе, так и в гимназической математике. Они помогают нам записывать повседневные задачи на языке математики и тем самым находить их решения."
+    },
+    "vaike-matemaatik-kujundid": {
+      "title": "Маленький математик: круг, треугольник, четырёхугольник, шар и куб",
+      "description": "В этом учебном фрагменте мы учимся распознавать плоские фигуры (круг, треугольник, четырёхугольник) и объёмные фигуры (шар, куб) и измеряем длины и размеры предметов с помощью условных единиц."
+    }
   }
 }

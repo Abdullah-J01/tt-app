@@ -1,8 +1,7 @@
 "use client";
 
-import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "@/i18n/client";
+import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Bookmark, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -51,29 +50,25 @@ export function ShareButton({ title, className }: { title: string; className?: s
  */
 export function SaveButton({ book, full = false }: { book: Studybook; full?: boolean }) {
   const t = useTranslations("features_studybook_StudybookActions");
-  const router = useRouter();
-  const { status } = useSession();
+  const { requireAuth } = useAuthGuard();
   const { isBookSaved, toggleBook } = useLibrary();
   const saved = isBookSaved(book.slug);
 
   const toggle = () => {
-    // Saving requires a session — send guests to login and back here.
-    // Taps while the session is still resolving are ignored (no login bounce,
-    // no writes under the anonymous storage key).
-    if (status === "loading") return;
-    if (status !== "authenticated") {
-      router.push(`/login?callbackUrl=${encodeURIComponent(`/studybook/${book.slug}`)}`);
-      return;
-    }
-    toggleBook({
-      bookSlug: book.slug,
-      bookTitle: book.title,
-      bookAuthor: book.author,
-      subject: book.subjectSlug,
-      grade: book.grade,
-      cover: book.cover,
-      savedAt: 0, // stamped by the store on insert
-    });
+    // Saving requires a session — guests get the login popup instead.
+    requireAuth(
+      () =>
+        toggleBook({
+          bookSlug: book.slug,
+          bookTitle: book.title,
+          bookAuthor: book.author,
+          subject: book.subjectSlug,
+          grade: book.grade,
+          cover: book.cover,
+          savedAt: 0, // stamped by the store on insert
+        }),
+      t("loginToSave"),
+    );
   };
 
   if (full) {

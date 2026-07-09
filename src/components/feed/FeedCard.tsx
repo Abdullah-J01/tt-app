@@ -4,6 +4,7 @@ import { memo } from "react";
 import Link from "@/i18n/Link";
 import Image from "next/image";
 import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { motion } from "framer-motion";
 import { Zap, BookOpen } from "lucide-react";
 // import { cn } from "@/lib/utils"; // used by the progress strip (hidden for now)
@@ -38,6 +39,8 @@ function FeedCard({
   filterCount = 0,
 }: Props) {
   const t = useTranslations("components_feed_FeedCard");
+  const tCat = useTranslations("catalog");
+  const subjectName = useSubjectName();
   // One segment per card for short feeds; proportional fill once the feed
   // outgrows the strip (hundreds of hairline slivers help nobody).
   // Kept for when the progress strip below is re-enabled.
@@ -111,7 +114,7 @@ function FeedCard({
           className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-md"
         >
           <Zap size={12} className="fill-white/90" />
-          {card.subject} · {card.grade}
+          {subjectName(card.subject, card.subject)} · {tCat(`target.${card.grade}`)}
         </motion.div>
       </div>
 

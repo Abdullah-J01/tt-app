@@ -15,7 +15,8 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { subject } = await params;
   const t = await getTranslations("app_app_explore_subject_page");
-  return { title: SUBJECTS.find((s) => s.slug === subject)?.name ?? t("metadataFallback") };
+  const subjectName = await getSubjectName();
+  return { title: subjectName(subject, t("metadataFallback")) };
 }
 
 /** Studybooks filtered by subject (UI brief §6.4). */

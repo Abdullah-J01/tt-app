@@ -9,7 +9,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, BookOpen, Bookmark, ChevronUp, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
-import { SUBJECTS } from "@/config/subjects";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
 import type { Studybook, StudyCard } from "@/types";
@@ -58,8 +58,9 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   // just over the narrow card surface (matters on desktop where the cursor
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
+  const subjectName = useSubjectName();
 
-  const subject = SUBJECTS.find((s) => s.slug === book.subjectSlug)?.name ?? book.subjectSlug;
+  const subject = subjectName(book.subjectSlug);
   const active = cards[index];
 
   const go = useCallback(

@@ -8,7 +8,8 @@ import { useTranslations } from "@/i18n/client";
 import { Chip } from "@/components/ui/Chip";
 import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
-import { GRADES, SUBJECTS } from "@/config/subjects";
+import { GRADES } from "@/config/subjects";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { cn } from "@/lib/utils";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 import {
@@ -429,7 +430,8 @@ function ViewButton({
 /** List-view row: cover thumb, title/author, synopsis snippet, price + subject pills. */
 function BookRow({ book }: { book: Studybook }) {
   const t = useTranslations("features_explore_components_ExploreView");
-  const subject = SUBJECTS.find((s) => s.slug === book.subjectSlug)?.name ?? book.subjectSlug;
+  const subjectName = useSubjectName();
+  const subject = subjectName(book.subjectSlug);
   return (
     <Link
       href={`/studybook/${book.slug}`}

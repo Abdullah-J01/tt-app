@@ -13,6 +13,7 @@
 import { SUBJECTS } from "@/config/subjects";
 import { MOCK_STUDYBOOKS } from "./mock-data";
 import { getTranslations } from "@/i18n/server";
+import { localizeTitle } from "@/i18n/bookTitles";
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
 import type { Studybook } from "@/types";
@@ -90,31 +91,38 @@ function synthCards(id: string, title: string, subject: string, t: Translator): 
   ];
 }
 
-function mapWork(work: OLWork, subjectSlug: string, subjectName: string, t: Translator): Studybook | null {
+function mapWork(
+  work: OLWork,
+  subjectSlug: string,
+  subjectName: string,
+  t: Translator,
+  locale: Locale,
+): Studybook | null {
   if (!work.title) return null;
   const olId = work.key.replace("/works/", "");
   const id = `ol_${olId}`;
   const slug = `${slugify(work.title)}-${olId.toLowerCase()}`;
   const seed = hash(olId);
+  const title = localizeTitle(work.title, locale);
   return {
     id,
     slug,
-    title: work.title,
+    title,
     author: work.authors?.[0]?.name ?? t("unknownAuthor"),
     year: work.first_publish_year ?? 2024,
     subjectSlug,
     grade: GRADES[seed % GRADES.length]!,
     category: t("category.studyBite"),
-    synopsis: t("synopsis", { subject: subjectName, title: work.title }),
+    synopsis: t("synopsis", { subject: subjectName, title }),
     cover: work.cover_id
       ? `https://covers.openlibrary.org/b/id/${work.cover_id}-M.jpg`
       : undefined,
     priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-    cards: synthCards(id, work.title, subjectName, t),
+    cards: synthCards(id, title, subjectName, t),
   };
 }
 
-async function fetchSubject(subjectSlug: string, t: Translator): Promise<Studybook[]> {
+async function fetchSubject(subjectSlug: string, t: Translator, locale: Locale): Promise<Studybook[]> {
   const olSubject = OL_SUBJECT[subjectSlug] ?? "science";
   const subjectName = t(`subject.${subjectSlug}`);
   try {
@@ -125,7 +133,7 @@ async function fetchSubject(subjectSlug: string, t: Translator): Promise<Studybo
     if (!res.ok) return [];
     const data = (await res.json()) as { works?: OLWork[] };
     return (data.works ?? [])
-      .map((w) => mapWork(w, subjectSlug, subjectName, t))
+      .map((w) => mapWork(w, subjectSlug, subjectName, t, locale))
       .filter((b): b is Studybook => b !== null);
   } catch {
     return [];
@@ -140,7 +148,7 @@ export function getOpenLibraryCatalog(locale: Locale): Promise<Studybook[]> {
   if (!hit) {
     hit = (async () => {
       const t = await getTranslations({ locale, namespace: "catalog" });
-      const batches = await Promise.all(SUBJECTS.map((s) => fetchSubject(s.slug, t)));
+      const batches = await Promise.all(SUBJECTS.map((s) => fetchSubject(s.slug, t, locale)));
       const books = batches.flat();
       // Guard against duplicate slugs (same work under multiple subjects).
       const seen = new Set<string>();
@@ -164,7 +172,7 @@ function matchSubject(subjects?: string[]): string {
 }
 
 /** Fetch a single OL work by id (parsed from the slug) and map it to a Studybook. */
-async function fetchWork(olId: string, t: Translator): Promise<Studybook | undefined> {
+async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<Studybook | undefined> {
   try {
     const res = await fetch(`https://openlibrary.org/works/${olId}.json`, {
       next: { revalidate: 60 * 60 * 24 },
@@ -182,6 +190,7 @@ async function fetchWork(olId: string, t: Translator): Promise<Studybook | undef
     const id = `ol_${olId}`;
     const seed = hash(olId);
     const subjectSlug = matchSubject(w.subjects);
+    const title = localizeTitle(w.title, locale);
 
     // Resolve the first author's name (one extra request).
     let author = t("unknownAuthor");
@@ -203,7 +212,7 @@ async function fetchWork(olId: string, t: Translator): Promise<Studybook | undef
     return {
       id,
       slug: `${slugify(w.title)}-${olId.toLowerCase()}`,
-      title: w.title,
+      title,
       author,
       year: 2024,
       subjectSlug,
@@ -211,12 +220,12 @@ async function fetchWork(olId: string, t: Translator): Promise<Studybook | undef
       category: t("category.studyBite"),
       // Use the localized template (not OL's English description) so detail
       // pages are fully translated too.
-      synopsis: t("synopsisPlain", { title: w.title }),
+      synopsis: t("synopsisPlain", { title }),
       cover: w.covers?.[0]
         ? `https://covers.openlibrary.org/b/id/${w.covers[0]}-M.jpg`
         : undefined,
       priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-      cards: synthCards(id, w.title, t(`subject.${subjectSlug}`), t),
+      cards: synthCards(id, title, t(`subject.${subjectSlug}`), t),
     };
   } catch {
     return undefined;
@@ -235,5 +244,5 @@ export async function getOpenLibraryStudybook(slug: string, locale: Locale): Pro
   const m = slug.match(/-(ol\d+w)$/i);
   if (!m) return undefined;
   const t = await getTranslations({ locale, namespace: "catalog" });
-  return fetchWork(m[1]!.toUpperCase(), t);
+  return fetchWork(m[1]!.toUpperCase(), t, locale);
 }

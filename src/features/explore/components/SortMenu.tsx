@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { Portal } from "@/lib/Portal";
 import { cn } from "@/lib/utils";
 
 export type Sort = "popular" | "newest" | "az";
@@ -30,9 +31,28 @@ export function sortBooks<T extends { title: string; year: number; cards: unknow
 export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort) => void }) {
   const t = useTranslations("features_explore_components_SortMenu");
   const [open, setOpen] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; right: number } | null>(null);
+
+  // Anchor the portaled menu to the trigger (fixed coords) so it escapes the
+  // toolbar's transformed stacking context and always floats above the cards.
+  useLayoutEffect(() => {
+    if (!open || !wrapRef.current) return;
+    const update = () => {
+      const r = wrapRef.current!.getBoundingClientRect();
+      setPos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
+  }, [open]);
 
   return (
-    <div className="relative">
+    <div ref={wrapRef} className="relative">
       <Button
         unstyled
         type="button"
@@ -44,36 +64,41 @@ export function SortMenu({ sort, onChange }: { sort: Sort; onChange: (sort: Sort
         <ChevronDown className={cn("h-4 w-4 transition-transform", open && "rotate-180")} />
       </Button>
       {open && (
-        <>
+        <Portal>
           <Button
             unstyled
             type="button"
             aria-hidden
             tabIndex={-1}
             onClick={() => setOpen(false)}
-            className="fixed inset-0 z-10 cursor-default"
+            className="fixed inset-0 z-[70] cursor-default"
           />
-          <ul className="pop-in rounded-card border-hairline bg-surface shadow-soft absolute right-0 z-20 mt-1 w-36 overflow-hidden border py-1">
-            {SORTS.map((s) => (
-              <li key={s.key}>
-                <Button
-                  unstyled
-                  type="button"
-                  onClick={() => {
-                    onChange(s.key);
-                    setOpen(false);
-                  }}
-                  className={cn(
-                    "hover:bg-lavender block w-full px-4 py-2 text-left text-sm",
-                    s.key === sort ? "text-violet font-semibold" : "text-ink",
-                  )}
-                >
-                  {t(s.key)}
-                </Button>
-              </li>
-            ))}
-          </ul>
-        </>
+          {pos && (
+            <ul
+              className="pop-in rounded-card border-hairline bg-surface shadow-soft fixed z-[71] w-36 overflow-hidden border py-1"
+              style={{ top: pos.top, right: pos.right }}
+            >
+              {SORTS.map((s) => (
+                <li key={s.key}>
+                  <Button
+                    unstyled
+                    type="button"
+                    onClick={() => {
+                      onChange(s.key);
+                      setOpen(false);
+                    }}
+                    className={cn(
+                      "hover:bg-lavender block w-full px-4 py-2 text-left text-sm",
+                      s.key === sort ? "text-violet font-semibold" : "text-ink",
+                    )}
+                  >
+                    {t(s.key)}
+                  </Button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Portal>
       )}
     </div>
   );

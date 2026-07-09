@@ -15,6 +15,8 @@ import { feedPath } from "@/components/feed/feedData";
 import { useLazyList } from "@/lib/useLazyList";
 import { usePersistedChoice } from "@/lib/usePersistedChoice";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
+import { useLocalizeEntry, useSubjectLabel } from "@/features/library/useLocalizedEntry";
+import { AuthGate } from "@/components/auth/AuthGate";
 
 const TABS = ["cards", "studybooks"] as const;
 const CARDS_FILTERS = ["saved", "liked"] as const;
@@ -51,7 +53,16 @@ const tileVariants = {
 };
 
 /** Personal library / stash (UI brief §6.6). Liked/saved cards from the feed. */
+/** Library home. Guests get an in-page sign-in panel instead of a redirect. */
 export default function LibraryPage() {
+  return (
+    <AuthGate>
+      <LibraryContent />
+    </AuthGate>
+  );
+}
+
+function LibraryContent() {
   const t = useTranslations("app_app_library_page");
   // Active tab + cards filter survive hard reloads (non-sensitive UI state).
   const [tab, setTab] = usePersistedChoice<Tab>("tt:library-tab", "cards", TABS);
@@ -306,6 +317,8 @@ function FeedCardTile({
   onRemove: () => void;
 }) {
   const t = useTranslations("app_app_library_page");
+  const localize = useLocalizeEntry();
+  const loc = localize(entry);
   return (
     <motion.div
       whileHover={{ y: -4 }}
@@ -336,7 +349,7 @@ function FeedCardTile({
       <Link href={feedPath(entry.cardSlug)} className="relative flex h-full flex-col p-3.5">
         <div className="flex items-start justify-between gap-2">
           <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-medium text-white backdrop-blur">
-            {entry.subject}
+            {loc.subject}
           </span>
           {liked && (
             <Button
@@ -352,7 +365,7 @@ function FeedCardTile({
         </div>
 
         <p className="mt-2.5 line-clamp-4 flex-1 text-sm leading-snug font-semibold text-white">
-          {entry.heading}
+          {loc.heading}
         </p>
 
         <div className="mt-2 border-t border-white/15 pt-2">
@@ -381,6 +394,7 @@ function FeedCardTile({
  * a couple of stacked "pages" behind it for depth, subtle 3D tilt on hover.
  */
 function BookTile({ book }: { book: LibraryBook }) {
+  const subjectLabel = useSubjectLabel();
   return (
     <Link href={`/studybook/${book.bookSlug}`} className="group block [perspective:900px]">
       <motion.div
@@ -412,7 +426,7 @@ function BookTile({ book }: { book: LibraryBook }) {
           <div className="absolute inset-y-1.5 left-[3px] w-px bg-white/10" />
 
           <div className="absolute top-3 right-2.5 left-4">
-            <Pill className="bg-white/20 text-white">{book.subject}</Pill>
+            <Pill className="bg-white/20 text-white">{subjectLabel(book.subject)}</Pill>
           </div>
 
           <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent px-4 pt-8 pb-3 pl-5">

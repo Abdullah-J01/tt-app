@@ -10,6 +10,7 @@ import {
   isLocale,
   type Locale,
 } from "./config";
+import { stripLocale, localizeHref } from "./Link";
 
 /**
  * Reads the active locale from the URL and switches it by navigating to the
@@ -35,13 +36,9 @@ export function useLocaleSwitch() {
     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`;
     void i18n.changeLanguage(next);
 
-    const parts = pathname.split("/");
-    if (isLocale(parts[1])) {
-      parts[1] = next;
-    } else {
-      parts.splice(1, 0, next);
-    }
-    const nextPath = parts.join("/") || `/${next}`;
+    // Canonicalize the current path, then translate its slugs to the new locale
+    // (/et/avasta → /explore → /en/explore).
+    const nextPath = localizeHref(stripLocale(pathname), next);
     startTransition(() => router.push(nextPath));
   };
 
