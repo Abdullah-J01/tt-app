@@ -8,7 +8,6 @@ import {
   BadgeCheck,
   Bell,
   ChevronRight,
-  Crown,
   Flame,
   Globe,
   LogOut,
@@ -22,8 +21,15 @@ import { PROFILE } from "../config";
 import { Paywall } from "./Paywall";
 import { StreakMoment } from "./StreakMoment";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 import { useStreak } from "@/features/streak";
 import { AchievementsCard } from "@/features/achievements";
+import {
+  BillingSection,
+  useSubscription,
+  planBadgeLabel,
+  isActiveStatus,
+} from "@/features/billing";
 
 const LANGS = ["english", "estonian", "russian"];
 
@@ -33,6 +39,8 @@ export function ProfileView() {
   const { data: session } = useSession();
   const { data, fullName } = useProfile();
   const { streak: streakDays } = useStreak();
+  const subStatus = useSubscription();
+  const premium = isActiveStatus(subStatus);
   const [paywall, setPaywall] = useState(false);
   const [streak, setStreak] = useState(false);
   const [langIdx, setLangIdx] = useState(0);
@@ -100,8 +108,10 @@ export function ProfileView() {
         >
           <Flame className="h-4 w-4" /> {t("dayStreak", { count: streakDays })}
         </Button>
-        <span className="text-brand-green flex items-center gap-1">
-          <BadgeCheck className="h-4 w-4" /> {PROFILE.plan}
+        <span
+          className={cn("flex items-center gap-1", premium ? "text-brand-green" : "text-muted")}
+        >
+          <BadgeCheck className="h-4 w-4" /> {planBadgeLabel(subStatus)}
         </span>
       </div>
 
@@ -120,22 +130,8 @@ export function ProfileView() {
         <AchievementsCard />
       </div>
 
-      {/* Go Premium */}
-      <Button
-        unstyled
-        type="button"
-        onClick={() => setPaywall(true)}
-        className="hover-lift from-violet to-violet-dark mt-4 flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r p-4 text-left text-white"
-      >
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15">
-          <Crown className="h-5 w-5" />
-        </span>
-        <span className="flex-1">
-          <span className="block font-bold">{t("goPremium")}</span>
-          <span className="block text-sm text-white/80">{t("goPremiumSubtitle")}</span>
-        </span>
-        <ChevronRight className="h-5 w-5" />
-      </Button>
+      {/* Billing: live plan, pricing & payment method (Stripe) */}
+      <BillingSection status={subStatus} onGoPremium={() => setPaywall(true)} />
 
       {/* Shortcuts */}
       <div className="divide-hairline border-hairline mt-6 divide-y border-t">
