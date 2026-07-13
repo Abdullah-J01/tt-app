@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>You're offline · TaskuTark</title>
+    <meta name="theme-color" content="#6c4ce3" />
+    <link rel="icon" href="/favicon.png" />
+    <style>
+      :root { color-scheme: light dark; }
+      * { box-sizing: border-box; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+        background: #ffffff;
+        color: #1a1a1a;
+      }
+      @media (prefers-color-scheme: dark) {
+        body { background: #0f0f14; color: #f4f4f5; }
+      }
+      .card { max-width: 22rem; }
+      img { width: 88px; height: 88px; margin-bottom: 20px; }
+      h1 { font-size: 1.4rem; margin: 0 0 8px; }
+      p { margin: 0 0 24px; opacity: 0.75; line-height: 1.5; }
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 12px 28px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        background: #6c4ce3;
+        cursor: pointer;
+      }
+      button:active { transform: translateY(1px); }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <img src="/icons/icon-192.png" alt="TaskuTark" />
+      <h1>You're offline</h1>
+      <p>We can't reach TaskuTark right now. Check your connection and try again — your saved content will be here waiting.</p>
+      <button onclick="location.reload()">Try again</button>
+    </div>
+  </body>
+</html>

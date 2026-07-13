@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/Toaster";
 import MobileNav from "@/components/layout/MobileNav";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
 const poppins = Poppins({
@@ -31,6 +32,14 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: SITE.name,
   appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "default" },
+  icons: {
+    icon: [
+      { url: "/favicon.png", type: "image/png", sizes: "32x32" },
+      { url: "/icons/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icons/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -57,6 +66,8 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <ScrollToTop />
             {/* Global auth dialog — login/sign-up over the current page. */}
             <AuthModal />
+            {/* Custom PWA install prompt (Android/Chromium + iOS hint). */}
+            <InstallPrompt />
             <Toaster />
           </Providers>
         </TranslationsProvider>

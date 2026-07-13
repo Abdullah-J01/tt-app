@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>TaskuTark</title>
+    <meta name="theme-color" content="#6c4ce3" />
+    <style>
+      html, body { height: 100%; margin: 0; background: #6c4ce3; color: #fff; }
+      body {
+        display: grid;
+        place-items: center;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        text-align: center;
+      }
+      .spinner {
+        width: 42px; height: 42px; margin: 0 auto 18px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: spin 0.9s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      p { opacity: 0.9; }
+    </style>
+  </head>
+  <body>
+    <!--
+      Offline fallback bundled into the native app. Capacitor normally loads the
+      remote origin (see capacitor.config.ts → server.url); this screen only shows
+      if the device is offline at launch.
+    -->
+    <div>
+      <div class="spinner"></div>
+      <p>Loading TaskuTark…</p>
+    </div>
+  </body>
+</html>
