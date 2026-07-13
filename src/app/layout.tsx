@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Poppins, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import { TranslationsProvider } from "@/i18n/client";
 import { getLocale, getMessages } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
@@ -12,16 +12,25 @@ import { AuthModal } from "@/components/auth/AuthModal";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
-const poppins = Poppins({
-  subsets: ["latin"],
-  weight: ["500", "600", "700"],
+// Self-hosted fonts (from @fontsource, vendored in src/fonts) — no build-time
+// request to Google Fonts, so builds are reproducible/offline-capable and no
+// user data leaks to Google. Same families, weights and CSS variables as before.
+const poppins = localFont({
+  src: [
+    { path: "../fonts/poppins-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/poppins-latin-600-normal.woff2", weight: "600", style: "normal" },
+    { path: "../fonts/poppins-latin-700-normal.woff2", weight: "700", style: "normal" },
+  ],
   variable: "--font-poppins",
   display: "swap",
 });
 
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
+const inter = localFont({
+  src: [
+    { path: "../fonts/inter-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "../fonts/inter-latin-500-normal.woff2", weight: "500", style: "normal" },
+    { path: "../fonts/inter-latin-600-normal.woff2", weight: "600", style: "normal" },
+  ],
   variable: "--font-inter",
   display: "swap",
 });

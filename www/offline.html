@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>You're offline · TaskuTark</title>
+    <meta name="theme-color" content="#6c4ce3" />
+    <link rel="icon" href="/favicon.png" />
+    <style>
+      /* Self-contained: this page must render with ZERO network (it IS the
+         offline screen). Design tokens mirror the app (globals.css @theme). */
+      :root {
+        --violet: #6c4ce3;
+        --violet-dark: #5a3ed0;
+        --violet-tint: #ece9fb;
+        --ink: #1e1a2e;
+        --muted: #6e667a;
+        --surface: #ffffff;
+      }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      html, body { height: 100%; margin: 0; }
+      body {
+        display: grid;
+        place-items: center;
+        padding: 24px calc(24px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom))
+          calc(24px + env(safe-area-inset-left));
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, system-ui, sans-serif;
+        text-align: center;
+        color: var(--ink);
+        background:
+          radial-gradient(120% 80% at 50% -10%, var(--violet-tint) 0%, transparent 60%), var(--surface);
+      }
+      .card { width: 100%; max-width: 22rem; animation: rise 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
+      @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+      .badge {
+        width: 72px; height: 72px; margin: 0 auto 22px;
+        display: grid; place-items: center;
+        background: var(--violet-tint); border-radius: 20px;
+      }
+      h1 { font-size: 1.35rem; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      p { margin: 0 auto 26px; max-width: 18rem; color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
+      .actions { display: flex; flex-direction: column; gap: 10px; }
+      button {
+        height: 48px; border: 0; border-radius: 999px;
+        font-size: 0.95rem; font-weight: 600; font-family: inherit; cursor: pointer;
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        transition: background 0.15s ease, color 0.15s ease, opacity 0.15s ease;
+      }
+      .retry { background: var(--violet); color: #fff; }
+      .retry:active { background: var(--violet-dark); }
+      .retry[disabled] { opacity: 0.7; }
+      .close { background: transparent; color: var(--muted); }
+      .close:active { color: var(--ink); }
+      .spinner {
+        width: 18px; height: 18px; border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.4); border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+      .status { margin-top: 18px; font-size: 0.8rem; color: var(--muted); min-height: 1.1em; }
+      @media (prefers-color-scheme: dark) {
+        :root { --ink: #f4f4f5; --muted: #a5a1ad; --surface: #0f0f14; --violet-tint: #241f3a; }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="badge" aria-hidden="true">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#6c4ce3"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 2l20 20" />
+          <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+          <path d="M5 12.5a10 10 0 0 1 5.5-2.8" />
+          <path d="M2 8.8a15 15 0 0 1 4.2-2.5" />
+          <path d="M22 8.8a15 15 0 0 0-6.4-3.4" />
+          <path d="M19 12.5a10 10 0 0 0-2.5-1.8" />
+          <path d="M12 20h.01" />
+        </svg>
+      </div>
+      <h1>No Internet Connection</h1>
+      <p>You're currently offline. Please reconnect and try again.</p>
+      <div class="actions">
+        <button class="retry" id="retry" type="button">Retry</button>
+        <button class="close" id="close" type="button">Close</button>
+      </div>
+      <div class="status" id="status" role="status" aria-live="polite"></div>
+    </div>
+
+    <script>
+      // The live app to return to once connectivity is restored.
+      var APP_URL = "https://tt-app-livid.vercel.app";
+
+      var retryBtn = document.getElementById("retry");
+      var closeBtn = document.getElementById("close");
+      var statusEl = document.getElementById("status");
+      var reconnecting = false;
+
+      function goToApp() {
+        statusEl.textContent = "Reconnecting…";
+        // replace() so the offline page doesn't linger in history.
+        location.replace(APP_URL);
+      }
+
+      function setReconnecting(on, message) {
+        reconnecting = on;
+        retryBtn.disabled = on;
+        retryBtn.innerHTML = on
+          ? '<span class="spinner"></span>Reconnecting…'
+          : "Retry";
+        statusEl.textContent = message || "";
+      }
+
+      // Probe the live origin. A no-cors HEAD resolves on success and rejects
+      // when the network is unreachable — enough to know we're back.
+      function checkReachable() {
+        return fetch(APP_URL + "/manifest.webmanifest", {
+          method: "HEAD",
+          mode: "no-cors",
+          cache: "no-store",
+        })
+          .then(function () { return true; })
+          .catch(function () { return false; });
+      }
+
+      function attempt() {
+        if (reconnecting) return;
+        setReconnecting(true);
+        checkReachable().then(function (ok) {
+          if (ok) {
+            goToApp();
+          } else {
+            setReconnecting(false, "Still offline. Check your connection.");
+          }
+        });
+      }
+
+      retryBtn.addEventListener("click", attempt);
+
+      // "Close" simply retries — there's nowhere else to go from the offline
+      // shell; if still offline it reports so.
+      closeBtn.addEventListener("click", attempt);
+
+      // Auto-reconnect: react to the OS coming back online…
+      window.addEventListener("online", attempt);
+
+      // …and poll as a backstop (the 'online' event is unreliable in WebViews).
+      setInterval(function () {
+        if (!reconnecting) {
+          checkReachable().then(function (ok) { if (ok) goToApp(); });
+        }
+      }, 4000);
+    </script>
+  </body>
+</html>
