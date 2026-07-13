@@ -1,13 +1,26 @@
 {
-  "name": "StudyBooks",
-  "short_name": "StudyBooks",
-  "description": "Bite-sized, TikTok-style learning from studybooks.",
-  "start_url": "/feed",
+  "id": "/",
+  "name": "TaskuTark — Bite-sized learning",
+  "short_name": "TaskuTark",
+  "description": "Bite-sized, TikTok-style learning from TaskuTark. Swipe through short cards, save what matters, build a daily habit.",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#6c4ce3",
+  "categories": ["education", "books", "lifestyle"],
+  "lang": "en",
+  "dir": "ltr",
   "icons": [
-    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icon-maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Feed", "url": "/feed", "description": "Jump into your learning feed" },
+    { "name": "Explore", "url": "/explore", "description": "Discover new studybooks" },
+    { "name": "Library", "url": "/library", "description": "Your saved cards" }
   ]
 }

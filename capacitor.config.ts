@@ -1,18 +1,37 @@
 import type { CapacitorConfig } from "@capacitor/cli";
 
 /**
- * Capacitor wraps the STATIC export of the web app into iOS/Android shells.
- * Flow (see docs/MOBILE_PACKAGING.md):
- *   1. Enable `output: "export"` in next.config.mjs
- *   2. npm run cap:sync   (next build → copies `out/` into native projects)
- *   3. npm run cap:ios / cap:android
+ * Capacitor is configured to load the DEPLOYED web app (Vercel) rather than a
+ * static export. This keeps full SSR, API routes, next-auth and Stripe working
+ * inside the native shell — the app is essentially a hardened WebView onto the
+ * live site, with native plugins bridged in.
+ *
+ *   server.url          → the production origin the WebView loads
+ *   server.allowNavigation → extra hosts the WebView may navigate to (OAuth,
+ *                            Stripe Checkout, etc.). Add providers as you wire them.
+ *   webDir ("www")      → offline fallback bundled into the app; shown only if the
+ *                         remote origin is unreachable at launch.
+ *
+ * NOTE: A thin remote wrapper can be flagged under App Store Guideline 4.2 /
+ * Play "minimum functionality" — the native plugins added in Phase 4 are what
+ * give it genuine native capability. See docs/MOBILE_PACKAGING.md.
  */
 const config: CapacitorConfig = {
   appId: "ee.taskutark.studybooks",
-  appName: "StudyBooks",
-  webDir: "out",
+  appName: "TaskuTark",
+  webDir: "www",
   server: {
+    url: "https://tt-app-livid.vercel.app",
     androidScheme: "https",
+    iosScheme: "https",
+    cleartext: false,
+    allowNavigation: [
+      "tt-app-livid.vercel.app",
+      // OAuth / payment hosts the WebView is allowed to navigate to:
+      "accounts.google.com",
+      "*.stripe.com",
+      "checkout.stripe.com",
+    ],
   },
 };
 
