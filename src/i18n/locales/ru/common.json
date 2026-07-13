@@ -181,7 +181,8 @@
   },
   "components_feed_FeedTopBar": {
     "forYou": "For You",
-    "filterFeed": "Filter feed"
+    "filterFeed": "Filter feed",
+    "back": "Back"
   },
   "components_feed_NavControls": {
     "previousCard": "Previous card",

@@ -2,13 +2,15 @@
 
 import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/client";
-import { Flame, SlidersHorizontal } from "lucide-react";
+import { ArrowLeft, Flame, SlidersHorizontal } from "lucide-react";
 import { useStreak } from "@/features/streak";
 import { cn } from "@/lib/utils";
 
 type Props = {
   /** Drives the entrance animation — pass the active-card flag, or omit to animate once. */
   active?: boolean;
+  /** Exit the immersive feed; the back arrow only renders when set (mobile feed). */
+  onBack?: () => void;
   /** Opens the feed filter drawer; the icon only renders as a button when set. */
   onOpenFilters?: () => void;
   /** Number of applied filters — shown as a badge on the filter button. */
@@ -27,6 +29,7 @@ type Props = {
  */
 export default function FeedTopBar({
   active = true,
+  onBack,
   onOpenFilters,
   filterCount = 0,
   className,
@@ -41,15 +44,31 @@ export default function FeedTopBar({
         className,
       )}
     >
-      <motion.div
-        initial={{ opacity: 0, y: -10 }}
-        animate={active ? { opacity: 1, y: 0 } : {}}
-        transition={{ duration: 0.35, delay: 0.05 }}
-        className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
-      >
-        <Flame size={13} className="text-amber fill-amber" />
-        {streak}
-      </motion.div>
+      {/* Left cluster: back (immersive feed only) + streak */}
+      <div className="flex items-center gap-2">
+        {onBack && (
+          <motion.button
+            type="button"
+            onClick={onBack}
+            aria-label={t("back")}
+            initial={{ opacity: 0, y: -10 }}
+            animate={active ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.35, delay: 0.05 }}
+            className="pointer-events-auto grid h-8 w-8 place-items-center rounded-full bg-white/15 text-white backdrop-blur-md transition-transform active:scale-90"
+          >
+            <ArrowLeft size={16} />
+          </motion.button>
+        )}
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={active ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.35, delay: 0.05 }}
+          className="flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md"
+        >
+          <Flame size={13} className="text-amber fill-amber" />
+          {streak}
+        </motion.div>
+      </div>
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={active ? { opacity: 1, y: 0 } : {}}

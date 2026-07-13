@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { SlidersHorizontal } from "lucide-react";
@@ -39,6 +40,7 @@ function filteredCards(items: FeedItem[], selected: ReadonlySet<string>): FeedCa
 
 export default function FeedScreen() {
   const t = useTranslations("components_feed_FeedScreen");
+  const router = useRouter();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   // Applied filters drive the feed; the draft only lives while the drawer is
@@ -186,6 +188,11 @@ export default function FeedScreen() {
   const goNext = useCallback(() => goTo(index + 1), [goTo, index]);
   const goPrev = useCallback(() => goTo(index - 1), [goTo, index]);
 
+  // Exit the immersive feed. router.back() can't be used here — the feed pushes
+  // a history entry per card, so it would just step to the previous card. Send
+  // the user to Explore, a browse hub that still carries the bottom nav.
+  const goBack = useCallback(() => router.push("/explore"), [router]);
+
   // Wheel navigation (desktop). Deltas accumulate per gesture (a pause resets
   // them), so a mouse-wheel notch advances instantly while trackpad momentum
   // can't fire a second advance right after the lock releases.
@@ -306,11 +313,12 @@ export default function FeedScreen() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev, filtersOpen]);
 
-  // Mobile: opt out of AppChrome's pt-20 spacer (-mt-20) and fill the viewport
-  // minus the fixed MobileNav bar (~64px + safe-area inset) so the card gets
-  // the whole screen. md+ keeps the original 85dvh stage.
+  // Mobile: opt out of AppChrome's pt-20 spacer (-mt-20) and fill the whole
+  // viewport. The bottom nav is hidden on the feed (MobileNav bails on immersive
+  // routes), so the card claims that space too — only the home-indicator safe
+  // area is reserved. md+ keeps the original 85dvh stage.
   return (
-    <main className="relative -mt-20 flex h-[calc(100dvh-64px-env(safe-area-inset-bottom))] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
+    <main className="relative -mt-20 flex h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
       {/* <FeedNavbar streak={7} /> */}
       {/* Desktop-only: mobile keeps the immersive full-screen card (no header) */}
       <div className="max-md:hidden">
@@ -379,6 +387,7 @@ export default function FeedScreen() {
               {total > 0 && (
                 <FeedTopBar
                   className="md:hidden"
+                  onBack={goBack}
                   onOpenFilters={openFilters}
                   filterCount={applied.size}
                 />
