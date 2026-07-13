@@ -1,7 +1,11 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import type { AchievementState } from "../useAchievements";
 
 export function AchievementBadge({ badge }: { badge: AchievementState }) {
-  const { unlocked, color, emoji, title, description } = badge;
+  const t = useTranslations("features_achievements_data");
+  const { id, unlocked, color, emoji } = badge;
 
   return (
     <div className="bg-mist/40 flex flex-col items-center rounded-2xl p-4 text-center">
@@ -17,8 +21,8 @@ export function AchievementBadge({ badge }: { badge: AchievementState }) {
       >
         {emoji}
       </span>
-      <h3 className="text-ink mt-3 font-bold">{title}</h3>
-      <p className="text-muted mt-1 line-clamp-2 text-sm">{description}</p>
+      <h3 className="text-ink mt-3 font-bold">{t(`${id}_title`)}</h3>
+      <p className="text-muted mt-1 line-clamp-2 text-sm">{t(`${id}_desc`)}</p>
     </div>
   );
 }

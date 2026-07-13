@@ -86,7 +86,7 @@ export function ProfileView() {
         <div className="min-w-0 flex-1">
           <h2 className="truncate text-xl font-bold">{displayName}</h2>
           <p className="text-muted truncate text-sm">
-            @{displayHandle} · {PROFILE.grade}
+            @{displayHandle} · {t("grade", { grade: PROFILE.grade })}
           </p>
         </div>
         <Link
@@ -111,7 +111,7 @@ export function ProfileView() {
         <span
           className={cn("flex items-center gap-1", premium ? "text-brand-green" : "text-muted")}
         >
-          <BadgeCheck className="h-4 w-4" /> {planBadgeLabel(subStatus)}
+          <BadgeCheck className="h-4 w-4" /> {planBadgeLabel(subStatus, t)}
         </span>
       </div>
 

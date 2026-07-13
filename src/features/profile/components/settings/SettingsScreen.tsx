@@ -24,8 +24,12 @@ export async function SettingsScreen({ section }: { section: string }) {
       return <AppPreferences />;
     case "app-icon":
       return <AppIconSettings />;
-    default:
-      return <Placeholder label={findSettingsItem(section)?.label ?? t("settings")} />;
+    default: {
+      const item = findSettingsItem(section);
+      const tList = await getTranslations("features_profile_components_SettingsList");
+      const label = item ? tList(item.labelKey, item.labelParams) : t("settings");
+      return <Placeholder label={label} />;
+    }
   }
 }
 

@@ -46,12 +46,19 @@ export function toast(
   return id;
 }
 
+/** Translated message + Undo label — supplied by the calling component/hook,
+ *  since these module-level factories can't call the i18n hook themselves. */
+export interface ToastLabels {
+  message: string;
+  undo: string;
+}
+
 /** Confirmation toast with an Undo action that reverts the change. */
-function toastUndo(message: string, icon: ReactNode, onUndo: () => void) {
+function toastUndo(message: string, undoLabel: string, icon: ReactNode, onUndo: () => void) {
   const id = toast(message, {
     icon,
     action: {
-      label: "Undo",
+      label: undoLabel,
       onClick: () => {
         onUndo();
         dismiss(id);
@@ -61,18 +68,20 @@ function toastUndo(message: string, icon: ReactNode, onUndo: () => void) {
 }
 
 /** The "Saved to Library" toast with an Undo that reverts the save. */
-export function toastSaved(onUndo: () => void) {
+export function toastSaved(onUndo: () => void, labels: ToastLabels) {
   toastUndo(
-    "Saved to Library",
+    labels.message,
+    labels.undo,
     <Bookmark className="text-brand-green fill-brand-green h-4 w-4 shrink-0" />,
     onUndo,
   );
 }
 
 /** The "Added to Likes" toast with an Undo that reverts the like. */
-export function toastLiked(onUndo: () => void) {
+export function toastLiked(onUndo: () => void, labels: ToastLabels) {
   toastUndo(
-    "Added to Likes",
+    labels.message,
+    labels.undo,
     <Heart className="h-4 w-4 shrink-0 fill-rose-500 text-rose-500" />,
     onUndo,
   );

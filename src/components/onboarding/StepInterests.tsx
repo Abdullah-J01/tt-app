@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "@/i18n/client";
+import { useSubjectName } from "@/i18n/useSubjectName";
 import { SelectableCard } from "@/components/ui/SelectableCard";
 import type { Subject } from "@/config/subjects";
 
@@ -15,6 +16,7 @@ interface StepInterestsProps {
 /** Onboarding step 2 — multi-select interest tiles with a min-count affordance (§6.1). */
 export function StepInterests({ subjects, selected, onToggle, min = 3 }: StepInterestsProps) {
   const t = useTranslations("components_onboarding_StepInterests");
+  const subjectName = useSubjectName();
   const remaining = Math.max(0, min - selected.size);
 
   return (
@@ -31,7 +33,7 @@ export function StepInterests({ subjects, selected, onToggle, min = 3 }: StepInt
             <SelectableCard
               key={s.slug}
               orientation="vertical"
-              title={s.name}
+              title={subjectName(s.slug, s.name)}
               selected={selected.has(s.slug)}
               onSelect={() => onToggle(s.slug)}
               media={<Icon />}

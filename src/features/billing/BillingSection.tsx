@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, ChevronRight, CreditCard, Crown } from "lucide-react";
+import { useTranslations } from "@/i18n/client";
+import type { Translator } from "@/i18n/types";
 import { Button } from "@/components/ui/Button";
 import {
   daysLeft,
@@ -39,6 +41,7 @@ export function BillingSection({
 }
 
 function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unknown }> }) {
+  const t = useTranslations("features_billing_BillingSection");
   const [portalLoading, setPortalLoading] = useState(false);
   const planId = status.planId ?? "scholar";
   const cycle = status.cycle ?? "monthly";
@@ -53,7 +56,7 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
     } catch (err) {
       console.error(err);
       setPortalLoading(false);
-      alert("Couldn't open billing management. Please try again.");
+      alert(t("portalError"));
     }
   }
 
@@ -64,21 +67,22 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
           <Crown className="h-5 w-5" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-bold">{plan.name} plan</p>
+          <p className="font-bold">{t("planName", { name: plan.name })}</p>
           <p className="text-sm text-white/80">
-            {formatPrice(price)}/mo{cycle === "yearly" ? " · billed yearly" : ""}
+            {t("perMonth", { price: formatPrice(price) })}
+            {cycle === "yearly" ? t("billedYearly") : ""}
           </p>
         </div>
         <StatusPill status={status} />
       </div>
 
       <div className="p-4">
-        <p className="text-muted text-sm">{renewalLine(status)}</p>
+        <p className="text-muted text-sm">{renewalLine(status, t)}</p>
 
         {pastDue && (
           <p className="mt-2 flex items-center gap-2 text-sm font-medium text-red-600">
             <AlertTriangle className="h-4 w-4 shrink-0" />
-            Your last payment failed — update your card to keep Premium.
+            {t("paymentFailed")}
           </p>
         )}
 
@@ -90,13 +94,13 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
             leadingIcon={<CreditCard />}
             onClick={handleManage}
           >
-            {pastDue ? "Update payment method" : "Manage payment method"}
+            {pastDue ? t("updatePayment") : t("managePayment")}
           </Button>
           <Link
             href="/premium"
             className="border-hairline text-ink hover:bg-lavender inline-flex h-11 w-full items-center justify-center rounded-xl border text-sm font-semibold transition-colors"
           >
-            Change plan
+            {t("changePlan")}
           </Link>
         </div>
       </div>
@@ -105,14 +109,15 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
 }
 
 function StatusPill({ status }: { status: Extract<SubStatus, { planId: unknown }> }) {
+  const t = useTranslations("features_billing_BillingSection");
   const label =
     status.status === "trialing"
-      ? "Trial"
+      ? t("trial")
       : status.status === "active"
         ? status.cancelAtPeriodEnd
-          ? "Ending"
-          : "Active"
-        : "Action needed";
+          ? t("ending")
+          : t("active")
+        : t("actionNeeded");
   return (
     <span className="shrink-0 rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold">
       {label}
@@ -120,24 +125,23 @@ function StatusPill({ status }: { status: Extract<SubStatus, { planId: unknown }
   );
 }
 
-function renewalLine(status: Extract<SubStatus, { planId: unknown }>): string {
+/** Localized renewal/trial sentence. `t` is threaded in so it stays a pure helper. */
+function renewalLine(status: Extract<SubStatus, { planId: unknown }>, t: Translator): string {
   if (status.status === "trialing" && status.trialEnd) {
     const left = daysLeft(status.trialEnd);
-    const date = new Date(status.trialEnd).toLocaleDateString();
     return left > 0
-      ? `Free trial — ${left} day${left === 1 ? "" : "s"} left. Your card is charged on ${date}.`
-      : "Your trial ends today — your card will be charged.";
+      ? t("trialLine", { days: left, date: new Date(status.trialEnd) })
+      : t("trialEndsToday");
   }
   if (status.currentPeriodEnd) {
-    const date = new Date(status.currentPeriodEnd).toLocaleDateString();
-    return status.cancelAtPeriodEnd
-      ? `Premium ends on ${date}. You can resume anytime before then.`
-      : `Renews on ${date}.`;
+    const date = new Date(status.currentPeriodEnd);
+    return status.cancelAtPeriodEnd ? t("premiumEnds", { date }) : t("renewsOn", { date });
   }
-  return "Manage your subscription and payment method below.";
+  return t("manageBelow");
 }
 
 function UpsellCard({ onGoPremium }: { onGoPremium: () => void }) {
+  const t = useTranslations("features_billing_BillingSection");
   const scholar = PLAN_DISPLAY.scholar;
   const genius = PLAN_DISPLAY.genius;
 
@@ -153,8 +157,8 @@ function UpsellCard({ onGoPremium }: { onGoPremium: () => void }) {
           <Crown className="h-5 w-5" />
         </span>
         <span className="flex-1">
-          <span className="block font-bold">Go Premium</span>
-          <span className="block text-sm text-white/80">Unlock every studybook &amp; offline.</span>
+          <span className="block font-bold">{t("goPremium")}</span>
+          <span className="block text-sm text-white/80">{t("goPremiumSub")}</span>
         </span>
         <ChevronRight className="h-5 w-5" />
       </Button>
@@ -165,11 +169,13 @@ function UpsellCard({ onGoPremium }: { onGoPremium: () => void }) {
         className="border-hairline bg-surface hover:bg-lavender/40 mt-2 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition-colors"
       >
         <span className="text-ink flex-1">
-          <span className="font-semibold">{scholar.name}</span> {formatPrice(scholar.monthly)}/mo
+          <span className="font-semibold">{scholar.name}</span>{" "}
+          {t("perMonth", { price: formatPrice(scholar.monthly) })}
           <span className="text-muted"> · </span>
-          <span className="font-semibold">{genius.name}</span> {formatPrice(genius.monthly)}/mo
+          <span className="font-semibold">{genius.name}</span>{" "}
+          {t("perMonth", { price: formatPrice(genius.monthly) })}
         </span>
-        <span className="text-violet font-semibold">See all plans</span>
+        <span className="text-violet font-semibold">{t("seeAllPlans")}</span>
         <ChevronRight className="text-muted h-4 w-4" />
       </Link>
     </div>

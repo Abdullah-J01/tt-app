@@ -10,7 +10,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { section } = await params;
   const t = await getTranslations("app_app_profile_settings_section_page");
-  return { title: findSettingsItem(section)?.label ?? t("settings") };
+  const item = findSettingsItem(section);
+  const tList = await getTranslations("features_profile_components_SettingsList");
+  return { title: item ? tList(item.labelKey, item.labelParams) : t("settings") };
 }
 
 /** A settings detail screen (Notifications, App Preferences, App Icon, …). */
@@ -21,7 +23,9 @@ export default async function SettingsDetailPage({
 }) {
   const { section } = await params;
   const t = await getTranslations("app_app_profile_settings_section_page");
-  const title = findSettingsItem(section)?.label ?? t("settings");
+  const item = findSettingsItem(section);
+  const tList = await getTranslations("features_profile_components_SettingsList");
+  const title = item ? tList(item.labelKey, item.labelParams) : t("settings");
 
   return (
     <>

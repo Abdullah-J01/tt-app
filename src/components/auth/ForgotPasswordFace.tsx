@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { ArrowLeft, MailCheck } from "lucide-react";
 import { Button } from "@/components/ui/Button";
@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/Input";
 import { Form, useZodForm } from "@/components/ui/Form";
 import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
-import { forgotPasswordSchema, type ForgotPasswordValues } from "./schemas";
+import { makeForgotPasswordSchema, type ForgotPasswordValues } from "./schemas";
 
 /** Back-to-login flip trigger, shared by both states. */
 function BackToLogin({ onSwitch }: { onSwitch: () => void }) {
@@ -41,7 +41,8 @@ export function ForgotPasswordFace({
   const [sentEmail, setSentEmail] = useState("");
   const [sent, setSent] = useState(false);
 
-  const form = useZodForm(forgotPasswordSchema);
+  const tv = useTranslations("auth");
+  const form = useZodForm(useMemo(() => makeForgotPasswordSchema(tv), [tv]));
   const {
     register,
     formState: { errors },

@@ -44,7 +44,7 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
     } catch (err) {
       console.error(err);
       setLoading(false);
-      alert("Something went wrong starting checkout. Please try again.");
+      alert(t("checkoutError"));
     }
   }
 
@@ -69,15 +69,13 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
         <span className="bg-violet mx-auto grid h-14 w-14 place-items-center rounded-full text-white">
           <Award className="h-7 w-7" />
         </span>
-        <h2 className="mt-4 text-center text-2xl font-bold">Unlock every studybook</h2>
-        <p className="text-muted mt-2 text-center text-sm">
-          This one&apos;s Premium. Go unlimited and keep the streak growing.
-        </p>
+        <h2 className="mt-4 text-center text-2xl font-bold">{t("unlockTitle")}</h2>
+        <p className="text-muted mt-2 text-center text-sm">{t("unlockSubtitle")}</p>
 
         <ul className="mt-5 space-y-2.5">
           {FEATURES.map((f) => (
             <li key={f} className="flex items-center gap-2 text-sm">
-              <Check className="text-brand-green h-4 w-4 shrink-0" /> {f}
+              <Check className="text-brand-green h-4 w-4 shrink-0" /> {t(f)}
             </li>
           ))}
         </ul>
@@ -86,25 +84,25 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
           <PlanRow
             selected={cycle === "yearly"}
             onClick={() => setCycle("yearly")}
-            title="Annual"
-            note="30-day free trial"
+            title={t("annual")}
+            note={t("trialNote")}
             price={formatPrice(PLAN.yearly)}
-            badge={savings > 0 ? `Save ${savings}%` : undefined}
+            badge={savings > 0 ? t("savePercent", { percent: savings }) : undefined}
           />
           <PlanRow
             selected={cycle === "monthly"}
             onClick={() => setCycle("monthly")}
-            title="Monthly"
-            note="30-day free trial"
+            title={t("monthly")}
+            note={t("trialNote")}
             price={formatPrice(PLAN.monthly)}
           />
         </div>
 
         <Button block loading={loading} onClick={handleCheckout} className="mt-5" size="lg">
-          Start 30-day free trial
+          {t("startTrial")}
         </Button>
         <p className="text-muted mt-3 text-center text-xs">
-          Then {formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly)}/mo · Cancel anytime
+          {t("renewLine", { price: formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly) })}
         </p>
       </div>
     </div>

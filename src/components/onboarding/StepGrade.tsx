@@ -15,6 +15,7 @@ interface StepGradeProps {
 /** Onboarding step 1 — single-select grade cards (UI brief §6.1). */
 export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
   const t = useTranslations("components_onboarding_StepGrade");
+  const tCat = useTranslations("catalog");
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -31,8 +32,8 @@ export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
             <div key={g.slug} className="anim-item-in" style={{ animationDelay: `${i * 70}ms` }}>
               <SelectableCard
                 orientation="horizontal"
-                title={g.label}
-                subtitle={g.subtitle}
+                title={tCat(`target.${g.slug}`)}
+                subtitle={t(`subtitle_${g.slug}`)}
                 selected={isSelected}
                 onSelect={() => onSelect(g.slug)}
                 media={

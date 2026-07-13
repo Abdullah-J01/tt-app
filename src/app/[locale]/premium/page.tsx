@@ -6,6 +6,8 @@ import { Check, Crown, Loader2, Sparkles, X, Zap } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/i18n/client";
+import type { Translator } from "@/i18n/types";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { isPaidPlan, type Cycle as BillingCycle, type PaidPlanId } from "@/lib/plans";
@@ -22,63 +24,50 @@ type PlanId = "free" | "scholar" | "genius";
 
 interface Plan {
   id: PlanId;
-  name: string;
-  tagline: string;
+  /** i18n key suffix under `components_home_Plans` (e.g. "free" → freeName/freeTagline/freeFeatN). */
+  key: string;
   icon: React.ReactNode;
   monthly: number;
   yearly: number; // per month, billed yearly
   popular?: boolean;
   gradient: string;
-  features: string[];
+  /** i18n feature keys under `components_home_Plans`. */
+  featureKeys: string[];
 }
 
 const PLANS: Plan[] = [
   {
     id: "free",
-    name: "Free",
-    tagline: "Dip a toe in",
+    key: "free",
     icon: <Sparkles className="h-5 w-5" />,
     monthly: 0,
     yearly: 0,
     gradient: "from-[#8A8A9E] to-[#B7B7C6]",
-    features: [
-      "15 flashcards a day",
-      "2 subjects unlocked",
-      "20 saved cards",
-      "Ads between sessions",
-    ],
+    featureKeys: ["freeFeat1", "freeFeat2", "freeFeat3", "freeFeat4"],
   },
   {
     id: "scholar",
-    name: "Scholar",
-    tagline: "For steady study habits",
+    key: "scholar",
     icon: <Zap className="h-5 w-5" />,
     monthly: 6,
     yearly: 4.5,
     popular: true,
     gradient: "from-violet to-violet-dark",
-    features: [
-      "Unlimited flashcards",
-      "All subjects unlocked",
-      "Unlimited saved cards",
-      "Ad-free, always",
-      "Offline studybooks",
-    ],
+    featureKeys: ["scholarFeat1", "scholarFeat2", "scholarFeat3", "scholarFeat4", "scholarFeat5"],
   },
   {
     id: "genius",
-    name: "Genius",
-    tagline: "For the exam-week grind",
+    key: "genius",
     icon: <Crown className="h-5 w-5" />,
     monthly: 12,
     yearly: 9,
     gradient: "from-[#5A3ED0] to-[#B0793B]",
-    features: [
-      "Everything in Scholar",
-      "Personal study plans",
-      "Progress analytics",
-      "Priority support",
-      "Early access to new subjects",
+    featureKeys: [
+      "geniusFeat1",
+      "geniusFeat2",
+      "geniusFeat3",
+      "geniusFeat4",
+      "geniusFeat5",
     ],
   },
 ];
@@ -126,6 +115,7 @@ function daysLeft(timestampMs: number) {
 const HIGHLIGHT_COL_INDEX = 2;
 
 export default function PremiumPlansPage() {
+  const t = useTranslations("components_home_Plans");
   const [cycle, setCycle] = useState<Cycle>("monthly");
   const [stickyToggle, setStickyToggle] = useState(false);
   const [checkingOutPlan, setCheckingOutPlan] = useState<PlanId | null>(null);
@@ -143,8 +133,8 @@ export default function PremiumPlansPage() {
   const savingsLabel = useMemo(() => {
     const p = PLANS.find((p) => p.id === "genius")!;
     const pct = Math.round((1 - p.yearly / p.monthly) * 100);
-    return `Save ${pct}%`;
-  }, []);
+    return t("savePercent", { pct });
+  }, [t]);
 
   async function handleChoosePlan(planId: PlanId) {
     if (planId === "free" || checkingOutPlan) return;
@@ -166,7 +156,7 @@ export default function PremiumPlansPage() {
       console.error(err);
       setCheckingOutPlan(null);
       // Swap for a toast if your app has one.
-      alert("Something went wrong starting checkout. Please try again.");
+      alert(t("checkoutError"));
     }
   }
 
@@ -180,7 +170,7 @@ export default function PremiumPlansPage() {
     } catch (err) {
       console.error(err);
       setPortalLoading(false);
-      alert("Couldn't open billing management. Please try again.");
+      alert(t("portalError"));
     }
   }
 
@@ -359,12 +349,12 @@ export default function PremiumPlansPage() {
           transition={{ duration: 0.5, ease: easeOut }}
           className="relative text-center"
         >
-          <Pill className="bg-lavender text-violet mx-auto w-fit">Premium</Pill>
+          <Pill className="bg-lavender text-violet mx-auto w-fit">{t("premium")}</Pill>
           <h1 className="text-ink mt-4 text-3xl font-bold tracking-tight md:text-4xl">
-            Study more, forget less
+            {t("title")}
           </h1>
           <p className="text-muted mx-auto mt-3 max-w-md text-sm md:text-base">
-            Pick a plan that keeps up with how you actually study. Cancel anytime.
+            {t("subtitle")}
           </p>
         </motion.div>
 
@@ -373,6 +363,7 @@ export default function PremiumPlansPage() {
           status={subStatus}
           onManage={handleManageBilling}
           portalLoading={portalLoading}
+          t={t}
         />
 
         <motion.div
@@ -387,14 +378,14 @@ export default function PremiumPlansPage() {
               onClick={() => setCycle("monthly")}
               layoutKey="cycle-pill"
             >
-              Monthly
+              {t("monthly")}
             </CycleButton>
             <CycleButton
               active={cycle === "yearly"}
               onClick={() => setCycle("yearly")}
               layoutKey="cycle-pill"
             >
-              Yearly
+              {t("yearly")}
             </CycleButton>
           </div>
           <AnimatePresence>
@@ -424,6 +415,7 @@ export default function PremiumPlansPage() {
             <PricingCard
               plan={plan}
               cycle={cycle}
+              t={t}
               onChoose={() => handleChoosePlan(plan.id)}
               loading={checkingOutPlan === plan.id}
               disabled={checkingOutPlan !== null}
@@ -444,10 +436,12 @@ function TrialBanner({
   status,
   onManage,
   portalLoading,
+  t,
 }: {
   status: SubStatus;
   onManage: () => void;
   portalLoading: boolean;
+  t: Translator;
 }) {
   if (status.status === "loading" || status.status === "signed_out" || status.status === "none") {
     return null;
@@ -462,16 +456,14 @@ function TrialBanner({
         className="bg-lavender/60 text-violet relative mx-auto mt-5 flex w-fit items-center gap-3 rounded-full px-4 py-2 text-sm font-medium"
       >
         <span>
-          {remaining > 0
-            ? `Free trial — ${remaining} day${remaining === 1 ? "" : "s"} left, then your card is charged`
-            : "Your trial ends today"}
+          {remaining > 0 ? t("trialLeft", { days: remaining }) : t("trialEndsToday")}
         </span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="text-violet underline underline-offset-2 disabled:opacity-50"
         >
-          {portalLoading ? "Opening…" : "Manage"}
+          {portalLoading ? t("opening") : t("manage")}
         </button>
       </motion.div>
     );
@@ -486,15 +478,15 @@ function TrialBanner({
       >
         <span>
           {status.cancelAtPeriodEnd
-            ? `Subscription active — ends ${new Date(status.currentPeriodEnd).toLocaleDateString()}`
-            : "You're subscribed"}
+            ? t("subscriptionActiveEnds", { date: new Date(status.currentPeriodEnd) })
+            : t("subscribed")}
         </span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="underline underline-offset-2 disabled:opacity-50"
         >
-          {portalLoading ? "Opening…" : "Manage"}
+          {portalLoading ? t("opening") : t("manage")}
         </button>
       </motion.div>
     );
@@ -507,13 +499,13 @@ function TrialBanner({
         animate={{ opacity: 1, y: 0 }}
         className="relative mx-auto mt-5 flex w-fit items-center gap-3 rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-600"
       >
-        <span>Your last payment failed — update your card to keep Premium</span>
+        <span>{t("paymentFailed")}</span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="underline underline-offset-2"
         >
-          {portalLoading ? "Opening…" : "Update card"}
+          {portalLoading ? t("opening") : t("updateCard")}
         </button>
       </motion.div>
     );
@@ -525,6 +517,7 @@ function TrialBanner({
 function PricingCard({
   plan,
   cycle,
+  t,
   onChoose,
   loading,
   disabled,
@@ -532,20 +525,22 @@ function PricingCard({
 }: {
   plan: Plan;
   cycle: Cycle;
+  t: Translator;
   onChoose: () => void;
   loading: boolean;
   disabled: boolean;
   isCurrentPaidPlan: boolean;
 }) {
   const price = cycle === "monthly" ? plan.monthly : plan.yearly;
+  const planName = t(`${plan.key}Name`);
 
   const buttonLabel = isCurrentPaidPlan
-    ? "Current plan"
+    ? t("currentPlan")
     : plan.id === "free"
-      ? "Current plan"
+      ? t("currentPlan")
       : loading
-        ? "Redirecting…"
-        : `Start free trial — ${plan.name}`;
+        ? t("redirecting")
+        : t("startTrialPlan", { name: planName });
 
   return (
     <motion.div
@@ -575,7 +570,7 @@ function PricingCard({
           transition={{ delay: 0.3, duration: 0.4, ease: easeOut }}
           className="bg-violet absolute top-0 right-6 rounded-b-full px-3 py-1 text-[10px] font-semibold tracking-wide text-white uppercase"
         >
-          Most popular
+          {t("mostPopular")}
         </motion.span>
       )}
 
@@ -591,10 +586,10 @@ function PricingCard({
       <h3
         className={cn("relative mt-4 text-lg font-bold", plan.popular ? "text-white" : "text-ink")}
       >
-        {plan.name}
+        {planName}
       </h3>
       <p className={cn("relative mt-1 text-sm", plan.popular ? "text-white/60" : "text-muted")}>
-        {plan.tagline}
+        {t(`${plan.key}Tagline`)}
       </p>
 
       <div className="relative mt-5 flex items-end gap-1">
@@ -612,20 +607,20 @@ function PricingCard({
         </AnimatePresence>
         {price > 0 && (
           <span className={cn("mb-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-            /month{cycle === "yearly" ? ", billed yearly" : ""}
+            {cycle === "yearly" ? t("perMonthYearly") : t("perMonthMonthly")}
           </span>
         )}
       </div>
 
       {plan.id !== "free" && (
         <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-          30-day free trial, then ${price.toFixed(price % 1 === 0 ? 0 : 2)}/mo — cancel anytime
+          {t("cardRenewLine", { price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}` })}
         </p>
       )}
 
       <ul className="relative mt-6 flex-1 space-y-3">
-        {plan.features.map((feature) => (
-          <li key={feature} className="flex items-start gap-2.5">
+        {plan.featureKeys.map((featureKey) => (
+          <li key={featureKey} className="flex items-start gap-2.5">
             <span
               className={cn(
                 "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full",
@@ -635,7 +630,7 @@ function PricingCard({
               <Check className={cn("h-2.5 w-2.5", plan.popular ? "text-white" : "text-violet")} />
             </span>
             <span className={cn("text-sm", plan.popular ? "text-white/80" : "text-ink/80")}>
-              {feature}
+              {t(featureKey)}
             </span>
           </li>
         ))}

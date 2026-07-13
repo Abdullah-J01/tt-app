@@ -24,14 +24,17 @@ export const PROFILE = {
   name: "Rohab Khan",
   handle: "rohabkhan",
   email: "rohab.khan19@gmail.com",
-  grade: "Grade 7",
+  grade: 7,
   plan: "Free plan",
   subscription: "Pro",
 };
 
 export interface SettingsItem {
   id: string;
-  label: string;
+  /** i18n key under `features_profile_components_SettingsList`. */
+  labelKey: string;
+  /** Interpolation values for `labelKey` (e.g. the subscription plan name). */
+  labelParams?: Record<string, string>;
   icon: LucideIcon;
   /** Internal route or external URL. Omit for JS actions (sign out, delete). */
   href?: string;
@@ -39,7 +42,8 @@ export interface SettingsItem {
 }
 
 export interface SettingsGroup {
-  title?: string;
+  /** i18n key under `features_profile_components_SettingsList`. */
+  titleKey?: string;
   items: SettingsItem[];
 }
 
@@ -49,47 +53,47 @@ const detail = (id: string) => `/profile/settings/${id}`;
 /** Settings screen groups (mirrors the reference profile settings). */
 export const SETTINGS_GROUPS: SettingsGroup[] = [
   {
-    title: "Subscription",
+    titleKey: "groupSubscription",
     items: [
-      { id: "subscription", label: `My subscription: ${PROFILE.subscription}`, icon: Shield, href: detail("subscription") },
+      { id: "subscription", labelKey: "itemSubscription", labelParams: { plan: PROFILE.subscription }, icon: Shield, href: detail("subscription") },
     ],
   },
   {
-    title: "Content",
+    titleKey: "groupContent",
     items: [
-      { id: "followed", label: "Followed Topics", icon: Hash, href: detail("followed") },
-      { id: "notifications", label: "Notifications", icon: Bell, href: detail("notifications") },
-      { id: "email", label: "Email Subscriptions", icon: Mail, href: detail("email") },
+      { id: "followed", labelKey: "itemFollowed", icon: Hash, href: detail("followed") },
+      { id: "notifications", labelKey: "itemNotifications", icon: Bell, href: detail("notifications") },
+      { id: "email", labelKey: "itemEmail", icon: Mail, href: detail("email") },
     ],
   },
   {
-    title: "Account",
+    titleKey: "groupAccount",
     items: [
-      { id: "personal", label: "Personal Information", icon: User, href: detail("personal") },
-      { id: "preferences", label: "App Preferences", icon: SlidersHorizontal, href: detail("preferences") },
-      { id: "app-icon", label: "App Icon", icon: ImageIcon, href: detail("app-icon") },
+      { id: "personal", labelKey: "itemPersonal", icon: User, href: detail("personal") },
+      { id: "preferences", labelKey: "itemPreferences", icon: SlidersHorizontal, href: detail("preferences") },
+      { id: "app-icon", labelKey: "itemAppIcon", icon: ImageIcon, href: detail("app-icon") },
     ],
   },
   {
-    title: "Support",
+    titleKey: "groupSupport",
     items: [
-      { id: "rate", label: "Rate Us", icon: Star, href: detail("rate") },
-      { id: "invite", label: "Invite Friends", icon: UserPlus, href: "/profile/invite" },
-      { id: "contact", label: "Contact Us", icon: Smartphone, href: detail("contact") },
-      { id: "help", label: "Help Center", icon: HelpCircle, href: detail("help") },
+      { id: "rate", labelKey: "itemRate", icon: Star, href: detail("rate") },
+      { id: "invite", labelKey: "itemInvite", icon: UserPlus, href: "/profile/invite" },
+      { id: "contact", labelKey: "itemContact", icon: Smartphone, href: detail("contact") },
+      { id: "help", labelKey: "itemHelp", icon: HelpCircle, href: detail("help") },
     ],
   },
   {
-    title: "Legal",
+    titleKey: "groupLegal",
     items: [
-      { id: "tos", label: "Terms Of Service", icon: FileText, href: detail("tos") },
-      { id: "privacy", label: "Privacy Policy", icon: Lock, href: detail("privacy") },
+      { id: "tos", labelKey: "itemTos", icon: FileText, href: detail("tos") },
+      { id: "privacy", labelKey: "itemPrivacy", icon: Lock, href: detail("privacy") },
     ],
   },
   {
     items: [
-      { id: "sign-out", label: "Sign Out", icon: LogOut },
-      { id: "delete", label: "Delete Account", icon: UserX, danger: true },
+      { id: "sign-out", labelKey: "itemSignOut", icon: LogOut },
+      { id: "delete", labelKey: "itemDelete", icon: UserX, danger: true },
     ],
   },
 ];

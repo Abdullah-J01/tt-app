@@ -379,7 +379,7 @@ function FeedCardTile({
           unstyled
           type="button"
           onClick={onRemove}
-          aria-label={`Remove ${entry.heading}`}
+          aria-label={t("removeAria", { heading: entry.heading })}
           className="absolute top-4 right-2 flex h-8 w-8 items-center justify-center"
         >
           <Bookmark className="h-4 w-4 fill-white text-white md:h-6 md:w-6" fill="currentColor" />

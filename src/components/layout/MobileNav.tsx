@@ -110,7 +110,7 @@ export default function MobileNav() {
           <>
             <motion.button
               type="button"
-              aria-label="Close search"
+              aria-label={t("common.close")}
               onClick={() => setSearchOpen(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -131,15 +131,15 @@ export default function MobileNav() {
                   unstyled
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Search studybooks, subjects…"
-                  aria-label="Search studybooks, subjects"
+                  placeholder={t("common.searchPlaceholder")}
+                  aria-label={t("common.search")}
                   className="text-ink placeholder:text-muted w-full bg-transparent text-base outline-none"
                 />
                 <Button
                   unstyled
                   type="button"
                   onClick={() => setSearchOpen(false)}
-                  aria-label="Close search"
+                  aria-label={t("common.close")}
                   className="text-ink/60 hover:text-ink hover:bg-ink/5 -mr-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors"
                 >
                   <X size={18} />
@@ -155,7 +155,7 @@ export default function MobileNav() {
         {moreOpen && (
           <motion.button
             type="button"
-            aria-label="Close menu"
+            aria-label={t("common.close")}
             onClick={() => setMoreOpen(false)}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -173,7 +173,7 @@ export default function MobileNav() {
             <motion.div
               id="mobile-more-panel"
               role="menu"
-              aria-label="More"
+              aria-label={t("nav.more")}
               initial={{ opacity: 0, y: 28, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 28, scale: 0.96 }}
@@ -194,7 +194,7 @@ export default function MobileNav() {
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
                   <Search size={18} className="text-ink/70" aria-hidden />
                 </span>
-                <span className="flex-1 text-left">Search</span>
+                <span className="flex-1 text-left">{t("common.search")}</span>
                 <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
               </Button>
 
@@ -222,7 +222,7 @@ export default function MobileNav() {
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
                     <ShieldCheck size={18} className="text-ink/70" aria-hidden />
                   </span>
-                  <span className="flex-1 text-left">Admin dashboard</span>
+                  <span className="flex-1 text-left">{t("nav.adminDashboard")}</span>
                   <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
                 </Link>
               )}
@@ -239,7 +239,7 @@ export default function MobileNav() {
                     }}
                     className="rounded-2xl py-3 text-sm font-medium text-white"
                   >
-                    Log out
+                    {t("nav.logout")}
                   </Button>
                 ) : (
                   <Button
@@ -252,7 +252,7 @@ export default function MobileNav() {
                     }}
                     className="rounded-2xl py-3 text-sm font-medium text-white"
                   >
-                    Log in
+                    {t("nav.login")}
                   </Button>
                 )}
               </div>
@@ -261,7 +261,7 @@ export default function MobileNav() {
         </AnimatePresence>
 
         <nav
-          aria-label="Primary"
+          aria-label={t("nav.primary")}
           className="glass border-border border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
         >
           <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6 lg:px-8">
@@ -277,7 +277,7 @@ export default function MobileNav() {
                     )}
                   >
                     <Icon className="h-[22px] w-[22px]" aria-hidden />
-                    {item.label}
+                    {t(`nav.${item.href.slice(1)}`)}
                   </Link>
                 </li>
               );
@@ -293,7 +293,7 @@ export default function MobileNav() {
                   )}
                 >
                   <User className="h-[22px] w-[22px]" aria-hidden />
-                  Profile
+                  {t("nav.profile")}
                 </Link>
               </li>
             )}
@@ -303,7 +303,7 @@ export default function MobileNav() {
                 unstyled
                 type="button"
                 onClick={() => setMoreOpen((v) => !v)}
-                aria-label="More"
+                aria-label={t("nav.more")}
                 aria-haspopup="menu"
                 aria-expanded={moreOpen}
                 aria-controls="mobile-more-panel"
@@ -313,7 +313,7 @@ export default function MobileNav() {
                 )}
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />
-                More
+                {t("nav.more")}
               </Button>
             </li>
           </ul>

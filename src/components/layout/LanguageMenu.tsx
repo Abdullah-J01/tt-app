@@ -5,6 +5,7 @@ import { Check, ChevronDown, ChevronUp, Globe } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { SELECTABLE_LOCALES, type Locale } from "@/i18n/config";
 import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
+import { useTranslations } from "@/i18n/client";
 
 /** Short name shown on the toggle (in the language's own tongue). */
 const SHORT_LABELS: Record<Locale, string> = {
@@ -27,6 +28,7 @@ const OPTION_LABELS: Record<Locale, string> = {
  */
 export function LanguageMenu() {
   const { locale, setLocale } = useLocaleSwitch();
+  const t = useTranslations("common");
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
 
@@ -56,7 +58,7 @@ export function LanguageMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="Language"
+        aria-label={t("language")}
         className="text-ink/80 hover:text-ink flex items-center gap-1.5 text-sm font-medium leading-none transition-colors"
       >
         <Globe size={16} />
@@ -67,7 +69,7 @@ export function LanguageMenu() {
       {open && (
         <div
           role="menu"
-          aria-label="Language"
+          aria-label={t("language")}
           className="glass border-border shadow-lift absolute top-full right-0 z-50 mt-3 w-44 overflow-hidden rounded-2xl border p-1.5"
         >
           {SELECTABLE_LOCALES.map((l) => (

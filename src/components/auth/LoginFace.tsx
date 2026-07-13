@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
@@ -10,7 +11,7 @@ import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
 import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
-import { loginSchema, type LoginValues } from "./schemas";
+import { makeLoginSchema, type LoginValues } from "./schemas";
 
 /** Log-in face of the auth flip card (UI brief §6.2). `onSwitch` flips to sign-up, `onForgot` to password reset. */
 export function LoginFace({
@@ -37,7 +38,8 @@ export function LoginFace({
     return `/post-login?to=${encodeURIComponent(fallback)}`;
   };
 
-  const form = useZodForm(loginSchema);
+  const tv = useTranslations("auth");
+  const form = useZodForm(useMemo(() => makeLoginSchema(tv), [tv]));
   const {
     register,
     formState: { errors },

@@ -5,6 +5,8 @@
 // src/lib/plans.ts); the numbers here are display-only and must be kept in
 // sync with the Prices you create in the Dashboard.
 
+import type { Translator } from "@/i18n/types";
+
 export type PlanId = "free" | "scholar" | "genius";
 export type Cycle = "monthly" | "yearly";
 
@@ -75,12 +77,16 @@ export function daysLeft(timestampMs: number): number {
   return Math.max(0, Math.ceil((timestampMs - Date.now()) / (1000 * 60 * 60 * 24)));
 }
 
-/** Short plan label for the profile badge, e.g. "Scholar · Trial". */
-export function planBadgeLabel(s: SubStatus): string {
+/**
+ * Short plan label for the profile badge, e.g. "Scholar · Trial". `t` is a
+ * translator bound to `features_profile_components_ProfileView` (keys `planFree`
+ * and `planTrial`); plan names stay as brand terms.
+ */
+export function planBadgeLabel(s: SubStatus, t: Translator): string {
   if (s.status === "loading") return "…";
-  if (!("planId" in s) || !s.planId || !isActiveStatus(s)) return "Free plan";
+  if (!("planId" in s) || !s.planId || !isActiveStatus(s)) return t("planFree");
   const name = PLAN_DISPLAY[s.planId].name;
-  return s.status === "trialing" ? `${name} · Trial` : name;
+  return s.status === "trialing" ? t("planTrial", { name }) : name;
 }
 
 /** POST /api/stripe/checkout, then redirect to Stripe Checkout. */

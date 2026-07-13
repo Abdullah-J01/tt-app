@@ -28,10 +28,10 @@ export function SettingsList() {
   return (
     <div className="space-y-6">
       {SETTINGS_GROUPS.map((group, gi) => (
-        <section key={group.title ?? `group-${gi}`}>
-          {group.title && (
+        <section key={group.titleKey ?? `group-${gi}`}>
+          {group.titleKey && (
             <h2 className="text-muted px-1 pb-1 text-xs font-bold tracking-wide uppercase">
-              {group.title}
+              {t(group.titleKey)}
             </h2>
           )}
           <ul className="divide-hairline rounded-card border-hairline bg-surface divide-y overflow-hidden border">
@@ -65,6 +65,7 @@ export function SettingsList() {
 }
 
 function Row({ item }: { item: SettingsItem }) {
+  const t = useTranslations("features_profile_components_SettingsList");
   const Icon = item.icon;
   return (
     <span
@@ -74,7 +75,7 @@ function Row({ item }: { item: SettingsItem }) {
       )}
     >
       <Icon className={cn("h-5 w-5 shrink-0", item.danger ? "text-red-600" : "text-ink")} />
-      <span className="flex-1 font-medium">{item.label}</span>
+      <span className="flex-1 font-medium">{t(item.labelKey, item.labelParams)}</span>
       {item.href && <ChevronRight className="text-muted h-5 w-5 shrink-0" />}
     </span>
   );

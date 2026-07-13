@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, MapPin, MessageCircle, Send, CheckCircle2 } from "lucide-react";
 import { z } from "zod";
@@ -13,14 +13,18 @@ import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
 import { useZodForm } from "@/components/ui/Form";
 
-const contactSchema = z.object({
-  name: z.string().min(1, "Please enter your name"),
-  email: z.string().min(1, "Email is required").pipe(z.email("Enter a valid email")),
-  message: z.string().min(1, "Please enter a message"),
-});
-
 export default function ContactPage() {
   const t = useTranslations("app_marketing_contact_page");
+
+  const contactSchema = useMemo(
+    () =>
+      z.object({
+        name: z.string().min(1, t("valName")),
+        email: z.string().min(1, t("valEmailRequired")).pipe(z.email(t("valEmailInvalid"))),
+        message: z.string().min(1, t("valMessage")),
+      }),
+    [t],
+  );
 
   const channels = [
     {
@@ -185,7 +189,7 @@ export default function ContactPage() {
                       <Input
                         unstyled
                         type="text"
-                        placeholder="Ada Lovelace"
+                        placeholder={t("namePlaceholder")}
                         className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full rounded-xl border px-4 py-2.5 text-sm transition-all outline-none focus:ring-2"
                         {...register("name")}
                       />
@@ -196,7 +200,7 @@ export default function ContactPage() {
                       <Input
                         unstyled
                         type="email"
-                        placeholder="ada@example.com"
+                        placeholder={t("emailInputPlaceholder")}
                         className="border-border text-ink placeholder:text-muted/70 focus:border-violet focus:ring-violet/15 w-full rounded-xl border px-4 py-2.5 text-sm transition-all outline-none focus:ring-2"
                         {...register("email")}
                       />

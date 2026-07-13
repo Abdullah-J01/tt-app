@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
@@ -10,12 +11,13 @@ import { PasswordField } from "./PasswordField";
 import { OrDivider } from "./OrDivider";
 import { AuthHeader } from "./AuthHeader";
 import { GLASS_CARD, GLASS_FIELD, GLASS_INPUT, GLASS_LABEL } from "./authStyles";
-import { signupSchema, type SignupValues } from "./schemas";
+import { makeSignupSchema, type SignupValues } from "./schemas";
 
 /** Sign-up face of the auth flip card (UI brief §6.2). `onSwitch` flips to log-in. */
 export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClose: () => void }) {
   const t = useTranslations("components_auth_SignupFace");
-  const form = useZodForm(signupSchema);
+  const tv = useTranslations("auth");
+  const form = useZodForm(useMemo(() => makeSignupSchema(tv), [tv]));
   const {
     register,
     formState: { errors },

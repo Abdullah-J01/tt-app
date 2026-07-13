@@ -2,9 +2,17 @@
 
 import i18next, { type i18n as I18nInstance } from "i18next";
 import { initReactI18next, I18nextProvider, useTranslation } from "react-i18next";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, type ReactNode } from "react";
-import { DEFAULT_LOCALE, LOCALES, NAMESPACE, isLocale, type Locale } from "./config";
+import {
+  DEFAULT_LOCALE,
+  LOCALE_COOKIE,
+  LOCALES,
+  NAMESPACE,
+  isLocale,
+  type Locale,
+} from "./config";
+import { stripLocale, localizeHref } from "./Link";
 import { lookup, formatMessage, formatRich } from "./format";
 import type { Translator, TranslateValues, RichValues } from "./types";
 import enMessages from "./locales/en/common.json";
@@ -36,21 +44,41 @@ function createI18n(locale: Locale): I18nInstance {
   return instance;
 }
 
+/** Read the chosen locale from the NEXT_LOCALE cookie (client only). */
+function readLocaleCookie(): Locale | null {
+  if (typeof document === "undefined") return null;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${LOCALE_COOKIE}=([^;]+)`));
+  const value = match?.[1];
+  return isLocale(value) ? value : null;
+}
+
 /**
- * Keeps the client language locked to the URL's locale segment. usePathname
- * updates on every client navigation (switcher, links, back/forward), so this
- * makes a single click switch the language and never drift out of sync — even
- * though the root-layout provider itself doesn't re-render on navigation.
+ * Keeps the client language in sync on every client navigation (switcher, links,
+ * back/forward) — the root-layout provider itself doesn't re-render on navigation.
+ *
+ * The NEXT_LOCALE cookie is the user's *chosen* language and the source of truth.
+ * On a client-side Back/Forward to a history entry whose URL still carries an
+ * older locale prefix (e.g. you were on /et/…, switched to /en/…, then hit Back),
+ * the stale URL would otherwise win and silently revert the language. So when the
+ * URL locale disagrees with the chosen one, we rewrite the URL to match the choice
+ * instead of following it. Full-page loads are unaffected: middleware syncs the
+ * cookie from the URL there, so shared /et or /en links still open as authored.
  */
 function LocaleSync() {
   const { i18n } = useTranslation(NAMESPACE);
   const pathname = usePathname();
+  const router = useRouter();
   const seg = pathname.split("/")[1];
   const urlLocale: Locale = isLocale(seg) ? seg : DEFAULT_LOCALE;
 
   useEffect(() => {
+    const chosen = readLocaleCookie() ?? urlLocale;
+    if (chosen !== urlLocale) {
+      router.replace(localizeHref(stripLocale(pathname), chosen));
+      return;
+    }
     if (i18n.language !== urlLocale) void i18n.changeLanguage(urlLocale);
-  }, [i18n, urlLocale]);
+  }, [i18n, router, pathname, urlLocale]);
 
   return null;
 }

@@ -45,6 +45,7 @@ interface ExploreViewProps {
  */
 export function ExploreView({ books, studybites }: ExploreViewProps) {
   const t = useTranslations("features_explore_components_ExploreView");
+  const tCat = useTranslations("catalog");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("books");
@@ -142,7 +143,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
           {GRADES.map((g) =>
             g.slug === "all" ? (
               <Chip key={g.slug} selected={!anyTarget} onClick={clearTarget} className="shrink-0">
-                {g.label}
+                {t("allGrades")}
               </Chip>
             ) : (
               <Chip
@@ -151,7 +152,7 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
                 onClick={() => toggle(`target:${g.slug}`)}
                 className="shrink-0"
               >
-                {g.label}
+                {tCat(`target.${g.slug}`)}
               </Chip>
             ),
           )}

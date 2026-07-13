@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "next-auth/react";
 import { IS_DEV_MODE } from "@/lib/env";
+import { useTranslations } from "@/i18n/client";
 import { toastLiked, toastSaved } from "@/components/ui/Toaster";
 
 /**
@@ -99,6 +100,7 @@ const bookKey = (e: BookEntry) => e.bookSlug;
  * (feed actions, Library page, other tabs) in sync via storage/custom events.
  */
 export function useLibrary() {
+  const t = useTranslations("components_ui_Toaster");
   const { data: session } = useSession();
   const key = storageKey(session?.user?.email);
 
@@ -150,15 +152,17 @@ export function useLibrary() {
       });
       // Confirm only on like (not un-like), with an Undo that removes it again.
       if (didLike) {
-        toastLiked(() =>
-          apply((prev) => ({
-            ...prev,
-            liked: prev.liked.filter((e) => cardKey(e) !== entry.cardId),
-          })),
+        toastLiked(
+          () =>
+            apply((prev) => ({
+              ...prev,
+              liked: prev.liked.filter((e) => cardKey(e) !== entry.cardId),
+            })),
+          { message: t("addedToLikes"), undo: t("undo") },
         );
       }
     },
-    [apply],
+    [apply, t],
   );
 
   const toggleSaved = useCallback(
@@ -170,15 +174,17 @@ export function useLibrary() {
       });
       // Confirm only on save (not un-save), with an Undo that removes it again.
       if (didSave) {
-        toastSaved(() =>
-          apply((prev) => ({
-            ...prev,
-            saved: prev.saved.filter((e) => cardKey(e) !== entry.cardId),
-          })),
+        toastSaved(
+          () =>
+            apply((prev) => ({
+              ...prev,
+              saved: prev.saved.filter((e) => cardKey(e) !== entry.cardId),
+            })),
+          { message: t("savedToLibrary"), undo: t("undo") },
         );
       }
     },
-    [apply],
+    [apply, t],
   );
 
   const toggleBook = useCallback(
@@ -189,15 +195,17 @@ export function useLibrary() {
         return { ...prev, books: toggle(prev.books, entry, bookKey) };
       });
       if (didSave) {
-        toastSaved(() =>
-          apply((prev) => ({
-            ...prev,
-            books: prev.books.filter((e) => bookKey(e) !== entry.bookSlug),
-          })),
+        toastSaved(
+          () =>
+            apply((prev) => ({
+              ...prev,
+              books: prev.books.filter((e) => bookKey(e) !== entry.bookSlug),
+            })),
+          { message: t("savedToLibrary"), undo: t("undo") },
         );
       }
     },
-    [apply],
+    [apply, t],
   );
 
   const isLiked = useCallback(

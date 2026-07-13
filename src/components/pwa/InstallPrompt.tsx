@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useTranslations } from "@/i18n/client";
 
 /**
  * Custom PWA install prompt.
@@ -38,6 +39,7 @@ function isIos() {
 }
 
 export function InstallPrompt() {
+  const t = useTranslations("components_pwa_InstallPrompt");
   const [deferred, setDeferred] = useState<BeforeInstallPromptEvent | null>(null);
   const [showIosHint, setShowIosHint] = useState(false);
 
@@ -86,15 +88,15 @@ export function InstallPrompt() {
   return (
     <div
       role="dialog"
-      aria-label="Install TaskuTark"
+      aria-label={t("title")}
       className="fixed inset-x-3 bottom-20 z-[60] mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-black/5 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4 dark:border-white/10 dark:bg-neutral-900/95"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/icons/icon-192.png" alt="" className="h-11 w-11 rounded-xl" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">Install TaskuTark</p>
+        <p className="text-sm font-semibold">{t("title")}</p>
         <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
-          {showIosHint ? "Tap Share, then “Add to Home Screen”." : "Add it to your home screen."}
+          {showIosHint ? t("iosHint") : t("addToHome")}
         </p>
       </div>
       {deferred && (
@@ -102,12 +104,12 @@ export function InstallPrompt() {
           onClick={install}
           className="shrink-0 rounded-full bg-[#6c4ce3] px-4 py-2 text-sm font-semibold text-white"
         >
-          Install
+          {t("install")}
         </button>
       )}
       <button
         onClick={dismiss}
-        aria-label="Dismiss"
+        aria-label={t("dismiss")}
         className="shrink-0 rounded-full p-2 text-neutral-400 hover:text-neutral-600"
       >
         ✕

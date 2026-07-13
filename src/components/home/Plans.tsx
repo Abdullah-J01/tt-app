@@ -537,6 +537,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "@/i18n/client";
+import type { Translator } from "@/i18n/types";
 
 import { Check, Crown, Loader2, Sparkles, X, Zap } from "lucide-react";
 import gsap from "gsap";
@@ -686,7 +687,7 @@ export default function PremiumPlansPage() {
       console.error(err);
       setCheckingOutPlan(null);
       // Swap for a toast if your app has one.
-      alert("Something went wrong starting checkout. Please try again.");
+      alert(t("checkoutError"));
     }
   }
 
@@ -700,7 +701,7 @@ export default function PremiumPlansPage() {
     } catch (err) {
       console.error(err);
       setPortalLoading(false);
-      alert("Couldn't open billing management. Please try again.");
+      alert(t("portalError"));
     }
   }
 
@@ -891,6 +892,7 @@ export default function PremiumPlansPage() {
           status={subStatus}
           onManage={handleManageBilling}
           portalLoading={portalLoading}
+          t={t}
         />
 
         <motion.div
@@ -962,10 +964,12 @@ function TrialBanner({
   status,
   onManage,
   portalLoading,
+  t,
 }: {
   status: SubStatus;
   onManage: () => void;
   portalLoading: boolean;
+  t: Translator;
 }) {
   if (status.status === "loading" || status.status === "signed_out" || status.status === "none") {
     return null;
@@ -980,16 +984,14 @@ function TrialBanner({
         className="bg-lavender/60 text-violet relative mx-auto mt-5 flex w-fit items-center gap-3 rounded-full px-4 py-2 text-sm font-medium"
       >
         <span>
-          {remaining > 0
-            ? `Free trial — ${remaining} day${remaining === 1 ? "" : "s"} left, then your card is charged`
-            : "Your trial ends today"}
+          {remaining > 0 ? t("trialLeft", { days: remaining }) : t("trialEndsToday")}
         </span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="text-violet underline underline-offset-2 disabled:opacity-50"
         >
-          {portalLoading ? "Opening…" : "Manage"}
+          {portalLoading ? t("opening") : t("manage")}
         </button>
       </motion.div>
     );
@@ -1004,15 +1006,15 @@ function TrialBanner({
       >
         <span>
           {status.cancelAtPeriodEnd
-            ? `Subscription active — ends ${new Date(status.currentPeriodEnd).toLocaleDateString()}`
-            : "You're subscribed"}
+            ? t("subscriptionActiveEnds", { date: new Date(status.currentPeriodEnd) })
+            : t("subscribed")}
         </span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="underline underline-offset-2 disabled:opacity-50"
         >
-          {portalLoading ? "Opening…" : "Manage"}
+          {portalLoading ? t("opening") : t("manage")}
         </button>
       </motion.div>
     );
@@ -1025,13 +1027,13 @@ function TrialBanner({
         animate={{ opacity: 1, y: 0 }}
         className="relative mx-auto mt-5 flex w-fit items-center gap-3 rounded-full bg-red-50 px-4 py-2 text-sm font-medium text-red-600"
       >
-        <span>Your last payment failed — update your card to keep Premium</span>
+        <span>{t("paymentFailed")}</span>
         <button
           onClick={onManage}
           disabled={portalLoading}
           className="underline underline-offset-2"
         >
-          {portalLoading ? "Opening…" : "Update card"}
+          {portalLoading ? t("opening") : t("updateCard")}
         </button>
       </motion.div>
     );
@@ -1060,12 +1062,12 @@ function PricingCard({
   const name = t(plan.name);
 
   const buttonLabel = isCurrentPaidPlan
-    ? "Current plan"
+    ? t("currentPlan")
     : plan.id === "free"
-      ? "Current plan"
+      ? t("currentPlan")
       : loading
-        ? "Redirecting…"
-        : `Start free trial — ${name}`;
+        ? t("redirecting")
+        : t("startTrialPlan", { name });
 
   return (
     <motion.div
@@ -1139,7 +1141,7 @@ function PricingCard({
 
       {plan.id !== "free" && (
         <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-          30-day free trial, then ${price.toFixed(price % 1 === 0 ? 0 : 2)}/mo — cancel anytime
+          {t("cardRenewLine", { price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}` })}
         </p>
       )}
 
