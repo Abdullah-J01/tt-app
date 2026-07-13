@@ -245,7 +245,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               the card (not items-center): auto margins collapse to 0 when the
               card is taller than the area, so it top-aligns and overflows
               downward instead of riding up under the header. */}
-          <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+7.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
+          <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
             <AnimatePresence mode="popLayout" custom={dir} initial={false}>
               <motion.div
                 key={active.id}
@@ -289,9 +289,10 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             type="button"
             onClick={goNext}
             aria-label={t("nextCard")}
-            // Mobile: cleared above the fixed bottom nav (its height + safe
-            // area); sm+ the reader is a windowed card, so back to bottom-8.
-            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+4.75rem)] z-20 flex flex-col items-center gap-1 text-white/60 sm:bottom-8"
+            // Mobile: the bottom nav is hidden on the reader, so this sits just
+            // above the home-indicator safe area; sm+ the reader is a windowed
+            // card, so back to bottom-8.
+            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 flex flex-col items-center gap-1 text-white/60 sm:bottom-8"
           >
             <motion.span
               animate={{ y: [0, -5, 0] }}
@@ -305,7 +306,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
 
         {/* Action rail (Save / Like / Share) — sibling of the frame so it sits
             inside the card on mobile and outside it on desktop, like the feed. */}
-        <div className="absolute right-4 bottom-28 z-30 sm:bottom-32 lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-full lg:ml-5 lg:-translate-y-1/2">
+        <div className="absolute right-4 bottom-[calc(env(safe-area-inset-bottom)+3rem)] z-30 sm:bottom-32 lg:top-1/2 lg:right-auto lg:bottom-auto lg:left-full lg:ml-5 lg:-translate-y-1/2">
           <ActionRail entry={toEntry(active, book)} shareTitle={book.title} />
         </div>
       </div>

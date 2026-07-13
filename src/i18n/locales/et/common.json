@@ -181,7 +181,8 @@
   },
   "components_feed_FeedTopBar": {
     "forYou": "Sinu jaoks",
-    "filterFeed": "Filtreeri voogu"
+    "filterFeed": "Filtreeri voogu",
+    "back": "Tagasi"
   },
   "components_feed_NavControls": {
     "previousCard": "Eelmine kaart",

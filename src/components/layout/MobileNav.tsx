@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthModal } from "@/components/auth/useAuthModal";
 import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
+import { stripLocale } from "@/i18n/Link";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -56,13 +57,14 @@ export default function MobileNav() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
 
-  // The studybook reader (full page and intercepted modal both end in /read)
-  // is an immersive dark plum surface — the bar switches to its dark-glass
-  // variant there so it blends with the card instead of floating as a light
-  // strip. Overlays (More panel, search) keep the light glass: they open
-  // above a dimmed page, not on the plum surface.
-  const onDark = pathname.endsWith("/read");
-  const tabIdle = onDark ? "text-white/60 hover:text-white" : "text-ink/60 hover:text-ink";
+  // Immersive card surfaces — the "For You" feed and the studybook reader
+  // (full page + intercepted modal, both end in /read) — take over the whole
+  // screen so the reader can concentrate on one card. The bottom bar is hidden
+  // there (mobile only); each surface owns its own back control instead. Every
+  // other route keeps the persistent light-glass bar.
+  const route = stripLocale(pathname);
+  const immersive = route.startsWith("/feed") || route.endsWith("/read");
+  const tabIdle = "text-ink/60 hover:text-ink";
 
   // Lock body scroll and close on Escape whenever an overlay is showing.
   useEffect(() => {
@@ -95,6 +97,10 @@ export default function MobileNav() {
     setMoreOpen(false);
     setSearchOpen(true);
   };
+
+  // Immersive routes render no bar at all — bail after the hooks above so the
+  // rules-of-hooks order stays stable across route changes.
+  if (immersive) return null;
 
   return (
     <div className="md:hidden">
@@ -256,12 +262,7 @@ export default function MobileNav() {
 
         <nav
           aria-label="Primary"
-          className={cn(
-            "border-t pb-[env(safe-area-inset-bottom)]",
-            onDark
-              ? "glass-dark border-white/10"
-              : "glass border-border shadow-[0_-8px_30px_rgba(30,26,46,0.08)]",
-          )}
+          className="glass border-border border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
         >
           <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6 lg:px-8">
             {SITE.nav.map((item, i) => {
@@ -272,7 +273,7 @@ export default function MobileNav() {
                     href={item.href}
                     className={cn(
                       "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                      i === 0 ? (onDark ? "text-white" : "text-ink") : tabIdle,
+                      i === 0 ? "text-ink" : tabIdle,
                     )}
                   >
                     <Icon className="h-[22px] w-[22px]" aria-hidden />
@@ -308,7 +309,7 @@ export default function MobileNav() {
                 aria-controls="mobile-more-panel"
                 className={cn(
                   "flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                  moreOpen ? (onDark ? "text-white" : "text-violet") : tabIdle,
+                  moreOpen ? "text-violet" : tabIdle,
                 )}
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />
