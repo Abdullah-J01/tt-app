@@ -19,16 +19,36 @@ import { FilterDrawer } from "@/features/explore/components/FilterDrawer";
 import { FilterPanel } from "@/features/explore/components/FilterPanel";
 import type { FeedItem } from "@/lib/api";
 import { feedPath, withSlugs, type FeedCardData } from "./feedData";
+import { stripLocale, localizeHref } from "@/i18n/Link";
+import { DEFAULT_LOCALE, isLocale, type Locale } from "@/i18n/config";
 
 const TRANSITION = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
 const INSTANT = { duration: 0 };
 // Slightly above the slide duration so a new gesture can land right as it settles.
 const LOCK_MS = 420;
 
-/** Read the active-card slug from the current URL (`/feed/[slug]`). */
+/**
+ * Read the active-card slug from the current URL. The path is locale-prefixed
+ * and slug-translated (`/en/feed/x`, `/et/voog/x`), so canonicalize it first.
+ */
 function slugFromUrl(): string | null {
-  const slug = window.location.pathname.match(/^\/feed\/([^/]+)/)?.[1];
+  const slug = stripLocale(window.location.pathname).match(/^\/feed\/([^/]+)/)?.[1];
   return slug ? decodeURIComponent(slug) : null;
+}
+
+/** Active locale from the current URL, defaulting when unprefixed. */
+function localeFromUrl(): Locale {
+  const seg = window.location.pathname.split("/")[1];
+  return isLocale(seg) ? seg : DEFAULT_LOCALE;
+}
+
+/**
+ * Locale-prefixed deep-link for the browser URL (`/en/feed/x`, `/et/voog/x`).
+ * Keeping the locale segment is what stops the language from silently resetting
+ * to the default when the feed rewrites the URL via the History API.
+ */
+function feedUrl(slug: string): string {
+  return localizeHref(feedPath(slug), localeFromUrl());
 }
 
 /** Feed items whose studybook matches the checked filters, mapped to cards. */
@@ -91,7 +111,7 @@ export default function FeedScreen() {
           // syncs the router's canonical URL/tree. Passing window.history.state
           // carries Next's `__NA` flag, which makes Next treat this as an internal
           // call and skip that sync — corrupting router.back() after you leave the feed.
-          window.history.replaceState(null, "", feedPath(mapped[start].slug));
+          window.history.replaceState(null, "", feedUrl(mapped[start].slug));
         }
       })
       .catch((err) => {
@@ -123,7 +143,7 @@ export default function FeedScreen() {
     setFiltersOpen(false);
     setIndex(0);
     const first = filteredCards(items, draft)[0];
-    if (first) window.history.replaceState(null, "", feedPath(first.slug));
+    if (first) window.history.replaceState(null, "", feedUrl(first.slug));
   }, [draft, items]);
 
   const clearApplied = useCallback(() => {
@@ -164,7 +184,7 @@ export default function FeedScreen() {
         // new entry AND syncs the router URL/tree. Passing window.history.state
         // carries `__NA`, which makes Next skip that sync and breaks router.back()
         // after you leave the feed for a detail page.
-        window.history.pushState(null, "", feedPath(slug));
+        window.history.pushState(null, "", feedUrl(slug));
       }
       window.setTimeout(() => {
         lockRef.current = false;
