@@ -8,6 +8,8 @@ import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Bookmark,
+  Check,
+  ChevronDown,
   ChevronRight,
   Circle,
   Compass,
@@ -25,6 +27,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { useAuthModal } from "@/components/auth/useAuthModal";
 import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
+import { SELECTABLE_LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { stripLocale } from "@/i18n/Link";
 import { cn } from "@/lib/utils";
 
@@ -51,8 +54,9 @@ export default function MobileNav() {
   const isAdmin = session?.user?.role === "admin";
   const openAuth = useAuthModal((s) => s.openAuth);
   const t = useTranslations();
-  const { locale } = useLocaleSwitch();
+  const { locale, setLocale } = useLocaleSwitch();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
@@ -92,6 +96,11 @@ export default function MobileNav() {
     const id = window.setTimeout(() => searchInputRef.current?.focus(), 240);
     return () => window.clearTimeout(id);
   }, [searchOpen]);
+
+  // Collapse the language chooser whenever the More panel closes.
+  useEffect(() => {
+    if (!moreOpen) setLangOpen(false);
+  }, [moreOpen]);
 
   const openSearch = () => {
     setMoreOpen(false);
@@ -198,15 +207,62 @@ export default function MobileNav() {
                 <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
               </Button>
 
-              {/* Read-only: language is switched via the header EN/ET toggle, so
-                  this row just shows the current language (not clickable). */}
-              <div className="text-ink flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium">
+              {/* Language: the globe row opens an inline EN/ET chooser. */}
+              <Button
+                unstyled
+                type="button"
+                role="menuitem"
+                aria-expanded={langOpen}
+                onClick={() => setLangOpen((v) => !v)}
+                className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
+              >
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
                   <Globe size={18} className="text-ink/70" aria-hidden />
                 </span>
                 <span className="flex-1 text-left">{t("common.language")}</span>
                 <span className="text-muted shrink-0 text-sm">{locale.toUpperCase()}</span>
-              </div>
+                <ChevronDown
+                  size={18}
+                  className={cn(
+                    "text-faint shrink-0 transition-transform duration-200",
+                    langOpen && "rotate-180",
+                  )}
+                  aria-hidden
+                />
+              </Button>
+
+              <AnimatePresence initial={false}>
+                {langOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+                    className="overflow-hidden"
+                  >
+                    {SELECTABLE_LOCALES.map((l) => (
+                      <Button
+                        key={l}
+                        unstyled
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={l === locale}
+                        onClick={() => {
+                          setLocale(l);
+                          setLangOpen(false);
+                          setMoreOpen(false);
+                        }}
+                        className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl py-2.5 pr-3 pl-14 text-[15px] font-medium transition-colors"
+                      >
+                        <span className="flex-1 text-left">{LOCALE_LABELS[l]}</span>
+                        {l === locale && (
+                          <Check className="text-brand-green h-4 w-4 shrink-0" aria-hidden />
+                        )}
+                      </Button>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {isAdmin && (
                 <Link

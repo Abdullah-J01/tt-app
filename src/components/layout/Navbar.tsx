@@ -10,7 +10,6 @@ import { ExternalLink } from "lucide-react";
 import SearchBar from "../home/SearchBar";
 import { Logo } from "./Logo";
 import { LanguageMenu } from "./LanguageMenu";
-import { LanguageToggle } from "./LanguageToggle";
 import ProfileMenu from "./ProfileMenu";
 import { StreakButton } from "@/features/streak";
 import { AdminLogoutButton } from "@/features/admin";
@@ -111,8 +110,6 @@ export default function Navbar() {
                   <div className="hidden md:flex">
                     <LanguageMenu />
                   </div>
-                  {/* Mobile: visible EN/ET toggle (the dropdown is desktop-only). */}
-                  <LanguageToggle className="md:hidden" />
                   {status === "authenticated" && (
                     <>
                       <StreakButton />
