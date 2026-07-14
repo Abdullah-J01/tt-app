@@ -8,7 +8,6 @@ import { useSubjectName } from "@/i18n/useSubjectName";
 import { motion } from "framer-motion";
 import { Zap, BookOpen } from "lucide-react";
 // import { cn } from "@/lib/utils"; // used by the progress strip (hidden for now)
-import FeedTopBar from "./FeedTopBar";
 import type { FeedCardData } from "./feedData";
 
 /** Progress segments shown at the top — capped so long feeds stay legible (and cheap). */
@@ -22,10 +21,6 @@ type Props = {
   /** 0-based position in the feed — drives the progress segments up top. */
   index: number;
   total: number;
-  /** Opens the feed filter drawer; the icon only renders as a button when set. */
-  onOpenFilters?: () => void;
-  /** Number of applied filters — shown as a badge on the filter button. */
-  filterCount?: number;
 };
 
 function FeedCard({
@@ -35,8 +30,6 @@ function FeedCard({
   // index + total stay in Props for the progress strip below (hidden for now).
   // index,
   // total,
-  onOpenFilters,
-  filterCount = 0,
 }: Props) {
   const t = useTranslations("components_feed_FeedCard");
   const tCat = useTranslations("catalog");
@@ -48,14 +41,14 @@ function FeedCard({
   // const filled = total <= MAX_SEGMENTS ? index : Math.floor((index / (total - 1)) * (segments - 1));
   return (
     <div
-      className="bg-plum-gradient relative h-full w-full overflow-hidden select-none"
+      className="bg-plum-gradient relative flex h-full w-full flex-col overflow-hidden px-4 select-none sm:px-6"
       role="group"
       aria-roledescription="slide"
       aria-label={card.title}
     >
       {/* animated ambient blur blobs — only for the visible neighbourhood; offscreen
           cards skip them so the compositor isn't dragging hundreds of blurred layers */}
-      {near && (
+      {/* {near && (
         <>
           <motion.div
             aria-hidden="true"
@@ -80,7 +73,7 @@ function FeedCard({
             style={{ bottom: "-5rem", right: "-4rem" }}
           />
         </>
-      )}
+      )} */}
 
       {/* progress segments — which card of the feed you're on (hidden for now) */}
       {/* <div
@@ -95,18 +88,12 @@ function FeedCard({
         ))}
       </div> */}
 
-      {/* top badges: streak · For You · filter — md+ only; on mobile FeedScreen
-          renders one fixed FeedTopBar over the stage so it doesn't swipe with
-          the card. */}
-      <FeedTopBar
-        className="max-md:hidden"
-        active={active}
-        onOpenFilters={onOpenFilters}
-        filterCount={filterCount}
-      />
+      {/* top badges (streak · For You · filter) live in FeedScreen as a fixed
+          overlay on every breakpoint — a per-card copy would swipe with the
+          card track. The mt offset below still reserves room for it. */}
 
-      {/* subject · grade */}
-      <div className="absolute inset-x-4 top-19 z-10 flex items-center justify-start sm:inset-x-6 sm:top-20">
+      {/* subject · grade — top offset clears the fixed FeedTopBar overlay above */}
+      <div className="z-10 mt-19 flex items-center justify-start sm:mt-20">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
@@ -118,8 +105,8 @@ function FeedCard({
         </motion.div>
       </div>
 
-      {/* main content */}
-      <div className="absolute inset-x-4 top-[38%] z-10 -translate-y-1/2 sm:inset-x-6 sm:top-[40%]">
+      {/* main content — fixed gap below the subject·grade tag, constant across cards */}
+      <div className="z-10 mt-10">
         <motion.p
           initial={{ opacity: 0, y: 14 }}
           animate={active ? { opacity: 1, y: 0 } : {}}
@@ -151,7 +138,7 @@ function FeedCard({
         initial={{ opacity: 0, y: 14 }}
         animate={active ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.35, delay: 0.25 }}
-        className="absolute inset-x-4 bottom-6 z-10 flex items-center gap-3 sm:inset-x-6 sm:bottom-8"
+        className="z-10 mt-auto mb-6 flex items-center gap-3 sm:mb-8"
       >
         <div className="relative flex h-14 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/15 shadow-md">
           {card.cover ? (

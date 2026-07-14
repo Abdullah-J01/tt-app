@@ -395,22 +395,28 @@ export default function FeedScreen() {
                       near={Math.abs(i - index) <= 1}
                       index={i}
                       total={total}
-                      onOpenFilters={openFilters}
-                      filterCount={applied.size}
                     />
                   </div>
                 ))}
               </motion.div>
 
-              {/* Mobile: one fixed top bar over the stage — the per-card copy
-                  (md+ only) would swipe along with the card track. */}
+              {/* One fixed top bar over the stage on every breakpoint — a copy
+                  inside FeedCard would swipe along with the card track. Mobile
+                  gets the back arrow; desktop has the Navbar above instead. */}
               {total > 0 && (
-                <FeedTopBar
-                  className="md:hidden"
-                  onBack={goBack}
-                  onOpenFilters={openFilters}
-                  filterCount={applied.size}
-                />
+                <>
+                  <FeedTopBar
+                    className="md:hidden"
+                    onBack={goBack}
+                    onOpenFilters={openFilters}
+                    filterCount={applied.size}
+                  />
+                  <FeedTopBar
+                    className="max-md:hidden"
+                    onOpenFilters={openFilters}
+                    filterCount={applied.size}
+                  />
+                </>
               )}
 
               {/* Filters excluded every card — keep the filter entry point reachable */}
