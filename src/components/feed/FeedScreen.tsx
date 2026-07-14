@@ -179,11 +179,6 @@ export default function FeedScreen() {
       setIndex(clamped);
       const slug = cards[clamped]?.slug;
       if (slug) {
-        // Push a history entry per card so Back/Forward moves between cards.
-        // Pass null so Next's patched pushState copies its internal state into the
-        // new entry AND syncs the router URL/tree. Passing window.history.state
-        // carries `__NA`, which makes Next skip that sync and breaks router.back()
-        // after you leave the feed for a detail page.
         window.history.pushState(null, "", feedUrl(slug));
       }
       window.setTimeout(() => {
@@ -208,28 +203,41 @@ export default function FeedScreen() {
   const goNext = useCallback(() => goTo(index + 1), [goTo, index]);
   const goPrev = useCallback(() => goTo(index - 1), [goTo, index]);
 
-  // Exit the immersive feed. router.back() can't be used here — the feed pushes
-  // a history entry per card, so it would just step to the previous card. Send
-  // the user to Explore, a browse hub that still carries the bottom nav.
+  const goNextRef = useRef(goNext);
+  const goPrevRef = useRef(goPrev);
+  useEffect(() => {
+    goNextRef.current = goNext;
+    goPrevRef.current = goPrev;
+  }, [goNext, goPrev]);
+
   const goBack = useCallback(() => router.push("/explore"), [router]);
 
-  // Wheel navigation (desktop). Deltas accumulate per gesture (a pause resets
-  // them), so a mouse-wheel notch advances instantly while trackpad momentum
-  // can't fire a second advance right after the lock releases.
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     let accum = 0;
+    let consumed = false;
     let reset: number | undefined;
-    function onWheel(e: WheelEvent) {
-      e.preventDefault();
+
+    function armReset() {
       window.clearTimeout(reset);
       reset = window.setTimeout(() => {
+        if (lockRef.current) {
+          armReset();
+          return;
+        }
         accum = 0;
-      }, 150);
-      if (lockRef.current) {
-        // Mid-transition momentum shouldn't queue another advance.
+        consumed = false;
+      }, 70);
+    }
+
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      armReset();
+      if (consumed || lockRef.current) {
+        // This gesture already advanced a card (or a transition is in flight) —
+        // swallow the leftover trackpad momentum instead of queuing another.
         accum = 0;
         return;
       }
@@ -237,8 +245,10 @@ export default function FeedScreen() {
       if (Math.abs(accum) < 40) return;
       const delta = accum;
       accum = 0;
-      if (delta > 0) goNext();
-      else goPrev();
+      // Lock out the rest of this gesture until its events stop arriving.
+      consumed = true;
+      if (delta > 0) goNextRef.current();
+      else goPrevRef.current();
     }
 
     el.addEventListener("wheel", onWheel, { passive: false });
@@ -246,7 +256,9 @@ export default function FeedScreen() {
       el.removeEventListener("wheel", onWheel);
       window.clearTimeout(reset);
     };
-  }, [goNext, goPrev]);
+    // Mount once and never tear down — the callbacks are read from refs so the
+    // per-gesture accumulator/`consumed` guard survive across card changes.
+  }, []);
 
   // Touch navigation (mobile/tablet)
   useEffect(() => {
