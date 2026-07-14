@@ -811,23 +811,27 @@ export default function PremiumPlansPage() {
         }
       });
 
+      // Single-column mobile: the cards sticky-stack (CSS on the wrappers) like
+      // the "new study bites" deck; here each covered card recedes — scrubbing
+      // down to a smaller scale from its top edge as the next card rides up
+      // over it. Deeper in the deck → smaller final scale, so covered tops peek.
       mm.add("(max-width: 639px) and (prefers-reduced-motion: no-preference)", () => {
-        gsap.utils.toArray<HTMLElement>("[data-plan-slide]").forEach((el) => {
-          gsap.fromTo(
-            el,
-            { opacity: 0, y: 28 },
-            {
-              opacity: 1,
-              y: 0,
-              duration: 0.6,
-              ease: "power2.out",
-              scrollTrigger: {
-                trigger: el,
-                start: "top 88%",
-                toggleActions: "play none none reverse",
-              },
+        const cards = gsap.utils.toArray<HTMLElement>("[data-plan-slide]");
+        cards.forEach((el, i) => {
+          const next = cards[i + 1];
+          if (!next) return;
+          gsap.to(el, {
+            scale: 1 - (cards.length - 1 - i) * 0.05,
+            transformOrigin: "50% 0%",
+            ease: "none",
+            scrollTrigger: {
+              trigger: next,
+              start: "top bottom",
+              end: "top 20%",
+              scrub: true,
+              invalidateOnRefresh: true,
             },
-          );
+          });
         });
       });
 
@@ -859,7 +863,9 @@ export default function PremiumPlansPage() {
   return (
     <div
       ref={rootRef}
-      className="relative mx-auto min-h-screen max-w-5xl overflow-hidden bg-white px-4 py-10 pb-24 md:py-16"
+      // overflow-clip (not -hidden) still contains the blurred blobs but doesn't
+      // create a scroll container, which would break the mobile sticky card stack.
+      className="relative mx-auto min-h-screen max-w-5xl overflow-clip bg-white px-4 py-8 pb-20 md:py-16 md:pb-24"
     >
       <div
         ref={blobARef}
@@ -945,13 +951,23 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      {/* Pricing cards — start stacked behind Scholar, spread apart on scroll */}
-      <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {PLANS.map((plan) => (
+      {/* Pricing cards — start stacked behind Scholar, spread apart on scroll.
+          Mobile: cards sticky-stack like the "new study bites" deck instead —
+          each pins below the navbar (stepping down so covered tops peek) and
+          the next card slides up over it while the covered one recedes (GSAP). */}
+      <div ref={cardsWrapRef} className="relative mt-8 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-3">
+        {PLANS.map((plan, i) => (
           <div
             key={plan.id}
             data-plan-slide
-            className={cn("relative grid", plan.popular ? "z-[2]" : "z-[1]")}
+            className={cn(
+              "relative grid motion-safe:max-sm:sticky motion-safe:max-sm:top-[var(--stack-top)]",
+              // Mobile stack: later cards cover earlier ones. Desktop deck:
+              // the popular (center) card sits on top of the tucked sides.
+              ["max-sm:z-[1]", "max-sm:z-[2]", "max-sm:z-[3]"][i],
+              plan.popular ? "sm:z-[2]" : "sm:z-[1]",
+            )}
+            style={{ ["--stack-top" as string]: `calc(6.5rem + ${i * 1.25}rem)` }}
           >
             <PricingCard
               plan={plan}
@@ -1091,7 +1107,7 @@ function PricingCard({
       whileHover={{ y: plan.popular ? -10 : -6 }}
       transition={{ duration: 0.25, ease: easeOut }}
       className={cn(
-        "group relative flex flex-col overflow-hidden rounded-3xl p-6 ring-1",
+        "group relative flex flex-col overflow-hidden rounded-2xl p-5 ring-1 sm:rounded-3xl sm:p-6",
         plan.popular
           ? "ring-violet/40 shadow-violet/20 bg-plum-gradient shadow-xl"
           : "bg-white shadow-md ring-black/5",
@@ -1119,7 +1135,7 @@ function PricingCard({
 
       <div
         className={cn(
-          "relative flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br text-white",
+          "relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br text-white sm:h-10 sm:w-10",
           plan.gradient,
         )}
       >
@@ -1127,7 +1143,10 @@ function PricingCard({
       </div>
 
       <h3
-        className={cn("relative mt-4 text-lg font-bold", plan.popular ? "text-white" : "text-ink")}
+        className={cn(
+          "relative mt-3 text-base font-bold sm:mt-4 sm:text-lg",
+          plan.popular ? "text-white" : "text-ink",
+        )}
       >
         {name}
       </h3>
@@ -1135,7 +1154,7 @@ function PricingCard({
         {t(plan.tagline)}
       </p>
 
-      <div className="relative mt-5 flex items-end gap-1">
+      <div className="relative mt-4 flex items-end gap-1 sm:mt-5">
         <AnimatePresence mode="wait">
           <motion.span
             key={`${plan.id}-${cycle}`}
@@ -1143,7 +1162,10 @@ function PricingCard({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ duration: 0.25, ease: easeOut }}
-            className={cn("text-3xl font-bold", plan.popular ? "text-white" : "text-ink")}
+            className={cn(
+              "text-2xl font-bold sm:text-3xl",
+              plan.popular ? "text-white" : "text-ink",
+            )}
           >
             ${price.toFixed(price % 1 === 0 ? 0 : 2)}
           </motion.span>
@@ -1161,7 +1183,7 @@ function PricingCard({
         </p>
       )}
 
-      <ul className="relative mt-6 flex-1 space-y-3">
+      <ul className="relative mt-5 flex-1 space-y-2.5 sm:mt-6 sm:space-y-3">
         {plan.features.map((feature) => (
           <li key={feature} className="flex items-start gap-2.5">
             <span
@@ -1179,7 +1201,11 @@ function PricingCard({
         ))}
       </ul>
 
-      <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="relative mt-6">
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.97 }}
+        className="relative mt-5 sm:mt-6"
+      >
         <Button
           onClick={onChoose}
           disabled={plan.id === "free" || isCurrentPaidPlan || disabled}

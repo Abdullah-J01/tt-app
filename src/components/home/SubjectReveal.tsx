@@ -171,7 +171,9 @@ export function SubjectReveal() {
           {!reduced && (
             <motion.div
               style={{ scale: centreScale, opacity: centreOpacity }}
-              className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center"
+              // max-sm offsets nudge the whole centred composition (rings, glow,
+              // heading) up a bit, shrinking the blank band above it on phones.
+              className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center max-sm:-top-16 max-sm:bottom-16"
             >
               {[0, 1].map((i) => (
                 <motion.div
@@ -295,7 +297,7 @@ export function SubjectReveal() {
                     transformOrigin: "left center",
                   }
             }
-            className="absolute inset-0 z-10 flex items-center justify-center px-5 sm:hidden"
+            className="absolute inset-0 -top-16 bottom-16 z-10 flex items-center justify-center px-5 sm:hidden"
           >
             <div className="bg-plum-gradient border-lilac relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
               <motion.div

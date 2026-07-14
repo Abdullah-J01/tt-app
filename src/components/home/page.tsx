@@ -41,9 +41,12 @@ export default async function LandingPage() {
       <HeroLoader />
       <FeatureCardsLoader />
 
-      <div className="h-10"></div>
-
-      <ExploreSection />
+      {/* Mobile: overlap the reveal's blank top over FeatureCards' blank bottom —
+          both are pinned full-screen stages with centred content, so the seam
+          between them otherwise reads as a huge empty gap on small screens. */}
+      <div className="-mt-32 sm:mt-10">
+        <ExploreSection />
+      </div>
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <SectionHeader
