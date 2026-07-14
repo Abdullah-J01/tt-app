@@ -5,8 +5,8 @@ import { useTranslations } from "@/i18n/client";
 import { Card } from "@/components/ui/Card";
 import { GoalTile } from "@/components/ui/GoalTile";
 import { IconBadge } from "@/components/ui/IconBadge";
-import { IllustrationPlaceholder } from "@/components/ui/IllustrationPlaceholder";
 import { Toggle } from "@/components/ui/Toggle";
+import { StreakCalendar, useStreak } from "@/features/streak";
 
 interface StepDailyGoalProps {
   goals: readonly number[];
@@ -25,6 +25,7 @@ export function StepDailyGoal({
   onToggleReminders,
 }: StepDailyGoalProps) {
   const t = useTranslations("components_onboarding_StepDailyGoal");
+  const { activeDays } = useStreak();
   return (
     <div className="flex flex-col gap-5">
       <div>
@@ -53,10 +54,9 @@ export function StepDailyGoal({
         <Toggle checked={reminders} onChange={onToggleReminders} label={t("reminderTitle")} />
       </Card>
 
-      <IllustrationPlaceholder
-        caption={t("illustrationCaption")}
-        className="h-24"
-      />
+      <Card className="p-4">
+        <StreakCalendar activeDays={activeDays} />
+      </Card>
     </div>
   );
 }
