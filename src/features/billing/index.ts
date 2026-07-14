@@ -4,3 +4,4 @@
 export * from "./core";
 export { useSubscription } from "./useSubscription";
 export { BillingSection } from "./BillingSection";
+export { BillingErrorModal } from "./BillingErrorModal";

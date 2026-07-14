@@ -7,6 +7,7 @@ import { useTranslations } from "@/i18n/client";
 import type { Translator } from "@/i18n/types";
 import { Button } from "@/components/ui/Button";
 import {
+  BillingError,
   daysLeft,
   formatPrice,
   isActiveStatus,
@@ -16,6 +17,7 @@ import {
   priceFor,
   type SubStatus,
 } from "./core";
+import { BillingErrorModal } from "./BillingErrorModal";
 
 /**
  * Profile billing block. Shows the live subscription (plan, price, renewal) with
@@ -30,7 +32,9 @@ export function BillingSection({
   onGoPremium: () => void;
 }) {
   if (status.status === "loading") {
-    return <div className="rounded-2xl border-hairline bg-surface mt-4 h-24 animate-pulse border" />;
+    return (
+      <div className="border-hairline bg-surface mt-4 h-24 animate-pulse rounded-2xl border" />
+    );
   }
 
   if ("planId" in status && (isActiveStatus(status) || isPastDueStatus(status))) {
@@ -43,6 +47,7 @@ export function BillingSection({
 function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unknown }> }) {
   const t = useTranslations("features_billing_BillingSection");
   const [portalLoading, setPortalLoading] = useState(false);
+  const [billingError, setBillingError] = useState<BillingError | null>(null);
   const planId = status.planId ?? "scholar";
   const cycle = status.cycle ?? "monthly";
   const plan = PLAN_DISPLAY[planId];
@@ -54,14 +59,18 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
     try {
       await openBillingPortal();
     } catch (err) {
-      console.error(err);
       setPortalLoading(false);
-      alert(t("portalError"));
+      const billingErr =
+        err instanceof BillingError
+          ? err
+          : new BillingError("Something went wrong. Please try again.", 0);
+      console.error(billingErr);
+      setBillingError(billingErr);
     }
   }
 
   return (
-    <div className="rounded-2xl border-hairline bg-surface mt-4 overflow-hidden border">
+    <div className="border-hairline bg-surface mt-4 overflow-hidden rounded-2xl border">
       <div className="from-violet to-violet-dark flex items-center gap-3 bg-gradient-to-r p-4 text-white">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white/15">
           <Crown className="h-5 w-5" />
@@ -104,6 +113,12 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
           </Link>
         </div>
       </div>
+
+      <BillingErrorModal
+        error={billingError}
+        onClose={() => setBillingError(null)}
+        onRetry={handleManage}
+      />
     </div>
   );
 }

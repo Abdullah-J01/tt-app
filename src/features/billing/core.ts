@@ -89,23 +89,69 @@ export function planBadgeLabel(s: SubStatus, t: Translator): string {
   return s.status === "trialing" ? t("planTrial", { name }) : name;
 }
 
+/**
+ * A billing request that failed. Carries the HTTP status so the UI can tell
+ * "you're not signed in" (401) apart from a real Stripe/server error and show
+ * the right message + call to action.
+ */
+export class BillingError extends Error {
+  readonly status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "BillingError";
+    this.status = status;
+  }
+  /** The user needs to sign in before they can be charged. */
+  get isAuthError(): boolean {
+    return this.status === 401;
+  }
+}
+
+/**
+ * POST to a billing endpoint and return the Stripe redirect URL. Parses the
+ * response defensively — a crashed route returns an HTML error page, not JSON,
+ * so `res.json()` is guarded — and always throws a {@link BillingError} on
+ * failure so callers get a status code and a human-readable message.
+ */
+async function requestRedirectUrl(url: string, body?: unknown): Promise<string> {
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: body ? { "Content-Type": "application/json" } : undefined,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+  } catch {
+    // Network failure, offline, DNS, etc. — never reached the server.
+    throw new BillingError("Couldn't reach the server. Check your connection and try again.", 0);
+  }
+
+  let data: { url?: string; error?: string } | null = null;
+  try {
+    data = await res.json();
+  } catch {
+    // Non-JSON body (e.g. an unhandled 500 HTML page).
+  }
+
+  if (!res.ok || !data?.url) {
+    const fallback =
+      res.status === 401
+        ? "Please sign in first."
+        : "Something went wrong. Please try again.";
+    throw new BillingError(data?.error || fallback, res.status);
+  }
+  return data.url;
+}
+
 /** POST /api/stripe/checkout, then redirect to Stripe Checkout. */
 export async function startCheckout(planId: PlanId, cycle: Cycle): Promise<void> {
-  const res = await fetch("/api/stripe/checkout", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ planId, cycle }),
-  });
-  const data = await res.json();
-  if (!res.ok || !data.url) throw new Error(data.error ?? "Checkout failed");
-  window.location.href = data.url;
+  const url = await requestRedirectUrl("/api/stripe/checkout", { planId, cycle });
+  window.location.href = url;
 }
 
 /** POST /api/stripe/portal, then redirect to the Stripe billing portal
  * (where the user manages their card / payment method and cancels). */
 export async function openBillingPortal(): Promise<void> {
-  const res = await fetch("/api/stripe/portal", { method: "POST" });
-  const data = await res.json();
-  if (!res.ok || !data.url) throw new Error(data.error ?? "Portal failed");
-  window.location.href = data.url;
+  const url = await requestRedirectUrl("/api/stripe/portal");
+  window.location.href = url;
 }
