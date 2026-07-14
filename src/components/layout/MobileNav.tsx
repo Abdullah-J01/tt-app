@@ -51,7 +51,7 @@ export default function MobileNav() {
   const isAdmin = session?.user?.role === "admin";
   const openAuth = useAuthModal((s) => s.openAuth);
   const t = useTranslations();
-  const { locale, toggle: toggleLocale } = useLocaleSwitch();
+  const { locale } = useLocaleSwitch();
   const [moreOpen, setMoreOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -198,19 +198,15 @@ export default function MobileNav() {
                 <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
               </Button>
 
-              <Button
-                unstyled
-                type="button"
-                role="menuitem"
-                onClick={toggleLocale}
-                className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
-              >
+              {/* Read-only: language is switched via the header EN/ET toggle, so
+                  this row just shows the current language (not clickable). */}
+              <div className="text-ink flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
                   <Globe size={18} className="text-ink/70" aria-hidden />
                 </span>
                 <span className="flex-1 text-left">{t("common.language")}</span>
                 <span className="text-muted shrink-0 text-sm">{locale.toUpperCase()}</span>
-              </Button>
+              </div>
 
               {isAdmin && (
                 <Link
