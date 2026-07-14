@@ -5,6 +5,7 @@ import Link from "next/link";
 import { AlertTriangle, ChevronRight, CreditCard, Crown } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import {
+  BillingError,
   daysLeft,
   formatPrice,
   isActiveStatus,
@@ -14,6 +15,7 @@ import {
   priceFor,
   type SubStatus,
 } from "./core";
+import { BillingErrorModal } from "./BillingErrorModal";
 
 /**
  * Profile billing block. Shows the live subscription (plan, price, renewal) with
@@ -40,6 +42,7 @@ export function BillingSection({
 
 function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unknown }> }) {
   const [portalLoading, setPortalLoading] = useState(false);
+  const [billingError, setBillingError] = useState<BillingError | null>(null);
   const planId = status.planId ?? "scholar";
   const cycle = status.cycle ?? "monthly";
   const plan = PLAN_DISPLAY[planId];
@@ -51,9 +54,13 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
     try {
       await openBillingPortal();
     } catch (err) {
-      console.error(err);
       setPortalLoading(false);
-      alert("Couldn't open billing management. Please try again.");
+      const billingErr =
+        err instanceof BillingError
+          ? err
+          : new BillingError("Something went wrong. Please try again.", 0);
+      console.error(billingErr);
+      setBillingError(billingErr);
     }
   }
 
@@ -100,6 +107,12 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
           </Link>
         </div>
       </div>
+
+      <BillingErrorModal
+        error={billingError}
+        onClose={() => setBillingError(null)}
+        onRetry={handleManage}
+      />
     </div>
   );
 }

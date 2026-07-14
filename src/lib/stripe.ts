@@ -29,3 +29,17 @@ if (!process.env.STRIPE_SECRET_KEY) {
 export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: "2026-06-24.dahlia",
 });
+
+/**
+ * Turn an error thrown by a Stripe call into a safe, user-facing message.
+ * Stripe's own `StripeError` messages (e.g. "Your card was declined.") are
+ * fine to show; anything else is logged server-side and replaced with a
+ * generic line so we never leak internals to the client.
+ */
+export function stripeErrorMessage(err: unknown): string {
+  if (err instanceof Stripe.errors.StripeError && err.message) {
+    return err.message;
+  }
+  console.error("[stripe] unexpected error", err);
+  return "Payment service error. Please try again in a moment.";
+}

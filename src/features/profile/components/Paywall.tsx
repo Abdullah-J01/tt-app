@@ -6,7 +6,13 @@ import { useRouter } from "next/navigation";
 import { Award, Bookmark, Check, Cloud, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { formatPrice, PLAN_DISPLAY, startCheckout } from "@/features/billing";
+import {
+  BillingError,
+  BillingErrorModal,
+  formatPrice,
+  PLAN_DISPLAY,
+  startCheckout,
+} from "@/features/billing";
 
 const FEATURES = ["featEverything", "featSaves", "featOffline", "featAudio"];
 
@@ -22,6 +28,7 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
   const [done, setDone] = useState(false);
   const [cycle, setCycle] = useState<"yearly" | "monthly">("yearly");
   const [loading, setLoading] = useState(false);
+  const [billingError, setBillingError] = useState<BillingError | null>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -42,9 +49,13 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
     try {
       await startCheckout(PLAN.id, cycle); // redirects to Stripe on success
     } catch (err) {
-      console.error(err);
       setLoading(false);
-      alert("Something went wrong starting checkout. Please try again.");
+      const billingErr =
+        err instanceof BillingError
+          ? err
+          : new BillingError("Something went wrong. Please try again.", 0);
+      console.error(billingErr);
+      setBillingError(billingErr);
     }
   }
 
@@ -107,6 +118,12 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
           Then {formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly)}/mo · Cancel anytime
         </p>
       </div>
+
+      <BillingErrorModal
+        error={billingError}
+        onClose={() => setBillingError(null)}
+        onRetry={handleCheckout}
+      />
     </div>
   );
 }

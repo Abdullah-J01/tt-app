@@ -9,6 +9,12 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { isPaidPlan, type Cycle as BillingCycle, type PaidPlanId } from "@/lib/plans";
+import {
+  BillingError,
+  BillingErrorModal,
+  openBillingPortal,
+  startCheckout,
+} from "@/features/billing";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -130,7 +136,20 @@ export default function PremiumPlansPage() {
   const [stickyToggle, setStickyToggle] = useState(false);
   const [checkingOutPlan, setCheckingOutPlan] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
+  const [billingError, setBillingError] = useState<BillingError | null>(null);
+  // The action to re-run when the user taps "Try again" in the error modal.
+  const [retry, setRetry] = useState<(() => void) | null>(null);
   const subStatus = useSubscriptionStatus();
+
+  function reportBillingError(err: unknown, retryFn: () => void) {
+    const billingErr =
+      err instanceof BillingError
+        ? err
+        : new BillingError("Something went wrong. Please try again.", 0);
+    console.error(billingErr);
+    setRetry(() => retryFn);
+    setBillingError(billingErr);
+  }
 
   const rootRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
@@ -150,37 +169,30 @@ export default function PremiumPlansPage() {
     if (planId === "free" || checkingOutPlan) return;
     if (!isPaidPlan(planId)) return;
 
+    // Not signed in → prompt to log in before hitting Stripe at all.
+    if (subStatus.status === "signed_out") {
+      reportBillingError(new BillingError("Please sign in first.", 401), () =>
+        handleChoosePlan(planId),
+      );
+      return;
+    }
+
     setCheckingOutPlan(planId);
     try {
-      const res = await fetch("/api/stripe/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId, cycle }),
-      });
-      const data = await res.json();
-      if (!res.ok || !data.url) {
-        throw new Error(data.error ?? "Checkout failed");
-      }
-      window.location.href = data.url; // redirect to Stripe Checkout
+      await startCheckout(planId, cycle); // redirects to Stripe Checkout on success
     } catch (err) {
-      console.error(err);
       setCheckingOutPlan(null);
-      // Swap for a toast if your app has one.
-      alert("Something went wrong starting checkout. Please try again.");
+      reportBillingError(err, () => handleChoosePlan(planId));
     }
   }
 
   async function handleManageBilling() {
     setPortalLoading(true);
     try {
-      const res = await fetch("/api/stripe/portal", { method: "POST" });
-      const data = await res.json();
-      if (!res.ok || !data.url) throw new Error(data.error ?? "Portal failed");
-      window.location.href = data.url;
+      await openBillingPortal();
     } catch (err) {
-      console.error(err);
       setPortalLoading(false);
-      alert("Couldn't open billing management. Please try again.");
+      reportBillingError(err, () => handleManageBilling());
     }
   }
 
@@ -436,6 +448,12 @@ export default function PremiumPlansPage() {
           </div>
         ))}
       </div>
+
+      <BillingErrorModal
+        error={billingError}
+        onClose={() => setBillingError(null)}
+        onRetry={retry ?? undefined}
+      />
     </div>
   );
 }
