@@ -3,20 +3,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
 import { Lock, X } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
 import { useCurrentLocale, localizeHref } from "@/i18n/Link";
 import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
 import { SlideControls } from "@/components/ui/SlideControls";
-import {
-  cardVariants,
-  LOCK_MS,
-  useSlideAxis,
-  useSwipeNav,
-  type SlideCustom,
-} from "@/lib/cardSlide";
+import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
 
@@ -42,13 +35,12 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const slideCount = previewCards.length + 1; // + final CTA slide
 
   const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1);
   const lockRef = useRef(false);
   // Swipe is bound to the card, not the backdrop — the backdrop's click closes
   // the overlay, and a swipe ending there would close it mid-gesture.
   const cardRef = useRef<HTMLDivElement>(null);
   const axis = useSlideAxis();
-  const slide: SlideCustom = { dir, axis };
+  const { turn, begin, end } = useCardTurn();
 
   /** Locked while a card is in flight, so one gesture never skips two slides. */
   const go = useCallback(
@@ -56,14 +48,16 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       if (lockRef.current) return;
       const clamped = Math.max(0, Math.min(slideCount - 1, next));
       if (clamped === index) return;
-      setDir(clamped > index ? 1 : -1);
       setIndex(clamped);
+      // begin() declines under reduced motion — nothing animates, so there's
+      // nothing for the lock to wait on either.
+      if (!begin(index, clamped > index ? 1 : -1)) return;
       lockRef.current = true;
       window.setTimeout(() => {
         lockRef.current = false;
       }, LOCK_MS);
     },
-    [index, slideCount],
+    [index, slideCount, begin],
   );
 
   const goNext = useCallback(() => go(index + 1), [go, index]);
@@ -79,13 +73,15 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     else router.replace(pathname, { scroll: false });
   }, [router, pathname]);
 
-  // Seed the starting slide from ?card= when the overlay opens.
+  // Seed the starting slide from ?card= when the overlay opens. Jumping straight
+  // there shouldn't turn a page, so any in-flight one is dropped.
   useEffect(() => {
     if (!open) return;
     const raw = Number(params.get("card"));
     const start = Number.isFinite(raw) ? Math.min(Math.max(raw, 0), previewCards.length) : 0;
     setIndex(start);
-  }, [open, params, previewCards.length]);
+    end();
+  }, [open, params, previewCards.length, end]);
 
   // Lock page scroll + wire Escape / arrow keys while open. Lenis drives the
   // scroll and ignores `overflow: hidden`, so freeze it too (and lock <html>
@@ -116,8 +112,68 @@ export function StudybookPreview({ book }: { book: Studybook }) {
 
   if (!open) return null;
 
-  const isCta = index >= previewCards.length;
-  const card = previewCards[index];
+  /** One page's contents. Rendered twice while a page is mid-turn. */
+  const renderSlide = (i: number) => {
+    const card = previewCards[i];
+    if (card) {
+      return (
+        <>
+          <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+            {t("categoryPreview", { category: book.category })}
+          </span>
+          <div>
+            <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
+            <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
+          </div>
+          <BookAttribution book={book} />
+        </>
+      );
+    }
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center text-center">
+        {book.cover ? (
+          <div className="shadow-soft relative h-28 w-20 overflow-hidden rounded-lg">
+            <Image src={book.cover} alt={book.title} fill sizes="80px" className="object-cover" />
+          </div>
+        ) : (
+          <span className="grid h-16 w-16 place-items-center rounded-full bg-white/15 backdrop-blur">
+            <Lock className="h-8 w-8" />
+          </span>
+        )}
+        <h2 className="mt-5 text-2xl font-bold text-white">
+          {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
+        </h2>
+        <p className="mt-2 max-w-xs text-white/80">
+          {book.priceEur != null
+            ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
+            : t("keepGoing")}
+        </p>
+        {/* replace: swap the ?preview history entry for /read, so Back from the
+            reader returns to the clean detail page instead of reopening this
+            overlay (which reads as "back is broken"). Gated: guests get the
+            login popup instead of navigating. */}
+        <Button
+          size="lg"
+          variant="secondary"
+          className="mt-6 w-full max-w-xs"
+          onClick={() =>
+            requireAuth(
+              () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
+              t("loginToLearn"),
+            )
+          }
+        >
+          {t("startLearning")}
+        </Button>
+      </div>
+    );
+  };
+
+  const pair = turn ? transitionPair(axis, turn.dir) : null;
+  // Content sits where the old header/controls used to hold it in flow. The
+  // bottom differs by breakpoint because the chevrons are taller than the hint.
+  const CONTENT =
+    "absolute inset-x-0 top-[108px] bottom-[72px] flex flex-col justify-between gap-6 px-6 pb-6 lg:bottom-[76px]";
 
   return (
     <div
@@ -132,11 +188,33 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     >
       <div
         ref={cardRef}
-        className="pop-in bg-plum md:rounded-card md:shadow-soft relative flex h-[100svh] w-full max-w-md flex-col overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
+        className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header: close on top, progress below */}
-        <div className="flex flex-col gap-3 p-4">
+        {/* Cards. Both copies stay transparent, so only the content travels and
+            the card's gradient sits still behind them. Kept below the chrome
+            (z-20) so the progress bar and buttons hold their position. */}
+        <div
+          onAnimationEnd={(e) => e.target === e.currentTarget && end()}
+          className={cn("absolute inset-0", pair?.incoming)}
+        >
+          <div className={CONTENT}>{renderSlide(index)}</div>
+        </div>
+
+        {turn && pair && (
+          <div
+            // Keyed so a fresh transition remounts and restarts the animation
+            // rather than reusing the element mid-flight.
+            key={`${turn.from}:${turn.dir}`}
+            onAnimationEnd={(e) => e.target === e.currentTarget && end()}
+            className={cn("pointer-events-none absolute inset-0", pair.outgoing)}
+          >
+            <div className={CONTENT}>{renderSlide(turn.from)}</div>
+          </div>
+        )}
+
+        {/* Chrome — pinned above the pages so it never turns with them. */}
+        <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-3 p-4">
           <div className="flex justify-end">
             <Button
               unstyled
@@ -168,79 +246,6 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           </div>
         </div>
 
-        {/* Slide body — relative so popLayout can pull the outgoing slide out
-            of flow while the incoming one takes its place. */}
-        <div className="relative flex flex-1 flex-col px-6 pb-6">
-          <AnimatePresence mode="popLayout" custom={slide} initial={false}>
-            <motion.div
-              key={index}
-              custom={slide}
-              variants={cardVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-              className="flex flex-1 flex-col justify-between gap-6"
-            >
-              {!isCta && card ? (
-                <>
-                  <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-                    {t("categoryPreview", { category: book.category })}
-                  </span>
-                  <div>
-                    <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
-                    <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
-                  </div>
-                  <BookAttribution book={book} />
-                </>
-              ) : (
-                <div className="flex flex-1 flex-col items-center justify-center text-center">
-                  {book.cover ? (
-                    <div className="shadow-soft relative h-28 w-20 overflow-hidden rounded-lg">
-                      <Image
-                        src={book.cover}
-                        alt={book.title}
-                        fill
-                        sizes="80px"
-                        className="object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <span className="grid h-16 w-16 place-items-center rounded-full bg-white/15 backdrop-blur">
-                      <Lock className="h-8 w-8" />
-                    </span>
-                  )}
-                  <h2 className="mt-5 text-2xl font-bold text-white">
-                    {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
-                  </h2>
-                  <p className="mt-2 max-w-xs text-white/80">
-                    {book.priceEur != null
-                      ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
-                      : t("keepGoing")}
-                  </p>
-                  {/* replace: swap the ?preview history entry for /read, so Back
-                      from the reader returns to the clean detail page instead of
-                      reopening this overlay (which reads as "back is broken").
-                      Gated: guests get the login popup instead of navigating. */}
-                  <Button
-                    size="lg"
-                    variant="secondary"
-                    className="mt-6 w-full max-w-xs"
-                    onClick={() =>
-                      requireAuth(
-                        () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
-                        t("loginToLearn"),
-                      )
-                    }
-                  >
-                    {t("startLearning")}
-                  </Button>
-                </div>
-              )}
-            </motion.div>
-          </AnimatePresence>
-        </div>
-
         {/* Next stops at the CTA slide — unlike the reader, there's nothing past it. */}
         <SlideControls
           index={index}
@@ -248,7 +253,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           onNext={goNext}
           disableNext={index >= slideCount - 1}
           labels={{ previous: t("previousCard"), next: t("nextCard"), hint: t("swipeHint") }}
-          className="p-4"
+          className="absolute inset-x-0 bottom-0 z-20 p-4"
         />
       </div>
     </div>

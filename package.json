@@ -12,6 +12,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "pwa:icons": "node scripts/generate-pwa-icons.mjs",
+    "seed:admin": "node --env-file=.env scripts/seed-admin.mts",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "typecheck:sw": "tsc -p tsconfig.sw.json",

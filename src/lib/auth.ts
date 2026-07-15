@@ -3,61 +3,50 @@ import { getServerSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import { notFound, redirect } from "next/navigation";
-import { IS_DEV_MODE } from "./env";
+import { loginInputSchema } from "./authRules";
+import { roleForEmail } from "./roles";
+import { authenticateUser } from "./users/repository";
 
-/** App-level authorization roles carried in the session (see src/types/next-auth.d.ts). */
-export type Role = "admin" | "user";
-
-/**
- * MVP admin gate: a comma-separated `ADMIN_EMAILS` env allowlist.
- * TODO(team): replace with TT's role claim once TT auth is confirmed
- * (docs/TT_API_ENDPOINTS.md §B) — this function is the single swap point.
- */
-function roleForEmail(email: string | null | undefined): Role {
-  const allowlist = (process.env.ADMIN_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim().toLowerCase())
-    .filter(Boolean);
-  return email && allowlist.includes(email.toLowerCase()) ? "admin" : "user";
-}
+export type { Role } from "./roles";
 
 /**
- * NextAuth (Auth.js) configuration — MVP stub.
+ * NextAuth (Auth.js) configuration.
  *
- * This app owns no database, so sessions are stateless (JWT).
- * TODO(team) — confirm with TT how users authenticate (docs/TT_API_ENDPOINTS.md §Auth):
- *  - If TT provides auth: add a Credentials provider that calls TT's login
- *    endpoint, then store the returned TT token in the JWT (jwt/session
- *    callbacks) so `tt-api` can forward it as the Authorization header.
- *  - If we own sign-in: keep Google below and add persistence only if needed.
+ * Sessions are stateless (JWT) — the app owns no database. Accounts live in the
+ * file-backed store behind src/lib/users/repository, which is the single seam to
+ * swap for TT's auth endpoints (docs/TT_API_ENDPOINTS.md §Auth). When that lands,
+ * store the TT token in the jwt/session callbacks so `tt-api` can forward it as
+ * the Authorization header.
+ *
+ * Admin is not a separate login: everyone signs in through the one credentials
+ * flow below, and `roleForEmail` derives the role server-side on every request.
  */
 export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   pages: { signIn: "/login" },
   providers: [
-    // Demo/stub sign-in — accepts any email so the login flow works without a
-    // backend. Dev mode only (NEXT_PUBLIC_DEV_MODE).
-    // TODO(team): in production, add a Credentials provider that calls TT's
-    // login endpoint instead of this stub.
-    ...(IS_DEV_MODE
-      ? [
-          CredentialsProvider({
-            name: "Email",
-            credentials: {
-              // `name` is only sent on sign-up; login omits it and we derive one.
-              name: { label: "Name", type: "text" },
-              email: { label: "Email", type: "email" },
-              password: { label: "Password", type: "password" },
-            },
-            async authorize(credentials) {
-              const email = credentials?.email?.trim();
-              if (!email) return null;
-              const name = credentials?.name?.trim() || email.split("@")[0] || "You";
-              return { id: email, email, name };
-            },
-          }),
-        ]
-      : []),
+    CredentialsProvider({
+      name: "Email",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      // Returning null here surfaces as `CredentialsSignin` on the client.
+      // Every failure — unknown email, wrong password, malformed input — must
+      // look identical, or this becomes an account-enumeration oracle.
+      async authorize(credentials) {
+        const parsed = loginInputSchema.safeParse({
+          email: credentials?.email ?? "",
+          password: credentials?.password ?? "",
+        });
+        if (!parsed.success) return null;
+
+        const user = await authenticateUser(parsed.data.email, parsed.data.password);
+        if (!user) return null;
+
+        return { id: user.id, email: user.email, name: user.name };
+      },
+    }),
     ...(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
       ? [
           GoogleProvider({

@@ -6,6 +6,7 @@ export { Chip } from "./Chip";
 export { ConfirmDialog } from "./ConfirmDialog";
 export { Container } from "./Container";
 export { EmptyState } from "./EmptyState";
+export { FormError } from "./FormError";
 export { ContentCard } from "./ContentCard";
 export type { ContentCardProps, ContentCardLayout, ContentTag } from "./ContentCard";
 export { GoalTile } from "./GoalTile";
