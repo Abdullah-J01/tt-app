@@ -110,6 +110,7 @@
   --animate-blob: blobShift 12s ease-in-out infinite;
   --animate-shimmer: shimmer 3s linear infinite;
   --animate-marquee-up: marqueeUp 20s linear infinite;
+  --animate-hero-rise: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Keyframes (mapped from the Tailwind config) ──────────── */
@@ -151,6 +152,72 @@
   }
   100% {
     transform: translateY(-50%);
+  }
+}
+@keyframes heroRise {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subject card — staggered fade-up of inner content (was Framer variants). */
+@keyframes subjectCardItem {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.subject-card-stagger > * {
+  opacity: 0;
+}
+.subject-card-stagger.is-in > * {
+  animation: subjectCardItem 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.subject-card-stagger.is-in > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.subject-card-stagger.is-in > *:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.subject-card-stagger.is-in > *:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.subject-card-stagger.is-in > *:nth-child(4) {
+  animation-delay: 0.35s;
+}
+
+/* Subject card CTA — looping diagonal shine sweep (was Framer x-keyframes). */
+@keyframes subjectBtnShine {
+  0% {
+    transform: translateX(-160%) skewX(-12deg);
+  }
+  71% {
+    transform: translateX(460%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(460%) skewX(-12deg);
+  }
+}
+.subject-btn-shine {
+  animation: subjectBtnShine 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subject-card-stagger > * {
+    opacity: 1;
+    animation: none;
+  }
+  .subject-btn-shine {
+    animation: none;
   }
 }
 
