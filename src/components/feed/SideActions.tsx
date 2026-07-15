@@ -124,7 +124,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
             <Heart size={19} className={liked ? "fill-rose-500 text-rose-500" : "text-ink"} />
           </motion.span>
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">{t("like")}</span>
+        {/* <span className="text-ink/70 text-xs font-medium">{t("like")}</span> */}
       </div>
 
       <div className="flex flex-col items-center gap-1">
@@ -137,7 +137,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
         >
           <Share2 size={18} className="text-ink" />
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">{t("share")}</span>
+        {/* <span className="text-ink/70 text-xs font-medium">{t("share")}</span> */}
       </div>
 
       <div className="flex flex-col items-center gap-1">
@@ -151,7 +151,7 @@ const SideActions = forwardRef<SideActionsHandle, { card: FeedCardData }>(functi
         >
           <Bookmark size={18} className={saved ? "fill-violet text-violet" : "text-ink"} />
         </motion.button>
-        <span className="text-ink/70 text-xs font-medium">{t("save")}</span>
+        {/* <span className="text-ink/70 text-xs font-medium">{t("save")}</span> */}
       </div>
     </div>
   );

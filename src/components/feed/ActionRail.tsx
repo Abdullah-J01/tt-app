@@ -149,7 +149,7 @@ export function ActionRail({
         iconRef={heartRef}
         icon={<Heart className={cn("h-5 w-5", liked && "fill-current text-red-500")} />}
       />
-      <RailButton label={t("share")} onClick={share} icon={<Share2 className="h-5 w-5" />} />
+      <RailButton /* label={t("share")} */ onClick={share} icon={<Share2 className="h-5 w-5" />} />
       {onOpenBook && (
         <Button
           unstyled
@@ -170,7 +170,7 @@ function RailButton({
   onClick,
   iconRef,
 }: {
-  label: string;
+  label?: string;
   icon: React.ReactNode;
   active?: boolean;
   onClick?: () => void;
@@ -189,9 +189,11 @@ function RailButton({
       </span>
       {/* Label floats in the flex gap below the circle (absolute, zero layout
           height) so a count appearing/changing (0 → 1) never resizes the rail. */}
-      <span className="pointer-events-none absolute top-full left-1/2 h-4 -translate-x-1/2 text-[11px] leading-4 font-medium whitespace-nowrap">
-        {label}
-      </span>
+      {label && (
+        <span className="pointer-events-none absolute top-full left-1/2 h-4 -translate-x-1/2 text-[11px] leading-4 font-medium whitespace-nowrap">
+          {label}
+        </span>
+      )}
     </Button>
   );
 }

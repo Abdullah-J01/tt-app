@@ -19,6 +19,8 @@ export { Select } from "./Select";
 export { SectionHeader } from "./SectionHeader";
 export { SelectableCard, selectableSurface } from "./SelectableCard";
 export { Skeleton } from "./Skeleton";
+export { SlideControls } from "./SlideControls";
+export type { SlideControlsProps } from "./SlideControls";
 export { SubjectCard } from "./SubjectCard";
 export { Table, TableBody, TableCell, TableHead, TableHeaderCell, TableRow } from "./Table";
 export { Toggle } from "./Toggle";

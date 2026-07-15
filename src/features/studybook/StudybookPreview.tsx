@@ -1,13 +1,22 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ChevronLeft, ChevronRight, Lock, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { Lock, X } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
 import { useCurrentLocale, localizeHref } from "@/i18n/Link";
 import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
+import { SlideControls } from "@/components/ui/SlideControls";
+import {
+  cardVariants,
+  LOCK_MS,
+  useSlideAxis,
+  useSwipeNav,
+  type SlideCustom,
+} from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
 
@@ -33,6 +42,34 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const slideCount = previewCards.length + 1; // + final CTA slide
 
   const [index, setIndex] = useState(0);
+  const [dir, setDir] = useState(1);
+  const lockRef = useRef(false);
+  // Swipe is bound to the card, not the backdrop — the backdrop's click closes
+  // the overlay, and a swipe ending there would close it mid-gesture.
+  const cardRef = useRef<HTMLDivElement>(null);
+  const axis = useSlideAxis();
+  const slide: SlideCustom = { dir, axis };
+
+  /** Locked while a card is in flight, so one gesture never skips two slides. */
+  const go = useCallback(
+    (next: number) => {
+      if (lockRef.current) return;
+      const clamped = Math.max(0, Math.min(slideCount - 1, next));
+      if (clamped === index) return;
+      setDir(clamped > index ? 1 : -1);
+      setIndex(clamped);
+      lockRef.current = true;
+      window.setTimeout(() => {
+        lockRef.current = false;
+      }, LOCK_MS);
+    },
+    [index, slideCount],
+  );
+
+  const goNext = useCallback(() => go(index + 1), [go, index]);
+  const goPrev = useCallback(() => go(index - 1), [go, index]);
+
+  useSwipeNav(cardRef, goNext, goPrev);
 
   const close = useCallback(() => {
     // Opening pushed a ?preview history entry — pop it so Back returns to the
@@ -64,8 +101,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     document.documentElement.style.overflow = "hidden";
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
-      if (e.key === "ArrowRight") setIndex((i) => Math.min(i + 1, slideCount - 1));
-      if (e.key === "ArrowLeft") setIndex((i) => Math.max(i - 1, 0));
+      // Up/Down included to match the reader's keys and the vertical swipe.
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") goNext();
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") goPrev();
     };
     window.addEventListener("keydown", onKey);
     return () => {
@@ -74,7 +112,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       document.documentElement.style.overflow = prevHtml;
       window.removeEventListener("keydown", onKey);
     };
-  }, [open, close, slideCount]);
+  }, [open, close, goNext, goPrev]);
 
   if (!open) return null;
 
@@ -93,6 +131,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       onClick={close}
     >
       <div
+        ref={cardRef}
         className="pop-in bg-plum md:rounded-card md:shadow-soft relative flex h-[100svh] w-full max-w-md flex-col overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -109,101 +148,108 @@ export function StudybookPreview({ book }: { book: Studybook }) {
               <X className="h-5 w-5" />
             </Button>
           </div>
-          <div className="flex gap-1" aria-label={t("slideOf", { current: index + 1, total: slideCount })}>
-            {Array.from({ length: slideCount }).map((_, i) => (
-              <span
-                key={i}
-                className={cn("h-1 flex-1 rounded-full", i <= index ? "bg-white" : "bg-white/30")}
-              />
-            ))}
+          {/* Bars + count, laid out like the reader's header — the count lives
+              here rather than beside the chevrons, which touch never sees. */}
+          <div>
+            <div
+              className="flex gap-1"
+              aria-label={t("slideOf", { current: index + 1, total: slideCount })}
+            >
+              {Array.from({ length: slideCount }).map((_, i) => (
+                <span
+                  key={i}
+                  className={cn("h-1 flex-1 rounded-full", i <= index ? "bg-white" : "bg-white/30")}
+                />
+              ))}
+            </div>
+            <p className="mt-2 text-xs font-medium text-white/55">
+              {Math.min(index + 1, previewCards.length)} / {previewCards.length}
+            </p>
           </div>
         </div>
 
-        {/* Slide body */}
-        <div className="flex flex-1 flex-col justify-between gap-6 px-6 pb-6">
-          {!isCta && card ? (
-            <>
-              <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-                {t("categoryPreview", { category: book.category })}
-              </span>
-              <div>
-                <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
-                <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
-              </div>
-              <BookAttribution book={book} />
-            </>
-          ) : (
-            <div className="flex flex-1 flex-col items-center justify-center text-center">
-              {book.cover ? (
-                <div className="shadow-soft relative h-28 w-20 overflow-hidden rounded-lg">
-                  <Image
-                    src={book.cover}
-                    alt={book.title}
-                    fill
-                    sizes="80px"
-                    className="object-cover"
-                  />
-                </div>
+        {/* Slide body — relative so popLayout can pull the outgoing slide out
+            of flow while the incoming one takes its place. */}
+        <div className="relative flex flex-1 flex-col px-6 pb-6">
+          <AnimatePresence mode="popLayout" custom={slide} initial={false}>
+            <motion.div
+              key={index}
+              custom={slide}
+              variants={cardVariants}
+              initial="enter"
+              animate="center"
+              exit="exit"
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              className="flex flex-1 flex-col justify-between gap-6"
+            >
+              {!isCta && card ? (
+                <>
+                  <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
+                    {t("categoryPreview", { category: book.category })}
+                  </span>
+                  <div>
+                    <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
+                    <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
+                  </div>
+                  <BookAttribution book={book} />
+                </>
               ) : (
-                <span className="grid h-16 w-16 place-items-center rounded-full bg-white/15 backdrop-blur">
-                  <Lock className="h-8 w-8" />
-                </span>
+                <div className="flex flex-1 flex-col items-center justify-center text-center">
+                  {book.cover ? (
+                    <div className="shadow-soft relative h-28 w-20 overflow-hidden rounded-lg">
+                      <Image
+                        src={book.cover}
+                        alt={book.title}
+                        fill
+                        sizes="80px"
+                        className="object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <span className="grid h-16 w-16 place-items-center rounded-full bg-white/15 backdrop-blur">
+                      <Lock className="h-8 w-8" />
+                    </span>
+                  )}
+                  <h2 className="mt-5 text-2xl font-bold text-white">
+                    {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
+                  </h2>
+                  <p className="mt-2 max-w-xs text-white/80">
+                    {book.priceEur != null
+                      ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
+                      : t("keepGoing")}
+                  </p>
+                  {/* replace: swap the ?preview history entry for /read, so Back
+                      from the reader returns to the clean detail page instead of
+                      reopening this overlay (which reads as "back is broken").
+                      Gated: guests get the login popup instead of navigating. */}
+                  <Button
+                    size="lg"
+                    variant="secondary"
+                    className="mt-6 w-full max-w-xs"
+                    onClick={() =>
+                      requireAuth(
+                        () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
+                        t("loginToLearn"),
+                      )
+                    }
+                  >
+                    {t("startLearning")}
+                  </Button>
+                </div>
               )}
-              <h2 className="mt-5 text-2xl font-bold text-white">
-                {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
-              </h2>
-              <p className="mt-2 max-w-xs text-white/80">
-                {book.priceEur != null
-                  ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
-                  : t("keepGoing")}
-              </p>
-              {/* replace: swap the ?preview history entry for /read, so Back
-                  from the reader returns to the clean detail page instead of
-                  reopening this overlay (which reads as "back is broken").
-                  Gated: guests get the login popup instead of navigating. */}
-              <Button
-                size="lg"
-                variant="secondary"
-                className="mt-6 w-full max-w-xs"
-                onClick={() =>
-                  requireAuth(
-                    () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
-                    t("loginToLearn"),
-                  )
-                }
-              >
-                {t("startLearning")}
-              </Button>
-            </div>
-          )}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
-        {/* Prev / Next */}
-        <div className="flex items-center justify-between p-4">
-          <Button
-            unstyled
-            type="button"
-            onClick={() => setIndex((i) => Math.max(i - 1, 0))}
-            disabled={index === 0}
-            aria-label={t("previousCard")}
-            className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
-          >
-            <ChevronLeft className="h-6 w-6" />
-          </Button>
-          <span className="text-sm text-white/70">
-            {Math.min(index + 1, previewCards.length)} / {previewCards.length}
-          </span>
-          <Button
-            unstyled
-            type="button"
-            onClick={() => setIndex((i) => Math.min(i + 1, slideCount - 1))}
-            disabled={index >= slideCount - 1}
-            aria-label={t("nextCard")}
-            className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur transition hover:bg-white/25 disabled:opacity-30"
-          >
-            <ChevronRight className="h-6 w-6" />
-          </Button>
-        </div>
+        {/* Next stops at the CTA slide — unlike the reader, there's nothing past it. */}
+        <SlideControls
+          index={index}
+          onPrev={goPrev}
+          onNext={goNext}
+          disableNext={index >= slideCount - 1}
+          labels={{ previous: t("previousCard"), next: t("nextCard"), hint: t("swipeHint") }}
+          className="p-4"
+        />
       </div>
     </div>
   );

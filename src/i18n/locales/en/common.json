@@ -302,6 +302,7 @@
   "components_feed_StudybookReader": {
     "backToStudybook": "Back to studybook",
     "cardProgress": "Card {current} of {total}",
+    "previousCard": "Previous card",
     "nextCard": "Next card",
     "swipeHint": "Swipe up · next card",
     "saved": "Saved",
@@ -994,6 +995,7 @@
     "startLearning": "Start learning",
     "previousCard": "Previous card",
     "nextCard": "Next card",
+    "swipeHint": "Swipe up · next card",
     "loginToLearn": "Log in to start learning"
   },
   "app_marketing_about_page": {

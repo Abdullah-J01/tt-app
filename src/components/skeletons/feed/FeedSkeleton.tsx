@@ -63,7 +63,7 @@ export function SideActionsSkeleton() {
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex flex-col items-center gap-1.5">
           <Skeleton className="lg:bg-mist h-11 w-11 rounded-full bg-white/25 sm:h-12 sm:w-12" />
-          <Skeleton className="lg:bg-mist h-2.5 w-8 rounded-full bg-white/25" />
+          {/* <Skeleton className="lg:bg-mist h-2.5 w-8 rounded-full bg-white/25" /> */}
         </div>
       ))}
     </div>

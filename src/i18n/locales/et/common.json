@@ -302,6 +302,7 @@
   "components_feed_StudybookReader": {
     "backToStudybook": "Tagasi õpikusse",
     "cardProgress": "Kaart {current}/{total}",
+    "previousCard": "Eelmine kaart",
     "nextCard": "Järgmine kaart",
     "swipeHint": "Pühi üles · järgmine kaart",
     "saved": "Salvestatud",
@@ -994,6 +995,7 @@
     "startLearning": "Alusta õppimist",
     "previousCard": "Eelmine kaart",
     "nextCard": "Järgmine kaart",
+    "swipeHint": "Pühi üles · järgmine kaart",
     "loginToLearn": "Õppimise alustamiseks logi sisse"
   },
   "app_marketing_about_page": {

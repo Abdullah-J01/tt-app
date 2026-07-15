@@ -6,15 +6,21 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, Bookmark, ChevronUp, Zap } from "lucide-react";
+import { ArrowLeft, Bookmark, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
+import { SlideControls } from "@/components/ui/SlideControls";
+import {
+  cardVariants,
+  LOCK_MS,
+  useSlideAxis,
+  useSwipeNav,
+  type SlideCustom,
+} from "@/lib/cardSlide";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
 import type { Studybook, StudyCard } from "@/types";
-
-const LOCK_MS = 500;
 
 /** Library snapshot for the active card — lets the rail's like/save persist. */
 function toEntry(card: StudyCard, book: Studybook): LibraryEntry {
@@ -33,15 +39,11 @@ function toEntry(card: StudyCard, book: Studybook): LibraryEntry {
   };
 }
 
-const cardVariants = {
-  enter: (dir: number) => ({ opacity: 0, y: dir > 0 ? 64 : -64 }),
-  center: { opacity: 1, y: 0 },
-  exit: (dir: number) => ({ opacity: 0, y: dir > 0 ? -64 : 64 }),
-};
-
 /**
  * Immersive studybook reader opened from "Start learning" on the detail page.
- * One card at a time on a dark gradient; swipe up / wheel / arrow keys advance.
+ * One card at a time on a dark gradient. Navigation matches StudybookPreview —
+ * swipe on touch, Prev/Next chevrons on desktop (see @/lib/cardSlide) — plus
+ * wheel and arrow keys throughout.
  * The Save/Like/Share rail and the top Save both fire the shared "Saved" toast.
  */
 export default function StudybookReader({ book }: { book: Studybook }) {
@@ -53,15 +55,18 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const [dir, setDir] = useState(1);
   const [done, setDone] = useState(false);
   const lockRef = useRef(false);
-  const touchStartY = useRef<number | null>(null);
   // The whole overlay (backdrop included) — wheel/swipe anywhere navigates, not
   // just over the narrow card surface (matters on desktop where the cursor
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
   const subjectName = useSubjectName();
+  // Only the slide axis reads the viewport — SlideControls shows/hides in CSS,
+  // so it renders server-side and can't mismatch on hydration.
+  const axis = useSlideAxis();
 
   const subject = subjectName(book.subjectSlug);
   const active = cards[index];
+  const slide: SlideCustom = { dir, axis };
 
   const go = useCallback(
     (next: number) => {
@@ -126,36 +131,22 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   }, [goNext, goPrev]);
 
   // Touch (mobile/tablet)
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    function onStart(e: TouchEvent) {
-      touchStartY.current = e.touches[0]?.clientY ?? null;
-    }
-    function onEnd(e: TouchEvent) {
-      if (touchStartY.current === null) return;
-      const endY = e.changedTouches[0]?.clientY ?? touchStartY.current;
-      const delta = touchStartY.current - endY;
-      touchStartY.current = null;
-      if (Math.abs(delta) < 45) return;
-      if (delta > 0) goNext();
-      else goPrev();
-    }
-    el.addEventListener("touchstart", onStart, { passive: true });
-    el.addEventListener("touchend", onEnd, { passive: true });
-    return () => {
-      el.removeEventListener("touchstart", onStart);
-      el.removeEventListener("touchend", onEnd);
-    };
-  }, [goNext, goPrev]);
+  useSwipeNav(containerRef, goNext, goPrev);
 
   // Keyboard
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
+      // Left/Right included to match the chevrons (and StudybookPreview, which
+      // is Left/Right only); Up/Down stay for the vertical swipe mental model.
+      if (
+        e.key === "ArrowDown" ||
+        e.key === "ArrowRight" ||
+        e.key === "PageDown" ||
+        e.key === " "
+      ) {
         e.preventDefault();
         goNext();
-      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
+      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "PageUp") {
         e.preventDefault();
         goPrev();
       }
@@ -246,10 +237,10 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               card is taller than the area, so it top-aligns and overflows
               downward instead of riding up under the header. */}
           <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
-            <AnimatePresence mode="popLayout" custom={dir} initial={false}>
+            <AnimatePresence mode="popLayout" custom={slide} initial={false}>
               <motion.div
                 key={active.id}
-                custom={dir}
+                custom={slide}
                 variants={cardVariants}
                 initial="enter"
                 animate="center"
@@ -284,24 +275,18 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             </AnimatePresence>
           </div>
 
-          {/* Swipe hint */}
-          <button
-            type="button"
-            onClick={goNext}
-            aria-label={t("nextCard")}
-            // Mobile: the bottom nav is hidden on the reader, so this sits just
-            // above the home-indicator safe area; sm+ the reader is a windowed
-            // card, so back to bottom-8.
-            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 flex flex-col items-center gap-1 text-white/60 sm:bottom-8"
-          >
-            <motion.span
-              animate={{ y: [0, -5, 0] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <ChevronUp className="h-5 w-5" />
-            </motion.span>
-            <span className="text-xs font-medium">{t("swipeHint")}</span>
-          </button>
+          {/* Next stays enabled on the last card — there it opens the streak
+              completion, so it doubles as "finish the book".
+              Mobile: the bottom nav is hidden on the reader, so this sits just
+              above the home-indicator safe area; sm+ the reader is a windowed
+              card, so back to bottom-8. */}
+          <SlideControls
+            index={index}
+            onPrev={goPrev}
+            onNext={goNext}
+            labels={{ previous: t("previousCard"), next: t("nextCard"), hint: t("swipeHint") }}
+            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 px-8 sm:bottom-8"
+          />
         </div>
 
         {/* Action rail (Save / Like / Share) — sibling of the frame so it sits
