@@ -183,12 +183,10 @@ export function SubjectReveal() {
                       "radial-gradient(circle, rgb(var(--color-violet-rgb) / 0.34) 0%, rgb(var(--color-violet-rgb) / 0.12) 42%, transparent 70%)",
                   }}
                 />
-                <motion.svg
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 48, ease: "linear" }}
+                <svg
                   viewBox="0 0 200 200"
                   aria-hidden
-                  className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
+                  className="absolute inset-0 m-auto h-[21rem] w-[21rem] animate-spin will-change-transform [animation-duration:44s] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
                 >
                   <defs>
                     <linearGradient id="subjectDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -206,13 +204,11 @@ export function SubjectReveal() {
                     strokeWidth={0.5}
                     strokeDasharray="1.5 3"
                   />
-                </motion.svg>
-                <motion.svg
-                  animate={{ rotate: -360 }}
-                  transition={{ repeat: Infinity, duration: 65, ease: "linear" }}
+                </svg>
+                <svg
                   viewBox="0 0 200 200"
                   aria-hidden
-                  className="absolute inset-0 m-auto h-[18rem] w-[18rem] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
+                  className="absolute inset-0 m-auto h-[18rem] w-[18rem] animate-spin will-change-transform [animation-direction:reverse] [animation-duration:60s] sm:h-[28rem] sm:w-[28rem] md:h-[38rem] md:w-[38rem]"
                 >
                   <defs>
                     <radialGradient id="subjectBlobFill" cx="50%" cy="42%" r="62%">
@@ -229,18 +225,14 @@ export function SubjectReveal() {
                     strokeWidth={1}
                     strokeLinejoin="round"
                   />
-                </motion.svg>
+                </svg>
                 <div
                   aria-hidden
                   className="absolute inset-0 m-auto h-[21rem] w-[21rem] sm:h-[33rem] sm:w-[33rem] md:h-[46rem] md:w-[46rem]"
                 >
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ repeat: Infinity, duration: 16, ease: "linear" }}
-                    className="relative h-full w-full"
-                  >
+                  <div className="relative h-full w-full animate-spin will-change-transform [animation-duration:24s]">
                     <span className="bg-violet absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
-                  </motion.div>
+                  </div>
                 </div>
               </div>
               <div className="relative px-6 text-center">
