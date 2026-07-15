@@ -13,7 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
  * fetched here; all interactivity lives in <ExploreView> (client).
  */
 export default async function ExplorePage() {
-  const { books, studybites } = await getCatalog();
+  // Books only — ExploreView derives the studybites from these same books, so
+  // sending both would serialize a duplicate copy of every book into the payload.
+  const { books } = await getCatalog();
 
-  return <ExploreView books={books} studybites={studybites} />;
+  return <ExploreView books={books} />;
 }

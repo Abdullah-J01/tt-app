@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { memo, useCallback, useMemo, useRef, useState } from "react";
 import Link from "@/i18n/Link";
 import Image from "next/image";
 import { LayoutGrid, List, Search, SlidersHorizontal } from "lucide-react";
@@ -26,7 +26,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { SortMenu, sortBooks, type Sort } from "./SortMenu";
 import { StudybiteCard } from "./StudybiteCard";
 import { SubjectRail } from "./SubjectRail";
-import type { Studybite } from "../data";
+import { toStudybites } from "../studybites";
 import type { Studybook } from "@/types";
 
 type Tab = "books" | "bites";
@@ -34,7 +34,6 @@ type View = "grid" | "list";
 
 interface ExploreViewProps {
   books: Studybook[];
-  studybites: Studybite[];
 }
 
 /**
@@ -43,7 +42,7 @@ interface ExploreViewProps {
  * the filter sidebar docks left; from xl the subject rail becomes a sticky
  * middle column. One selection set drives the chips, rail, panel and results.
  */
-export function ExploreView({ books, studybites }: ExploreViewProps) {
+export function ExploreView({ books }: ExploreViewProps) {
   const t = useTranslations("features_explore_components_ExploreView");
   const tCat = useTranslations("catalog");
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -54,25 +53,33 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   const [page, setPage] = useState(1);
   const resultsRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * Bites are a pure projection of `books`, so we derive them here instead of
+   * having the server send a second copy of every book down the wire.
+   */
+  const studybites = useMemo(() => toStudybites(books), [books]);
+
   // Every control that changes what's listed starts back at page 1.
-  const toggle = (key: string) => {
+  // These are stable so the memoized panel/rail/pager below don't re-render on
+  // every keystroke elsewhere in the tree.
+  const toggle = useCallback((key: string) => {
     setPage(1);
     setSelected((prev) => {
       const next = new Set(prev);
       next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
-  };
+  }, []);
 
-  const clear = () => {
+  const clear = useCallback(() => {
     setPage(1);
     setSelected(new Set());
-  };
+  }, []);
   /** "All" chip = no Target Group values checked. */
-  const clearTarget = () => {
+  const clearTarget = useCallback(() => {
     setPage(1);
     setSelected((prev) => new Set([...prev].filter((k) => !k.startsWith("target:"))));
-  };
+  }, []);
   const anyTarget = [...selected].some((k) => k.startsWith("target:"));
   /** The subject rail is contextual — it appears once a subject filter is checked. */
   const showRail = [...selected].some((k) => k.startsWith("subject:"));
@@ -85,10 +92,10 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   }, [selected]);
 
   /** Rail toggles go through the group-aware helper (a group dissolves into siblings). */
-  const toggleRailSubject = (key: string) => {
+  const toggleRailSubject = useCallback((key: string) => {
     setPage(1);
     setSelected((prev) => toggleSubjectSlug(prev, key.slice("subject:".length)));
-  };
+  }, []);
 
   const booksF = useMemo(
     () => sortBooks(applyFilters(books, selected), sort),
@@ -112,10 +119,10 @@ export function ExploreView({ books, studybites }: ExploreViewProps) {
   const pageBooks = booksF.slice((safePage - 1) * pageSize, safePage * pageSize);
   const pageBites = bitesF.slice((safePage - 1) * pageSize, safePage * pageSize);
 
-  const goToPage = (p: number) => {
+  const goToPage = useCallback((p: number) => {
     setPage(p);
     resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  }, []);
 
   return (
     <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { type FilterOption } from "../filters";
@@ -41,7 +41,13 @@ function matchOptions(options: FilterOption[], q: string): FilterOption[] {
  * the grid-rows trick so open/close animates both ways. While searching, only
  * matching options render and their sections auto-expand.
  */
-export function FilterPanel({
+/**
+ * Memoized: the panel renders every facet and option, but sits outside the
+ * results list — so without this it re-renders on each tab/sort/page/view
+ * change in the toolbar next to it. Callers must pass stable `onToggle`/
+ * `onClear` (useCallback) for this to hold.
+ */
+export const FilterPanel = memo(function FilterPanel({
   resultCount,
   selected,
   onToggle,
@@ -188,7 +194,7 @@ export function FilterPanel({
       </div>
     </div>
   );
-}
+});
 
 function OptionRow({
   facetKey,

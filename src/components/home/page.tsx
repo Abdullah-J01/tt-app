@@ -34,7 +34,9 @@ const FEATURES = [
 /** Marketing landing page (UI brief §6.8). */
 export default async function LandingPage() {
   const t = await getTranslations("components_home_page");
-  const books = await listStudybooks();
+  // The carousel shows 5 (its reduced-motion fallback renders a short rail of
+  // whatever it's given), so this asks for one small page — not the catalogue.
+  const { items: books } = await listStudybooks({ limit: 12 });
 
   return (
     <main className="relative min-h-screen bg-white">

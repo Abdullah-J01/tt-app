@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { Check, ChevronDown, X } from "lucide-react";
@@ -26,8 +26,16 @@ interface SubjectRailProps {
  * wrapped set of chips capped at VISIBLE_MOBILE, with a "More" chip that opens a
  * bottom-sheet with the full list; on xl it becomes a sticky vertical column
  * with an inline "See more" fold. Rows reuse the shared selectable surface.
+ *
+ * Memoized: it renders every subject and sits outside the results list, so it
+ * would otherwise re-render on each tab/sort/page/view change. Callers must
+ * pass a stable `onToggle` (useCallback) for this to hold.
  */
-export function SubjectRail({ selected, onToggle, className }: SubjectRailProps) {
+export const SubjectRail = memo(function SubjectRail({
+  selected,
+  onToggle,
+  className,
+}: SubjectRailProps) {
   const t = useTranslations("features_explore_components_SubjectRail");
   const [showAll, setShowAll] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -100,7 +108,7 @@ export function SubjectRail({ selected, onToggle, className }: SubjectRailProps)
       />
     </section>
   );
-}
+});
 
 type SubjectItem = (typeof SUBJECTS)[number];
 
