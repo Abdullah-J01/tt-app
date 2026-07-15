@@ -5,18 +5,12 @@ import { useTranslations } from "@/i18n/client";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, Bookmark, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
 import { SlideControls } from "@/components/ui/SlideControls";
-import {
-  cardVariants,
-  LOCK_MS,
-  useSlideAxis,
-  useSwipeNav,
-  type SlideCustom,
-} from "@/lib/cardSlide";
+import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
+import { cn } from "@/lib/utils";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
@@ -52,7 +46,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const cards = book.cards;
   const total = cards.length;
   const [index, setIndex] = useState(0);
-  const [dir, setDir] = useState(1);
   const [done, setDone] = useState(false);
   const lockRef = useRef(false);
   // The whole overlay (backdrop included) — wheel/swipe anywhere navigates, not
@@ -63,24 +56,26 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   // Only the slide axis reads the viewport — SlideControls shows/hides in CSS,
   // so it renders server-side and can't mismatch on hydration.
   const axis = useSlideAxis();
+  const { turn, begin, end } = useCardTurn();
 
   const subject = subjectName(book.subjectSlug);
   const active = cards[index];
-  const slide: SlideCustom = { dir, axis };
 
   const go = useCallback(
     (next: number) => {
       if (lockRef.current) return;
       const clamped = Math.max(0, Math.min(total - 1, next));
       if (clamped === index) return;
-      setDir(clamped > index ? 1 : -1);
       setIndex(clamped);
+      // begin() declines under reduced motion — nothing animates, so there's
+      // nothing for the lock to wait on either.
+      if (!begin(index, clamped > index ? 1 : -1)) return;
       lockRef.current = true;
       window.setTimeout(() => {
         lockRef.current = false;
       }, LOCK_MS);
     },
-    [index, total],
+    [index, total, begin],
   );
 
   const goNext = useCallback(() => {
@@ -183,6 +178,45 @@ export default function StudybookReader({ book }: { book: Studybook }) {
 
   if (!active) return null;
 
+  /** One card's contents. Rendered twice while a transition is in flight. */
+  const renderCard = (i: number) => {
+    const c = cards[i];
+    if (!c) return null;
+    return (
+      // Insets keep it clear of the header (bars + meta) above and the controls
+      // below. Centering comes from my-auto on the card (not items-center): auto
+      // margins collapse to 0 when the card is taller than the area, so it
+      // top-aligns and overflows downward instead of riding up under the header.
+      <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
+        <div className="my-auto w-full max-w-md pr-16">
+          <h2 className="font-display text-2xl leading-tight font-bold text-white sm:text-3xl">
+            {c.heading}
+          </h2>
+
+          {/* Book cover — optional media; without it the text just flows, no
+              empty placeholder box. */}
+          {book.cover && (
+            <div className="relative my-5 h-36 overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4">
+              <Image
+                src={book.cover}
+                alt={book.title}
+                fill
+                sizes="(max-width: 640px) 90vw, 420px"
+                className="object-contain p-2"
+              />
+            </div>
+          )}
+
+          <p className={`text-[15px] leading-relaxed text-white/75 ${book.cover ? "" : "mt-5"}`}>
+            {c.body}
+          </p>
+        </div>
+      </div>
+    );
+  };
+
+  const pair = turn ? transitionPair(axis, turn.dir) : null;
+
   return (
     <main
       ref={containerRef}
@@ -193,6 +227,28 @@ export default function StudybookReader({ book }: { book: Studybook }) {
       <div className="relative h-[100dvh] w-full max-w-full sm:h-[80vh] sm:max-h-[720px] sm:max-w-md">
         {/* Phone-style reader surface — clipped, rounded on larger screens */}
         <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]">
+          {/* Cards. Both copies stay transparent, so only the content travels and
+              the card's gradient sits still behind them. Kept under the header and
+              controls (z-20) so those hold their position while cards move. */}
+          <div
+            onAnimationEnd={(e) => e.target === e.currentTarget && end()}
+            className={cn("absolute inset-0", pair?.incoming)}
+          >
+            {renderCard(index)}
+          </div>
+
+          {turn && pair && (
+            <div
+              // Keyed so a fresh transition remounts and restarts the animation
+              // rather than reusing the element mid-flight.
+              key={`${turn.from}:${turn.dir}`}
+              onAnimationEnd={(e) => e.target === e.currentTarget && end()}
+              className={cn("pointer-events-none absolute inset-0", pair.outgoing)}
+            >
+              {renderCard(turn.from)}
+            </div>
+          )}
+
           {/* Top bar: back · book title · save */}
           <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-4 pt-5">
             <button
@@ -229,50 +285,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                 {subject}
               </p>
             </div>
-          </div>
-
-          {/* Card content — insets keep it clear of the header (bars + meta)
-              above and the swipe hint below. Centering comes from my-auto on
-              the card (not items-center): auto margins collapse to 0 when the
-              card is taller than the area, so it top-aligns and overflows
-              downward instead of riding up under the header. */}
-          <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
-            <AnimatePresence mode="popLayout" custom={slide} initial={false}>
-              <motion.div
-                key={active.id}
-                custom={slide}
-                variants={cardVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="my-auto w-full max-w-md pr-16"
-              >
-                <h2 className="font-display text-2xl leading-tight font-bold text-white sm:text-3xl">
-                  {active.heading}
-                </h2>
-
-                {/* Book cover — optional media; without it the text just flows,
-                    no empty placeholder box. */}
-                {book.cover && (
-                  <div className="relative my-5 h-36 overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4">
-                    <Image
-                      src={book.cover}
-                      alt={book.title}
-                      fill
-                      sizes="(max-width: 640px) 90vw, 420px"
-                      className="object-contain p-2"
-                    />
-                  </div>
-                )}
-
-                <p
-                  className={`text-[15px] leading-relaxed text-white/75 ${book.cover ? "" : "mt-5"}`}
-                >
-                  {active.body}
-                </p>
-              </motion.div>
-            </AnimatePresence>
           </div>
 
           {/* Next stays enabled on the last card — there it opens the streak
