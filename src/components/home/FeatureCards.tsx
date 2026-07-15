@@ -258,7 +258,7 @@ export default function FeatureCards() {
       {/* MOBILE — vertical page scroll; horizontal swipe drives a true      */}
       {/* card-on-card stack (all cards share the same position, layered).  */}
       {/* ---------------------------------------------------------------- */}
-      <div className="h-screen md:hidden">
+      <div className="h-screen w-full overflow-x-hidden md:hidden">
         <div ref={mobileStageRef} className="relative" style={{ perspective: "1200px" }}>
           {/* Invisible spacer: renders the first card in normal flow purely to
               give this relative container a sensible natural height before JS
@@ -266,7 +266,7 @@ export default function FeatureCards() {
               Once mounted, the effect measures the tallest card and pins the
               stage's min-height to it so no card is ever cropped. */}
           {features[0] && (
-            <div className="invisible px-[8vw]" aria-hidden="true">
+            <div className="invisible" aria-hidden="true">
               <FeatureCard
                 icon={features[0].icon}
                 title={t(features[0].titleKey)}
@@ -326,7 +326,7 @@ export default function FeatureCards() {
               ref={(el) => {
                 dotRefs.current[i] = el;
               }}
-              className="bg-ink/40 h-1.5 w-1.5 rounded-full"
+              className="h-1.5 w-1.5 rounded-full bg-white/40"
             />
           ))}
         </div>
