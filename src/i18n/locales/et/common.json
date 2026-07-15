@@ -153,7 +153,14 @@
     "emailInvalid": "Sisesta kehtiv e-post",
     "passwordRequired": "Parool on kohustuslik",
     "nameRequired": "Nimi on kohustuslik",
-    "passwordMin": "Parool peab olema vähemalt 8 tähemärki"
+    "passwordMin": "Parool peab olema vähemalt 8 tähemärki",
+    "passwordMax": "Parool tohib olla kõige rohkem 200 tähemärki",
+    "invalidCredentials": "Vale e-post või parool",
+    "emailTaken": "Selle e-postiga konto on juba olemas",
+    "signupFailed": "Kontot ei õnnestunud luua. Palun proovi uuesti.",
+    "genericError": "Midagi läks valesti. Palun proovi uuesti.",
+    "signingIn": "Sisselogimine…",
+    "creatingAccount": "Konto loomine…"
   },
   "app_app_explore_subject_page": {
     "metadataFallback": "Õppeaine",

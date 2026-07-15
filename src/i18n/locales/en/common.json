@@ -153,7 +153,14 @@
     "emailInvalid": "Enter a valid email",
     "passwordRequired": "Password is required",
     "nameRequired": "Name is required",
-    "passwordMin": "Password must be at least 8 characters"
+    "passwordMin": "Password must be at least 8 characters",
+    "passwordMax": "Password must be at most 200 characters",
+    "invalidCredentials": "Incorrect email or password",
+    "emailTaken": "An account with this email already exists",
+    "signupFailed": "Could not create your account. Please try again.",
+    "genericError": "Something went wrong. Please try again.",
+    "signingIn": "Signing in…",
+    "creatingAccount": "Creating account…"
   },
   "app_app_explore_subject_page": {
     "metadataFallback": "Subject",

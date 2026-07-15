@@ -1,6 +1,8 @@
 import { getServerSession } from "next-auth";
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
+import { safeInternalPath } from "@/lib/safeRedirect";
 
 /**
  * Post-login gateway: the login form lands here when the user didn't arrive
@@ -18,7 +20,9 @@ export default async function PostLoginPage({
   if (session.user.role === "admin") redirect("/admin");
 
   const { to } = await searchParams;
-  // Internal paths only — never redirect to another origin.
-  const dest = to?.startsWith("/") && !to.startsWith("//") ? to : "/feed";
-  redirect(dest);
+  // Internal paths only — never redirect to another origin. A startsWith("/")
+  // check is insufficient (see safeRedirect): "/\evil.com" would pass it.
+  const host = (await headers()).get("host") ?? "localhost";
+  const proto = process.env.NODE_ENV === "production" ? "https" : "http";
+  redirect(safeInternalPath(to, `${proto}://${host}`, "/feed"));
 }

@@ -51,7 +51,19 @@
     "checkEmailBody": "If an account exists for {email}, we've sent a link to reset your password.",
     "useDifferentEmail": "Use a different email",
     "backToLogin": "Back to log in",
-    "rememberPassword": "Remember your password?"
+    "rememberPassword": "Remember your password?",
+    "passwordMax": "Пароль не должен превышать 200 символов",
+    "invalidCredentials": "Неверный адрес электронной почты или пароль",
+    "emailTaken": "Аккаунт с таким адресом уже существует",
+    "signupFailed": "Не удалось создать аккаунт. Пожалуйста, попробуйте ещё раз.",
+    "genericError": "Что-то пошло не так. Пожалуйста, попробуйте ещё раз.",
+    "signingIn": "Вход…",
+    "creatingAccount": "Создание аккаунта…",
+    "emailRequired": "Введите адрес электронной почты",
+    "emailInvalid": "Введите корректный адрес электронной почты",
+    "passwordRequired": "Введите пароль",
+    "nameRequired": "Введите имя",
+    "passwordMin": "Пароль должен содержать не менее 8 символов"
   },
   "app_app_explore_subject_page": {
     "metadataFallback": "Subject",

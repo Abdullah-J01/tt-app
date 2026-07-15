@@ -1,10 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useTranslations } from "@/i18n/client";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { FormError } from "@/components/ui/FormError";
 import { Form, useZodForm } from "@/components/ui/Form";
 import { GoogleIcon } from "./GoogleIcon";
 import { PasswordField } from "./PasswordField";
@@ -20,15 +21,61 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
   const form = useZodForm(useMemo(() => makeSignupSchema(tv), [tv]));
   const {
     register,
-    formState: { errors },
+    setError,
+    formState: { errors, isSubmitting },
   } = form;
+  const [formError, setFormError] = useState<string | null>(null);
 
-  // Dev stub: create a real session via the credentials provider carrying the
-  // entered name + email, so the profile shows the new account (not placeholder
-  // data), then continue to onboarding.
-  // TODO(team): swap this for TT's real sign-up endpoint.
-  const onSubmit = ({ name, email, password }: SignupValues) =>
-    signIn("credentials", { name, email, password, callbackUrl: "/onboarding" });
+  /**
+   * Two steps: create the account, then sign in with the same credentials.
+   * NextAuth has no registration concept — the credentials provider only
+   * verifies existing users — so sign-up goes through our own endpoint first.
+   */
+  const onSubmit = async ({ name, email, password }: SignupValues) => {
+    setFormError(null);
+
+    let response: Response;
+    try {
+      response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+    } catch {
+      setFormError(tv("genericError"));
+      return;
+    }
+
+    if (!response.ok) {
+      const code = await response
+        .json()
+        .then((b: { error?: string }) => b.error)
+        .catch(() => undefined);
+
+      if (code === "email_taken") {
+        // Attach to the field that caused it so the message sits where the user
+        // has to act, and focus follows.
+        setError("email", { message: tv("emailTaken") }, { shouldFocus: true });
+        return;
+      }
+      // invalid_input means the client and server schemas disagree — a bug, not
+      // something the user can fix by editing the field.
+      setFormError(tv("signupFailed"));
+      return;
+    }
+
+    const result = await signIn("credentials", { email, password, redirect: false }).catch(
+      () => null,
+    );
+    if (!result || result.error) {
+      // The account exists but auto-login failed; sending them to log in
+      // manually beats a dead end.
+      setFormError(tv("genericError"));
+      return;
+    }
+
+    window.location.assign("/onboarding");
+  };
 
   return (
     <div className={GLASS_CARD}>
@@ -39,6 +86,7 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
       </div>
 
       <Form form={form} onSubmit={onSubmit} className="flex flex-col gap-3">
+        <FormError>{formError}</FormError>
         <Input
           id="signup-name"
           type="text"
@@ -74,8 +122,8 @@ export function SignupFace({ onSwitch, onClose }: { onSwitch: () => void; onClos
           className={GLASS_INPUT}
           {...register("password")}
         />
-        <Button type="submit" block size="lg">
-          {t("submit")}
+        <Button type="submit" block size="lg" loading={isSubmitting}>
+          {isSubmitting ? tv("creatingAccount") : t("submit")}
         </Button>
       </Form>
 
