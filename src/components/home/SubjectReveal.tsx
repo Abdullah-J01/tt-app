@@ -10,7 +10,6 @@ import {
   useReducedMotion,
   useTransform,
   type MotionValue,
-  type Variants,
 } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { SUBJECTS } from "@/config/subjects";
@@ -80,16 +79,6 @@ function wavyRingPath(bumps = 12, rBase = 82, rBump = 9, size = 200) {
 
 const WAVY_RING = wavyRingPath(8, 88, 5);
 
-/** Staggered fade-up for the mobile card's inner elements. */
-const CARD_CONTAINER: Variants = {
-  hidden: {},
-  show: { transition: { staggerChildren: 0.1, delayChildren: 0.05 } },
-};
-const CARD_ITEM: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
-};
-
 type SubjectCardData = { subject: (typeof SUBJECTS)[number]; dir: Dir };
 
 /**
@@ -152,15 +141,17 @@ export function SubjectReveal() {
   const rippleScale = useTransform(scrollYProgress, [0.18, 0.42], [1, 4.2]);
   const rippleOpacity = useTransform(scrollYProgress, [0.18, 0.3, 0.42], [0, 0.4, 0]);
   // Phase 2 (0.46 →): once the centre is gone the grid / mobile card comes in.
+  // The mobile card's fly-in is stretched to finish near the end of the (shorter,
+  // on mobile) section so there's little dead scroll left with the card pinned.
   const gridOpacity = useTransform(scrollYProgress, [0.46, 0.54], [0, 1]);
-  const ctaOpacity = useTransform(scrollYProgress, [0.46, 0.56], [0, 1]);
-  const ctaScale = useTransform(scrollYProgress, [0.46, 0.62], [0.92, 1]);
-  const ctaX = useTransform(scrollYProgress, [0.46, 0.64], [-300, 0]);
-  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.64], [-80, 0]);
+  const ctaOpacity = useTransform(scrollYProgress, [0.46, 0.6], [0, 1]);
+  const ctaScale = useTransform(scrollYProgress, [0.46, 0.78], [0.92, 1]);
+  const ctaX = useTransform(scrollYProgress, [0.46, 0.82], [-300, 0]);
+  const ctaRotate = useTransform(scrollYProgress, [0.46, 0.82], [-80, 0]);
 
   return (
     <>
-      <section ref={sectionRef} className={reduced ? "relative" : "relative h-[320vh]"}>
+      <section ref={sectionRef} className={reduced ? "relative" : "relative h-[190vh] sm:h-[320vh]"}>
         <div
           className={cn(
             "flex w-full items-start justify-center overflow-hidden bg-white",
@@ -300,30 +291,21 @@ export function SubjectReveal() {
             className="absolute inset-0 -top-16 bottom-16 z-10 flex items-center justify-center px-5 sm:hidden"
           >
             <div className="bg-plum-gradient border-lilac relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
-              <motion.div
-                variants={CARD_CONTAINER}
-                initial={reduced ? false : "hidden"}
-                animate={reduced || cardIn ? "show" : "hidden"}
-                className="flex w-full flex-col items-center"
+              <div
+                className={cn(
+                  "subject-card-stagger flex w-full flex-col items-center",
+                  (reduced || cardIn) && "is-in",
+                )}
               >
-                <motion.p
-                  variants={CARD_ITEM}
-                  className="text-xs font-semibold tracking-[0.18em] text-white uppercase"
-                >
+                <p className="text-xs font-semibold tracking-[0.18em] text-white uppercase">
                   {t("exploreBySubject")}
-                </motion.p>
-                <motion.h3
-                  variants={CARD_ITEM}
-                  className="font-display text-lilac mt-2 text-3xl leading-tight font-bold"
-                >
+                </p>
+                <h3 className="font-display text-lilac mt-2 text-3xl leading-tight font-bold">
                   {t("diveIn", { count: SUBJECTS.length })}
-                </motion.h3>
+                </h3>
 
                 {/* subject icon preview + "see more" */}
-                <motion.div
-                  variants={CARD_ITEM}
-                  className="mt-6 flex flex-wrap items-center justify-center gap-2"
-                >
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
                   {SUBJECTS.slice(0, 4).map((s) => {
                     const Icon = s.icon;
                     return (
@@ -343,28 +325,20 @@ export function SubjectReveal() {
                     <Plus className="h-4 w-4" />
                     {t("more", { count: SUBJECTS.length - 4 })}
                   </button>
-                </motion.div>
+                </div>
 
-                <motion.button
-                  variants={CARD_ITEM}
+                <button
                   type="button"
                   onClick={() => setOpen(true)}
                   className="bg-lilac relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
                 >
                   <span className="relative z-10">{t("exploreBySubject")}</span>
-                  <motion.span
+                  <span
                     aria-hidden
-                    className="absolute inset-y-0 left-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent"
-                    animate={{ x: ["-160%", "460%"] }}
-                    transition={{
-                      duration: 2,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      repeatDelay: 0.8,
-                    }}
+                    className="subject-btn-shine absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent"
                   />
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             </div>
           </motion.div>
         </div>

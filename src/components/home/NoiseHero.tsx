@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useTranslations } from "@/i18n/client";
 
 /** Smooth scalloped ("wavy") ring path — subtle organic inner ring. */
@@ -61,23 +60,14 @@ export default function NoiseHero() {
           <path d={WAVY} fill="none" stroke="#6c4ce3" strokeOpacity={0.35} strokeWidth={1} />
         </svg>
 
-        {/* Rotating dashed outer ring with an orbiting dot */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 28, ease: "linear", repeat: Infinity }}
-          className="relative h-[46rem] w-[46rem] rounded-full border border-dashed border-violet/25"
-        >
+        {/* Rotating dashed outer ring with an orbiting dot (pure CSS spin) */}
+        <div className="relative h-[46rem] w-[46rem] animate-spin rounded-full border border-dashed border-violet/25 [animation-duration:28s]">
           <span className="absolute left-1/2 top-0 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-violet shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
-        </motion.div>
+        </div>
       </div>
 
-      {/* Layered headline */}
-      <motion.div
-        initial={{ opacity: 0, y: 22 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative z-10 text-center"
-      >
+      {/* Layered headline (pure CSS entrance) */}
+      <div className="animate-hero-rise relative z-10 text-center">
         <h1 className="font-display font-extrabold uppercase leading-[0.82] tracking-tight">
           <span className="block text-5xl text-ink sm:text-7xl md:text-8xl">{t("learn")}</span>
           <span className="-mt-2 block text-5xl text-violet/25 sm:-mt-4 sm:text-7xl md:text-8xl">
@@ -87,7 +77,7 @@ export default function NoiseHero() {
         <p className="mt-6 text-xs font-semibold uppercase tracking-[0.35em] text-muted sm:text-sm">
           {t("tagline")}
         </p>
-      </motion.div>
+      </div>
     </section>
   );
 }
