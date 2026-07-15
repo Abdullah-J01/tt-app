@@ -110,6 +110,7 @@
   --animate-blob: blobShift 12s ease-in-out infinite;
   --animate-shimmer: shimmer 3s linear infinite;
   --animate-marquee-up: marqueeUp 20s linear infinite;
+  --animate-hero-rise: heroRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ── Keyframes (mapped from the Tailwind config) ──────────── */
@@ -151,6 +152,72 @@
   }
   100% {
     transform: translateY(-50%);
+  }
+}
+@keyframes heroRise {
+  0% {
+    opacity: 0;
+    transform: translateY(22px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subject card — staggered fade-up of inner content (was Framer variants). */
+@keyframes subjectCardItem {
+  0% {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.subject-card-stagger > * {
+  opacity: 0;
+}
+.subject-card-stagger.is-in > * {
+  animation: subjectCardItem 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.subject-card-stagger.is-in > *:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.subject-card-stagger.is-in > *:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.subject-card-stagger.is-in > *:nth-child(3) {
+  animation-delay: 0.25s;
+}
+.subject-card-stagger.is-in > *:nth-child(4) {
+  animation-delay: 0.35s;
+}
+
+/* Subject card CTA — looping diagonal shine sweep (was Framer x-keyframes). */
+@keyframes subjectBtnShine {
+  0% {
+    transform: translateX(-160%) skewX(-12deg);
+  }
+  71% {
+    transform: translateX(460%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(460%) skewX(-12deg);
+  }
+}
+.subject-btn-shine {
+  animation: subjectBtnShine 2.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .subject-card-stagger > * {
+    opacity: 1;
+    animation: none;
+  }
+  .subject-btn-shine {
+    animation: none;
   }
 }
 
@@ -331,6 +398,92 @@ body.reader-open footer {
   }
 }
 
+/* Card transitions for StudybookReader + StudybookPreview. Both screens run the
+   same pair, picked by useSlideAxis(): the two cards slide and cross-fade, always
+   along the axis the input moves. Touch (axis y) slides vertically to follow the
+   swipe; desktop (axis x) slides horizontally to follow the Prev/Next chevrons.
+   Both stay transparent, so only the content travels over a static background. */
+@keyframes sb-card-out-up {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-64px);
+  }
+}
+@keyframes sb-card-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(64px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sb-card-out-down {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(64px);
+  }
+}
+@keyframes sb-card-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-64px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes sb-card-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-64px);
+  }
+}
+@keyframes sb-card-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(64px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes sb-card-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(64px);
+  }
+}
+@keyframes sb-card-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-64px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .anim-pop {
     animation: sb-pop 0.5s ease-out both;
@@ -355,6 +508,38 @@ body.reader-open footer {
   }
   .anim-item-in {
     animation: sb-item-in 0.4s ease-out both;
+  }
+
+  /* Card transitions. `forwards` on the leaving copy holds the end frame so it
+     can't flash back into place in the frame before it unmounts; `both` on the
+     arriving copy applies its start frame immediately, so it can't flash at full
+     opacity first.
+
+     Callers must ALSO skip the moving copy under reduced motion: with no
+     animation there's no animationend, and it would sit there forever. */
+  .anim-card-out-up {
+    animation: sb-card-out-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-card-in-up {
+    animation: sb-card-in-up 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .anim-card-out-down {
+    animation: sb-card-out-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-card-in-down {
+    animation: sb-card-in-down 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .anim-card-out-left {
+    animation: sb-card-out-left 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-card-in-left {
+    animation: sb-card-in-left 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .anim-card-out-right {
+    animation: sb-card-out-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-card-in-right {
+    animation: sb-card-in-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 }
 
