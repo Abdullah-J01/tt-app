@@ -1291,23 +1291,5 @@
     "message": "Create an account or log in to see this.",
     "login": "Log in",
     "createAccount": "Create account"
-  },
-  "studyBites": {
-    "nuputame-koos-transpordivahendid": {
-      "title": "LET US THINK TOGETHER! Means of Transport",
-      "description": "The study bite “LET US THINK TOGETHER! Means of Transport” invites children aged 5–8 to think, calculate, compare, order and develop attention. The bite can be used when learning and revising the topic of transport."
-    },
-    "kas-ja-kuidas-suudab-eesti-end-kaitsta": {
-      "title": "Can and how can Estonia defend itself?",
-      "description": "The study bite “Can and how can Estonia defend itself?” helps you understand how national defence works in Estonia, what the main security threats are, and why defending the country does not mean only military readiness."
-    },
-    "matemaatika-videotund-tekstulesanded": {
-      "title": "Maths video lesson. Word problems",
-      "description": "Word problems have a place in both basic school and gymnasium mathematics. They help us write everyday problems in the language of maths and thereby find solutions to them."
-    },
-    "vaike-matemaatik-kujundid": {
-      "title": "Little mathematician: circle, triangle, quadrilateral, sphere and cube",
-      "description": "In this study bite we learn to recognise flat shapes (circle, triangle, quadrilateral) and 3D shapes (sphere, cube) and measure the lengths and sizes of things using conventional units."
-    }
   }
 }

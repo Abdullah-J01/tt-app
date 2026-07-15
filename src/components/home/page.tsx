@@ -13,6 +13,8 @@ import { SubjectGrid } from "@/components/home/SubjectGrid";
 import HeroLoader from "@/components/home/HeroLoader";
 import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 import PremiumPlansPage from "@/components/home/Plans";
+import { BITE_COUNT } from "@/config/studyBites";
+import { toDeckBook } from "@/components/home/deckBook";
 const FEATURES = [
   {
     icon: Layers,
@@ -34,9 +36,13 @@ const FEATURES = [
 /** Marketing landing page (UI brief §6.8). */
 export default async function LandingPage() {
   const t = await getTranslations("components_home_page");
-  // The carousel shows 5 (its reduced-motion fallback renders a short rail of
-  // whatever it's given), so this asks for one small page — not the catalogue.
+  // One small page — not the catalogue — feeds both decks below. They take
+  // disjoint slices so the same titles don't appear in both sections; the
+  // carousel shows 5 (its reduced-motion fallback renders a rail of whatever
+  // it's given, so hand it exactly that many).
   const { items: books } = await listStudybooks({ limit: 12 });
+  const biteBooks = books.slice(0, BITE_COUNT).map(toDeckBook);
+  const carouselBooks = books.slice(BITE_COUNT, BITE_COUNT + 5).map(toDeckBook);
 
   return (
     <main className="relative min-h-screen bg-white">
@@ -62,7 +68,7 @@ export default async function LandingPage() {
             </Link>
           }
         />
-        <StackingStudyBitesLoader />
+        <StackingStudyBitesLoader books={biteBooks} />
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
@@ -77,7 +83,7 @@ export default async function LandingPage() {
             </Link>
           }
         />
-        <UniverseCarouselLoader books={books} />
+        <UniverseCarouselLoader books={carouselBooks} />
       </section>
 
       <PremiumPlansPage />

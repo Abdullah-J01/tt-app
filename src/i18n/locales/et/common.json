@@ -1291,23 +1291,5 @@
     "message": "Selle nägemiseks loo konto või logi sisse.",
     "login": "Logi sisse",
     "createAccount": "Loo konto"
-  },
-  "studyBites": {
-    "nuputame-koos-transpordivahendid": {
-      "title": "NUPUTAME KOOS! Transpordivahendid",
-      "description": "Õpiamps „NUPUTAME KOOS! Transpordivahendid” kutsub 5–8-aastaseid lapsi nuputama, arvutama, võrdlema, järjestama ja tähelepanu arendama. Ampsu saab kasutada transpordivahendite teema õppimisel ja kordamisel."
-    },
-    "kas-ja-kuidas-suudab-eesti-end-kaitsta": {
-      "title": "Kas ja kuidas suudab Eesti end kaitsta?",
-      "description": "Õpiamps „Kas ja kuidas suudab Eesti end kaitsta?” aitab mõista, kuidas toimib Eesti riigikaitse, millised on peamised julgeolekuohud ning miks ei tähenda riigi kaitsmine üksnes sõjalist valmisolekut."
-    },
-    "matemaatika-videotund-tekstulesanded": {
-      "title": "Matemaatika videotund. Tekstülesanded",
-      "description": "Tekstülesannetel on koht nii põhikooli kui ka gümnaasiumi matemaatikas. Tekstülesanded aitavad meil igapäevaseid probleeme kirja panna matemaatika keeles ning seeläbi leida neile lahendusi."
-    },
-    "vaike-matemaatik-kujundid": {
-      "title": "Väike matemaatik: ring, kolmnurk, nelinurk, kera ja kuup",
-      "description": "Selles õpiampsus õpime tundma tasapinnalisi (ring, kolmnurk, nelinurk) ja ruumilisi kujundeid (kera, kuup) ning mõõdame tinglike mõõtühikute abil asjade pikkuseid ja suurusi."
-    }
   }
 }

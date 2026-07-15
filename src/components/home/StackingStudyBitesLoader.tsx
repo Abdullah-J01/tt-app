@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { StackingStudyBitesSkeleton } from "@/components/skeletons";
+import type { DeckBook } from "./deckBook";
 
 /**
  * Client-only stacked deck (scroll-driven framer-motion). The skeleton keeps
@@ -13,6 +14,6 @@ const StackingStudyBites = dynamic(
   { ssr: false, loading: () => <StackingStudyBitesSkeleton /> },
 );
 
-export default function StackingStudyBitesLoader() {
-  return <StackingStudyBites />;
+export default function StackingStudyBitesLoader({ books }: { books: DeckBook[] }) {
+  return <StackingStudyBites books={books} />;
 }
