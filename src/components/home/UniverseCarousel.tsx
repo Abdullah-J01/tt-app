@@ -14,7 +14,7 @@ import {
   type MotionValue,
 } from "framer-motion";
 import { CardRail, ContentCard, Pill } from "@/components/ui";
-import type { Studybook } from "@/types";
+import { coverOrArt, type DeckBook } from "./deckBook";
 
 /**
  * "Freshly digitized" as a scroll-spun 3D spiral. Cards wind around a vertical
@@ -34,7 +34,7 @@ import type { Studybook } from "@/types";
  * no matter how many cards ride the spiral. Under reduced-motion → plain rail.
  */
 
-/** How many covers ride the spiral (images cycle cardImage1-5). */
+/** How many covers ride the spiral. */
 const COUNT = 5;
 /** Vertical anchor of the deck inside the pinned stage. The stage is sized to
  *  fit the deck, so the deck sits centred in it. */
@@ -49,7 +49,8 @@ const ROTY = 1; // 0 = faces flat, 1 = fully tangent (coverflow tilt)
 const SCALE_STEP = 0.12;
 const OPACITY_STEP = 0.3;
 
-const cardImage = (i: number) => `/images/demoData/cardImage${(i % 5) + 1}.jpg`;
+/** Fallback art for books with no cover of their own (see `coverOrArt`). */
+const SPIRAL_ART = [1, 2, 3, 4, 5].map((n) => `/images/demoData/cardImage${n}.jpg`);
 const formatPrice = (eur?: number) => (eur != null ? `${eur.toFixed(2)}€` : undefined);
 
 interface Dims {
@@ -75,7 +76,7 @@ function DrumCard({
   focus,
   dims,
 }: {
-  book: Studybook;
+  book: DeckBook;
   index: number;
   focus: MotionValue<number>;
   dims: Dims;
@@ -128,7 +129,7 @@ function DrumCard({
         className="group relative block h-full w-full overflow-hidden rounded-card bg-ink shadow-lift ring-1 ring-black/5"
       >
         <Image
-          src={cardImage(index)}
+          src={coverOrArt(book, index, SPIRAL_ART)}
           alt={book.title}
           fill
           sizes={`${cardW}px`}
@@ -159,7 +160,7 @@ function DrumCard({
 }
 
 /** Motion-free fallback: the original horizontal rail of vertical cards. */
-function Rail({ books }: { books: Studybook[] }) {
+function Rail({ books }: { books: DeckBook[] }) {
   const t = useTranslations("components_home_UniverseCarousel");
   return (
     <CardRail itemWidth="w-40 sm:w-48" label={t("freshlyDigitized")}>
@@ -171,7 +172,9 @@ function Rail({ books }: { books: Studybook[] }) {
           title={book.title}
           description={book.synopsis}
           price={formatPrice(book.priceEur)}
-          media={<Image src={cardImage(i)} alt={book.title} fill sizes="192px" />}
+          media={
+            <Image src={coverOrArt(book, i, SPIRAL_ART)} alt={book.title} fill sizes="192px" />
+          }
           tags={[
             { label: book.category, icon: <BookOpen aria-hidden /> },
             { label: book.author },
@@ -182,7 +185,7 @@ function Rail({ books }: { books: Studybook[] }) {
   );
 }
 
-export function UniverseCarousel({ books }: { books: Studybook[] }) {
+export function UniverseCarousel({ books }: { books: DeckBook[] }) {
   const items = books.slice(0, COUNT);
   const container = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion() ?? false;

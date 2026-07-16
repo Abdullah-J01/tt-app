@@ -58,11 +58,38 @@ function filteredCards(items: FeedItem[], selected: ReadonlySet<string>): FeedCa
   return withSlugs(items.filter((item) => matches(item.book)));
 }
 
+/**
+ * Studybooks fetched per request — each contributes its cards, so a page of 6
+ * lands roughly 18 cards. Enough to swipe through while the next page loads.
+ */
+const BOOKS_PER_PAGE = 6;
+/** How close to the last loaded card we get before pulling the next page. */
+const PREFETCH_WITHIN = 4;
+/** Safety net for the deep-link scan so a bad slug can't page the whole catalogue. */
+const MAX_DEEPLINK_PAGES = 20;
+
+interface FeedPage {
+  items: FeedItem[];
+  nextCursor?: string;
+}
+
+async function fetchFeedPage(cursor?: string): Promise<FeedPage> {
+  const params = new URLSearchParams({ books: String(BOOKS_PER_PAGE) });
+  if (cursor) params.set("cursor", cursor);
+  const res = await fetch(`/api/feed?${params}`);
+  if (!res.ok) throw new Error(`GET /api/feed → ${res.status}`);
+  return (await res.json()) as FeedPage;
+}
+
 export default function FeedScreen() {
   const t = useTranslations("components_feed_FeedScreen");
   const router = useRouter();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  // Cursor for the next unloaded page; undefined once the feed is exhausted.
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  // Ref (not state) so the append effect can guard re-entry without re-running.
+  const loadingMoreRef = useRef(false);
   // Applied filters drive the feed; the draft only lives while the drawer is
   // open and commits on "Show results" (backdrop/X discards it).
   const [applied, setApplied] = useState<Set<string>>(new Set());
@@ -88,21 +115,41 @@ export default function FeedScreen() {
   // Load the feed from /api/feed (data stays server-side — the upstream fetch
   // cache applies there), then restore the active card from /feed/[slug]
   // (default: first).
+  //
+  // The feed pages rather than loading the whole catalogue: the first card must
+  // paint without waiting on every other one, and each loaded card is a live DOM
+  // node in the track below, so an unpaged feed also costs swipe smoothness.
   useEffect(() => {
     let active = true;
-    fetch("/api/feed")
-      .then((res) => {
-        if (!res.ok) throw new Error(`GET /api/feed → ${res.status}`);
-        return res.json() as Promise<{ items: FeedItem[] }>;
-      })
-      .then(({ items: loaded }) => {
+
+    (async () => {
+      try {
+        // A deep-link may point at a card beyond the first page, so keep paging
+        // until it resolves. Direct navigation to /feed/[slug] is the rare path;
+        // the common one (no slug) settles after a single request.
+        const wanted = slugFromUrl();
+        const loaded: FeedItem[] = [];
+        let next: string | undefined;
+        let found = -1;
+
+        for (let i = 0; i < MAX_DEEPLINK_PAGES; i++) {
+          const page = await fetchFeedPage(next);
+          if (!active) return;
+          loaded.push(...page.items);
+          next = page.nextCursor;
+
+          if (!wanted) break;
+          found = withSlugs(loaded).findIndex((c) => c.slug === wanted);
+          if (found >= 0 || !next) break;
+        }
         if (!active) return;
+
         setLoading(false);
         setItems(loaded);
+        setCursor(next);
+
         // No filters are applied at load, so the visible cards are all items.
         const mapped = withSlugs(loaded);
-        const slug = slugFromUrl();
-        const found = slug ? mapped.findIndex((c) => c.slug === slug) : -1;
         const start = found >= 0 ? found : 0;
         setIndex(start);
         if (mapped[start]) {
@@ -113,16 +160,54 @@ export default function FeedScreen() {
           // call and skip that sync — corrupting router.back() after you leave the feed.
           window.history.replaceState(null, "", feedUrl(mapped[start].slug));
         }
-      })
-      .catch((err) => {
+      } catch (err) {
         // Leave the feed empty rather than crash; the EmptyState covers the UI.
         console.error("Failed to load feed:", err);
         if (active) setLoading(false);
-      });
+      }
+    })();
+
     return () => {
       active = false;
     };
   }, []);
+
+  /**
+   * Append the next page as the active card nears the end of what's loaded, so
+   * the swipe never waits on the network.
+   *
+   * Keyed on the *unfiltered* `items` length: filters run client-side over
+   * loaded items only, so an active filter can shrink `cards` well below the
+   * loaded count and would otherwise stall paging.
+   * TODO(team): once TT filters the feed server-side, pass the checked facets
+   * to /api/feed and drop the client-side predicate.
+   */
+  useEffect(() => {
+    if (!cursor || loadingMoreRef.current) return;
+    if (items.length === 0) return;
+    const nearEnd = index >= cards.length - PREFETCH_WITHIN;
+    if (!nearEnd) return;
+
+    let active = true;
+    loadingMoreRef.current = true;
+    fetchFeedPage(cursor)
+      .then((page) => {
+        if (!active) return;
+        setItems((prev) => [...prev, ...page.items]);
+        setCursor(page.nextCursor);
+      })
+      .catch((err) => {
+        // Non-fatal: the reader keeps the cards already loaded.
+        console.error("Failed to load more feed cards:", err);
+      })
+      .finally(() => {
+        loadingMoreRef.current = false;
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [cursor, index, cards.length, items.length]);
 
   const openFilters = useCallback(() => {
     setDraft(new Set(applied));

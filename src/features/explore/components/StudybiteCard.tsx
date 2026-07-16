@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useTranslations } from "@/i18n/client";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { Pill } from "@/components/ui/Pill";
-import type { Studybite } from "../data";
+import type { Studybite } from "../studybites";
 
 /**
  * A single "bite" (one card) shown as a horizontal card: cover thumb, the card

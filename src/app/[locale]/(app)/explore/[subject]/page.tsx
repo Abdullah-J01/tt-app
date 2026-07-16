@@ -29,7 +29,7 @@ export default async function SubjectPage({
   const meta = SUBJECTS.find((s) => s.slug === subject);
   if (!meta) notFound();
 
-  const books = await listStudybooks({ subject });
+  const { items: books } = await listStudybooks({ subject, limit: 48 });
   const t = await getTranslations("app_app_explore_subject_page");
   const subjectName = await getSubjectName();
 

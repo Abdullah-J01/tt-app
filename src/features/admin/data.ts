@@ -7,18 +7,28 @@
  * (docs/TT_API_ENDPOINTS.md), replace the store internals with ttApi.admin.*
  * calls and keep these function signatures; pages and actions won't change.
  */
-import { listStudybooks } from "@/lib/api";
+import { listAllStudybooks } from "@/lib/api";
 import { SUBJECTS, type Subject } from "@/config/subjects";
 import type { Studybook } from "@/types";
 import type { CardInput, StudybookInput } from "./schemas";
 
-/** Store survives dev hot-reloads via globalThis; mock-only, never shipped. */
+/**
+ * Store survives dev hot-reloads via globalThis; mock-only, never shipped.
+ *
+ * NOTE: this memoizes the seed *promise* for the life of the process, which is
+ * only acceptable because the store is the source of truth once seeded (admin
+ * edits mutate this Map, so they must not be clobbered by a re-read). It is not
+ * a cache of TT — when the real admin endpoints land, delete the store rather
+ * than pointing this at `ttApi`, or writes will silently read back stale.
+ */
 const g = globalThis as typeof globalThis & {
   __adminCatalog?: Promise<Map<string, Studybook>>;
 };
 
 function catalog(): Promise<Map<string, Studybook>> {
-  g.__adminCatalog ??= listStudybooks().then(
+  // Admin genuinely lists the whole catalogue (it has its own pager over the
+  // in-memory store), so this is one of the few legitimate unpaged reads.
+  g.__adminCatalog ??= listAllStudybooks().then(
     (books) => new Map(books.map((b) => [b.slug, structuredClone(b)])),
   );
   return g.__adminCatalog;

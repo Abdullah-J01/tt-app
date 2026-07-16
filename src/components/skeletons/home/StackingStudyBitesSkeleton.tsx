@@ -1,27 +1,24 @@
 import { Skeleton } from "@/components/ui/Skeleton";
-import { STUDY_BITES } from "@/config/studyBites";
+import { BITE_COUNT } from "@/config/studyBites";
 
 /**
  * Loading placeholder for the "New study bites" stacked deck. One horizontal
  * ContentCard-shaped block per bite with the deck's exact card gaps and tail
  * scrub room, so the container height (and everything below it) doesn't move
- * when the real scroll-stacked deck mounts.
+ * when the real scroll-stacked deck mounts. `count` must match the number of
+ * books the page hands the deck, or that guarantee breaks.
  */
-export function StackingStudyBitesSkeleton() {
+export function StackingStudyBitesSkeleton({ count = BITE_COUNT }: { count?: number }) {
   return (
     <div
       role="status"
       aria-label="Loading"
       className="mx-auto max-w-2xl pb-[8vh] motion-reduce:pb-0 sm:pb-[18vh]"
     >
-      {STUDY_BITES.map((bite, i) => (
+      {Array.from({ length: count }, (_, i) => (
         <div
-          key={bite.slug}
-          className={
-            i < STUDY_BITES.length - 1
-              ? "mb-[6vh] motion-reduce:mb-5 sm:mb-[14vh]"
-              : undefined
-          }
+          key={i}
+          className={i < count - 1 ? "mb-[6vh] motion-reduce:mb-5 sm:mb-[14vh]" : undefined}
         >
           {/* ContentCard layout="horizontal" footprint */}
           <div className="rounded-card border-hairline bg-surface shadow-soft grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-2 border p-3 sm:gap-x-4 sm:p-4">

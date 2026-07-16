@@ -46,7 +46,10 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
         ? t("gymnasium")
         : t("grade", { grade: g });
 
-  const related = (await listStudybooks()).filter((b) => b.id !== book.id).slice(0, 4);
+  // Ask for one small page of same-subject books rather than the whole
+  // catalogue; +1 so we still have 4 after dropping the current book.
+  const { items: subjectBooks } = await listStudybooks({ subject: book.subjectSlug, limit: 5 });
+  const related = subjectBooks.filter((b) => b.id !== book.id).slice(0, 4);
   const subjectName = await getSubjectName();
   const subject = subjectName(book.subjectSlug);
   const minutes = Math.max(1, Math.round(book.cards.length * 0.5));

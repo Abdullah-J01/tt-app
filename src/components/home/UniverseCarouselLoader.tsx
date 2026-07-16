@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { UniverseCarouselSkeleton } from "@/components/skeletons";
-import type { Studybook } from "@/types";
+import type { DeckBook } from "./deckBook";
 
 /**
  * Client-only 3D spiral (scroll-driven framer-motion). The skeleton reserves
@@ -14,6 +14,6 @@ const UniverseCarousel = dynamic(
   { ssr: false, loading: () => <UniverseCarouselSkeleton /> },
 );
 
-export default function UniverseCarouselLoader({ books }: { books: Studybook[] }) {
+export default function UniverseCarouselLoader({ books }: { books: DeckBook[] }) {
   return <UniverseCarousel books={books} />;
 }

@@ -89,20 +89,20 @@ export function InstallPrompt() {
     <div
       role="dialog"
       aria-label={t("title")}
-      className="fixed inset-x-3 bottom-20 z-[60] mx-auto flex max-w-md items-center gap-3 rounded-2xl border border-black/5 bg-white/95 p-3 shadow-lg backdrop-blur md:bottom-4 dark:border-white/10 dark:bg-neutral-900/95"
+      className="fixed inset-x-3 bottom-20 z-[60] mx-auto flex max-w-md items-center gap-3 rounded-card border border-hairline bg-surface/95 p-3 shadow-lg backdrop-blur md:bottom-4"
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src="/icons/icon-192.png" alt="" className="h-11 w-11 rounded-xl" />
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold">{t("title")}</p>
-        <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+        <p className="text-sm font-semibold text-ink">{t("title")}</p>
+        <p className="truncate text-xs text-muted">
           {showIosHint ? t("iosHint") : t("addToHome")}
         </p>
       </div>
       {deferred && (
         <button
           onClick={install}
-          className="shrink-0 rounded-full bg-[#6c4ce3] px-4 py-2 text-sm font-semibold text-white"
+          className="shrink-0 rounded-full bg-violet px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-violet-dark"
         >
           {t("install")}
         </button>
@@ -110,7 +110,7 @@ export function InstallPrompt() {
       <button
         onClick={dismiss}
         aria-label={t("dismiss")}
-        className="shrink-0 rounded-full p-2 text-neutral-400 hover:text-neutral-600"
+        className="shrink-0 rounded-full p-2 text-faint transition-colors hover:text-muted"
       >
         ✕
       </button>

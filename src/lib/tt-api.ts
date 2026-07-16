@@ -136,8 +136,16 @@ export const ttApi = {
     return data.studybooks.map(mapStudybook);
   },
 
-  async search(query: string): Promise<Studybook[]> {
-    const q = new URLSearchParams({ q: query, type: "studybook" });
+  /**
+   * Catalogue search. `type` picks what the query matches against:
+   *  - "studybook" — book-level text (title, author, synopsis…)
+   *  - "bite"      — card-level text; returns the books carrying the matched
+   *                  cards, which the caller flattens into bites.
+   * TODO(team): confirm TT returns `{ studybooks }` for type=bite (and whether
+   * it narrows `cards` to the matches) — the DTO below assumes it does.
+   */
+  async search(query: string, type: "studybook" | "bite" = "studybook"): Promise<Studybook[]> {
+    const q = new URLSearchParams({ q: query, type });
     const data = await ttFetch<{ studybooks: TTStudybookDTO[] }>(`/v1/search?${q}`);
     return data.studybooks.map(mapStudybook);
   },
