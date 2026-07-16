@@ -74,7 +74,8 @@ const result = await registerUser({ email, name: "Admin", password });
 if (!result.ok) {
   die(
     `An account already exists for ${email}.\n` +
-      `  Delete it from .data/users.json to re-seed.`,
+      `  Delete it to re-seed: Supabase dashboard → Authentication → Users →\n` +
+      `  find ${email.toLowerCase()} → delete.`,
   );
 }
 
