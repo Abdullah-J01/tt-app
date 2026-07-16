@@ -2,16 +2,16 @@ import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
  * Loading placeholder for the "Explore by subject" scroll reveal. Reserves the
- * same 320vh scroll track + sticky viewport panel as SubjectReveal (or its
- * flat reduced-motion layout) so the swap never moves the page, and sketches
- * the initial centre state: glow circle + two-line heading + kicker.
+ * same scroll track + sticky viewport panel as SubjectReveal (or its flat
+ * reduced-motion layout) so the swap never moves the page, and sketches the
+ * initial centre state: glow circle + two-line heading + kicker.
  */
 export function ExploreSectionSkeleton() {
   return (
     <section
       role="status"
       aria-label="Loading"
-      className="relative h-[320vh] motion-reduce:h-auto"
+      className="relative h-[160vh] motion-reduce:h-auto sm:h-[220vh]"
     >
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden bg-white motion-reduce:relative motion-reduce:min-h-screen motion-reduce:py-16">
         {/* centre glow circle (mirrors the plum ripple footprint) */}
