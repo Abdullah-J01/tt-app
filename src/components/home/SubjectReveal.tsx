@@ -186,7 +186,7 @@ export function SubjectReveal() {
             <>
               <div
                 aria-hidden
-                className="subject-scrub-fill pointer-events-none absolute inset-0 z-0"
+                className="subject-scrub-fill pointer-events-none absolute inset-0 z-0 hidden"
               />
               <div
                 // max-sm offsets nudge the whole centred composition (rings, glow,
@@ -197,6 +197,10 @@ export function SubjectReveal() {
                   <div
                     aria-hidden
                     className="subject-glow absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:h-[34rem] sm:w-[34rem] sm:blur-[90px] md:h-[42rem] md:w-[42rem]"
+                  />
+                  <div
+                    aria-hidden
+                    className="subject-glow-dark subject-scrub-glowdark absolute inset-0 m-auto h-[24rem] w-[24rem] rounded-full blur-[70px] sm:hidden"
                   />
                   <svg
                     viewBox="0 0 200 200"
@@ -251,15 +255,15 @@ export function SubjectReveal() {
                   </div>
                 </div>
                 <div className="subject-scrub-text relative px-6 text-center">
-                  <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
-                    <span className="text-ink block text-4xl sm:text-6xl md:text-8xl">
+                  <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase [text-shadow:0_2px_18px_rgba(30,20,60,0.45)] sm:[text-shadow:none]">
+                    <span className="sm:text-ink block text-5xl text-white sm:text-6xl md:text-8xl">
                       {t("learn")}
                     </span>
-                    <span className="text-violet/25 -mt-1 block text-4xl sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
+                    <span className="sm:text-ink -mt-1 block text-5xl text-white sm:-mt-3 sm:text-6xl md:-mt-4 md:text-8xl">
                       {t("somethingNew")}
                     </span>
                   </h2>
-                  <p className="text-muted mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
+                  <p className="text-ink mt-6 text-xs font-semibold tracking-[0.35em] uppercase sm:text-sm">
                     {t("scrollTagline")}
                   </p>
                 </div>
@@ -285,10 +289,13 @@ export function SubjectReveal() {
             ))}
           </div>
 
-          {/* Explore card — MOBILE only (< sm); opens the subjects dialog. */}
+          {/* Explore card — MOBILE only (< sm); opens the subjects dialog.
+              Bottom-anchored with a fixed 100px pad: the pinned frame's bottom ==
+              the section's bottom == the next section's top, so the gap to
+              "New study bites" is a deterministic 100px on any phone. */}
           <div
             className={cn(
-              "absolute inset-0 -top-16 bottom-16 z-10 flex items-center justify-center px-5 sm:hidden",
+              "absolute inset-0 z-10 flex items-end justify-center px-5 pb-[140px] sm:hidden",
               !reduced && "subject-scrub-cta",
             )}
           >
@@ -302,7 +309,7 @@ export function SubjectReveal() {
                 <p className="text-xs font-semibold tracking-[0.18em] text-white uppercase">
                   {t("exploreBySubject")}
                 </p>
-                <h3 className="font-display text-lilac mt-2 text-3xl leading-tight font-bold">
+                <h3 className="font-display mt-2 text-3xl leading-tight font-bold text-white">
                   {t("diveIn", { count: SUBJECTS.length })}
                 </h3>
 

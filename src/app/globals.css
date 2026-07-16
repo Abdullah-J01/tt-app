@@ -219,6 +219,7 @@
    to the original progress breakpoints. ──────────────────────────────────── */
 .subject-scrub-fill,
 .subject-scrub-rings,
+.subject-scrub-glowdark,
 .subject-scrub-text,
 .subject-scrub-grid,
 .subject-scrub-cta {
@@ -260,34 +261,59 @@
 /* Violet centre glow (moved out of inline styles → pure CSS). Richer/darker core
    so the circle reads as a real coloured glow at rest, Deepstash-style — not a
    barely-there tint. */
+/* Base glow — soft/light at rest (the "pehle aise rahe" state). */
 .subject-glow {
   background: radial-gradient(
     circle,
-    rgb(var(--color-violet-rgb) / 0.55) 0%,
+    rgb(var(--color-violet-rgb) / 0.5) 0%,
     rgb(var(--color-violet-rgb) / 0.22) 42%,
-    transparent 72%
+    transparent 76%
   );
+}
+/* Dark glow overlay — fades in as you scroll (subjectScrubGlowDark), deepening
+   the blob into a rich violet so the white heading reads over it. */
+.subject-glow-dark {
+  background: radial-gradient(
+    circle,
+    rgb(var(--color-violet-rgb) / 0.96) 0%,
+    rgb(var(--color-violet-rgb) / 0.58) 40%,
+    transparent 74%
+  );
+}
+@keyframes subjectScrubGlowDark {
+  0% {
+    opacity: 0;
+  }
+  13%,
+  30% {
+    opacity: 1;
+  }
+  44%,
+  100% {
+    opacity: 0;
+  }
+}
+.subject-scrub-glowdark {
+  animation-name: subjectScrubGlowDark;
 }
 
 /* Circle first: the rings + glow + orbit draw in (0 → .09), hold, then ease-in
    zoom through and fade out (.18 → .42). This is the circle animation the user
    wanted to arrive up front, before the text. */
 @keyframes subjectScrubRings {
-  0% {
-    opacity: 0;
-    transform: scale(0.8);
-    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-  }
-  9%,
+  0%,
   18% {
     opacity: 1;
     transform: scale(1);
-    animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.15);
+    animation-timing-function: cubic-bezier(0.33, 0, 0.3, 1);
   }
-  42%,
+  50% {
+    opacity: 0;
+    transform: scale(3.4);
+  }
   100% {
     opacity: 0;
-    transform: scale(2.8);
+    transform: scale(3.4);
   }
 }
 .subject-scrub-rings {
@@ -304,15 +330,15 @@
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
   }
   16%,
-  18% {
+  30% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.15);
+    animation-timing-function: cubic-bezier(0.4, 0, 0.6, 1);
   }
   40%,
   100% {
     opacity: 0;
-    transform: translateY(0) scale(2.8);
+    transform: translateY(0) scale(1);
   }
 }
 .subject-scrub-text {
@@ -341,7 +367,7 @@
    place (no jerky 3D swing, which felt rough on phones). */
 @keyframes subjectScrubCta {
   0%,
-  42% {
+  50% {
     opacity: 0;
     transform: translateY(64px) scale(0.94);
     animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
