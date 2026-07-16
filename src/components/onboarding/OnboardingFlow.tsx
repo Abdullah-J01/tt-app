@@ -73,10 +73,12 @@ export function OnboardingFlow() {
   };
 
   // Wait for localStorage before painting so a reload restores the right step.
-  if (!hydrated) return <div className="min-h-[100svh] bg-surface" />;
+  if (!hydrated) return <div className="bg-surface min-h-[100svh]" />;
 
   return (
-    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-6 px-5 pb-8 pt-10">
+    // Compact on mobile so a full step (header + options + CTA) fits one screen.
+    // The bottom padding below md clears the fixed BottomNav (+ gesture bar).
+    <div className="mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-4 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] sm:gap-6 sm:pt-10 md:pb-8">
       <OnboardingHeader
         step={step}
         total={TOTAL_STEPS}
@@ -89,7 +91,9 @@ export function OnboardingFlow() {
       <div
         key={step}
         className={cn(
-          "flex flex-1 flex-col",
+          // Mobile: no flex-1 — the CTA sits right under the selections instead
+          // of being pushed to the viewport bottom (behind the bottom nav).
+          "flex flex-col sm:flex-1",
           direction === 1 ? "anim-step-next" : "anim-step-prev",
         )}
       >

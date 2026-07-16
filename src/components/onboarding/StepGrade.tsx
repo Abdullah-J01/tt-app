@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "@/i18n/client";
+import { cn } from "@/lib/utils";
 import { IconBadge } from "@/components/ui/IconBadge";
 import { SelectableCard } from "@/components/ui/SelectableCard";
 import type { Grade } from "@/config/subjects";
@@ -17,13 +18,13 @@ export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
   const t = useTranslations("components_onboarding_StepGrade");
   const tCat = useTranslations("catalog");
   return (
-    <div className="flex flex-col gap-5">
+    <div className="flex flex-col gap-3 sm:gap-5">
       <div>
-        <h1 className="font-display text-2xl font-bold text-ink">{t("title")}</h1>
-        <p className="mt-1.5 text-muted">{t("subtitle")}</p>
+        <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">{t("title")}</h1>
+        <p className="text-muted mt-1 text-sm sm:mt-1.5 sm:text-base">{t("subtitle")}</p>
       </div>
 
-      <div role="group" aria-label={t("groupLabel")} className="flex flex-col gap-3">
+      <div role="group" aria-label={t("groupLabel")} className="flex flex-col gap-2 sm:gap-3">
         {grades.map((g, i) => {
           const Icon = g.icon;
           const isSelected = selected === g.slug;
@@ -32,6 +33,7 @@ export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
             <div key={g.slug} className="anim-item-in" style={{ animationDelay: `${i * 70}ms` }}>
               <SelectableCard
                 orientation="horizontal"
+                className="p-3 sm:p-4"
                 title={tCat(`target.${g.slug}`)}
                 subtitle={t(`subtitle_${g.slug}`)}
                 selected={isSelected}
@@ -42,7 +44,7 @@ export function StepGrade({ grades, selected, onSelect }: StepGradeProps) {
                       icon={<Icon />}
                       shape="rounded"
                       variant={isSelected ? "violet" : "grey"}
-                      className={isSelected ? "bg-surface" : undefined}
+                      className={cn("max-sm:h-10 max-sm:w-10", isSelected && "bg-surface")}
                     />
                   ) : undefined
                 }

@@ -94,16 +94,12 @@ function DrumCard({
     const scale = Math.max(0.5, 1 - Math.abs(d) * SCALE_STEP);
     return `translate3d(${x}px, ${y}px, ${z}px) rotateY(${roty}deg) scale(${scale})`;
   });
-  const opacity = useTransform(focus, (f) =>
-    Math.max(0, 1 - Math.abs(index - f) * OPACITY_STEP),
-  );
+  const opacity = useTransform(focus, (f) => Math.max(0, 1 - Math.abs(index - f) * OPACITY_STEP));
   const zIndex = useTransform(focus, (f) => Math.round(100 - Math.abs(index - f) * 10));
   // Every visible card is clickable (opens its studybook); z-index resolves overlaps,
   // so a click lands on whichever card is on top at that point. Hidden/back-facing
   // cards (far from focus) opt out so they don't swallow taps.
-  const pointerEvents = useTransform(focus, (f) =>
-    Math.abs(index - f) < 2 ? "auto" : "none",
-  );
+  const pointerEvents = useTransform(focus, (f) => (Math.abs(index - f) < 2 ? "auto" : "none"));
 
   const price = formatPrice(book.priceEur);
 
@@ -126,7 +122,7 @@ function DrumCard({
     >
       <Link
         href={`/studybook/${book.slug}`}
-        className="group relative block h-full w-full overflow-hidden rounded-card bg-ink shadow-lift ring-1 ring-black/5"
+        className="group rounded-card bg-ink shadow-lift relative block h-full w-full overflow-hidden ring-1 ring-black/5"
       >
         <Image
           src={coverOrArt(book, index, SPIRAL_ART)}
@@ -138,12 +134,10 @@ function DrumCard({
         {/* legibility scrim */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-t from-ink/90 via-ink/25 to-transparent"
+          className="from-ink/90 via-ink/25 absolute inset-0 bg-gradient-to-t to-transparent"
         />
         <div className="absolute inset-x-0 bottom-0 p-4">
-          <h3 className="font-display line-clamp-2 text-lg font-bold text-white">
-            {book.title}
-          </h3>
+          <h3 className="font-display line-clamp-2 text-lg font-bold text-white">{book.title}</h3>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {price && (
               <Pill variant="solid">
@@ -175,10 +169,7 @@ function Rail({ books }: { books: DeckBook[] }) {
           media={
             <Image src={coverOrArt(book, i, SPIRAL_ART)} alt={book.title} fill sizes="192px" />
           }
-          tags={[
-            { label: book.category, icon: <BookOpen aria-hidden /> },
-            { label: book.author },
-          ]}
+          tags={[{ label: book.category, icon: <BookOpen aria-hidden /> }, { label: book.author }]}
         />
       ))}
     </CardRail>
@@ -206,10 +197,10 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
       const w = window.innerWidth;
       const mobile = w < 640;
       const cardW = mobile
-        ? Math.min(Math.round(w * 0.5), 190) // mobile: compact card, fan inside the screen
+        ? Math.min(Math.round(w * 0.58), 230) // mobile: card large enough to read, fan inside the screen
         : Math.min(Math.max(Math.round(w * 0.26), 320), 380); // desktop: 320–380
       const cardH = Math.round(cardW * 1.36);
-      const pitch = mobile ? 40 : 58; // tighter spiral climb on mobile
+      const pitch = mobile ? 44 : 58; // tighter spiral climb on mobile
       const pad = mobile ? 20 : STAGE_PAD;
       setDims({
         cardW,
@@ -240,10 +231,12 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
   // viewport heights). Desktop (pinned): the stage pins after `vpH` scrolled and
   // unpins `scrub` later — the spin maps to exactly that slice, so every card
   // reaches focus fully on-screen before the page moves on. Mobile (no pin):
-  // spin over the middle of the transit; the dead zones at the ends hold the
-  // first/last card while the section barely peeks on screen.
-  let spinStart = 0.18;
-  let spinEnd = 0.82;
+  // the container is just the stage, so map the spin to the slice where the
+  // deck is fully inside the viewport — card 0 holds focus until the deck has
+  // completely entered, and the last card reaches focus before the deck starts
+  // leaving at the top.
+  let spinStart: number;
+  let spinEnd: number;
   if (dims.pin) {
     const total = trackH + dims.vpH;
     const pinStart = dims.vpH / total;
@@ -251,6 +244,17 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
     const lead = 0.06 * (pinEnd - pinStart); // brief hold on the first/last card
     spinStart = pinStart + lead;
     spinEnd = pinEnd - lead;
+  } else {
+    const total = dims.stageH + dims.vpH; // full transit of the unpinned stage
+    spinStart = dims.stageH / total; // stage bottom just cleared the viewport bottom
+    spinEnd = dims.vpH / total; // stage top about to reach the viewport top
+    // Landscape / short viewports where the stage fills the screen: keep a
+    // usable window instead of collapsing to a point.
+    if (spinEnd - spinStart < 0.1) {
+      const mid = (spinStart + spinEnd) / 2;
+      spinStart = mid - 0.05;
+      spinEnd = mid + 0.05;
+    }
   }
   const raw = useTransform(scrollYProgress, [spinStart, spinEnd], [0, items.length - 1], {
     clamp: true,
@@ -267,11 +271,11 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
       {/* "universe" backdrop — a single soft violet glow, behind the deck. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-[var(--anchor)] h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full "
+        className="pointer-events-none absolute top-[var(--anchor)] left-1/2 h-[720px] w-[720px] -translate-x-1/2 -translate-y-1/2 rounded-full"
       />
 
       {/* the spiral deck — zero-size anchor the cards position themselves around. */}
-      <div className="absolute left-1/2 top-[var(--anchor)] h-0 w-0 [transform-style:preserve-3d]">
+      <div className="absolute top-[var(--anchor)] left-1/2 h-0 w-0 [transform-style:preserve-3d]">
         {items.map((book, i) => (
           <DrumCard key={book.id} book={book} index={i} focus={focus} dims={dims} />
         ))}

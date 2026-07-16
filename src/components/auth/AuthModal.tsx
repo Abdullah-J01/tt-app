@@ -30,8 +30,12 @@ export function AuthModal() {
     <Portal>
       <AnimatePresence>
         {open && (
-          <div className="fixed inset-0 z-[80] grid place-items-center p-4">
-            {/* Dimmed + blurred backdrop over the live page behind it */}
+          // Scrollable overlay: when the on-screen keyboard shrinks the viewport
+          // the card scrolls instead of clipping (focused inputs stay reachable).
+          <div className="fixed inset-0 z-[80] flex overflow-y-auto overscroll-contain p-4">
+            {/* Dimmed backdrop over the live page behind it. Solid tint on
+                mobile — backdrop-blur repaints unreliably in the Android
+                WebView when the keyboard resizes the viewport (flashes white). */}
             <motion.button
               type="button"
               aria-label={t("close")}
@@ -40,7 +44,7 @@ export function AuthModal() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="bg-ink/50 absolute inset-0 backdrop-blur-md"
+              className="bg-ink/60 md:bg-ink/50 fixed inset-0 md:backdrop-blur-md"
             />
 
             {/* Card — its own hover ✕ closes the modal */}
@@ -49,10 +53,10 @@ export function AuthModal() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.96, y: 18 }}
               transition={{ type: "spring", stiffness: 320, damping: 30 }}
-              className="w-full max-w-[420px]"
+              className="relative m-auto w-full max-w-[420px]"
             >
               {reason && (
-                <p className="mb-3 rounded-xl bg-white/90 px-4 py-2.5 text-center text-sm font-medium text-ink shadow-lift backdrop-blur">
+                <p className="text-ink shadow-lift mb-3 rounded-xl bg-white/90 px-4 py-2.5 text-center text-sm font-medium backdrop-blur">
                   {reason}
                 </p>
               )}
