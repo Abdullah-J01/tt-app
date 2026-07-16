@@ -211,6 +211,176 @@
   animation: subjectBtnShine 2.8s ease-in-out infinite;
 }
 
+/* ── Subject reveal — scroll-scrubbed (was Framer useTransform). A tiny scroll
+   listener sets --p (0..1 progress) on the section; every element below is a
+   *paused* CSS animation frozen to that progress via a negative animation-delay,
+   so the whole reveal scrubs with scroll exactly like the old Framer version —
+   no motion library, and it works cross-browser. Keyframe percentages map 1:1
+   to the original progress breakpoints. ──────────────────────────────────── */
+.subject-scrub-fill,
+.subject-scrub-rings,
+.subject-scrub-text,
+.subject-scrub-grid,
+.subject-scrub-cta {
+  animation-duration: 1s;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-play-state: paused;
+  animation-delay: calc(var(--p, 0) * -1s);
+}
+
+/* Rich violet/plum gradient backdrop (our colours) — a transient "fly into the
+   glow" flash: it fades in as the circle zooms through, PEAKS at the hand-off
+   (.42), then fades back out so the cards land on plain white, not on the dark. */
+.subject-scrub-fill {
+  animation-name: subjectScrubFill;
+  background:
+    radial-gradient(
+      circle at 50% 42%,
+      rgb(var(--color-violet-rgb) / 0.6) 0%,
+      rgb(var(--color-violet-rgb) / 0.18) 38%,
+      transparent 70%
+    ),
+    linear-gradient(160deg, var(--color-plum-start) 0%, var(--color-plum-end) 100%);
+}
+@keyframes subjectScrubFill {
+  0%,
+  28% {
+    opacity: 0;
+  }
+  42% {
+    opacity: 1;
+  }
+  56%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Violet centre glow (moved out of inline styles → pure CSS). Richer/darker core
+   so the circle reads as a real coloured glow at rest, Deepstash-style — not a
+   barely-there tint. */
+.subject-glow {
+  background: radial-gradient(
+    circle,
+    rgb(var(--color-violet-rgb) / 0.55) 0%,
+    rgb(var(--color-violet-rgb) / 0.22) 42%,
+    transparent 72%
+  );
+}
+
+/* Circle first: the rings + glow + orbit draw in (0 → .09), hold, then ease-in
+   zoom through and fade out (.18 → .42). This is the circle animation the user
+   wanted to arrive up front, before the text. */
+@keyframes subjectScrubRings {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  9%,
+  18% {
+    opacity: 1;
+    transform: scale(1);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.15);
+  }
+  42%,
+  100% {
+    opacity: 0;
+    transform: scale(2.8);
+  }
+}
+.subject-scrub-rings {
+  animation-name: subjectScrubRings;
+}
+
+/* Then the text: heading + tagline wait for the rings (in by .16), hold, then
+   zoom / fade away with them. So the sequence reads circle → text → fly through. */
+@keyframes subjectScrubText {
+  0%,
+  7% {
+    opacity: 0;
+    transform: translateY(18px) scale(1);
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  16%,
+  18% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    animation-timing-function: cubic-bezier(0.6, 0, 0.75, 0.15);
+  }
+  40%,
+  100% {
+    opacity: 0;
+    transform: translateY(0) scale(2.8);
+  }
+}
+.subject-scrub-text {
+  animation-name: subjectScrubText;
+}
+
+/* Subject grid (sm+) eases in as the centre finishes zooming out — a small
+   overlap (.42) crossfades the two so there's no dead beat between them. */
+@keyframes subjectScrubGrid {
+  0%,
+  42% {
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  56%,
+  100% {
+    opacity: 1;
+  }
+}
+.subject-scrub-grid {
+  animation-name: subjectScrubGrid;
+}
+
+/* Mobile explore card — Deepstash-style: a soft fade + rise + subtle scale over
+   (.42 → .82), strongly eased-out so it drifts up and settles smoothly into
+   place (no jerky 3D swing, which felt rough on phones). */
+@keyframes subjectScrubCta {
+  0%,
+  42% {
+    opacity: 0;
+    transform: translateY(64px) scale(0.94);
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  82%,
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.subject-scrub-cta {
+  animation-name: subjectScrubCta;
+}
+
+/* Each subject card flies in from its own direction over its own progress window
+   [--start, --end]; direction offsets + window come from inline CSS vars. Its
+   duration is the window width and its delay re-bases --p to the window start,
+   so it scrubs only across its slice (clamped elsewhere by fill-mode: both). The
+   ease-out at the start gives each card a smooth settle into its resting spot. */
+@keyframes subjectScrubCard {
+  0% {
+    opacity: 0;
+    transform: translate(var(--fly-x, 0), var(--fly-y, 0)) scale(0.5) rotate(var(--fly-rot, 0deg));
+    animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+.subject-scrub-card {
+  animation-name: subjectScrubCard;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+  animation-play-state: paused;
+  animation-duration: calc((var(--end, 1) - var(--start, 0)) * 1s);
+  animation-delay: calc((var(--p, 0) - var(--start, 0)) * -1s);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .subject-card-stagger > * {
     opacity: 1;
@@ -218,6 +388,18 @@
   }
   .subject-btn-shine {
     animation: none;
+  }
+  .subject-scrub-fill,
+  .subject-scrub-rings,
+  .subject-scrub-text {
+    display: none;
+  }
+  .subject-scrub-grid,
+  .subject-scrub-cta,
+  .subject-scrub-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
   }
 }
 

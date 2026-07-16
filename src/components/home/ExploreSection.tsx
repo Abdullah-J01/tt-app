@@ -8,14 +8,14 @@ import { ExploreSectionSkeleton } from "@/components/skeletons";
  * zooms through and the subject cards fly in from every direction, closing with
  * a short concluding line before the browseable subject grid section below.
  *
- * Client-only (scroll-driven framer-motion). The skeleton reserves the same
- * scroll track + sticky panel, so the swap is shift-free and the reveal's
- * scroll progress measures correctly once SubjectReveal mounts.
+ * Client-only (scroll-driven, pure-CSS scrub via a --p progress variable). The
+ * skeleton reserves the same scroll track + sticky panel, so the swap is
+ * shift-free and the reveal's scroll progress measures correctly once mounted.
  */
-const SubjectReveal = dynamic(
-  () => import("./SubjectReveal").then((m) => m.SubjectReveal),
-  { ssr: false, loading: () => <ExploreSectionSkeleton /> },
-);
+const SubjectReveal = dynamic(() => import("./SubjectReveal").then((m) => m.SubjectReveal), {
+  ssr: false,
+  loading: () => <ExploreSectionSkeleton />,
+});
 
 export function ExploreSection() {
   return <SubjectReveal />;
