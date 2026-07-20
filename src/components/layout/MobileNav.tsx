@@ -29,6 +29,7 @@ import { useAuthModal } from "@/components/auth/useAuthModal";
 import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
 import { SELECTABLE_LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { stripLocale } from "@/i18n/Link";
+import { useSoftKeyboard } from "@/lib/useSoftKeyboard";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -60,6 +61,7 @@ export default function MobileNav() {
   const [searchOpen, setSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
+  const keyboardOpen = useSoftKeyboard();
 
   // Immersive card surfaces — the "For You" feed and the studybook reader
   // (full page + intercepted modal, both end in /read) — take over the whole
@@ -69,6 +71,8 @@ export default function MobileNav() {
   const route = stripLocale(pathname);
   const immersive = route.startsWith("/feed") || route.endsWith("/read");
   const tabIdle = "text-ink/60 hover:text-ink";
+  // Match the section, not just the exact page — /explore/search is still Explore.
+  const isActive = (href: string) => route === href || route.startsWith(`${href}/`);
 
   // Lock body scroll and close on Escape whenever an overlay is showing.
   useEffect(() => {
@@ -176,7 +180,12 @@ export default function MobileNav() {
       </AnimatePresence>
 
       {/* ── Bottom bar (with the floating panel stacked above it) ──────── */}
-      <div className="fixed inset-x-0 bottom-0 z-50">
+      {/* Stood down while the soft keyboard is up: `bottom-0` resolves against
+        the layout viewport, which Android shrinks when the keyboard opens, so
+        leaving it mounted marches the bar up over the page content. Hiding it
+        gives the native behaviour — the bar sits still and the keyboard covers
+        it. See `useSoftKeyboard`. */}
+      <div className={cn("fixed inset-x-0 bottom-0 z-50", keyboardOpen && "hidden")}>
         <AnimatePresence>
           {moreOpen && (
             <motion.div
@@ -317,15 +326,17 @@ export default function MobileNav() {
           className="glass border-border border-t pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(30,26,46,0.08)]"
         >
           <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 sm:px-6 lg:px-8">
-            {SITE.nav.map((item, i) => {
+            {SITE.nav.map((item) => {
               const Icon = NAV_ICONS[item.href] ?? Circle;
+              const active = isActive(item.href);
               return (
                 <li key={item.href}>
                   <Link
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                      i === 0 ? "text-ink" : tabIdle,
+                      active ? "text-ink" : tabIdle,
                     )}
                   >
                     <Icon className="h-[22px] w-[22px]" aria-hidden />
@@ -339,9 +350,10 @@ export default function MobileNav() {
               <li>
                 <Link
                   href="/profile"
+                  aria-current={isActive("/profile") ? "page" : undefined}
                   className={cn(
                     "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                    tabIdle,
+                    isActive("/profile") ? "text-ink" : tabIdle,
                   )}
                 >
                   <User className="h-[22px] w-[22px]" aria-hidden />
