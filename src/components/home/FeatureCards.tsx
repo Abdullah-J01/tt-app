@@ -327,43 +327,48 @@ export default function FeatureCards() {
       {/* card in from the right and lands it ON TOP; left-to-right lifts it */}
       {/* back off, revealing the one beneath. See the physics notes above.  */}
       {/* ---------------------------------------------------------------- */}
-      {/* overflow-x-clip (not -hidden) keeps undealt cards parked off-stage
-          without turning this into a vertical scroll container. */}
-      <div className="overflow-x-clip md:hidden">
-        <div
-          ref={stageRef}
-          role="group"
-          aria-roledescription="carousel"
-          tabIndex={0}
-          onPointerDown={onPointerDown}
-          onPointerMove={onPointerMove}
-          onPointerUp={onPointerEnd}
-          onPointerCancel={onPointerEnd}
-          onKeyDown={onKeyDown}
-          // touch-pan-y hands vertical page scrolling back to the browser and
-          // keeps only the horizontal axis for us — without it the stack
-          // swallows the swipe and the page feels stuck. select-none stops a
-          // drag from smearing a text selection across the card it's moving.
-          // pb clears the deepest buried layer (MAX_DEPTH * DEPTH_Y).
-          className="mx-auto grid w-[82vw] touch-pan-y pt-10 pb-14 outline-none select-none"
-        >
-          {features.map((f, i) => (
-            <StackCard key={f.titleKey} progress={progress} index={i} travel={travel}>
-              {/* animateIn off: these arrive under the user's finger, so the
-                  staggered fade-up would just delay the card being dragged in.
-                  live only on top: buried scenes freeze on one static frame. */}
-              <FeatureCard
-                icon={f.icon}
-                title={t(f.titleKey)}
-                description={t(f.descriptionKey)}
-                gradient={f.gradient}
-                index={i}
-                illustration={f.illustration}
-                animateIn={false}
-                live={i === active}
-              />
-            </StackCard>
-          ))}
+      <div className="md:hidden">
+        {/* overflow-x-clip (not -hidden) keeps undealt cards parked off-stage
+            without turning this into a vertical scroll container. It wraps ONLY
+            the stage: clipping applies to painting on both axes, so with the
+            dots inside it the active dot's scale-150 overflow was shaved off at
+            the wrapper's bottom edge. */}
+        <div className="overflow-x-clip">
+          <div
+            ref={stageRef}
+            role="group"
+            aria-roledescription="carousel"
+            tabIndex={0}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerEnd}
+            onPointerCancel={onPointerEnd}
+            onKeyDown={onKeyDown}
+            // touch-pan-y hands vertical page scrolling back to the browser and
+            // keeps only the horizontal axis for us — without it the stack
+            // swallows the swipe and the page feels stuck. select-none stops a
+            // drag from smearing a text selection across the card it's moving.
+            // pb clears the deepest buried layer (MAX_DEPTH * DEPTH_Y).
+            className="mx-auto grid w-[82vw] touch-pan-y pt-10 pb-14 outline-none select-none"
+          >
+            {features.map((f, i) => (
+              <StackCard key={f.titleKey} progress={progress} index={i} travel={travel}>
+                {/* animateIn off: these arrive under the user's finger, so the
+                    staggered fade-up would just delay the card being dragged in.
+                    live only on top: buried scenes freeze on one static frame. */}
+                <FeatureCard
+                  icon={f.icon}
+                  title={t(f.titleKey)}
+                  description={t(f.descriptionKey)}
+                  gradient={f.gradient}
+                  index={i}
+                  illustration={f.illustration}
+                  animateIn={false}
+                  live={i === active}
+                />
+              </StackCard>
+            ))}
+          </div>
         </div>
 
         {/* Dots double as jump targets, so the stack is reachable without a
@@ -376,9 +381,12 @@ export default function FeatureCards() {
               onClick={() => goTo(i)}
               aria-label={t(f.titleKey)}
               aria-current={i === active}
+              // Colour-only active state, no scale: a transform paints outside
+              // the dot's own box, and an ancestor overflow-clip shaves that
+              // overflow off. Same box for every dot means nothing to crop.
               className={cn(
-                "h-1.5 w-1.5 rounded-full transition duration-300",
-                i === active ? "bg-ink scale-150" : "bg-ink/30"
+                "h-1.5 w-1.5 rounded-full transition-colors duration-300",
+                i === active ? "bg-ink" : "bg-ink/30"
               )}
             />
           ))}
