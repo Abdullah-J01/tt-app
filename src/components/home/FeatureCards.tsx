@@ -138,6 +138,7 @@ export default function FeatureCards() {
       // a single card cropped the taller ones. Measure every card's real layout
       // height (offsetHeight ignores our scale/translate transforms) and pin the
       // stage to the tallest so no card is ever clipped. Re-run on resize/rotate.
+
       const stage = mobileStageRef.current;
       const sizeStage = () => {
         if (!stage) return;
@@ -145,6 +146,8 @@ export default function FeatureCards() {
         if (maxH > 0) stage.style.minHeight = `${maxH}px`;
       };
       sizeStage();
+      const ro = new ResizeObserver(sizeStage);
+      cards.forEach((card) => ro.observe(card));
       window.addEventListener("resize", sizeStage);
 
       // quickTo setters: each call nudges the tween's target rather than
@@ -225,6 +228,7 @@ export default function FeatureCards() {
         cardCtx.forEach(({ card }) => gsap.killTweensOf(card));
         dotCtx.forEach(({ dot }) => gsap.killTweensOf(dot));
         mobileTrack.removeEventListener("scroll", onScroll);
+        ro.disconnect();
         window.removeEventListener("resize", sizeStage);
       };
     });
@@ -258,8 +262,8 @@ export default function FeatureCards() {
       {/* MOBILE — vertical page scroll; horizontal swipe drives a true      */}
       {/* card-on-card stack (all cards share the same position, layered).  */}
       {/* ---------------------------------------------------------------- */}
-      <div className="h-[65vh] w-full overflow-x-hidden md:hidden md:h-screen">
-        <div ref={mobileStageRef} className="relative" style={{ perspective: "1200px" }}>
+      <div className="w-full overflow-x-hidden md:hidden">
+        <div ref={mobileStageRef} className="relative py-10" style={{ perspective: "1200px" }}>
           {/* Invisible spacer: renders the first card in normal flow purely to
               give this relative container a sensible natural height before JS
               runs (the real cards below are position:absolute, i.e. zero height).
@@ -287,7 +291,7 @@ export default function FeatureCards() {
               ref={(el) => {
                 mobileCardRefs.current[i] = el;
               }}
-              className="absolute inset-x-0 top-0 my-10 flex justify-center px-[8vw] will-change-transform"
+              className="absolute inset-x-0 top-10 flex justify-center px-[8vw] will-change-transform"
               style={{ transformOrigin: "center center" }}
             >
               <FeatureCard
@@ -319,14 +323,14 @@ export default function FeatureCards() {
         </div>
 
         {/* Dot indicators — highlight the active card as the user swipes */}
-        <div className="mt-6 flex justify-center gap-2">
+        <div className="mt-2 flex justify-center gap-2">
           {features.map((f, i) => (
             <span
               key={f.titleKey}
               ref={(el) => {
                 dotRefs.current[i] = el;
               }}
-              className="h-1.5 w-1.5 rounded-full bg-white/40"
+              className="h-1.5 w-1.5 rounded-full bg-gray-800/40"
             />
           ))}
         </div>
