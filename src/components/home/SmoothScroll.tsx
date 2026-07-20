@@ -37,17 +37,20 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
 
     lenis.on("scroll", ScrollTrigger.update);
 
-    gsap.ticker.add((time) => {
-      lenis.raf(time * 1000);
-    });
+    // Keep the reference. gsap.ticker.remove() matches by identity, so passing
+    // a freshly-built arrow function here removed nothing and every mount
+    // leaked a callback still driving a destroyed Lenis once per frame —
+    // they pile up across Fast Refreshes until the page misbehaves.
+    const raf = (time: number) => lenis.raf(time * 1000);
+    gsap.ticker.add(raf);
     gsap.ticker.lagSmoothing(0);
 
     return () => {
+      // Unhook before destroying, so no in-flight frame can touch a dead Lenis.
+      gsap.ticker.remove(raf);
+      lenis.off("scroll", ScrollTrigger.update);
       lenis.destroy();
       if (window.__lenis === lenis) delete window.__lenis;
-      gsap.ticker.remove((time) => {
-        lenis.raf(time * 1000);
-      });
     };
   }, []);
 

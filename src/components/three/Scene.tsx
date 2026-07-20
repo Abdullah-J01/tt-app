@@ -27,12 +27,23 @@ function MouseParallaxRig({ children }: { children: React.ReactNode }) {
   return <group ref={group}>{children}</group>;
 }
 
-export default function Scene({ children }: { children: React.ReactNode }) {
+export default function Scene({
+  children,
+  frameloop = "always",
+}: {
+  children: React.ReactNode;
+  /** "demand" renders one static frame and then idles. Cards buried in the
+   *  mobile stack use it so only the top card runs a live render loop —
+   *  six simultaneous always-on canvases starve the main thread and the
+   *  swipe drops frames. */
+  frameloop?: "always" | "demand";
+}) {
   return (
     <Canvas
       camera={{ position: [0, 0, 4.2], fov: 40 }}
       gl={{ alpha: true, antialias: true }}
       dpr={[1, 1.5]}
+      frameloop={frameloop}
       style={{ background: "transparent" }}
     >
       <ambientLight intensity={0.8} />
