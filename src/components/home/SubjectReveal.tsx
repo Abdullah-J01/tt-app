@@ -87,6 +87,23 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
+/** True below the `sm` breakpoint (< 640px). Mobile gets a simpler time-based
+ *  reveal instead of the desktop scroll-scrubbed zoom. Initialised from the
+ *  media query on mount (client-only component) so there's no desktop→mobile flash. */
+function useIsMobile() {
+  const [mobile, setMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 639px)").matches,
+  );
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639px)");
+    const on = () => setMobile(mq.matches);
+    on();
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return mobile;
+}
+
 /**
  * "Explore by subject" — a scroll-controlled reveal (pure CSS, no motion library).
  * A tiny scroll listener writes the section's scroll progress into the `--p` CSS
@@ -100,10 +117,30 @@ export function SubjectReveal() {
   const t = useTranslations("components_home_SubjectReveal");
   const subjectName = useSubjectName();
   const reduced = usePrefersReducedMotion();
+  const isMobile = useIsMobile();
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [open, setOpen] = useState(false);
   const [cardIn, setCardIn] = useState(false);
+  const [inView, setInView] = useState(false);
   useScrollLock(open);
+
+  // Mobile: trigger the time-based entrance once the section scrolls into view.
+  useEffect(() => {
+    if (!isMobile || reduced) return;
+    const el = sectionRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [isMobile, reduced]);
 
   // Measure scroll progress through the pinned track and publish it as --p, but
   // ease the published value toward the raw scroll target each frame (a lerp) so
@@ -111,7 +148,7 @@ export function SubjectReveal() {
   // feel Framer got from spring-smoothing its scroll MotionValue. The mobile
   // card's inner stagger fires once the eased progress passes the halfway point.
   useEffect(() => {
-    if (reduced) return;
+    if (reduced || isMobile) return;
     const el = sectionRef.current;
     if (!el) return;
     let raf = 0;
@@ -156,13 +193,202 @@ export function SubjectReveal() {
       window.removeEventListener("resize", kick);
       cancelAnimationFrame(raf);
     };
-  }, [reduced]);
+  }, [reduced, isMobile]);
 
   const cards = useMemo<SubjectCardData[]>(
     () =>
       SUBJECTS.map((subject, i) => ({ subject, dir: DIRECTIONS[i % DIRECTIONS.length] ?? "left" })),
     [],
   );
+
+  // The "Explore by subject" card — shared by the desktop-scrub layout and the
+  // mobile time-based layout. Its inner content staggers in once revealed.
+  const staggerIn = reduced || cardIn || inView;
+  const exploreCard = (
+    <div className="bg-plum-gradient border-lilac relative flex min-h-[26rem] w-full max-w-sm flex-col items-center justify-center overflow-hidden rounded-[2rem] border px-8 py-14 text-center text-white shadow-[0_24px_70px_-24px_rgba(72,54,102,0.7)]">
+      <div
+        className={cn(
+          "subject-card-stagger flex w-full flex-col items-center",
+          staggerIn && "is-in",
+        )}
+      >
+        <p className="text-xs font-semibold tracking-[0.18em] text-white uppercase">
+          {t("exploreBySubject")}
+        </p>
+        <h3 className="font-display mt-2 text-3xl leading-tight font-bold text-white">
+          {t("diveIn", { count: SUBJECTS.length })}
+        </h3>
+
+        {/* subject icon preview + "see more" */}
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+          {SUBJECTS.slice(0, 4).map((s) => {
+            const Icon = s.icon;
+            return (
+              <span
+                key={s.slug}
+                className="grid h-11 w-11 place-items-center rounded-xl bg-white/10 ring-1 ring-white/15"
+              >
+                <Icon className="h-5 w-5 text-white" strokeWidth={1.75} />
+              </span>
+            );
+          })}
+          <button
+            type="button"
+            onClick={() => setOpen(true)}
+            className="inline-flex h-11 items-center gap-1 rounded-xl bg-white/15 px-3 text-sm font-semibold text-white ring-1 ring-white/20 transition-colors hover:bg-white/25"
+          >
+            <Plus className="h-4 w-4" />
+            {t("more", { count: SUBJECTS.length - 4 })}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setOpen(true)}
+          className="bg-lilac relative mt-8 inline-flex w-full items-center justify-center overflow-hidden rounded-2xl py-4 text-base font-semibold text-white transition-[filter,transform] hover:brightness-110 active:scale-[0.98]"
+        >
+          <span className="relative z-10">{t("exploreBySubject")}</span>
+          <span
+            aria-hidden
+            className="subject-btn-shine absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent"
+          />
+        </button>
+      </div>
+    </div>
+  );
+
+  // Mobile: a simple on-view entrance — circle fades in, heading ~1s later, then
+  // the card — with a 100px band above and below the circle. No scroll zoom.
+  if (isMobile && !reduced) {
+    return (
+      <>
+        <section ref={sectionRef} className="relative bg-white">
+          <div className={cn("reveal-m", inView && "is-in")}>
+            <div className="flex justify-center px-6 pt-[100px] pb-[100px]">
+              <div className="reveal-m-circle relative h-[19rem] w-[19rem] max-w-full">
+                <div
+                  aria-hidden
+                  className="subject-glow absolute inset-0 m-auto rounded-full blur-[64px]"
+                />
+                <svg
+                  viewBox="0 0 200 200"
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-full w-full animate-spin will-change-transform [animation-duration:44s]"
+                >
+                  <defs>
+                    <linearGradient id="mDashGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#6c4ce3" />
+                      <stop offset="100%" stopColor="#9c85f0" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="100"
+                    cy="100"
+                    r="98"
+                    fill="none"
+                    stroke="url(#mDashGrad)"
+                    strokeOpacity={0.45}
+                    strokeWidth={0.5}
+                    strokeDasharray="1.5 3"
+                  />
+                </svg>
+                <svg
+                  viewBox="0 0 200 200"
+                  aria-hidden
+                  className="absolute inset-0 m-auto h-[84%] w-[84%] animate-spin will-change-transform [animation-direction:reverse] [animation-duration:60s]"
+                >
+                  <defs>
+                    <radialGradient id="mBlobGrad" cx="50%" cy="42%" r="62%">
+                      <stop offset="0%" stopColor="rgba(108,76,227,0.12)" />
+                      <stop offset="65%" stopColor="rgba(108,76,227,0.04)" />
+                      <stop offset="100%" stopColor="rgba(255,255,255,0)" />
+                    </radialGradient>
+                  </defs>
+                  <path
+                    d={WAVY_RING}
+                    fill="url(#mBlobGrad)"
+                    stroke="#6c4ce3"
+                    strokeOpacity={0.4}
+                    strokeWidth={1}
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                <div aria-hidden className="absolute inset-0 m-auto h-full w-full">
+                  <div className="relative h-full w-full animate-spin will-change-transform [animation-duration:24s]">
+                    <span className="bg-violet absolute top-0 left-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_16px_rgba(108,76,227,0.6)]" />
+                  </div>
+                </div>
+                <div className="reveal-m-text absolute inset-0 flex flex-col items-center justify-center px-4 text-center">
+                  <h2 className="font-display leading-[0.82] font-extrabold tracking-tight uppercase">
+                    <span className="reveal-m-l1 text-ink block text-4xl">{t("learn")}</span>
+                    <span className="reveal-m-l2 text-ink -mt-1 block text-4xl">
+                      {t("somethingNew")}
+                    </span>
+                  </h2>
+                  <p className="reveal-m-l3 text-ink/70 mt-4 text-[0.7rem] font-semibold tracking-[0.3em] uppercase">
+                    {t("scrollTagline")}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="reveal-m-card flex justify-center px-5 pb-[100px]">{exploreCard}</div>
+          </div>
+        </section>
+        {open && renderDialog()}
+      </>
+    );
+  }
+
+  function renderDialog() {
+    return (
+      <Portal>
+        <div
+          className="fixed inset-0 z-[60] flex items-end justify-center md:items-center md:p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t("exploreBySubject")}
+        >
+          <div className="fade-in absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
+          <div className="drawer-up bg-surface relative flex max-h-[85vh] w-full flex-col rounded-t-2xl md:max-w-2xl md:rounded-2xl">
+            <div className="border-hairline flex items-center justify-between border-b px-5 py-4">
+              <h2 className="font-display text-ink text-lg font-bold">{t("exploreBySubject")}</h2>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label={t("close")}
+                className="hover:bg-lavender grid h-9 w-9 place-items-center rounded-full active:scale-95"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div data-lenis-prevent className="flex-1 overflow-y-auto overscroll-contain p-4">
+              <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
+                {SUBJECTS.map((s) => {
+                  const Icon = s.icon;
+                  return (
+                    <Link
+                      key={s.slug}
+                      href={`/explore/${s.slug}`}
+                      onClick={() => setOpen(false)}
+                      className="border-ink/10 hover:border-violet flex flex-col items-center gap-1.5 rounded-2xl border bg-white p-3 text-center transition-colors active:scale-95"
+                    >
+                      <Icon className={cn("h-6 w-6", s.color)} strokeWidth={1.75} />
+                      <span className="text-ink text-xs font-medium sm:text-sm">
+                        {subjectName(s.slug, s.name)}
+                      </span>
+                      <span className="text-ink/45 text-[10px] sm:text-xs">
+                        {t("items", { count: s.count.toLocaleString() })}
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </Portal>
+    );
+  }
 
   return (
     <>
