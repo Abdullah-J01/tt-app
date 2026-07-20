@@ -313,7 +313,8 @@
     "nextCard": "Next card",
     "swipeHint": "Swipe up · next card",
     "saved": "Saved",
-    "save": "Save"
+    "save": "Save",
+    "loginToContinue": "Log in to keep reading"
   },
   "components_home_AnimatedFeed": {
     "didYouKnow": "Did you know",

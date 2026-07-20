@@ -8,7 +8,13 @@ import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
 import { Pill } from "@/components/ui/Pill";
-import { StudybookPreview, SaveButton, StartLearningButton, GuestPrompt } from "@/features/studybook";
+import {
+  StudybookPreview,
+  SaveButton,
+  StartLearningButton,
+  GuestPrompt,
+  isFreeBook,
+} from "@/features/studybook";
 import { getSubjectName } from "@/i18n/subjectName";
 import { getStudybook, listStudybooks } from "@/lib/api";
 
@@ -30,7 +36,6 @@ const CARD_GRADIENTS = [
   "bg-gradient-to-br from-amber-500 to-orange-700",
   "bg-gradient-to-br from-plum-2 to-plum-1",
 ];
-
 
 /** Studybook detail — mobile-first (UI brief §6.3). */
 export default async function StudybookPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -54,11 +59,13 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
   const subject = subjectName(book.subjectSlug);
   const minutes = Math.max(1, Math.round(book.cards.length * 0.5));
   const price = book.priceEur != null ? `€${book.priceEur.toFixed(2)}` : t("free");
+  const free = isFreeBook(book);
 
   return (
     <>
-      {/* Guests get the login popup over the opened book (dismiss → back). */}
-      <GuestPrompt />
+      {/* Guests get the login popup over the opened book (dismiss → back).
+          Free books skip it — guests read a couple of cards first, then sign in. */}
+      <GuestPrompt free={free} />
       {/* Shared site header — the same one header used across the whole app. */}
       <Navbar />
 
@@ -121,6 +128,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
             <div className="col-span-2 space-y-3 self-start md:col-span-1 md:col-start-2 md:max-w-md">
               <StartLearningButton
                 slug={book.slug}
+                free={free}
                 className="bg-violet hover:bg-violet-dark flex h-13 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 {t("startLearning")}

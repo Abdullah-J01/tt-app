@@ -11,10 +11,11 @@ import { Button } from "@/components/ui/Button";
 import { SlideControls } from "@/components/ui/SlideControls";
 import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
+import { FREE_PREVIEW_CARDS, isFreeBook } from "./freePreview";
 import type { Studybook } from "@/types";
 
 /** Free cards shown before the preview stops and offers the full studybook. */
-const PREVIEW_LIMIT = 3;
+const PREVIEW_LIMIT = FREE_PREVIEW_CARDS;
 
 /**
  * Peek at the first few cards of a studybook without opening the full reader
@@ -150,18 +151,18 @@ export function StudybookPreview({ book }: { book: Studybook }) {
         </p>
         {/* replace: swap the ?preview history entry for /read, so Back from the
             reader returns to the clean detail page instead of reopening this
-            overlay (which reads as "back is broken"). Gated: guests get the
-            login popup instead of navigating. */}
+            overlay (which reads as "back is broken"). Free books let guests into
+            the reader (it gates after a few cards); paid books require login. */}
         <Button
           size="lg"
           variant="secondary"
           className="mt-6 w-full max-w-xs"
-          onClick={() =>
-            requireAuth(
-              () => router.replace(localizeHref(`/studybook/${book.slug}/read`, locale)),
-              t("loginToLearn"),
-            )
-          }
+          onClick={() => {
+            const openReader = () =>
+              router.replace(localizeHref(`/studybook/${book.slug}/read`, locale));
+            if (isFreeBook(book)) openReader();
+            else requireAuth(openReader, t("loginToLearn"));
+          }}
         >
           {t("startLearning")}
         </Button>

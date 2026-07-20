@@ -3,3 +3,4 @@ export { StudybookPreview } from "./StudybookPreview";
 export { ShareButton, SaveButton } from "./StudybookActions";
 export { StartLearningButton } from "./StartLearningButton";
 export { GuestPrompt } from "./GuestPrompt";
+export { isFreeBook, FREE_PREVIEW_CARDS } from "./freePreview";

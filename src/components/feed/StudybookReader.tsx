@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
+import { FREE_PREVIEW_CARDS, isFreeBook } from "@/features/studybook/freePreview";
+import { useAppSelector } from "@/store/hooks";
+import { useAuthModal } from "@/components/auth/useAuthModal";
 import type { Studybook, StudyCard } from "@/types";
 
 /** Library snapshot for the active card — lets the rail's like/save persist. */
@@ -61,6 +64,15 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const subject = subjectName(book.subjectSlug);
   const active = cards[index];
 
+  // Free-book guests may read the first FREE_PREVIEW_CARDS cards, then hit the
+  // login gate. Paid books never reach the reader as a guest (gated at the
+  // "Start learning" button), so only free books need the in-reader gate. Auth
+  // state comes from the same Redux slice the auth guards read.
+  const isAuthenticated = useAppSelector((s) => s.auth.isAuthenticated);
+  const authStatus = useAppSelector((s) => s.auth.status);
+  const openAuth = useAuthModal((s) => s.openAuth);
+  const guestGated = authStatus !== "loading" && !isAuthenticated && isFreeBook(book);
+
   const go = useCallback(
     (next: number) => {
       if (lockRef.current) return;
@@ -79,12 +91,17 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   );
 
   const goNext = useCallback(() => {
+    // Guests reading a free book get a few cards, then must sign in to continue.
+    if (guestGated && index + 1 >= FREE_PREVIEW_CARDS) {
+      openAuth("login", { reason: t("loginToContinue") });
+      return;
+    }
     if (index >= total - 1) {
       setDone(true);
       return;
     }
     go(index + 1);
-  }, [go, index, total]);
+  }, [go, index, total, guestGated, openAuth, t]);
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
   const goBack = useCallback(() => {

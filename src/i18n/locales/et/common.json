@@ -313,7 +313,8 @@
     "nextCard": "Järgmine kaart",
     "swipeHint": "Pühi üles · järgmine kaart",
     "saved": "Salvestatud",
-    "save": "Salvesta"
+    "save": "Salvesta",
+    "loginToContinue": "Logi sisse, et edasi lugeda"
   },
   "components_home_AnimatedFeed": {
     "didYouKnow": "Kas teadsid",
