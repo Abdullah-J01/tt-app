@@ -67,19 +67,43 @@ export function SelectableCard({
         selectableSurface(selected),
         isHorizontal
           ? "items-center gap-3.5"
-          : cn("flex-col items-center gap-2.5 text-center", selected ? "text-violet" : "text-ink"),
+          : cn(
+              "flex-col items-center gap-1.5 text-center sm:gap-2.5",
+              selected ? "text-violet" : "text-ink",
+            ),
         className,
       )}
     >
-      {media && <span className="flex shrink-0 [&_svg]:h-7 [&_svg]:w-7">{media}</span>}
+      {media && (
+        <span
+          className={cn(
+            "flex shrink-0",
+            // Vertical tiles come in threes on a phone — a smaller glyph there keeps
+            // the tile short so long lists need less scrolling.
+            isHorizontal
+              ? "[&_svg]:h-7 [&_svg]:w-7"
+              : "[&_svg]:h-6 [&_svg]:w-6 sm:[&_svg]:h-7 sm:[&_svg]:w-7",
+          )}
+        >
+          {media}
+        </span>
+      )}
 
-      <span className={cn("min-w-0", isHorizontal && "flex-1")}>
+      {/* Vertical tiles centre their content, so the label would otherwise size to
+          max-content and spill past the padding — `w-full` bounds it so the
+          wrap/hyphenation rules below can actually engage. */}
+      <span className={cn("min-w-0", isHorizontal ? "flex-1" : "w-full")}>
         <span
           className={cn(
             "block leading-tight",
             isHorizontal
               ? "font-display text-ink text-[15px] font-semibold"
-              : "text-[13px] font-semibold",
+              : // 11px on a phone keeps the longest single-word labels
+                // ("Entrepreneurship") inside the tile instead of bleeding past the
+                // padding. `hyphens-auto` (locale-aware — <html lang> is set) breaks
+                // words like "Предпринимательство" at syllables; `break-words` is the
+                // last-resort backstop when there's no hyphenation dictionary.
+                "text-[11px] font-semibold break-words hyphens-auto sm:text-[13px]",
             emphasizeTitle && "text-base",
           )}
         >

@@ -347,7 +347,8 @@
   },
   "components_home_UniverseCarousel": {
     "from": "from",
-    "freshlyDigitized": "Freshly digitized"
+    "freshlyDigitized": "Freshly digitized",
+    "free": "Бесплатно"
   },
   "components_home_page": {
     "bitesTitle": "New study bites",

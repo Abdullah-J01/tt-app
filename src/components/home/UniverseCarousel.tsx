@@ -15,6 +15,7 @@ import {
 } from "framer-motion";
 import { CardRail, ContentCard, Pill } from "@/components/ui";
 import { coverOrArt, type DeckBook } from "./deckBook";
+import { COUNT, HOLD, PER_CARD, trackHeight, trackMargin } from "./universeTrack";
 
 /**
  * "Freshly digitized" as a scroll-spun 3D spiral. Cards wind around a vertical
@@ -23,19 +24,18 @@ import { coverOrArt, type DeckBook } from "./deckBook";
  * so one card sweeps up to the flat, front-centered focus while its neighbours
  * spiral away and fade.
  *
- * Desktop: the stage pins (sticky) while every card cycles through focus fully
- * on-screen, then unpins — the track is stage + scrub, no full extra viewport.
- * Mobile: no pinning at all (a pinned short stage shows blank track below it) —
- * the deck spins as the section rides through the viewport, so the section is
- * exactly deck-sized and leaves no gap to the next section.
+ * Pinning is identical on every breakpoint — the stage sticks for one viewport
+ * height while the deck spins, then releases. Mobile used to skip the pin and
+ * map the spin to the section's transit through the viewport, which meant card 0
+ * was already part-spun while the deck was still entering and the last card never
+ * settled before the section scrolled away. The pin plus the `HOLD` margins below
+ * are what guarantee the first and last card are each seen fully centred, at rest.
  *
  * Robust for any COUNT: cards that revolve past 90° show their back, which
  * `backface-visibility: hidden` clips — so only the front arc is ever visible,
  * no matter how many cards ride the spiral. Under reduced-motion → plain rail.
  */
 
-/** How many covers ride the spiral. */
-const COUNT = 5;
 /** Vertical anchor of the deck inside the pinned stage. The stage is sized to
  *  fit the deck, so the deck sits centred in it. */
 const ANCHOR = "50%";
@@ -47,7 +47,6 @@ const ANGLE = 40; // deg of revolution between adjacent cards
 const DEPTH = 200; // px — how far the ring bows back
 const ROTY = 1; // 0 = faces flat, 1 = fully tangent (coverflow tilt)
 const SCALE_STEP = 0.12;
-const OPACITY_STEP = 0.3;
 
 /** Fallback art for books with no cover of their own (see `coverOrArt`). */
 const SPIRAL_ART = [1, 2, 3, 4, 5].map((n) => `/images/demoData/cardImage${n}.jpg`);
@@ -62,12 +61,9 @@ interface Dims {
   pitch: number;
   /** Height (px) of the stage — just tall enough for the fanned deck. */
   stageH: number;
-  /** Desktop: pin the stage and scrub `perCard` px per swap. Mobile: no pin. */
-  pin: boolean;
-  /** Scroll distance (px) per card swap while pinned (desktop only). */
-  perCard: number;
-  /** Viewport height (px) at last measure — for the pinned progress mapping. */
-  vpH: number;
+  /** Opacity lost per card away from focus. Steeper on mobile, where the fan is
+   *  narrow relative to the card and gentle fading reads as translucent mush. */
+  fade: number;
 }
 
 function DrumCard({
@@ -82,7 +78,7 @@ function DrumCard({
   dims: Dims;
 }) {
   const t = useTranslations("components_home_UniverseCarousel");
-  const { cardW, cardH, spreadX, pitch } = dims;
+  const { cardW, cardH, spreadX, pitch, fade } = dims;
 
   const transform = useTransform(focus, (f) => {
     const d = index - f; // signed distance from focus: 0 = centred
@@ -94,12 +90,19 @@ function DrumCard({
     const scale = Math.max(0.5, 1 - Math.abs(d) * SCALE_STEP);
     return `translate3d(${x}px, ${y}px, ${z}px) rotateY(${roty}deg) scale(${scale})`;
   });
-  const opacity = useTransform(focus, (f) => Math.max(0, 1 - Math.abs(index - f) * OPACITY_STEP));
+  const opacity = useTransform(focus, (f) => Math.max(0, 1 - Math.abs(index - f) * fade));
   const zIndex = useTransform(focus, (f) => Math.round(100 - Math.abs(index - f) * 10));
   // Every visible card is clickable (opens its studybook); z-index resolves overlaps,
   // so a click lands on whichever card is on top at that point. Hidden/back-facing
   // cards (far from focus) opt out so they don't swallow taps.
   const pointerEvents = useTransform(focus, (f) => (Math.abs(index - f) < 2 ? "auto" : "none"));
+  // Only the focused card is captioned. Fading the whole card is not enough:
+  // a neighbour's title and price pill land at the same baseline as the focused
+  // card's, and two sets of legible text across overlapping covers is what reads
+  // as the cards "mixing". Gone by half a step out, so it never competes.
+  const captionOpacity = useTransform(focus, (f) =>
+    Math.max(0, Math.min(1, 1 - Math.abs(index - f) / 0.5)),
+  );
 
   const price = formatPrice(book.priceEur);
 
@@ -136,18 +139,24 @@ function DrumCard({
           aria-hidden
           className="from-ink/90 via-ink/25 absolute inset-0 bg-gradient-to-t to-transparent"
         />
-        <div className="absolute inset-x-0 bottom-0 p-4">
+        <motion.div className="absolute inset-x-0 bottom-0 p-4" style={{ opacity: captionOpacity }}>
           <h3 className="font-display line-clamp-2 text-lg font-bold text-white">{book.title}</h3>
           <div className="mt-2 flex flex-wrap items-center gap-2">
-            {price && (
-              <Pill variant="solid">
-                <span className="font-medium opacity-80">{t("from")}</span>
-                {price}
-              </Pill>
-            )}
+            {/* Not every studybook is paid, and a pill that simply vanishes on the
+                free ones makes the deck look like it failed to load. Say "free". */}
+            <Pill variant="solid">
+              {price ? (
+                <>
+                  <span className="font-medium opacity-80">{t("from")}</span>
+                  {price}
+                </>
+              ) : (
+                t("free")
+              )}
+            </Pill>
             <span className="text-xs font-medium text-white/70">{book.category}</span>
           </div>
-        </div>
+        </motion.div>
       </Link>
     </motion.div>
   );
@@ -187,9 +196,7 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
     spreadX: 200,
     pitch: 58,
     stageH: 408 + 2 * 58 + STAGE_PAD * 2,
-    pin: true,
-    perCard: 160,
-    vpH: 900,
+    fade: 0.3,
   });
 
   useEffect(() => {
@@ -197,22 +204,25 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
       const w = window.innerWidth;
       const mobile = w < 640;
       const cardW = mobile
-        ? Math.min(Math.round(w * 0.58), 230) // mobile: card large enough to read, fan inside the screen
+        ? Math.min(Math.round(w * 0.5), 200) // mobile: readable, but leaves room for the fan
         : Math.min(Math.max(Math.round(w * 0.26), 320), 380); // desktop: 320–380
       const cardH = Math.round(cardW * 1.36);
-      const pitch = mobile ? 44 : 58; // tighter spiral climb on mobile
+      const pitch = mobile ? 40 : 58; // tighter spiral climb on mobile
       const pad = mobile ? 20 : STAGE_PAD;
       setDims({
         cardW,
         cardH,
-        spreadX: mobile ? Math.round(w * 0.24) : Math.max(120, Math.min(w * 0.3, 440)),
+        // The fan has to scale with the *card*, not the screen: keyed to width
+        // alone, neighbours landed ~63px from centre under a 230px card and the
+        // deck read as one smeared, see-through pile. ~0.64·spreadX is the
+        // sideways offset one card out (sin 40°), so this keeps ~2/3 of a card
+        // clear. Overhanging the screen edge is fine — the stage clips it.
+        spreadX: mobile ? cardW : Math.max(120, Math.min(w * 0.3, 440)),
         pitch,
         // Deck extent ≈ focused card + the ±2-card spiral climb; never taller
         // than the viewport so the sticky pin stays clean.
         stageH: Math.min(cardH + 2 * pitch + pad * 2, window.innerHeight),
-        pin: !mobile,
-        perCard: 160,
-        vpH: window.innerHeight,
+        fade: mobile ? 0.45 : 0.3,
       });
     };
     compute();
@@ -220,52 +230,32 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
     return () => window.removeEventListener("resize", compute);
   }, []);
 
-  const scrub = (items.length - 1) * dims.perCard;
-  const trackH = dims.stageH + scrub;
+  const scrub = (items.length - 1) * PER_CARD;
+  const pinned = scrub + HOLD * 2; // pinned scroll: hold, spin, hold
 
+  // The track is one viewport tall plus the pinned distance, and the stage is a
+  // full-viewport sticky box inside it — so `start start → end end` spans exactly
+  // the pinned stretch, with no viewport height in the math. (The old mapping
+  // divided by a JS-measured `vpH`, which drifts on Android every time the URL
+  // bar hides.) Progress clamps at both ends, so the deck rides in and out of
+  // view resting on card 0 / the last card.
   const { scrollYProgress } = useScroll({
     target: container,
-    offset: ["start end", "end start"],
+    offset: ["start start", "end end"],
   });
-  // Progress spans the container's full transit past the viewport (container +
-  // viewport heights). Desktop (pinned): the stage pins after `vpH` scrolled and
-  // unpins `scrub` later — the spin maps to exactly that slice, so every card
-  // reaches focus fully on-screen before the page moves on. Mobile (no pin):
-  // the container is just the stage, so map the spin to the slice where the
-  // deck is fully inside the viewport — card 0 holds focus until the deck has
-  // completely entered, and the last card reaches focus before the deck starts
-  // leaving at the top.
-  let spinStart: number;
-  let spinEnd: number;
-  if (dims.pin) {
-    const total = trackH + dims.vpH;
-    const pinStart = dims.vpH / total;
-    const pinEnd = (dims.vpH + scrub) / total;
-    const lead = 0.06 * (pinEnd - pinStart); // brief hold on the first/last card
-    spinStart = pinStart + lead;
-    spinEnd = pinEnd - lead;
-  } else {
-    const total = dims.stageH + dims.vpH; // full transit of the unpinned stage
-    spinStart = dims.stageH / total; // stage bottom just cleared the viewport bottom
-    spinEnd = dims.vpH / total; // stage top about to reach the viewport top
-    // Landscape / short viewports where the stage fills the screen: keep a
-    // usable window instead of collapsing to a point.
-    if (spinEnd - spinStart < 0.1) {
-      const mid = (spinStart + spinEnd) / 2;
-      spinStart = mid - 0.05;
-      spinEnd = mid + 0.05;
-    }
-  }
-  const raw = useTransform(scrollYProgress, [spinStart, spinEnd], [0, items.length - 1], {
-    clamp: true,
-  });
+  const raw = useTransform(
+    scrollYProgress,
+    [HOLD / pinned, (HOLD + scrub) / pinned],
+    [0, items.length - 1],
+    { clamp: true },
+  );
   const focus = useSpring(raw, { stiffness: 140, damping: 26, mass: 0.4 });
 
   if (reduce) return <Rail books={books} />;
 
   const stage = (
     <div
-      className="relative overflow-hidden [perspective:1300px]"
+      className="relative w-full overflow-hidden [perspective:1300px]"
       style={{ height: dims.stageH, ["--anchor" as string]: ANCHOR }}
     >
       {/* "universe" backdrop — a single soft violet glow, behind the deck. */}
@@ -283,11 +273,14 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
     </div>
   );
 
-  return dims.pin ? (
-    <div ref={container} style={{ height: trackH }}>
-      <div className="sticky top-0">{stage}</div>
+  return (
+    <div
+      ref={container}
+      style={{ height: trackHeight(pinned), marginBlock: trackMargin(`${dims.stageH}px`) }}
+    >
+      <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden">
+        {stage}
+      </div>
     </div>
-  ) : (
-    <div ref={container}>{stage}</div>
   );
 }

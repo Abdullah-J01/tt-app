@@ -457,7 +457,8 @@
   },
   "components_home_UniverseCarousel": {
     "from": "alates",
-    "freshlyDigitized": "Värskelt digiteeritud"
+    "freshlyDigitized": "Värskelt digiteeritud",
+    "free": "Tasuta"
   },
   "components_home_page": {
     "bitesTitle": "Uued õpipalad",

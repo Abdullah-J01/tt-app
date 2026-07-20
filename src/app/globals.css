@@ -674,6 +674,24 @@ body.reader-open footer {
   }
 }
 
+/* Scroll-linked recede for long selectable grids (onboarding interests). Tiles
+   never cover one another — they only shrink + fade as they approach and cross
+   the top of the viewport, so every option stays visible and tappable. Held flat
+   for the first ~78% of the tile's visible life so the effect reads only at the
+   top edge, not mid-screen — and so the top row sits at exactly scale 1 /
+   opacity 1 when unscrolled. */
+@keyframes sb-tile-recede {
+  0%,
+  78% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0.45;
+    transform: scale(0.9);
+  }
+}
+
 /* Card transitions for StudybookReader + StudybookPreview. Both screens run the
    same pair, picked by useSlideAxis(): the two cards slide and cross-fade, always
    along the axis the input moves. Touch (axis y) slides vertically to follow the
@@ -784,6 +802,20 @@ body.reader-open footer {
   }
   .anim-item-in {
     animation: sb-item-in 0.4s ease-out both;
+  }
+
+  /* Driven by scroll position rather than elapsed time, so scrolling back up
+     plays it in reverse for free. `view()` needs scroll-driven animation support
+     (Chrome/Edge/Safari); where it is missing the @supports guard leaves the grid
+     plainly static, which is a fine floor. The range spans the tile's whole
+     visible life so the keyframe stops above decide *when* it recedes. */
+  @supports (animation-timeline: view()) {
+    .anim-tile-recede {
+      transform-origin: top center;
+      animation: sb-tile-recede linear both;
+      animation-timeline: view();
+      animation-range: entry 100% exit 100%;
+    }
   }
 
   /* Card transitions. `forwards` on the leaving copy holds the end frame so it
