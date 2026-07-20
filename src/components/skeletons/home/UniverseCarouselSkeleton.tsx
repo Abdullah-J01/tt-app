@@ -16,7 +16,7 @@ export function UniverseCarouselSkeleton() {
           placeholder pulls in by the same amount the real track will. Set via class,
           not inline style, so the `sm:` override can win. */}
       <div
-        className="hidden [--stage:392px] motion-safe:block sm:[--stage:721px]"
+        className="hidden [--stage:474px] motion-safe:block sm:[--stage:721px]"
         style={{ height: trackHeight(), marginBlock: trackMargin() }}
       >
         <div className="sticky top-0 flex h-[100svh] items-center justify-center overflow-hidden">
@@ -25,7 +25,7 @@ export function UniverseCarouselSkeleton() {
             <Skeleton className="rounded-card absolute right-[55%] hidden aspect-[1/1.36] w-[220px] -rotate-6 opacity-50 sm:block" />
             <Skeleton className="rounded-card absolute left-[55%] hidden aspect-[1/1.36] w-[220px] rotate-6 opacity-50 sm:block" />
             {/* focused cover */}
-            <div className="rounded-card relative aspect-[1/1.36] w-[50vw] max-w-[200px] overflow-hidden sm:w-[340px] sm:max-w-none">
+            <div className="rounded-card relative aspect-[1/1.36] w-[66vw] max-w-[260px] overflow-hidden sm:w-[340px] sm:max-w-none">
               <Skeleton className="h-full w-full rounded-none" />
               <div className="motion-safe:animate-shimmer absolute inset-0 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.65),transparent)] bg-[length:200%_100%]" />
               {/* title + meta footprint */}

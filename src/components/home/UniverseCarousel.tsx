@@ -204,7 +204,7 @@ export function UniverseCarousel({ books }: { books: DeckBook[] }) {
       const w = window.innerWidth;
       const mobile = w < 640;
       const cardW = mobile
-        ? Math.min(Math.round(w * 0.5), 200) // mobile: readable, but leaves room for the fan
+        ? Math.min(Math.round(w * 0.66), 260) // mobile: readable, but leaves room for the fan
         : Math.min(Math.max(Math.round(w * 0.26), 320), 380); // desktop: 320–380
       const cardH = Math.round(cardW * 1.36);
       const pitch = mobile ? 40 : 58; // tighter spiral climb on mobile
