@@ -258,7 +258,7 @@ export default function FeatureCards() {
       {/* MOBILE — vertical page scroll; horizontal swipe drives a true      */}
       {/* card-on-card stack (all cards share the same position, layered).  */}
       {/* ---------------------------------------------------------------- */}
-      <div className="h-screen w-full overflow-x-hidden md:hidden">
+      <div className="h-[65vh] w-full overflow-x-hidden md:hidden md:h-screen">
         <div ref={mobileStageRef} className="relative" style={{ perspective: "1200px" }}>
           {/* Invisible spacer: renders the first card in normal flow purely to
               give this relative container a sensible natural height before JS
