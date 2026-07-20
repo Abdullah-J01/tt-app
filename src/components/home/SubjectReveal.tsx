@@ -262,7 +262,7 @@ export function SubjectReveal() {
   if (isMobile && !reduced) {
     return (
       <>
-        <section ref={sectionRef} className="relative bg-white">
+        <section ref={sectionRef} className="relative overflow-hidden bg-white">
           <div className={cn("reveal-m", inView && "is-in")}>
             <div className="flex justify-center px-6 pt-[80px] pb-[80px]">
               <div className="reveal-m-circle relative h-[19rem] w-[19rem] max-w-full">
