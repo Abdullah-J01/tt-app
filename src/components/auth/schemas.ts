@@ -1,6 +1,11 @@
 import { z } from "zod";
 import type { Translator } from "@/i18n/types";
-import { NAME_MAX_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib/authRules";
+import {
+  NAME_MAX_LENGTH,
+  OTP_LENGTH,
+  PASSWORD_MAX_LENGTH,
+  PASSWORD_MIN_LENGTH,
+} from "@/lib/authRules";
 
 /**
  * Auth schemas are built per-render from a translator (bound to the `auth`
@@ -14,7 +19,10 @@ import { NAME_MAX_LENGTH, PASSWORD_MAX_LENGTH, PASSWORD_MIN_LENGTH } from "@/lib
 
 /** Shared email rule — distinguishes an empty field from a malformed address. */
 const emailRule = (t: Translator) =>
-  z.string().min(1, t("emailRequired")).pipe(z.email(t("emailInvalid")));
+  z
+    .string()
+    .min(1, t("emailRequired"))
+    .pipe(z.email(t("emailInvalid")));
 
 export const makeLoginSchema = (t: Translator) =>
   z.object({
@@ -41,3 +49,36 @@ export const makeForgotPasswordSchema = (t: Translator) =>
     email: emailRule(t),
   });
 export type ForgotPasswordValues = z.infer<ReturnType<typeof makeForgotPasswordSchema>>;
+
+/**
+ * The OTP field holds the joined digits from the code input. Length is checked
+ * rather than presence so the Verify button can gate on a complete code.
+ */
+export const makeOtpSchema = (t: Translator) =>
+  z.object({
+    code: z
+      .string()
+      .trim()
+      .regex(new RegExp(`^\\d{${OTP_LENGTH}}$`), t("otpIncomplete")),
+  });
+export type OtpValues = z.infer<ReturnType<typeof makeOtpSchema>>;
+
+/**
+ * Reset uses the same password policy as sign-up — resetting must never be a
+ * back door to a weaker password. The match check is attached to
+ * `confirmPassword` so the error renders under the field the user can fix.
+ */
+export const makeResetPasswordSchema = (t: Translator) =>
+  z
+    .object({
+      password: z
+        .string()
+        .min(PASSWORD_MIN_LENGTH, t("passwordMin"))
+        .max(PASSWORD_MAX_LENGTH, t("passwordMax")),
+      confirmPassword: z.string().min(1, t("confirmPasswordRequired")),
+    })
+    .refine((values) => values.password === values.confirmPassword, {
+      message: t("passwordsDoNotMatch"),
+      path: ["confirmPassword"],
+    });
+export type ResetPasswordValues = z.infer<ReturnType<typeof makeResetPasswordSchema>>;
