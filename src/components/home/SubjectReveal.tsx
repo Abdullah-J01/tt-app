@@ -264,7 +264,7 @@ export function SubjectReveal() {
       <>
         <section ref={sectionRef} className="relative bg-white">
           <div className={cn("reveal-m", inView && "is-in")}>
-            <div className="flex justify-center px-6 pt-[100px] pb-[100px]">
+            <div className="flex justify-center px-6 pt-[80px] pb-[80px]">
               <div className="reveal-m-circle relative h-[19rem] w-[19rem] max-w-full">
                 <div
                   aria-hidden
@@ -331,7 +331,7 @@ export function SubjectReveal() {
                 </div>
               </div>
             </div>
-            <div className="reveal-m-card flex justify-center px-5 pb-[100px]">{exploreCard}</div>
+            <div className="reveal-m-card flex justify-center px-5 pb-[80px]">{exploreCard}</div>
           </div>
         </section>
         {open && renderDialog()}
