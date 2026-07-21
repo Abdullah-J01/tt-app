@@ -9,7 +9,14 @@ import { useCurrentLocale, localizeHref } from "@/i18n/Link";
 import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
 import { SlideControls } from "@/components/ui/SlideControls";
-import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
+import {
+  LOCK_MS,
+  transitionPair,
+  useCardTurn,
+  useSlideAxis,
+  useSwipeNav,
+  useWheelNav,
+} from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
 import type { Studybook } from "@/types";
 
@@ -63,7 +70,10 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const goNext = useCallback(() => go(index + 1), [go, index]);
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
-  useSwipeNav(cardRef, goNext, goPrev);
+  // `open` gates both: the card only exists while the overlay is rendered, and a
+  // ref can't announce that it mounted (see useSwipeNav).
+  useSwipeNav(cardRef, goNext, goPrev, open);
+  useWheelNav(cardRef, goNext, goPrev, { enabled: open, isLocked: () => lockRef.current });
 
   const close = useCallback(() => {
     // Opening pushed a ?preview history entry — pop it so Back returns to the

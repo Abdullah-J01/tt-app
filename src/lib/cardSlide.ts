@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useMediaQuery } from "./useMediaQuery";
 
 /**
@@ -16,6 +16,8 @@ import { useMediaQuery } from "./useMediaQuery";
 
 /** Shortest touch drag that counts as a swipe, in px. */
 const SWIPE_MIN = 45;
+/** Accumulated wheel delta that counts as one gesture. */
+const WHEEL_MIN = 40;
 /** How long navigation stays locked after a transition, so one gesture = one card. */
 export const LOCK_MS = 500;
 
@@ -90,30 +92,58 @@ export function useCardTurn() {
 }
 
 /**
- * Vertical swipe on `ref`: up → next, down → prev. Pass stable (useCallback'd)
- * handlers — they're effect deps, so fresh ones rebind the listeners each render.
+ * Keeps the newest handlers reachable from listeners bound once, so navigation
+ * callbacks never appear in an effect's deps. They otherwise decide *when* the
+ * listeners bind, which is a trap for overlays — see `enabled` below.
+ */
+function useLatest<T>(value: T) {
+  const ref = useRef(value);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
+
+/**
+ * Swipe on `ref`: up/left → next, down/right → prev, whichever axis the finger
+ * actually travelled furthest along (so it works the same in portrait and
+ * landscape, and under the horizontal desktop transition).
+ *
+ * `enabled` exists because a ref can't announce that its element mounted. When
+ * the target renders conditionally — a closed overlay renders `null` — the first
+ * effect run finds `ref.current === null` and binds nothing, and nothing re-runs
+ * it once the element appears. Pass the same condition that renders the element
+ * (e.g. StudybookPreview's `open`) so binding happens on the commit that mounts it.
  */
 export function useSwipeNav(
   ref: RefObject<HTMLElement | null>,
   onNext: () => void,
   onPrev: () => void,
+  enabled = true,
 ) {
+  const next = useLatest(onNext);
+  const prev = useLatest(onPrev);
+
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    let startY: number | null = null;
+    if (!enabled || !el) return;
+    let start: { x: number; y: number } | null = null;
 
     function onStart(e: TouchEvent) {
-      startY = e.touches[0]?.clientY ?? null;
+      const t = e.touches[0];
+      start = t ? { x: t.clientX, y: t.clientY } : null;
     }
     function onEnd(e: TouchEvent) {
-      if (startY === null) return;
-      const endY = e.changedTouches[0]?.clientY ?? startY;
-      const delta = startY - endY;
-      startY = null;
+      if (!start) return;
+      const t = e.changedTouches[0];
+      const dx = start.x - (t?.clientX ?? start.x);
+      const dy = start.y - (t?.clientY ?? start.y);
+      start = null;
+      // Dominant axis wins, so a slightly diagonal swipe still reads as one.
+      const delta = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
       if (Math.abs(delta) < SWIPE_MIN) return;
-      if (delta > 0) onNext();
-      else onPrev();
+      if (delta > 0) next.current();
+      else prev.current();
     }
 
     el.addEventListener("touchstart", onStart, { passive: true });
@@ -122,5 +152,57 @@ export function useSwipeNav(
       el.removeEventListener("touchstart", onStart);
       el.removeEventListener("touchend", onEnd);
     };
-  }, [ref, onNext, onPrev]);
+  }, [ref, enabled, next, prev]);
+}
+
+/**
+ * Wheel / trackpad nav on `ref` — the desktop counterpart to `useSwipeNav`, and
+ * the reason both screens navigate identically on a laptop.
+ *
+ * Deltas accumulate per gesture (a pause resets them), so a mouse-wheel notch
+ * advances instantly while trackpad momentum can't fire a second advance right
+ * after the lock releases. `isLocked` reports the caller's in-flight lock so
+ * momentum arriving mid-transition is dropped rather than queued. `enabled`
+ * behaves exactly as in `useSwipeNav`.
+ */
+export function useWheelNav(
+  ref: RefObject<HTMLElement | null>,
+  onNext: () => void,
+  onPrev: () => void,
+  { enabled = true, isLocked }: { enabled?: boolean; isLocked?: () => boolean } = {},
+) {
+  const next = useLatest(onNext);
+  const prev = useLatest(onPrev);
+  const locked = useLatest(isLocked);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el) return;
+    let accum = 0;
+    let reset: number | undefined;
+
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        accum = 0;
+      }, 150);
+      if (locked.current?.()) {
+        accum = 0;
+        return;
+      }
+      accum += e.deltaY;
+      if (Math.abs(accum) < WHEEL_MIN) return;
+      const delta = accum;
+      accum = 0;
+      if (delta > 0) next.current();
+      else prev.current();
+    }
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(reset);
+    };
+  }, [ref, enabled, next, prev, locked]);
 }
