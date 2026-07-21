@@ -76,11 +76,11 @@ export function BillingErrorModal({
             <h2 id="billing-error-title" className="text-ink mt-4 text-center text-xl font-bold">
               {isAuth ? "Sign in to continue" : "Something went wrong"}
             </h2>
-            <p className="text-muted mt-2 text-center text-sm">
-              {isAuth
-                ? "You need to be signed in before you can start a subscription."
-                : error.message}
-            </p>
+            {isAuth && (
+              <p className="text-muted mt-2 text-center text-sm">
+                "You need to be signed in before you can start a subscription."
+              </p>
+            )}
 
             <div className="mt-6 flex flex-col gap-2">
               {isAuth ? (

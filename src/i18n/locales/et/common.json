@@ -160,7 +160,20 @@
     "signupFailed": "Kontot ei õnnestunud luua. Palun proovi uuesti.",
     "genericError": "Midagi läks valesti. Palun proovi uuesti.",
     "signingIn": "Sisselogimine…",
-    "creatingAccount": "Konto loomine…"
+    "creatingAccount": "Konto loomine…",
+    "emailNotFound": "Sellist e-posti aadressi ei ole.",
+    "emailDeliveryFailed": "E-kirja saatmine ebaõnnestus. Palun proovi hetke pärast uuesti.",
+    "networkError": "Ühenduse probleem. Kontrolli internetiühendust ja proovi uuesti.",
+    "otpIncomplete": "Sisesta 6-kohaline kood",
+    "otpInvalid": "See kood ei ole õige. Palun kontrolli ja proovi uuesti.",
+    "otpInvalidWithAttempts": "See kood ei ole õige. Jäänud {count, plural, one {# katse} other {# katset}}.",
+    "otpExpired": "Kood on aegunud. Küsi uus kood.",
+    "otpTooManyAttempts": "Liiga palju valesid katseid. Küsi uus kood.",
+    "otpResendCooldown": "Palun oota {seconds} s enne uue koodi küsimist.",
+    "otpRateLimited": "Liiga palju päringuid. Palun proovi hiljem uuesti.",
+    "resetSessionExpired": "Lähtestamise seanss on aegunud. Palun alusta uuesti.",
+    "confirmPasswordRequired": "Palun kinnita oma parool",
+    "passwordsDoNotMatch": "Paroolid ei kattu"
   },
   "app_app_explore_subject_page": {
     "metadataFallback": "Õppeaine",
@@ -221,17 +234,43 @@
     "close": "Sulge"
   },
   "components_auth_ForgotPasswordFace": {
-    "backToLogin": "Tagasi sisselogimisse",
-    "sentTitle": "Kontrolli oma e-posti",
-    "sentBody": "Kui aadressil <email></email> on konto olemas, saatsime sulle lingi parooli lähtestamiseks.",
-    "useDifferentEmail": "Kasuta teist e-posti aadressi",
     "resetTitle": "Lähtesta oma parool",
-    "resetSubtitle": "Sisesta oma e-posti aadress ja saadame sulle juhistega lingi parooli lähtestamiseks.",
+    "resetSubtitle": "Sisesta oma e-posti aadress ja saadame sulle kinnituskoodi parooli lähtestamiseks.",
     "emailLabel": "E-post",
     "emailPlaceholder": "Sisesta oma e-posti aadress",
     "requestNewPassword": "Küsi uus parool",
+    "sending": "Koodi saatmine…",
     "rememberPassword": "Kas mäletad oma parooli?",
     "login": "Logi sisse"
+  },
+  "components_auth_OtpVerificationFace": {
+    "title": "Sisesta kinnituskood",
+    "subtitle": "Saatsime 6-kohalise koodi aadressile <email></email>.",
+    "codeLabel": "Kinnituskoodi number",
+    "expiryHint": "Kood aegub {minutes} minuti pärast.",
+    "verify": "Kinnita kood",
+    "verifying": "Kinnitamine…",
+    "noCode": "Ei saanud koodi?",
+    "resend": "Saada uuesti",
+    "resending": "Saadan…",
+    "resendIn": "Saada uuesti {seconds} s pärast",
+    "resent": "Uus kood on teel.",
+    "changeEmail": "Muuda e-posti",
+    "backToLogin": "Tagasi sisselogimisse"
+  },
+  "components_auth_ResetPasswordFace": {
+    "title": "Määra uus parool",
+    "subtitle": "Vali tugev parool, mida sa varem kasutanud ei ole.",
+    "newPasswordLabel": "Uus parool",
+    "newPasswordPlaceholder": "Loo parool",
+    "confirmPasswordLabel": "Kinnita parool",
+    "confirmPasswordPlaceholder": "Sisesta parool uuesti",
+    "passwordHint": "Vähemalt {min} tähemärki.",
+    "save": "Lähtesta parool",
+    "saving": "Salvestan…",
+    "successTitle": "Parool uuendatud",
+    "successBody": "Sinu parool on muudetud. Nüüd saad uue parooliga sisse logida.",
+    "backToLogin": "Tagasi sisselogimisse"
   },
   "components_auth_LoginFace": {
     "title": "Tere tulemast tagasi",
@@ -337,8 +376,8 @@
   "components_home_AnimatedHeadline": {
     "headline1": "Õpi midagi uut sama kiiresti, kui jõuad kerida.",
     "headline2": "Mõista keerulisi ideid sekunditega, mitte tundidega.",
-    "headline3": "Omanda mõisted kiiresti, üks kaart korraga.",
-    "headline4": "Kujunda lugemisharjumus, mis tõesti püsib."
+    "headline3": "Omanda mõisted kiiresti, üks kaart korraga ja kindlalt.",
+    "headline4": "Kujunda lugemisharjumus, mis tõesti püsib iga päev ja kauak"
   },
   "components_home_FeatureCards": {
     "card1Title": "Väikesed kaardid",
@@ -458,7 +497,8 @@
   },
   "components_home_UniverseCarousel": {
     "from": "alates",
-    "freshlyDigitized": "Värskelt digiteeritud"
+    "freshlyDigitized": "Värskelt digiteeritud",
+    "free": "Tasuta"
   },
   "components_home_page": {
     "bitesTitle": "Uued õpipalad",

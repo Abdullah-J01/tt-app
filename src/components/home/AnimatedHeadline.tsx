@@ -34,12 +34,7 @@ export default function AnimatedHeadline() {
   const t = useTranslations("components_home_AnimatedHeadline");
   const [index, setIndex] = useState(0);
 
-  const headlines = [
-    t("headline1"),
-    t("headline2"),
-    t("headline3"),
-    t("headline4"),
-  ];
+  const headlines = [t("headline1"), t("headline2"), t("headline3"), t("headline4")];
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -51,7 +46,7 @@ export default function AnimatedHeadline() {
   const words = (headlines[index] ?? "").split(" ");
 
   return (
-    <h1 className="font-display text-h1 sm:text-[3.25rem] text-ink max-w-xl min-h-[7.5rem] sm:min-h-[8.5rem]">
+    <h1 className="font-display text-h1 text-ink block h-[265px] max-w-xl sm:text-[3.25rem] md:h-auto">
       <AnimatePresence mode="wait">
         <motion.span
           key={index}
@@ -64,11 +59,7 @@ export default function AnimatedHeadline() {
           {words.map((word, wi) => (
             <span key={wi} className="inline-block whitespace-nowrap">
               {word.split("").map((char, ci) => (
-                <motion.span
-                  key={ci}
-                  variants={letter}
-                  className="inline-block"
-                >
+                <motion.span key={ci} variants={letter} className="inline-block">
                   {char}
                 </motion.span>
               ))}

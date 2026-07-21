@@ -22,9 +22,7 @@ export interface PublicUser {
   name: string;
 }
 
-export type RegisterResult =
-  | { ok: true; user: PublicUser }
-  | { ok: false; reason: "email_taken" };
+export type RegisterResult = { ok: true; user: PublicUser } | { ok: false; reason: "email_taken" };
 
 const normalizeEmail = (email: string): string => email.trim().toLowerCase();
 
@@ -98,4 +96,38 @@ export async function registerUser(input: {
       name: nameFor(user.email ?? email, user.user_metadata),
     },
   };
+}
+
+/**
+ * Resolves an address to an account id, or null when no account exists.
+ *
+ * Backed by the find_user_id_by_email SQL function rather than the admin REST
+ * API, which offers only a paginated listUsers — walking every page per reset
+ * request would not scale. See scripts/sql/001_password_reset_otps.sql.
+ *
+ * Callers must think before surfacing the null: the login form deliberately
+ * does not distinguish "no such user", and this function would break that if
+ * used there. It exists for the password-reset flow, which reports the
+ * distinction as a product decision.
+ */
+export async function findUserIdByEmail(email: string): Promise<string | null> {
+  const { data, error } = await supabaseAdmin.rpc("find_user_id_by_email", {
+    p_email: normalizeEmail(email),
+  });
+
+  if (error) throw new Error(`Supabase user lookup failed: ${error.message}`);
+  return (data as string | null) ?? null;
+}
+
+/**
+ * Sets a new password for an existing account.
+ *
+ * Hashing is GoTrue's, the same path sign-up and login already use — the app
+ * never sees or stores a hash, so there is no second algorithm to keep in sync.
+ * Supabase also revokes the user's existing refresh tokens on a password change,
+ * which is what logs other sessions out.
+ */
+export async function updateUserPassword(userId: string, password: string): Promise<void> {
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(userId, { password });
+  if (error) throw new Error(`Supabase password update failed: ${error.message}`);
 }

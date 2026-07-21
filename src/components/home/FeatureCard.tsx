@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, useRef, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, type MotionProps } from "framer-motion";
 import dynamic from "next/dynamic";
 import { LucideIcon } from "lucide-react";
 
@@ -14,6 +14,13 @@ type Props = {
   gradient: string;
   index: number;
   illustration: ReactNode;
+  /** Staggered fade-up on first scroll into view. Off for the mobile swipe
+   *  stack, where cards arrive under the finger and any entrance delay
+   *  just holds back the card the user is already dragging in. */
+  animateIn?: boolean;
+  /** Whether this card's 3D scene runs a live render loop. Buried cards in
+   *  the mobile stack pass false so they freeze on a single static frame. */
+  live?: boolean;
 };
 
 export default function FeatureCard({
@@ -23,6 +30,8 @@ export default function FeatureCard({
   gradient,
   index,
   illustration,
+  animateIn = true,
+  live = true,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const [hovered, setHovered] = useState(false);
@@ -47,13 +56,19 @@ export default function FeatureCard({
     rotateY.set(0);
   }
 
+  const entrance: MotionProps = animateIn
+    ? {
+        initial: { opacity: 0, y: 40, scale: 0.96 },
+        whileInView: { opacity: 1, y: 0, scale: 1 },
+        viewport: { once: true, margin: "-80px" },
+        transition: { duration: 0.6, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] },
+      }
+    : { initial: false };
+
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, y: 40, scale: 0.96 }}
-      whileInView={{ opacity: 1, y: 0, scale: 1 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, delay: index * 0.12, ease: [0.22, 1, 0.36, 1] }}
+      {...entrance}
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={handleMouseLeave}
@@ -85,7 +100,7 @@ export default function FeatureCard({
 
       {/* 3D illustration viewport */}
       <div className="relative z-10 mt-6 h-44 overflow-hidden rounded-2xl bg-white/10 backdrop-blur-sm sm:h-48">
-        <Scene>{illustration}</Scene>
+        <Scene frameloop={live ? "always" : "demand"}>{illustration}</Scene>
       </div>
 
       {/* <button className="relative z-10 mt-6 w-full rounded-full bg-white/15 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/25">

@@ -160,7 +160,20 @@
     "signupFailed": "Could not create your account. Please try again.",
     "genericError": "Something went wrong. Please try again.",
     "signingIn": "Signing in…",
-    "creatingAccount": "Creating account…"
+    "creatingAccount": "Creating account…",
+    "emailNotFound": "Email does not exist.",
+    "emailDeliveryFailed": "We couldn't send the email. Please try again in a moment.",
+    "networkError": "Connection problem. Check your internet and try again.",
+    "otpIncomplete": "Enter the 6-digit code",
+    "otpInvalid": "That code isn't right. Please check and try again.",
+    "otpInvalidWithAttempts": "That code isn't right. {count, plural, one {# attempt} other {# attempts}} left.",
+    "otpExpired": "This code has expired. Request a new one.",
+    "otpTooManyAttempts": "Too many incorrect attempts. Request a new code.",
+    "otpResendCooldown": "Please wait {seconds}s before requesting another code.",
+    "otpRateLimited": "Too many requests. Please try again later.",
+    "resetSessionExpired": "Your reset session has expired. Please start again.",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordsDoNotMatch": "Passwords do not match"
   },
   "app_app_explore_subject_page": {
     "metadataFallback": "Subject",
@@ -221,17 +234,43 @@
     "close": "Close"
   },
   "components_auth_ForgotPasswordFace": {
-    "backToLogin": "Back to log in",
-    "sentTitle": "Check your email",
-    "sentBody": "If an account exists for <email></email>, we've sent a link to reset your password.",
-    "useDifferentEmail": "Use a different email",
     "resetTitle": "Reset your password",
-    "resetSubtitle": "Enter your email and we'll send you a link with instructions to reset your password.",
+    "resetSubtitle": "Enter your email and we'll send you a verification code to reset your password.",
     "emailLabel": "Email",
     "emailPlaceholder": "Enter your email",
     "requestNewPassword": "Request a new password",
+    "sending": "Sending code…",
     "rememberPassword": "Remember your password?",
     "login": "Log in"
+  },
+  "components_auth_OtpVerificationFace": {
+    "title": "Enter verification code",
+    "subtitle": "We sent a 6-digit code to <email></email>.",
+    "codeLabel": "Verification code digit",
+    "expiryHint": "The code expires in {minutes} minutes.",
+    "verify": "Verify code",
+    "verifying": "Verifying…",
+    "noCode": "Didn't get the code?",
+    "resend": "Resend",
+    "resending": "Sending…",
+    "resendIn": "Resend in {seconds}s",
+    "resent": "A new code is on its way.",
+    "changeEmail": "Change email",
+    "backToLogin": "Back to log in"
+  },
+  "components_auth_ResetPasswordFace": {
+    "title": "Set a new password",
+    "subtitle": "Choose a strong password you haven't used before.",
+    "newPasswordLabel": "New password",
+    "newPasswordPlaceholder": "Create a password",
+    "confirmPasswordLabel": "Confirm password",
+    "confirmPasswordPlaceholder": "Re-enter your password",
+    "passwordHint": "At least {min} characters.",
+    "save": "Reset password",
+    "saving": "Saving…",
+    "successTitle": "Password updated",
+    "successBody": "Your password has been changed. You can now log in with your new password.",
+    "backToLogin": "Back to log in"
   },
   "components_auth_LoginFace": {
     "title": "Welcome back",
@@ -337,8 +376,8 @@
   "components_home_AnimatedHeadline": {
     "headline1": "Learn something new in the time it takes to scroll.",
     "headline2": "Understand difficult ideas in seconds, not hours.",
-    "headline3": "Master concepts quickly, one card at a time.",
-    "headline4": "Build a reading habit that actually sticks."
+    "headline3": "Master concepts quickly, one card at a time every day.",
+    "headline4": "Build a reading habit that actually sticks for life."
   },
   "components_home_FeatureCards": {
     "card1Title": "Bite sized cards",
@@ -458,7 +497,8 @@
   },
   "components_home_UniverseCarousel": {
     "from": "from",
-    "freshlyDigitized": "Freshly digitized"
+    "freshlyDigitized": "Freshly digitized",
+    "free": "Free"
   },
   "components_home_page": {
     "bitesTitle": "New study bites",

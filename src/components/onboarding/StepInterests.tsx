@@ -20,20 +20,29 @@ export function StepInterests({ subjects, selected, onToggle, min = 3 }: StepInt
   const remaining = Math.max(0, min - selected.size);
 
   return (
-    <div className="flex flex-col gap-3 sm:gap-5">
+    <div className="flex flex-col gap-3 sm:gap-5 lg:gap-3">
       <div>
         <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">{t("title")}</h1>
         <p className="text-muted mt-1 text-sm sm:mt-1.5 sm:text-base">{t("subtitle", { min })}</p>
       </div>
 
-      <div role="group" aria-label={t("groupLabel")} className="grid grid-cols-3 gap-2.5">
+      {/* 6-across at lg+ keeps the full catalog to 4 rows so the CTA stays visible. */}
+      <div
+        role="group"
+        aria-label={t("groupLabel")}
+        className="grid grid-cols-3 gap-2 sm:gap-2.5 lg:grid-cols-6 lg:gap-2"
+      >
         {subjects.map((s) => {
           const Icon = s.icon;
           return (
             <SelectableCard
               key={s.slug}
               orientation="vertical"
-              className="p-3 sm:p-4"
+              // Tighter tiles on a phone (23 tiles = 8 rows of scrolling) and at lg
+              // so 4 rows + the CTA clear a short laptop viewport. `anim-tile-recede`
+              // adds the scroll-linked depth cue (see globals.css); it no-ops at lg
+              // where the grid fits without scrolling.
+              className="anim-tile-recede p-2 sm:p-4 lg:gap-1.5 lg:p-2.5"
               title={subjectName(s.slug, s.name)}
               selected={selected.has(s.slug)}
               onSelect={() => onToggle(s.slug)}

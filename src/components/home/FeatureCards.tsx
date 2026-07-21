@@ -1,7 +1,16 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
+import {
+  animate,
+  motion,
+  useMotionValue,
+  useTransform,
+  type AnimationPlaybackControls,
+  type MotionValue,
+} from "framer-motion";
 import { useTranslations } from "@/i18n/client";
+import { cn } from "@/lib/utils";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Zap, BookOpen, Smartphone, Flame, Users, Trophy } from "lucide-react";
@@ -62,18 +71,97 @@ const features = [
   },
 ];
 
+/* ===========================================================================
+ * MOBILE STACK — physics
+ *
+ * One continuous `progress` motion value (a fractional card index) describes
+ * the whole stack. Card i reads its own depth = progress - i:
+ *
+ *   depth < 0   not dealt yet — parked off to the RIGHT, slides in ON TOP
+ *   depth = 0   the top card, flat and fully lit
+ *   depth > 0   buried — sinks down, shrinks and dims as cards land on it
+ *
+ * Because z-index is just the card index, a higher-index card is always above
+ * a lower one, so the incoming card genuinely lands *on top* of the stack and
+ * the reverse swipe lifts it back off. Nothing reorders; the mirror is exact.
+ * ======================================================================== */
+const MAX_DEPTH = 3; // deeper than this and there's nothing left to see
+// Buried cards scale from their BOTTOM edge (origin-bottom below), so shrinking
+// no longer claws back the sink offset — each layer peeks exactly DEPTH_Y px
+// below the one above it regardless of card height. Scaling about the centre
+// cancelled ~9px of a 16px sink and the stack read as a single card.
+const DEPTH_Y = 14; // px of visible edge per buried layer
+const DEPTH_SCALE = 0.045; // 100% -> 95.5% -> 91% -> 86.5%
+const DEPTH_FADE = 0.14;
+const FLICK = 0.4; // px/ms — above this a short swipe still advances
+const RUBBER = 0.35; // resistance past the first/last card
+const SPRING = { type: "spring", stiffness: 260, damping: 32, mass: 0.9 } as const;
+
+const clamp = (v: number, min: number, max: number) => Math.min(Math.max(v, min), max);
+
+function StackCard({
+  progress,
+  index,
+  travel,
+  children,
+}: {
+  progress: MotionValue<number>;
+  index: number;
+  travel: number;
+  children: React.ReactNode;
+}) {
+  const depth = useTransform(progress, (p) => p - index);
+  // Buried depth, clamped — drives everything that reads as "under the stack".
+  const under = useTransform(depth, (d) => clamp(d, 0, MAX_DEPTH));
+
+  // Only undealt cards travel on X; buried ones stay put and sink instead.
+  const x = useTransform(depth, (d) => (d < 0 ? -d * travel : 0));
+  const y = useTransform(under, (d) => d * DEPTH_Y);
+  const scale = useTransform(under, (d) => 1 - d * DEPTH_SCALE);
+  const opacity = useTransform(under, (d) => 1 - d * DEPTH_FADE);
+
+  return (
+    <motion.div
+      // Grid cell instead of `absolute`: every card shares one cell, so the row
+      // sizes itself to the tallest card and nothing needs measuring to avoid
+      // clipping. x/y/scale/opacity are all compositor-only properties.
+      className="col-start-1 row-start-1 origin-bottom will-change-transform"
+      style={{ x, y, scale, opacity, zIndex: index }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 export default function FeatureCards() {
   const t = useTranslations("components_home_FeatureCards");
   const sectionRef = useRef<HTMLElement>(null); // desktop: pinned to the viewport
   const trackRef = useRef<HTMLDivElement>(null); // desktop: the wide row we slide on X
 
-  // Mobile: horizontally-scrollable track + per-card refs for the stack transform
-  const mobileTrackRef = useRef<HTMLDivElement>(null);
-  const mobileStageRef = useRef<HTMLDivElement>(null); // mobile: holds the layered cards; height synced to tallest card
-  const mobileCardRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const dotRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  // Mobile: the card stack. `progress` is the single fractional-index value
+  // every card reads; `active` only mirrors it for the dots and the render-loop
+  // gating, so it changes once per settle rather than once per frame.
+  const stageRef = useRef<HTMLDivElement>(null);
+  const progress = useMotionValue(0);
+  const [active, setActive] = useState(0);
+  const [travel, setTravel] = useState(0);
+  const animRef = useRef<AnimationPlaybackControls | null>(null);
+  const dragRef = useRef<{
+    id: number;
+    startX: number;
+    startProgress: number;
+    lastX: number;
+    lastT: number;
+    velocity: number;
+  } | null>(null);
 
-  useEffect(() => {
+  // useLayoutEffect, not useEffect: ScrollTrigger's `pin` REPARENTS the section
+  // into a generated `.pin-spacer` div, so the DOM tree stops matching the one
+  // React committed (React still thinks <section> is a direct child of <main>).
+  // Layout-effect cleanup runs synchronously *before* React removes host nodes,
+  // so mm.revert() unwraps the spacer in time; a passive useEffect cleanup runs
+  // after the removal, and React's removeChild then throws NotFoundError.
+  useLayoutEffect(() => {
     const section = sectionRef.current;
     const track = trackRef.current;
 
@@ -119,118 +207,98 @@ export default function FeatureCards() {
       };
     });
 
-    // =========================================================================
-    // MOBILE — plain vertical page scroll. The section itself does NOT pin or
-    // hijack scroll. Instead the card row is a native horizontally-swipeable,
-    // scroll-snapped strip. As the user swipes, we read scrollLeft on every
-    // frame (rAF-throttled) and drive a stacked-card transform per card:
-    // the incoming card slides up from below and settles on top, the outgoing
-    // card stays put underneath, scaling/dimming slightly as it's covered.
-    // =========================================================================
-    mm.add("(max-width: 767.98px)", () => {
-      const mobileTrack = mobileTrackRef.current;
-      const cards = mobileCardRefs.current.filter((el): el is HTMLDivElement => Boolean(el));
-      const dots = dotRefs.current.filter((el): el is HTMLSpanElement => Boolean(el));
-      if (!mobileTrack || cards.length === 0) return;
-
-      // Cards are position:absolute, so they contribute no height to the stage.
-      // Descriptions vary in length, so cards vary in height — sizing the stage to
-      // a single card cropped the taller ones. Measure every card's real layout
-      // height (offsetHeight ignores our scale/translate transforms) and pin the
-      // stage to the tallest so no card is ever clipped. Re-run on resize/rotate.
-      const stage = mobileStageRef.current;
-      const sizeStage = () => {
-        if (!stage) return;
-        const maxH = Math.max(...cards.map((card) => card.offsetHeight));
-        if (maxH > 0) stage.style.minHeight = `${maxH}px`;
-      };
-      sizeStage();
-      window.addEventListener("resize", sizeStage);
-
-      // quickTo setters: each call nudges the tween's target rather than
-      // snapping to it, so fast/rapid scroll updates blend into one smooth,
-      // eased motion instead of jumping frame-to-frame (kills jitter).
-      const EASE = "power3.out";
-      // Bundle each card/dot with its own quickTo setters so the update loop can
-      // iterate the objects directly instead of indexing parallel arrays — this
-      // also keeps things clean under noUncheckedIndexedAccess.
-      const cardCtx = cards.map((card) => ({
-        card,
-        setX: gsap.quickTo(card, "x", { duration: 0.55, ease: EASE }),
-        setScale: gsap.quickTo(card, "scale", { duration: 0.55, ease: EASE }),
-        setOpacity: gsap.quickTo(card, "opacity", { duration: 0.4, ease: EASE }),
-      }));
-      const dotCtx = dots.map((dot) => ({
-        dot,
-        setScale: gsap.quickTo(dot, "scale", { duration: 0.35, ease: EASE }),
-        setOpacity: gsap.quickTo(dot, "opacity", { duration: 0.35, ease: EASE }),
-      }));
-
-      let ticking = false;
-
-      const update = () => {
-        ticking = false;
-        const scrollLeft = mobileTrack.scrollLeft;
-        const slotWidth = mobileTrack.clientWidth; // one snap slot == viewport width
-
-        cardCtx.forEach(({ card, setX, setScale, setOpacity }, i) => {
-          // raw < 0  -> card hasn't arrived yet (waiting underneath, off to the right)
-          // raw = 0  -> card is the active card, fully settled on top
-          // raw > 0  -> card has been swiped past, now resting underneath, shifted left
-          const raw = scrollLeft / slotWidth - i;
-
-          if (raw <= 0) {
-            // 0 = fully hidden off to the right, 1 = fully arrived on top
-            const arrive = gsap.utils.clamp(0, 1, 1 + raw);
-            setX(110 * (1 - arrive)); // slides in from the RIGHT to 0
-            setScale(0.9 + arrive * 0.1);
-            setOpacity(arrive);
-          } else {
-            // card already active/passed: stays put, just eases slightly
-            // LEFT and recedes as the next card lands on top of it
-            const past = gsap.utils.clamp(0, 1, raw);
-            setX(-past * 26);
-            setScale(1 - past * 0.06);
-            setOpacity(1 - past * 0.3);
-          }
-          card.style.zIndex = String(100 + i);
-        });
-
-        // active-dot indicator
-        const activeIndex = Math.round(scrollLeft / slotWidth);
-        dotCtx.forEach(({ setScale, setOpacity }, i) => {
-          setScale(i === activeIndex ? 1.4 : 1);
-          setOpacity(i === activeIndex ? 1 : 0.35);
-        });
-      };
-
-      const onScroll = () => {
-        if (!ticking) {
-          ticking = true;
-          requestAnimationFrame(update);
-        }
-      };
-
-      // Set initial state instantly (no ease) so the first paint is correct.
-      gsap.set(cards, { x: 0, scale: 1, opacity: 1 });
-      cards.forEach((card, i) => {
-        if (i > 0) gsap.set(card, { x: 110, scale: 0.9, opacity: 0 });
-        card.style.zIndex = String(100 + i);
-      });
-      update();
-
-      mobileTrack.addEventListener("scroll", onScroll, { passive: true });
-
-      return () => {
-        cardCtx.forEach(({ card }) => gsap.killTweensOf(card));
-        dotCtx.forEach(({ dot }) => gsap.killTweensOf(dot));
-        mobileTrack.removeEventListener("scroll", onScroll);
-        window.removeEventListener("resize", sizeStage);
-      };
-    });
-
     return () => mm.revert();
   }, []);
+
+  // =========================================================================
+  // MOBILE — direct manipulation. While a finger is down, `progress` is set
+  // straight from the pointer delta, so the stack tracks the hand exactly;
+  // on release a single spring carries it to the nearest card.
+  //
+  // The old rig did the opposite: it read scrollLeft off an invisible proxy
+  // scroller and fed GSAP `quickTo`, which *eases toward* its target over
+  // 0.55s. The cards therefore trailed the finger by half a second and kept
+  // drifting after the snap had already settled — the slow, gluey swipe.
+  // Easing belongs on release, never during the drag.
+  // =========================================================================
+  // Layout effect so `travel` is known before first paint — measuring in a
+  // passive effect leaves every undealt card sitting at x=0 for one frame,
+  // which flashes the whole stack on top of itself.
+  useLayoutEffect(() => {
+    const stage = stageRef.current;
+    if (!stage) return;
+    // One card-width of travel plus a little clearance, so an undealt card is
+    // fully off-stage at depth -1 no matter the viewport.
+    const measure = () => setTravel(stage.getBoundingClientRect().width + 24);
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(stage);
+    return () => ro.disconnect();
+  }, []);
+
+  const goTo = useCallback(
+    (i: number) => {
+      const target = clamp(i, 0, features.length - 1);
+      animRef.current?.stop();
+      const reduced =
+        typeof window !== "undefined" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      animRef.current = animate(progress, target, reduced ? { duration: 0 } : SPRING);
+      setActive(target);
+    },
+    [progress]
+  );
+
+  const onPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!travel) return;
+    animRef.current?.stop(); // catch the stack mid-flight, like grabbing a book
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = {
+      id: e.pointerId,
+      startX: e.clientX,
+      startProgress: progress.get(),
+      lastX: e.clientX,
+      lastT: e.timeStamp,
+      velocity: 0,
+    };
+  };
+
+  const onPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== e.pointerId) return;
+
+    const dt = e.timeStamp - drag.lastT;
+    if (dt > 0) drag.velocity = (e.clientX - drag.lastX) / dt;
+    drag.lastX = e.clientX;
+    drag.lastT = e.timeStamp;
+
+    // Dragging left (negative delta) pulls the next card in -> progress rises.
+    const raw = drag.startProgress - (e.clientX - drag.startX) / travel;
+    const last = features.length - 1;
+    progress.set(
+      raw < 0 ? raw * RUBBER : raw > last ? last + (raw - last) * RUBBER : raw
+    );
+  };
+
+  const onPointerEnd = (e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== e.pointerId) return;
+    dragRef.current = null;
+
+    // A fast flick advances one card even if it barely moved; otherwise the
+    // stack settles to whichever card it's closest to.
+    goTo(
+      Math.abs(drag.velocity) > FLICK
+        ? Math.round(drag.startProgress) + (drag.velocity < 0 ? 1 : -1)
+        : Math.round(progress.get())
+    );
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    e.preventDefault();
+    goTo(active + (e.key === "ArrowRight" ? 1 : -1));
+  };
 
   return (
     <section ref={sectionRef} className="relative">
@@ -255,78 +323,71 @@ export default function FeatureCards() {
       </div>
 
       {/* ---------------------------------------------------------------- */}
-      {/* MOBILE — vertical page scroll; horizontal swipe drives a true      */}
-      {/* card-on-card stack (all cards share the same position, layered).  */}
+      {/* MOBILE — a stack of cards. Swiping right-to-left deals the next    */}
+      {/* card in from the right and lands it ON TOP; left-to-right lifts it */}
+      {/* back off, revealing the one beneath. See the physics notes above.  */}
       {/* ---------------------------------------------------------------- */}
-      <div className="h-screen w-full overflow-x-hidden md:hidden">
-        <div ref={mobileStageRef} className="relative" style={{ perspective: "1200px" }}>
-          {/* Invisible spacer: renders the first card in normal flow purely to
-              give this relative container a sensible natural height before JS
-              runs (the real cards below are position:absolute, i.e. zero height).
-              Once mounted, the effect measures the tallest card and pins the
-              stage's min-height to it so no card is ever cropped. */}
-          {features[0] && (
-            <div className="invisible" aria-hidden="true">
-              <FeatureCard
-                icon={features[0].icon}
-                title={t(features[0].titleKey)}
-                description={t(features[0].descriptionKey)}
-                gradient={features[0].gradient}
-                index={0}
-                illustration={features[0].illustration}
-              />
-            </div>
-          )}
-
-          {/* Visual stack — every card is layered at the exact same spot.
-              Position/scale/opacity per card is driven entirely by JS
-              (see the GSAP mm.add mobile block above) based on swipe progress. */}
-          {features.map((f, i) => (
-            <div
-              key={f.titleKey}
-              ref={(el) => {
-                mobileCardRefs.current[i] = el;
-              }}
-              className="absolute inset-x-0 top-0 my-10 flex justify-center px-[8vw] will-change-transform"
-              style={{ transformOrigin: "center center" }}
-            >
-              <FeatureCard
-                icon={f.icon}
-                title={t(f.titleKey)}
-                description={t(f.descriptionKey)}
-                gradient={f.gradient}
-                index={i}
-                illustration={f.illustration}
-              />
-            </div>
-          ))}
-
-          {/* Invisible swipe-capture layer, sits on top of the whole stack.
-              Fully transparent but still scrollable/touchable — this is what
-              actually receives the user's horizontal swipe gesture; the
-              cards underneath are purely visual and driven by its scroll
-              position via the effect above. */}
+      <div className="md:hidden">
+        {/* overflow-x-clip (not -hidden) keeps undealt cards parked off-stage
+            without turning this into a vertical scroll container. It wraps ONLY
+            the stage: clipping applies to painting on both axes, so with the
+            dots inside it the active dot's scale-150 overflow was shaved off at
+            the wrapper's bottom edge. */}
+        <div className="overflow-x-clip">
           <div
-            ref={mobileTrackRef}
-            className="absolute inset-0 z-[999] flex snap-x snap-mandatory [scrollbar-width:none] overflow-x-auto opacity-0 [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
-            style={{ WebkitOverflowScrolling: "touch" }}
-            aria-hidden="true"
+            ref={stageRef}
+            role="group"
+            aria-roledescription="carousel"
+            tabIndex={0}
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerEnd}
+            onPointerCancel={onPointerEnd}
+            onKeyDown={onKeyDown}
+            // touch-pan-y hands vertical page scrolling back to the browser and
+            // keeps only the horizontal axis for us — without it the stack
+            // swallows the swipe and the page feels stuck. select-none stops a
+            // drag from smearing a text selection across the card it's moving.
+            // pb clears the deepest buried layer (MAX_DEPTH * DEPTH_Y).
+            className="mx-auto grid w-[82vw] touch-pan-y pt-10 pb-14 outline-none select-none"
           >
-            {features.map((f) => (
-              <div key={f.titleKey} className="w-full shrink-0 snap-center" />
+            {features.map((f, i) => (
+              <StackCard key={f.titleKey} progress={progress} index={i} travel={travel}>
+                {/* animateIn off: these arrive under the user's finger, so the
+                    staggered fade-up would just delay the card being dragged in.
+                    live only on top: buried scenes freeze on one static frame. */}
+                <FeatureCard
+                  icon={f.icon}
+                  title={t(f.titleKey)}
+                  description={t(f.descriptionKey)}
+                  gradient={f.gradient}
+                  index={i}
+                  illustration={f.illustration}
+                  animateIn={false}
+                  live={i === active}
+                />
+              </StackCard>
             ))}
           </div>
         </div>
 
-        {/* Dot indicators — highlight the active card as the user swipes */}
-        <div className="mt-6 flex justify-center gap-2">
+        {/* Dots double as jump targets, so the stack is reachable without a
+            swipe (and by keyboard via the stage's arrow keys). */}
+        <div className="mt-4 flex justify-center gap-2">
           {features.map((f, i) => (
-            <span
+            <button
               key={f.titleKey}
-              ref={(el) => {
-                dotRefs.current[i] = el;
-              }}
-              className="h-1.5 w-1.5 rounded-full bg-white/40"
+              type="button"
+              onClick={() => goTo(i)}
+              aria-label={t(f.titleKey)}
+              aria-current={i === active}
+              // Colour-only active state, no scale: a transform paints outside
+              // the dot's own box, and an ancestor overflow-clip shaves that
+              // overflow off. Same box for every dot means nothing to crop.
+              className={cn(
+                "h-1.5 w-1.5 rounded-full transition-colors duration-300",
+                i === active ? "bg-ink" : "bg-ink/30"
+              )}
             />
           ))}
         </div>
