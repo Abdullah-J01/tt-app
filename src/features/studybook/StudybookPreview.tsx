@@ -198,7 +198,11 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     >
       <div
         ref={cardRef}
-        className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
+        // touch-none, like the reader: without it the browser claims a vertical
+        // drag as a pan/overscroll and cancels the gesture, so the swipe never
+        // lands. Safe here because the slide content is absolutely positioned
+        // and never needs to scroll.
+        className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md touch-none overflow-hidden text-white select-none md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cards. Both copies stay transparent, so only the content travels and

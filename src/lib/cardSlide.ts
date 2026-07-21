@@ -109,6 +109,21 @@ function useLatest<T>(value: T) {
  * actually travelled furthest along (so it works the same in portrait and
  * landscape, and under the horizontal desktop transition).
  *
+ * Built on Pointer events, not Touch events, which is the load-bearing choice
+ * here. Touch events are the fragile path: the browser can decide mid-drag that
+ * a gesture is really a pan or an overscroll, claim it, and fire `touchcancel`
+ * with no `touchend` — an end-driven swipe then silently does nothing, and it
+ * fails differently across iOS Safari, Android Chrome and DevTools emulation.
+ * Pointer events are one code path for touch, pen and mouse, so the same drag
+ * also works with a mouse on desktop.
+ *
+ * Two things this relies on:
+ * - The element needs `touch-action: none` (`touch-none`), or the browser
+ *   consumes the drag as scrolling and stops sending `pointermove`. Both screens
+ *   set it; a new caller that forgets will see no swipe at all.
+ * - It fires the moment the threshold is crossed, not on release, so navigation
+ *   feels immediate and never depends on a clean end event arriving.
+ *
  * `enabled` exists because a ref can't announce that its element mounted. When
  * the target renders conditionally — a closed overlay renders `null` — the first
  * effect run finds `ref.current === null` and binds nothing, and nothing re-runs
@@ -127,30 +142,42 @@ export function useSwipeNav(
   useEffect(() => {
     const el = ref.current;
     if (!enabled || !el) return;
-    let start: { x: number; y: number } | null = null;
+    let start: { x: number; y: number; id: number } | null = null;
+    /** One card per gesture: further movement is ignored until the pointer lifts. */
+    let fired = false;
 
-    function onStart(e: TouchEvent) {
-      const t = e.touches[0];
-      start = t ? { x: t.clientX, y: t.clientY } : null;
+    function onDown(e: PointerEvent) {
+      // Left button only for mouse; right/middle drags aren't navigation.
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      fired = false;
     }
-    function onEnd(e: TouchEvent) {
-      if (!start) return;
-      const t = e.changedTouches[0];
-      const dx = start.x - (t?.clientX ?? start.x);
-      const dy = start.y - (t?.clientY ?? start.y);
-      start = null;
+    function onMove(e: PointerEvent) {
+      if (!start || fired || e.pointerId !== start.id) return;
+      const dx = start.x - e.clientX;
+      const dy = start.y - e.clientY;
       // Dominant axis wins, so a slightly diagonal swipe still reads as one.
       const delta = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
       if (Math.abs(delta) < SWIPE_MIN) return;
+      fired = true;
       if (delta > 0) next.current();
       else prev.current();
     }
+    function onUp() {
+      start = null;
+      fired = false;
+    }
 
-    el.addEventListener("touchstart", onStart, { passive: true });
-    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    // Without this a cancelled gesture leaves a stale start point behind.
+    el.addEventListener("pointercancel", onUp);
     return () => {
-      el.removeEventListener("touchstart", onStart);
-      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
     };
   }, [ref, enabled, next, prev]);
 }
