@@ -9,7 +9,14 @@ import { ArrowLeft, Bookmark, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
 import { SlideControls } from "@/components/ui/SlideControls";
-import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
+import {
+  LOCK_MS,
+  transitionPair,
+  useCardTurn,
+  useSlideAxis,
+  useSwipeNav,
+  useWheelNav,
+} from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
 import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
@@ -109,40 +116,8 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     else router.push(`/studybook/${book.slug}`);
   }, [router, book.slug]);
 
-  // Wheel (desktop). Deltas accumulate per gesture (a pause resets them), so a
-  // mouse-wheel notch advances instantly while trackpad momentum can't fire a
-  // second advance right after the lock releases.
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    let accum = 0;
-    let reset: number | undefined;
-    function onWheel(e: WheelEvent) {
-      e.preventDefault();
-      window.clearTimeout(reset);
-      reset = window.setTimeout(() => {
-        accum = 0;
-      }, 150);
-      if (lockRef.current) {
-        // Mid-transition momentum shouldn't queue another advance.
-        accum = 0;
-        return;
-      }
-      accum += e.deltaY;
-      if (Math.abs(accum) < 40) return;
-      const delta = accum;
-      accum = 0;
-      if (delta > 0) goNext();
-      else goPrev();
-    }
-    el.addEventListener("wheel", onWheel, { passive: false });
-    return () => {
-      el.removeEventListener("wheel", onWheel);
-      window.clearTimeout(reset);
-    };
-  }, [goNext, goPrev]);
-
-  // Touch (mobile/tablet)
+  // Wheel (desktop) + touch (mobile/tablet), shared with StudybookPreview.
+  useWheelNav(containerRef, goNext, goPrev, { isLocked: () => lockRef.current });
   useSwipeNav(containerRef, goNext, goPrev);
 
   // Keyboard

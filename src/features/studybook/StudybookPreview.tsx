@@ -9,7 +9,14 @@ import { useCurrentLocale, localizeHref } from "@/i18n/Link";
 import { useAuthGuard } from "@/components/auth/useAuthGuard";
 import { Button } from "@/components/ui/Button";
 import { SlideControls } from "@/components/ui/SlideControls";
-import { LOCK_MS, transitionPair, useCardTurn, useSlideAxis, useSwipeNav } from "@/lib/cardSlide";
+import {
+  LOCK_MS,
+  transitionPair,
+  useCardTurn,
+  useSlideAxis,
+  useSwipeNav,
+  useWheelNav,
+} from "@/lib/cardSlide";
 import { cn } from "@/lib/utils";
 import { FREE_PREVIEW_CARDS, isFreeBook } from "./freePreview";
 import type { Studybook } from "@/types";
@@ -64,7 +71,10 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const goNext = useCallback(() => go(index + 1), [go, index]);
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
-  useSwipeNav(cardRef, goNext, goPrev);
+  // `open` gates both: the card only exists while the overlay is rendered, and a
+  // ref can't announce that it mounted (see useSwipeNav).
+  useSwipeNav(cardRef, goNext, goPrev, open);
+  useWheelNav(cardRef, goNext, goPrev, { enabled: open, isLocked: () => lockRef.current });
 
   const close = useCallback(() => {
     // Opening pushed a ?preview history entry — pop it so Back returns to the
@@ -189,7 +199,11 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     >
       <div
         ref={cardRef}
-        className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md overflow-hidden text-white md:h-[80vh] md:max-h-[720px]"
+        // touch-none, like the reader: without it the browser claims a vertical
+        // drag as a pan/overscroll and cancels the gesture, so the swipe never
+        // lands. Safe here because the slide content is absolutely positioned
+        // and never needs to scroll.
+        className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md touch-none overflow-hidden text-white select-none md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Cards. Both copies stay transparent, so only the content travels and

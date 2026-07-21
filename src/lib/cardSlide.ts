@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { useMediaQuery } from "./useMediaQuery";
 
 /**
@@ -16,6 +16,8 @@ import { useMediaQuery } from "./useMediaQuery";
 
 /** Shortest touch drag that counts as a swipe, in px. */
 const SWIPE_MIN = 45;
+/** Accumulated wheel delta that counts as one gesture. */
+const WHEEL_MIN = 40;
 /** How long navigation stays locked after a transition, so one gesture = one card. */
 export const LOCK_MS = 500;
 
@@ -90,37 +92,144 @@ export function useCardTurn() {
 }
 
 /**
- * Vertical swipe on `ref`: up → next, down → prev. Pass stable (useCallback'd)
- * handlers — they're effect deps, so fresh ones rebind the listeners each render.
+ * Keeps the newest handlers reachable from listeners bound once, so navigation
+ * callbacks never appear in an effect's deps. They otherwise decide *when* the
+ * listeners bind, which is a trap for overlays — see `enabled` below.
+ */
+function useLatest<T>(value: T) {
+  const ref = useRef(value);
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref;
+}
+
+/**
+ * Swipe on `ref`: up/left → next, down/right → prev, whichever axis the finger
+ * actually travelled furthest along (so it works the same in portrait and
+ * landscape, and under the horizontal desktop transition).
+ *
+ * Built on Pointer events, not Touch events, which is the load-bearing choice
+ * here. Touch events are the fragile path: the browser can decide mid-drag that
+ * a gesture is really a pan or an overscroll, claim it, and fire `touchcancel`
+ * with no `touchend` — an end-driven swipe then silently does nothing, and it
+ * fails differently across iOS Safari, Android Chrome and DevTools emulation.
+ * Pointer events are one code path for touch, pen and mouse, so the same drag
+ * also works with a mouse on desktop.
+ *
+ * Two things this relies on:
+ * - The element needs `touch-action: none` (`touch-none`), or the browser
+ *   consumes the drag as scrolling and stops sending `pointermove`. Both screens
+ *   set it; a new caller that forgets will see no swipe at all.
+ * - It fires the moment the threshold is crossed, not on release, so navigation
+ *   feels immediate and never depends on a clean end event arriving.
+ *
+ * `enabled` exists because a ref can't announce that its element mounted. When
+ * the target renders conditionally — a closed overlay renders `null` — the first
+ * effect run finds `ref.current === null` and binds nothing, and nothing re-runs
+ * it once the element appears. Pass the same condition that renders the element
+ * (e.g. StudybookPreview's `open`) so binding happens on the commit that mounts it.
  */
 export function useSwipeNav(
   ref: RefObject<HTMLElement | null>,
   onNext: () => void,
   onPrev: () => void,
+  enabled = true,
 ) {
+  const next = useLatest(onNext);
+  const prev = useLatest(onPrev);
+
   useEffect(() => {
     const el = ref.current;
-    if (!el) return;
-    let startY: number | null = null;
+    if (!enabled || !el) return;
+    let start: { x: number; y: number; id: number } | null = null;
+    /** One card per gesture: further movement is ignored until the pointer lifts. */
+    let fired = false;
 
-    function onStart(e: TouchEvent) {
-      startY = e.touches[0]?.clientY ?? null;
+    function onDown(e: PointerEvent) {
+      // Left button only for mouse; right/middle drags aren't navigation.
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      fired = false;
     }
-    function onEnd(e: TouchEvent) {
-      if (startY === null) return;
-      const endY = e.changedTouches[0]?.clientY ?? startY;
-      const delta = startY - endY;
-      startY = null;
+    function onMove(e: PointerEvent) {
+      if (!start || fired || e.pointerId !== start.id) return;
+      const dx = start.x - e.clientX;
+      const dy = start.y - e.clientY;
+      // Dominant axis wins, so a slightly diagonal swipe still reads as one.
+      const delta = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
       if (Math.abs(delta) < SWIPE_MIN) return;
-      if (delta > 0) onNext();
-      else onPrev();
+      fired = true;
+      if (delta > 0) next.current();
+      else prev.current();
+    }
+    function onUp() {
+      start = null;
+      fired = false;
     }
 
-    el.addEventListener("touchstart", onStart, { passive: true });
-    el.addEventListener("touchend", onEnd, { passive: true });
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    // Without this a cancelled gesture leaves a stale start point behind.
+    el.addEventListener("pointercancel", onUp);
     return () => {
-      el.removeEventListener("touchstart", onStart);
-      el.removeEventListener("touchend", onEnd);
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onUp);
     };
-  }, [ref, onNext, onPrev]);
+  }, [ref, enabled, next, prev]);
+}
+
+/**
+ * Wheel / trackpad nav on `ref` — the desktop counterpart to `useSwipeNav`, and
+ * the reason both screens navigate identically on a laptop.
+ *
+ * Deltas accumulate per gesture (a pause resets them), so a mouse-wheel notch
+ * advances instantly while trackpad momentum can't fire a second advance right
+ * after the lock releases. `isLocked` reports the caller's in-flight lock so
+ * momentum arriving mid-transition is dropped rather than queued. `enabled`
+ * behaves exactly as in `useSwipeNav`.
+ */
+export function useWheelNav(
+  ref: RefObject<HTMLElement | null>,
+  onNext: () => void,
+  onPrev: () => void,
+  { enabled = true, isLocked }: { enabled?: boolean; isLocked?: () => boolean } = {},
+) {
+  const next = useLatest(onNext);
+  const prev = useLatest(onPrev);
+  const locked = useLatest(isLocked);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!enabled || !el) return;
+    let accum = 0;
+    let reset: number | undefined;
+
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      window.clearTimeout(reset);
+      reset = window.setTimeout(() => {
+        accum = 0;
+      }, 150);
+      if (locked.current?.()) {
+        accum = 0;
+        return;
+      }
+      accum += e.deltaY;
+      if (Math.abs(accum) < WHEEL_MIN) return;
+      const delta = accum;
+      accum = 0;
+      if (delta > 0) next.current();
+      else prev.current();
+    }
+
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      window.clearTimeout(reset);
+    };
+  }, [ref, enabled, next, prev, locked]);
 }
