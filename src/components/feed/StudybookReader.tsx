@@ -218,16 +218,22 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     else router.push(`/studybook/${book.slug}`);
   }, [router, book.slug]);
 
-  // Wheel (desktop) + touch (mobile/tablet), shared with StudybookPreview —
-  // cards only. Chapter navigation is the picker below, not a gesture: a click
-  // sets state directly, so there's nothing left for a swipe to disagree with.
-  // Both pause while the picker is open so a tap/scroll inside it can't also
-  // read as a card swipe.
+  // Desktop (lg+, same cutoff as useSlideAxis) moves cards ONLY via the
+  // SlideControls chevrons — wheel/trackpad and click-drag are both off there,
+  // so scrolling the page or grabbing the card with a mouse can't accidentally
+  // flip a card. Below `lg`, swipe is the only gesture and it's vertical-only:
+  // horizontal is reserved for the chapter picker, so a left/right swipe over a
+  // card does nothing rather than doubling as "next card". Both also pause
+  // while the picker is open so a tap/scroll inside it can't read as a swipe.
+  const isDesktop = axis === "x";
   useWheelNav(containerRef, goNext, goPrev, {
-    enabled: !chapterMenuOpen,
+    enabled: !isDesktop && !chapterMenuOpen,
     isLocked: () => lockRef.current,
   });
-  useSwipeNav(containerRef, goNext, goPrev, { enabled: !chapterMenuOpen });
+  useSwipeNav(containerRef, goNext, goPrev, {
+    enabled: !isDesktop && !chapterMenuOpen,
+    verticalOnly: true,
+  });
 
   // Keyboard: Up/Down (and Space/PageUp/PageDown) walk the cards; Escape closes
   // the chapter picker when it's open.

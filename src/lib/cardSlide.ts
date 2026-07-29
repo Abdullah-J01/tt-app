@@ -125,18 +125,20 @@ export interface SwipeNavOptions {
    */
   enabled?: boolean;
   /**
-   * Horizontal swipes, when the two axes mean different things: left → `onNext`,
-   * right → `onPrev`. The reader uses this for chapters (vertical stays cards).
-   * Omit and horizontal falls back to the vertical handlers, which is what a
-   * single-axis slideshow wants.
+   * Ignore a horizontal-dominant drag entirely instead of treating it the same
+   * as vertical. Off by default (either axis fires, whichever the finger moved
+   * furthest along) — that's what a single-axis slideshow like StudybookPreview
+   * wants. The reader turns this on: horizontal is reserved (chapter picker),
+   * so a left/right swipe over a card should do nothing rather than double as
+   * "next card".
    */
-  horizontal?: { onNext: () => void; onPrev: () => void };
+  verticalOnly?: boolean;
 }
 
 /**
- * Swipe on `ref`: up → next, down → prev, and left/right the same unless
- * `horizontal` gives that axis its own meaning. The dominant axis wins, so a
- * slightly diagonal swipe still reads as one, in portrait and landscape alike.
+ * Swipe on `ref`: up → next, down → prev, and left/right the same UNLESS
+ * `verticalOnly` says to ignore them. The dominant axis wins, so a slightly
+ * diagonal swipe still reads as one, in portrait and landscape alike.
  *
  * Built on Pointer events, not Touch events, which is the load-bearing choice
  * here. Touch events are the fragile path: the browser can decide mid-drag that
@@ -157,11 +159,10 @@ export function useSwipeNav(
   ref: RefObject<HTMLElement | null>,
   onNext: () => void,
   onPrev: () => void,
-  { enabled = true, horizontal }: SwipeNavOptions = {},
+  { enabled = true, verticalOnly = false }: SwipeNavOptions = {},
 ) {
   const next = useLatest(onNext);
   const prev = useLatest(onPrev);
-  const sideways = useLatest(horizontal);
 
   useEffect(() => {
     const el = ref.current;
@@ -182,13 +183,12 @@ export function useSwipeNav(
       const dy = start.y - e.clientY;
       // Dominant axis wins, so a slightly diagonal swipe still reads as one.
       const vertical = Math.abs(dy) >= Math.abs(dx);
+      if (!vertical && verticalOnly) return;
       const delta = vertical ? dy : dx;
       if (Math.abs(delta) < SWIPE_MIN) return;
       fired = true;
-      // Positive delta is up (vertical) or left (horizontal) — both "forward".
-      const handlers = vertical ? null : sideways.current;
-      if (delta > 0) (handlers?.onNext ?? next.current)();
-      else (handlers?.onPrev ?? prev.current)();
+      if (delta > 0) next.current();
+      else prev.current();
     }
     function onUp() {
       start = null;
@@ -206,7 +206,7 @@ export function useSwipeNav(
       el.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointercancel", onUp);
     };
-  }, [ref, enabled, next, prev, sideways]);
+  }, [ref, enabled, verticalOnly, next, prev]);
 }
 
 /**
