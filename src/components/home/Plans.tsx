@@ -661,6 +661,10 @@ export default function PremiumPlansPage() {
   // The action to re-run when the user taps "Try again" in the error modal.
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const subStatus = useSubscriptionStatus();
+  const hasActivePaidPlan =
+    "planId" in subStatus &&
+    subStatus.planId !== null &&
+    (subStatus.status === "trialing" || subStatus.status === "active");
 
   function reportBillingError(err: unknown, retryFn: () => void) {
     const billingErr =
@@ -975,10 +979,12 @@ export default function PremiumPlansPage() {
               onChoose={() => handleChoosePlan(plan.id)}
               loading={checkingOutPlan === plan.id}
               disabled={checkingOutPlan !== null}
-              isCurrentPaidPlan={
-                "planId" in subStatus &&
-                subStatus.planId === plan.id &&
-                (subStatus.status === "trialing" || subStatus.status === "active")
+              isCurrentPlan={
+                plan.id === "free"
+                  ? !hasActivePaidPlan
+                  : "planId" in subStatus &&
+                    subStatus.planId === plan.id &&
+                    (subStatus.status === "trialing" || subStatus.status === "active")
               }
             />
           </div>
@@ -1080,23 +1086,23 @@ function PricingCard({
   onChoose,
   loading,
   disabled,
-  isCurrentPaidPlan,
+  isCurrentPlan,
 }: {
   plan: Plan;
   cycle: Cycle;
   onChoose: () => void;
   loading: boolean;
   disabled: boolean;
-  isCurrentPaidPlan: boolean;
+  isCurrentPlan: boolean;
 }) {
   const t = useTranslations("components_home_Plans");
   const price = cycle === "monthly" ? plan.monthly : plan.yearly;
   const name = t(plan.name);
 
-  const buttonLabel = isCurrentPaidPlan
+  const buttonLabel = isCurrentPlan
     ? t("currentPlan")
     : plan.id === "free"
-      ? t("currentPlan")
+      ? t("choose", { name })
       : loading
         ? t("redirecting")
         : t("startTrialPlan", { name });
@@ -1208,7 +1214,7 @@ function PricingCard({
       >
         <Button
           onClick={onChoose}
-          disabled={plan.id === "free" || isCurrentPaidPlan || disabled}
+          disabled={plan.id === "free" || isCurrentPlan || disabled}
           className={cn(
             "w-full",
             plan.popular ? "text-violet bg-white hover:bg-white/90" : undefined,
