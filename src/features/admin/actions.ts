@@ -58,13 +58,17 @@ export async function deleteStudybook(slug: string): Promise<AdminActionResult> 
   return { ok: true };
 }
 
-/** Replaces a studybook's bite cards with the given ordered list. */
-export async function saveStudybookCards(slug: string, cards: unknown): Promise<AdminActionResult> {
+/** Replaces one chapter's bite cards with the given ordered list. */
+export async function saveStudybookCards(
+  slug: string,
+  chapterIndex: number,
+  cards: unknown,
+): Promise<AdminActionResult> {
   await requireAdmin();
   const parsed = cardsSchema.safeParse(cards);
   if (!parsed.success) return invalid("Every card needs a heading and body text.");
 
-  const book = await adminSaveCards(slug, parsed.data);
+  const book = await adminSaveCards(slug, chapterIndex, parsed.data);
   if (!book) return invalid("This studybook no longer exists.");
   revalidatePath("/admin", "layout");
   revalidatePath(`/studybook/${slug}`);

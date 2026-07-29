@@ -1,10 +1,19 @@
-import type { Studybook } from "@/types";
+import { CARDS_PER_CHAPTER, flattenChapters } from "./chapters";
+import { seedFrom, synthChapters, type SynthCopy } from "./synthChapters";
+import type { Chapter, StudyCard, Studybook } from "@/types";
+
+/** A seed book: everything except the chapters, plus its hand-written cards. */
+type SeedBook = Omit<Studybook, "chapters" | "cards"> & { cards: StudyCard[] };
 
 /**
  * TEMPORARY mock content so the UI renders before the API/DB exist.
  * Replace all usages with real data fetching (see src/lib/api.ts TODOs).
+ *
+ * These are *seed* books — the hand-written cards below open chapter 1, and the
+ * rest of the book is filled out by the shared generator (see `toStudybook`), so
+ * the offline fallback has the same chapter shape as the live dummy catalog.
  */
-export const MOCK_STUDYBOOKS: Studybook[] = [
+const SEED_STUDYBOOKS: SeedBook[] = [
   {
     id: "sb_1",
     slug: "a-very-serious-snowman-story",
@@ -357,18 +366,70 @@ export const MOCK_STUDYBOOKS: Studybook[] = [
   },
 ];
 
-export function getStudybookBySlug(slug: string): Studybook | undefined {
-  return MOCK_STUDYBOOKS.find((b) => b.slug === slug);
+/**
+ * English copy pools for the offline fallback. The localized catalog builds the
+ * same shape from the `catalog` i18n namespace (src/lib/openlibrary.ts); this
+ * path has no translator, so the copy is inline. Keep the pool sizes in step.
+ */
+const FALLBACK_COPY: SynthCopy = {
+  chapterTitles: [
+    "Getting your bearings",
+    "The core idea",
+    "How it works in practice",
+    "Where it gets tricky",
+    "Putting it together",
+  ],
+  chapterSummaries: [
+    "Start here: the vocabulary and the shape of the problem, before any of the detail.",
+    "One idea does most of the work in this topic. This chapter is that idea, from every angle.",
+    "Worked examples — the same idea applied until it stops feeling like a trick.",
+    "The edge cases that catch people out, and how to spot them coming.",
+    "Everything so far, tied back together and ready to use.",
+  ],
+  headings: [
+    "Start with what you already know",
+    "One idea, one card",
+    "Name it before you solve it",
+    "The shortcut worth memorising",
+    "Where this usually goes wrong",
+    "A worked example",
+    "Why the order matters",
+    "The exception to watch for",
+    "Say it in your own words",
+    "Connect it to yesterday",
+    "The two-minute recap",
+    "Try it on something real",
+  ],
+  sentences: [
+    "The fastest way in is to attach the new idea to something you can already picture.",
+    "Most of the work happens before the first line of the answer.",
+    "If you can restate it without the jargon, you understand it.",
+    "Skip this and everything after it costs twice as much effort.",
+    "It looks like an exception, but it follows the same rule as everything else here.",
+    "Notice what stayed the same — that part is the rule.",
+    "The example is small on purpose: the size never changes the method.",
+    "Once you have seen it three times, it stops looking clever and starts looking obvious.",
+    "This is the step people skip, and the one that decides the answer.",
+    "Write it down before you check — being wrong here is how it sticks.",
+    "Everything in this chapter is a variation on this one move.",
+    "Come back to this card when the later ones stop making sense.",
+  ],
+};
+
+/** Fill a seed book out into a full studybook: 5 chapters, the authored cards first. */
+function toStudybook(seed: SeedBook): Studybook {
+  const { cards: authored, ...book } = seed;
+  const generated = synthChapters(book.id, seedFrom(book.id), FALLBACK_COPY, book.cover);
+  const chapters: Chapter[] = generated.map((chapter, i) =>
+    i === 0
+      ? { ...chapter, cards: [...authored, ...chapter.cards].slice(0, CARDS_PER_CHAPTER) }
+      : chapter,
+  );
+  return { ...book, chapters, cards: flattenChapters(chapters) };
 }
 
-/** Flattened "For You" feed: cards interleaved from multiple studybooks. */
-export function getForYouFeed() {
-  return MOCK_STUDYBOOKS.flatMap((book) =>
-    book.cards.map((card, index) => ({
-      card,
-      book,
-      index,
-      total: book.cards.length,
-    })),
-  );
+export const MOCK_STUDYBOOKS: Studybook[] = SEED_STUDYBOOKS.map(toStudybook);
+
+export function getStudybookBySlug(slug: string): Studybook | undefined {
+  return MOCK_STUDYBOOKS.find((b) => b.slug === slug);
 }

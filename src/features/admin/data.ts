@@ -8,6 +8,7 @@
  * calls and keep these function signatures; pages and actions won't change.
  */
 import { listAllStudybooks } from "@/lib/api";
+import { clampBody, flattenChapters } from "@/lib/chapters";
 import { SUBJECTS, type Subject } from "@/config/subjects";
 import type { Studybook } from "@/types";
 import type { CardInput, StudybookInput } from "./schemas";
@@ -86,7 +87,16 @@ export async function adminCreateStudybook(input: StudybookInput): Promise<Study
   let slug = base;
   for (let n = 2; books.has(slug); n++) slug = `${base}-${n}`;
 
-  const book: Studybook = { id: crypto.randomUUID(), slug, cards: [], ...input };
+  const id = crypto.randomUUID();
+  // New books start with a single empty chapter: the reader, the preview and the
+  // detail page all navigate by chapter, and a book with none has nothing to open.
+  const book: Studybook = {
+    id,
+    slug,
+    chapters: [{ id: `${id}-ch1`, index: 0, title: input.title, summary: "", cards: [] }],
+    cards: [],
+    ...input,
+  };
   books.set(slug, book);
   return book;
 }
@@ -108,19 +118,36 @@ export async function adminDeleteStudybook(slug: string): Promise<boolean> {
   return (await catalog()).delete(slug);
 }
 
-/** Replaces a studybook's cards in the given order; new cards get generated ids. */
+/**
+ * Replaces ONE chapter's cards in the given order; new cards get generated ids.
+ *
+ * Scoped to a chapter on purpose: the editor shows a single chapter at a time, so
+ * saving a flat list would silently drop every other chapter in the book.
+ * `Studybook.cards` is re-derived from the chapters so the two can't drift.
+ */
 export async function adminSaveCards(
   slug: string,
+  chapterIndex: number,
   cards: CardInput[],
 ): Promise<Studybook | undefined> {
   const books = await catalog();
   const existing = books.get(slug);
-  if (!existing) return undefined;
+  if (!existing?.chapters[chapterIndex]) return undefined;
 
-  const updated: Studybook = {
-    ...existing,
-    cards: cards.map((c) => ({ id: c.id ?? crypto.randomUUID(), heading: c.heading, body: c.body })),
-  };
+  const chapters = existing.chapters.map((chapter, i) =>
+    i === chapterIndex
+      ? {
+          ...chapter,
+          cards: cards.map((c) => ({
+            id: c.id ?? crypto.randomUUID(),
+            heading: c.heading,
+            body: clampBody(c.body),
+          })),
+        }
+      : chapter,
+  );
+
+  const updated: Studybook = { ...existing, chapters, cards: flattenChapters(chapters) };
   books.set(slug, updated);
   return updated;
 }

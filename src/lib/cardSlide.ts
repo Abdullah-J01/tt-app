@@ -43,6 +43,17 @@ export function transitionPair(axis: "x" | "y", dir: number): TransitionPair {
 }
 
 /**
+ * Chapter changes, unlike card changes, are ALWAYS horizontal — they're driven by
+ * a horizontal swipe at every breakpoint, and the longer travel is what stops a
+ * chapter jump reading as "just another card" on desktop, where cards already
+ * slide sideways.
+ */
+export function chapterPair(dir: number): TransitionPair {
+  const way = dir > 0 ? "left" : "right";
+  return { outgoing: `anim-chapter-out-${way}`, incoming: `anim-chapter-in-${way}` };
+}
+
+/**
  * Cards travel sideways on desktop, to agree with the Prev/Next chevrons, and
  * vertically on touch, to follow the swipe. Mirrors the `lg:` breakpoint at
  * which SlideControls swaps the hint for the chevrons.
@@ -104,10 +115,28 @@ function useLatest<T>(value: T) {
   return ref;
 }
 
+export interface SwipeNavOptions {
+  /**
+   * Same trap as `useWheelNav`'s: a ref can't announce that its element mounted.
+   * When the target renders conditionally — a closed overlay renders `null` — the
+   * first effect run finds `ref.current === null` and binds nothing, and nothing
+   * re-runs it once the element appears. Pass the same condition that renders the
+   * element (e.g. StudybookPreview's `open`).
+   */
+  enabled?: boolean;
+  /**
+   * Horizontal swipes, when the two axes mean different things: left → `onNext`,
+   * right → `onPrev`. The reader uses this for chapters (vertical stays cards).
+   * Omit and horizontal falls back to the vertical handlers, which is what a
+   * single-axis slideshow wants.
+   */
+  horizontal?: { onNext: () => void; onPrev: () => void };
+}
+
 /**
- * Swipe on `ref`: up/left → next, down/right → prev, whichever axis the finger
- * actually travelled furthest along (so it works the same in portrait and
- * landscape, and under the horizontal desktop transition).
+ * Swipe on `ref`: up → next, down → prev, and left/right the same unless
+ * `horizontal` gives that axis its own meaning. The dominant axis wins, so a
+ * slightly diagonal swipe still reads as one, in portrait and landscape alike.
  *
  * Built on Pointer events, not Touch events, which is the load-bearing choice
  * here. Touch events are the fragile path: the browser can decide mid-drag that
@@ -123,21 +152,16 @@ function useLatest<T>(value: T) {
  *   set it; a new caller that forgets will see no swipe at all.
  * - It fires the moment the threshold is crossed, not on release, so navigation
  *   feels immediate and never depends on a clean end event arriving.
- *
- * `enabled` exists because a ref can't announce that its element mounted. When
- * the target renders conditionally — a closed overlay renders `null` — the first
- * effect run finds `ref.current === null` and binds nothing, and nothing re-runs
- * it once the element appears. Pass the same condition that renders the element
- * (e.g. StudybookPreview's `open`) so binding happens on the commit that mounts it.
  */
 export function useSwipeNav(
   ref: RefObject<HTMLElement | null>,
   onNext: () => void,
   onPrev: () => void,
-  enabled = true,
+  { enabled = true, horizontal }: SwipeNavOptions = {},
 ) {
   const next = useLatest(onNext);
   const prev = useLatest(onPrev);
+  const sideways = useLatest(horizontal);
 
   useEffect(() => {
     const el = ref.current;
@@ -157,11 +181,14 @@ export function useSwipeNav(
       const dx = start.x - e.clientX;
       const dy = start.y - e.clientY;
       // Dominant axis wins, so a slightly diagonal swipe still reads as one.
-      const delta = Math.abs(dy) >= Math.abs(dx) ? dy : dx;
+      const vertical = Math.abs(dy) >= Math.abs(dx);
+      const delta = vertical ? dy : dx;
       if (Math.abs(delta) < SWIPE_MIN) return;
       fired = true;
-      if (delta > 0) next.current();
-      else prev.current();
+      // Positive delta is up (vertical) or left (horizontal) — both "forward".
+      const handlers = vertical ? null : sideways.current;
+      if (delta > 0) (handlers?.onNext ?? next.current)();
+      else (handlers?.onPrev ?? prev.current)();
     }
     function onUp() {
       start = null;
@@ -179,7 +206,7 @@ export function useSwipeNav(
       el.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointercancel", onUp);
     };
-  }, [ref, enabled, next, prev]);
+  }, [ref, enabled, next, prev, sideways]);
 }
 
 /**

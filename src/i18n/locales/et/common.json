@@ -203,11 +203,9 @@
     "breadcrumb": "Õpik",
     "bookCover": "raamatu kaas",
     "byAuthor": "autor {author} · {year}",
-    "cardsMinutes": "{count} kaarti · ~{minutes} min",
     "startLearning": "Alusta õppimist",
     "preview": "Eelvaade",
     "aboutTitle": "Selle õpiku kohta",
-    "cardsPreview": "Kaartide eelvaade",
     "all": "Kõik {count}",
     "youMayAlsoLike": "Sulle võib meeldida ka",
     "more": "Rohkem",
@@ -215,7 +213,10 @@
     "free": "Tasuta",
     "preschool": "Koolieelne",
     "gymnasium": "Gümnaasium",
-    "grade": "{grade}. klass"
+    "grade": "{grade}. klass",
+    "chapters": "Peatükid",
+    "chaptersMinutes": "{chapters} peatükki · {cards} kaarti · ~{minutes} min",
+    "chapterCards": "{count, plural, one {# kaart} other {# kaarti}}"
   },
   "components_account_LogoutButton": {
     "logOut": "Logi välja"
@@ -353,7 +354,15 @@
     "swipeHint": "Pühi üles · järgmine kaart",
     "saved": "Salvestatud",
     "save": "Salvesta",
-    "loginToContinue": "Logi sisse, et edasi lugeda"
+    "loginToContinue": "Logi sisse, et edasi lugeda",
+    "chapterProgress": "Peatükk {current}/{total}",
+    "chapterOf": "Peatükk {current}/{total}: {title}",
+    "nextChapter": "Järgmine peatükk",
+    "nextChapterHint": "Järgmine peatükk · {title}",
+    "finishHint": "Viimane kaart · lõpeta",
+    "finish": "Lõpeta õpik",
+    "chapters": "Peatükid",
+    "chapterCards": "{count, plural, one {# kaart} other {# kaarti}}"
   },
   "components_home_AnimatedFeed": {
     "didYouKnow": "Kas teadsid",
@@ -643,7 +652,7 @@
   "features_admin_components_CardEditor": {
     "cardsAriaLabel": "Killukaardid",
     "title": "Killukaardid ({count})",
-    "subtitle": "Selle õpiku libistatavad voo kaardid lugemise järjekorras.",
+    "subtitle": "Selle peatüki libistatavad kaardid lugemisjärjekorras.",
     "addCard": "Lisa kaart",
     "emptyTitle": "Kaarte pole veel",
     "emptyBody": "Lisa esimene killukaart — üherealine mõte koos paari toetava reaga.",
@@ -659,7 +668,10 @@
     "saved": "Salvestatud",
     "unsavedChanges": "Salvestamata muudatused",
     "validationError": "Iga kaart vajab pealkirja ja sisuteksti.",
-    "genericError": "Midagi läks valesti — proovi uuesti."
+    "genericError": "Midagi läks valesti — proovi uuesti.",
+    "chapterLabel": "Peatükk",
+    "chapterOption": "{number}. {title} ({count})",
+    "chapterLocked": "Peatüki vahetamiseks salvesta või laadi leht uuesti"
   },
   "features_admin_components_StudybookFilters": {
     "filterBySubject": "Filtreeri aine järgi",
@@ -1035,16 +1047,17 @@
     "previewOf": "Raamatu {title} eelvaade",
     "closePreview": "Sulge eelvaade",
     "slideOf": "Slaid {current} / {total}",
-    "categoryPreview": "{category} · Eelvaade",
-    "moreCardsInside": "{count, plural, one {veel # kaart peidus} other {veel # kaarti peidus}}",
-    "previewEnd": "See oli eelvaade",
     "unlockPrice": "Ava kogu õpiraamat hinnaga €{price}.",
     "keepGoing": "Jätka täisvaates lugejas.",
     "startLearning": "Alusta õppimist",
-    "previousCard": "Eelmine kaart",
-    "nextCard": "Järgmine kaart",
-    "swipeHint": "Pühi üles · järgmine kaart",
-    "loginToLearn": "Õppimise alustamiseks logi sisse"
+    "loginToLearn": "Õppimise alustamiseks logi sisse",
+    "chapterLabel": "Peatükk {current}/{total}",
+    "chapterCards": "{count, plural, one {# kaart} other {# kaarti}}",
+    "chaptersInside": "Sees {chapters, plural, one {# peatükk} other {# peatükki}} · {cards, plural, one {# kaart} other {# kaarti}}",
+    "previousChapter": "Eelmine peatükk",
+    "nextChapter": "Järgmine peatükk",
+    "swipeChapterHint": "Libista üles · järgmine peatükk",
+    "startChapter": "Alusta seda peatükki"
   },
   "app_marketing_about_page": {
     "eyebrow": "StudyBooksist",
@@ -1317,15 +1330,45 @@
     },
     "synopsis": "Ampsusuurune {subject} õpik, mille aluseks on „{title}“ — lühikesed kaardid, mille jõuab läbida tundide vahel.",
     "synopsisPlain": "Ampsusuurune õpik, mille aluseks on „{title}“ — lühikesed kaardid, mille jõuab läbida tundide vahel.",
-    "card": {
-      "bigIdeaHeading": "„{title}“ suur idee",
-      "bigIdeaBody": "Kiire sissejuhatus ainesse {subject}: üks põhiidee raamatust „{title}“, pakitud ühte ampsu, mille tõesti meelde jätad.",
-      "rememberHeading": "Üks asi, mida tasub meeles pidada",
-      "rememberBody": "Suurem osa ainest {subject} tugineb mõnele lihtsale ideele. See kaart toob välja selle, mis teeb siin kõige raskema töö.",
-      "mattersHeading": "Miks see oluline on",
-      "mattersBody": "Kus see päriselus esile kerkib — ja miks tasub need kaks minutit õppimiseks kulutada."
+    "unknownAuthor": "Tundmatu autor",
+    "chapter": {
+      "title1": "Orienteeru teemas",
+      "title2": "Põhiidee",
+      "title3": "Kuidas see praktikas töötab",
+      "title4": "Kus läheb keeruliseks",
+      "title5": "Paneme kokku",
+      "summary1": "Alusta siit: sõnavara ja aine {subject} üldpilt, enne igasugust detaili.",
+      "summary2": "Üks idee teeb raamatus „{title}“ suurema osa tööst. See peatükk ongi see idee, igast küljest.",
+      "summary3": "Läbitöötatud näited — sama idee, kuni see enam trikki ei meenuta.",
+      "summary4": "Erijuhud, mis inimesi lõksu püüavad, ja kuidas neid ette näha.",
+      "summary5": "Kõik seni õpitu kokku seotud ja kasutusvalmis."
     },
-    "unknownAuthor": "Tundmatu autor"
+    "bite": {
+      "h1": "Alusta sellest, mida juba tead",
+      "h2": "Üks idee, üks kaart",
+      "h3": "Nimeta see enne lahendamist",
+      "h4": "Otsetee, mida tasub meelde jätta",
+      "h5": "Kus see tavaliselt valesti läheb",
+      "h6": "Läbitöötatud näide",
+      "h7": "Miks järjekord loeb",
+      "h8": "Erand, mida tasub jälgida",
+      "h9": "Ütle see oma sõnadega",
+      "h10": "Seo see eilsega",
+      "h11": "Kaheminutiline kokkuvõte",
+      "h12": "Proovi seda millegi päris peal",
+      "s1": "Kiireim sissepääs ainesse {subject} on siduda uus mõte millegagi, mida oskad juba ette kujutada.",
+      "s2": "Suurem osa tööst toimub enne vastuse esimest rida.",
+      "s3": "Kui oskad seda ilma erialakeeleta ümber sõnastada, siis sa mõistad seda.",
+      "s4": "Jäta see vahele ja kõik järgnev nõuab kaks korda rohkem pingutust.",
+      "s5": "See näeb välja nagu erand, aga järgib sama reeglit mis kõik muu siin.",
+      "s6": "Pane tähele, mis jäi samaks — just see ongi reegel.",
+      "s7": "Näide on meelega väike: suurus ei muuda kunagi meetodit.",
+      "s8": "Kui oled seda kolm korda näinud, ei tundu see enam nutikas, vaid ilmselge.",
+      "s9": "Just selle sammu jätavad inimesed vahele ja just see otsustab vastuse.",
+      "s10": "Kirjuta see üles enne kontrollimist — eksimine on see, mis meelde jätab.",
+      "s11": "Kõik selles peatükis on variatsioon sellest ühest käigust.",
+      "s12": "Tule selle kaardi juurde tagasi, kui hilisemad enam mõtet ei anna."
+    }
   },
   "components_auth_LoginRequired": {
     "title": "Jätkamiseks logi sisse",

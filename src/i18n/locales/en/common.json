@@ -203,11 +203,9 @@
     "breadcrumb": "Studybook",
     "bookCover": "book cover",
     "byAuthor": "by {author} · {year}",
-    "cardsMinutes": "{count} cards · ~{minutes} min",
     "startLearning": "Start learning",
     "preview": "Preview",
     "aboutTitle": "About this studybook",
-    "cardsPreview": "Cards preview",
     "all": "All {count}",
     "youMayAlsoLike": "You may also like",
     "more": "More",
@@ -215,7 +213,10 @@
     "free": "Free",
     "preschool": "Preschool",
     "gymnasium": "Gymnasium",
-    "grade": "Grade {grade}"
+    "grade": "Grade {grade}",
+    "chapters": "Chapters",
+    "chaptersMinutes": "{chapters} chapters · {cards} cards · ~{minutes} min",
+    "chapterCards": "{count, plural, one {# card} other {# cards}}"
   },
   "components_account_LogoutButton": {
     "logOut": "Log out"
@@ -347,13 +348,21 @@
   },
   "components_feed_StudybookReader": {
     "backToStudybook": "Back to studybook",
-    "cardProgress": "Card {current} of {total}",
+    "cardProgress": "Card {current}/{total}",
     "previousCard": "Previous card",
     "nextCard": "Next card",
     "swipeHint": "Swipe up · next card",
     "saved": "Saved",
     "save": "Save",
-    "loginToContinue": "Log in to keep reading"
+    "loginToContinue": "Log in to keep reading",
+    "chapterProgress": "Chapter {current}/{total}",
+    "chapterOf": "Chapter {current} of {total}: {title}",
+    "nextChapter": "Next chapter",
+    "nextChapterHint": "Next chapter · {title}",
+    "finishHint": "Last card · finish",
+    "finish": "Finish studybook",
+    "chapters": "Chapters",
+    "chapterCards": "{count, plural, one {# card} other {# cards}}"
   },
   "components_home_AnimatedFeed": {
     "didYouKnow": "Did you know",
@@ -643,7 +652,7 @@
   "features_admin_components_CardEditor": {
     "cardsAriaLabel": "Bite cards",
     "title": "Bite cards ({count})",
-    "subtitle": "The swipeable feed cards for this studybook, in reading order.",
+    "subtitle": "The swipeable feed cards for this chapter, in reading order.",
     "addCard": "Add card",
     "emptyTitle": "No cards yet",
     "emptyBody": "Add the first bite card — a one-line insight with a few supporting lines.",
@@ -659,7 +668,10 @@
     "saved": "Saved",
     "unsavedChanges": "Unsaved changes",
     "validationError": "Every card needs a heading and body text.",
-    "genericError": "Something went wrong — try again."
+    "genericError": "Something went wrong — try again.",
+    "chapterLabel": "Chapter",
+    "chapterOption": "{number}. {title} ({count})",
+    "chapterLocked": "Save or reload to switch chapter"
   },
   "features_admin_components_StudybookFilters": {
     "filterBySubject": "Filter by subject",
@@ -1035,16 +1047,17 @@
     "previewOf": "Preview of {title}",
     "closePreview": "Close preview",
     "slideOf": "Slide {current} of {total}",
-    "categoryPreview": "{category} · Preview",
-    "moreCardsInside": "{count, plural, one {# more card inside} other {# more cards inside}}",
-    "previewEnd": "That's the preview",
     "unlockPrice": "Unlock the full studybook for €{price}.",
     "keepGoing": "Keep going in the full reader.",
     "startLearning": "Start learning",
-    "previousCard": "Previous card",
-    "nextCard": "Next card",
-    "swipeHint": "Swipe up · next card",
-    "loginToLearn": "Log in to start learning"
+    "loginToLearn": "Log in to start learning",
+    "chapterLabel": "Chapter {current} of {total}",
+    "chapterCards": "{count, plural, one {# card} other {# cards}}",
+    "chaptersInside": "{chapters, plural, one {# chapter} other {# chapters}} · {cards, plural, one {# card} other {# cards}} inside",
+    "previousChapter": "Previous chapter",
+    "nextChapter": "Next chapter",
+    "swipeChapterHint": "Swipe up · next chapter",
+    "startChapter": "Start this chapter"
   },
   "app_marketing_about_page": {
     "eyebrow": "About StudyBooks",
@@ -1317,15 +1330,45 @@
     },
     "synopsis": "A bite-sized {subject} studybook inspired by \"{title}\" — short cards you can finish between classes.",
     "synopsisPlain": "A bite-sized studybook inspired by \"{title}\" — short cards you can finish between classes.",
-    "card": {
-      "bigIdeaHeading": "The big idea behind {title}",
-      "bigIdeaBody": "A quick way into {subject}: one core idea from {title}, distilled into a single bite you can actually remember.",
-      "rememberHeading": "One thing worth remembering",
-      "rememberBody": "Most of {subject} rests on a few simple ideas. This card pulls out the one that does the heavy lifting here.",
-      "mattersHeading": "Why it matters",
-      "mattersBody": "Where this shows up in the real world — and why it is worth the two minutes it takes to learn."
+    "unknownAuthor": "Unknown author",
+    "chapter": {
+      "title1": "Getting your bearings",
+      "title2": "The core idea",
+      "title3": "How it works in practice",
+      "title4": "Where it gets tricky",
+      "title5": "Putting it together",
+      "summary1": "Start here: the vocabulary and the shape of {subject}, before any of the detail.",
+      "summary2": "One idea does most of the work in “{title}”. This chapter is that idea, from every angle.",
+      "summary3": "Worked examples — the same idea applied until it stops feeling like a trick.",
+      "summary4": "The edge cases that catch people out, and how to spot them coming.",
+      "summary5": "Everything so far, tied back together and ready to use."
     },
-    "unknownAuthor": "Unknown author"
+    "bite": {
+      "h1": "Start with what you already know",
+      "h2": "One idea, one card",
+      "h3": "Name it before you solve it",
+      "h4": "The shortcut worth memorising",
+      "h5": "Where this usually goes wrong",
+      "h6": "A worked example",
+      "h7": "Why the order matters",
+      "h8": "The exception to watch for",
+      "h9": "Say it in your own words",
+      "h10": "Connect it to yesterday",
+      "h11": "The two-minute recap",
+      "h12": "Try it on something real",
+      "s1": "The fastest way into {subject} is to attach the new idea to something you can already picture.",
+      "s2": "Most of the work happens before the first line of the answer.",
+      "s3": "If you can restate it without the jargon, you understand it.",
+      "s4": "Skip this and everything after it costs twice as much effort.",
+      "s5": "It looks like an exception, but it follows the same rule as everything else here.",
+      "s6": "Notice what stayed the same — that part is the rule.",
+      "s7": "The example is small on purpose: the size never changes the method.",
+      "s8": "Once you have seen it three times, it stops looking clever and starts looking obvious.",
+      "s9": "This is the step people skip, and the one that decides the answer.",
+      "s10": "Write it down before you check — being wrong here is how it sticks.",
+      "s11": "Everything in this chapter is a variation on this one move.",
+      "s12": "Come back to this card when the later ones stop making sense."
+    }
   },
   "components_auth_LoginRequired": {
     "title": "Sign in to continue",

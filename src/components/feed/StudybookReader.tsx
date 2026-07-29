@@ -1,30 +1,56 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { ArrowLeft, Bookmark, Zap } from "lucide-react";
+import { ArrowLeft, Bookmark, Check, ChevronDown, Zap } from "lucide-react";
 import { ActionRail } from "./ActionRail";
 import { slugify } from "./feedData";
 import { SlideControls } from "@/components/ui/SlideControls";
 import {
   LOCK_MS,
+  chapterPair,
   transitionPair,
   useCardTurn,
   useSlideAxis,
   useSwipeNav,
   useWheelNav,
 } from "@/lib/cardSlide";
+import { bodyTier, chapterFromParam } from "@/lib/chapters";
 import { cn } from "@/lib/utils";
-import { useSubjectName } from "@/i18n/useSubjectName";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { StreakCompletion } from "@/features/streak";
 import { FREE_PREVIEW_CARDS, isFreeBook } from "@/features/studybook/freePreview";
 import { useAppSelector } from "@/store/hooks";
 import { useAuthModal } from "@/components/auth/useAuthModal";
+import type { BodyTier } from "@/lib/chapters";
 import type { Studybook, StudyCard } from "@/types";
+
+/**
+ * Type scale by body length. A card never scrolls, so instead of one size that
+ * has to survive the longest body, each length gets the size that fills the card:
+ * a one-line bite reads large, a dense one shrinks to fit. Content is generated
+ * (and TT content clamped) inside these budgets — see src/lib/chapters.ts.
+ */
+const TIER_STYLES: Record<BodyTier, { heading: string; body: string; media: string }> = {
+  short: {
+    heading: "text-3xl sm:text-4xl",
+    body: "text-lg leading-relaxed sm:text-xl",
+    media: "h-44 sm:h-48",
+  },
+  medium: {
+    heading: "text-2xl sm:text-3xl",
+    body: "text-base leading-relaxed sm:text-lg",
+    media: "h-36 sm:h-40",
+  },
+  long: {
+    heading: "text-xl sm:text-2xl",
+    body: "text-[15px] leading-relaxed sm:text-base",
+    media: "h-28 sm:h-32",
+  },
+};
 
 /** Library snapshot for the active card — lets the rail's like/save persist. */
 function toEntry(card: StudyCard, book: Studybook): LibraryEntry {
@@ -45,31 +71,77 @@ function toEntry(card: StudyCard, book: Studybook): LibraryEntry {
 
 /**
  * Immersive studybook reader opened from "Start learning" on the detail page.
- * One card at a time on a dark gradient. Navigation matches StudybookPreview —
- * swipe on touch, Prev/Next chevrons on desktop (see @/lib/cardSlide) — plus
- * wheel and arrow keys throughout.
+ * One card at a time on a dark gradient.
+ *
+ * Two axes, two meanings: **vertical** (swipe up/down, wheel, Up/Down keys, the
+ * Prev/Next chevrons) moves through the cards of the open chapter; **horizontal**
+ * (swipe left/right, Left/Right keys) moves between chapters, left being forward.
+ * Running off the end of a chapter with Next rolls into the next one, which is
+ * why the last card advertises it beside the arrow.
+ *
  * The Save/Like/Share rail and the top Save both fire the shared "Saved" toast.
  */
 export default function StudybookReader({ book }: { book: Studybook }) {
   const router = useRouter();
+  const params = useSearchParams();
   const t = useTranslations("components_feed_StudybookReader");
-  const cards = book.cards;
-  const total = cards.length;
+  const chapters = book.chapters;
+  const total = book.cards.length;
+  const chapterParam = params.get("chapter");
+  // Deep link support: /read?chapter=2 opens that chapter (1-based in the URL).
+  // Seeded once as initial state, then kept in sync below — swiping itself must
+  // NOT push history entries, or Back stops meaning "leave the reader".
+  const [chapterIndex, setChapterIndex] = useState(() => chapterFromParam(book, chapterParam));
   const [index, setIndex] = useState(0);
   const [done, setDone] = useState(false);
+  /** Chapter picker — replaces horizontal swipe/Left-Right as the way to jump
+   * chapters: a single click sets state directly, so the chip, the meta counter
+   * and the progress bar (all driven by the same `chapterIndex`) can't drift
+   * apart the way a gesture-based path could. */
+  const [chapterMenuOpen, setChapterMenuOpen] = useState(false);
+  /** Which kind of move is in flight — cards and chapters animate differently. */
+  const [turnKind, setTurnKind] = useState<"card" | "chapter">("card");
   const lockRef = useRef(false);
   // The whole overlay (backdrop included) — wheel/swipe anywhere navigates, not
   // just over the narrow card surface (matters on desktop where the cursor
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
-  const subjectName = useSubjectName();
   // Only the slide axis reads the viewport — SlideControls shows/hides in CSS,
   // so it renders server-side and can't mismatch on hydration.
   const axis = useSlideAxis();
   const { turn, begin, end } = useCardTurn();
 
-  const subject = subjectName(book.subjectSlug);
+  // Re-sync if the URL's ?chapter= changes under an ALREADY-MOUNTED reader — e.g.
+  // tapping a different chapter tile on the detail page reuses this component
+  // (same route, only the query differs) rather than remounting it, so the
+  // useState initializer above never runs again. Keyed on the raw param so an
+  // in-flight swipe (which never touches the URL) can't be fought by this.
+  const lastUrlChapterRef = useRef(chapterParam);
+  useEffect(() => {
+    if (chapterParam === lastUrlChapterRef.current) return;
+    lastUrlChapterRef.current = chapterParam;
+    setChapterIndex(chapterFromParam(book, chapterParam));
+    setIndex(0);
+    setChapterMenuOpen(false);
+    end();
+  }, [chapterParam, book, end]);
+
+  /** Global index of each chapter's first card, so a position flattens to one number. */
+  const offsets = useMemo(() => {
+    let running = 0;
+    return chapters.map((c) => {
+      const start = running;
+      running += c.cards.length;
+      return start;
+    });
+  }, [chapters]);
+
+  const chapter = chapters[chapterIndex];
+  const cards = chapter?.cards ?? [];
+  const cardCount = cards.length;
   const active = cards[index];
+  const nextChapter = chapters[chapterIndex + 1];
+  const onLastCard = index >= cardCount - 1;
 
   // Free-book guests may read the first FREE_PREVIEW_CARDS cards, then hit the
   // login gate. Paid books never reach the reader as a guest (gated at the
@@ -80,67 +152,103 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const openAuth = useAuthModal((s) => s.openAuth);
   const guestGated = authStatus !== "loading" && !isAuthenticated && isFreeBook(book);
 
-  const go = useCallback(
-    (next: number) => {
+  /**
+   * The one way the position changes. Both copies of the card are addressed by a
+   * *global* index, so a chapter jump and a card step are the same move to the
+   * transition — only `kind` differs, and that picks the animation.
+   */
+  const move = useCallback(
+    (toChapter: number, toCard: number, kind: "card" | "chapter") => {
       if (lockRef.current) return;
-      const clamped = Math.max(0, Math.min(total - 1, next));
-      if (clamped === index) return;
-      setIndex(clamped);
+      if (toChapter === chapterIndex && toCard === index) return;
+      const from = (offsets[chapterIndex] ?? 0) + index;
+      const to = (offsets[toChapter] ?? 0) + toCard;
+      // Guests reading a free book get a few cards, then must sign in to
+      // continue — checked on the global position so skipping ahead by chapter
+      // can't walk around it.
+      if (guestGated && to >= FREE_PREVIEW_CARDS) {
+        openAuth("login", { reason: t("loginToContinue") });
+        return;
+      }
+      setChapterIndex(toChapter);
+      setIndex(toCard);
+      setTurnKind(kind);
       // begin() declines under reduced motion — nothing animates, so there's
       // nothing for the lock to wait on either.
-      if (!begin(index, clamped > index ? 1 : -1)) return;
+      if (!begin(from, to > from ? 1 : -1)) return;
       lockRef.current = true;
       window.setTimeout(() => {
         lockRef.current = false;
       }, LOCK_MS);
     },
-    [index, total, begin],
+    [chapterIndex, index, offsets, begin, guestGated, openAuth, t],
   );
 
   const goNext = useCallback(() => {
-    // Guests reading a free book get a few cards, then must sign in to continue.
-    if (guestGated && index + 1 >= FREE_PREVIEW_CARDS) {
-      openAuth("login", { reason: t("loginToContinue") });
+    if (!onLastCard) {
+      move(chapterIndex, index + 1, "card");
       return;
     }
-    if (index >= total - 1) {
-      setDone(true);
+    // End of a chapter: roll into the next one, or finish the book.
+    if (nextChapter) move(chapterIndex + 1, 0, "chapter");
+    else setDone(true);
+  }, [move, chapterIndex, index, onLastCard, nextChapter]);
+
+  const goPrev = useCallback(() => {
+    if (index > 0) {
+      move(chapterIndex, index - 1, "card");
       return;
     }
-    go(index + 1);
-  }, [go, index, total, guestGated, openAuth, t]);
-  const goPrev = useCallback(() => go(index - 1), [go, index]);
+    // Back off the front of a chapter lands on the last card of the previous one.
+    const previous = chapters[chapterIndex - 1];
+    if (previous) move(chapterIndex - 1, previous.cards.length - 1, "chapter");
+  }, [move, chapters, chapterIndex, index]);
+
+  /** Jump straight to a chapter — the chapter picker's only mutation. */
+  const selectChapter = useCallback(
+    (target: number) => {
+      setChapterMenuOpen(false);
+      if (target !== chapterIndex) move(target, 0, "chapter");
+    },
+    [move, chapterIndex],
+  );
 
   const goBack = useCallback(() => {
     if (window.history.length > 1) router.back();
     else router.push(`/studybook/${book.slug}`);
   }, [router, book.slug]);
 
-  // Wheel (desktop) + touch (mobile/tablet), shared with StudybookPreview.
-  useWheelNav(containerRef, goNext, goPrev, { isLocked: () => lockRef.current });
-  useSwipeNav(containerRef, goNext, goPrev);
+  // Wheel (desktop) + touch (mobile/tablet), shared with StudybookPreview —
+  // cards only. Chapter navigation is the picker below, not a gesture: a click
+  // sets state directly, so there's nothing left for a swipe to disagree with.
+  // Both pause while the picker is open so a tap/scroll inside it can't also
+  // read as a card swipe.
+  useWheelNav(containerRef, goNext, goPrev, {
+    enabled: !chapterMenuOpen,
+    isLocked: () => lockRef.current,
+  });
+  useSwipeNav(containerRef, goNext, goPrev, { enabled: !chapterMenuOpen });
 
-  // Keyboard
+  // Keyboard: Up/Down (and Space/PageUp/PageDown) walk the cards; Escape closes
+  // the chapter picker when it's open.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      // Left/Right included to match the chevrons (and StudybookPreview, which
-      // is Left/Right only); Up/Down stay for the vertical swipe mental model.
-      if (
-        e.key === "ArrowDown" ||
-        e.key === "ArrowRight" ||
-        e.key === "PageDown" ||
-        e.key === " "
-      ) {
+      if (e.key === "Escape" && chapterMenuOpen) {
+        setChapterMenuOpen(false);
+        return;
+      }
+      if (chapterMenuOpen) return;
+      if (e.key === "ArrowDown" || e.key === "PageDown" || e.key === " ") {
         e.preventDefault();
         goNext();
-      } else if (e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "PageUp") {
+      } else if (e.key === "ArrowUp" || e.key === "PageUp") {
         e.preventDefault();
         goPrev();
       }
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [goNext, goPrev]);
+  }, [goNext, goPrev, chapterMenuOpen]);
 
   useEffect(() => {
     const lenis = window.__lenis;
@@ -168,30 +276,43 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     };
   }, []);
 
-  if (!active) return null;
+  if (!chapter || !active) return null;
 
-  /** One card's contents. Rendered twice while a transition is in flight. */
-  const renderCard = (i: number) => {
-    const c = cards[i];
+  /**
+   * One card's contents, addressed by its GLOBAL index so the outgoing copy can
+   * render a card from the chapter we just left. Rendered twice mid-transition.
+   */
+  const renderCard = (global: number) => {
+    const c = book.cards[global];
     if (!c) return null;
+    const tier = TIER_STYLES[bodyTier(c.body)];
     return (
-      // Insets keep it clear of the header (bars + meta) above and the controls
-      // below. Centering comes from my-auto on the card (not items-center): auto
-      // margins collapse to 0 when the card is taller than the area, so it
-      // top-aligns and overflows downward instead of riding up under the header.
-      <div className="absolute inset-x-0 top-[112px] bottom-[calc(env(safe-area-inset-bottom)+3.5rem)] flex px-6 sm:top-[104px] sm:bottom-20 sm:px-8">
-        <div className="my-auto w-full max-w-md pr-16">
-          <h2 className="font-display text-2xl leading-tight font-bold text-white sm:text-3xl">
+      // Insets clear the header (bars + meta) above and the controls below.
+      // Centering comes from my-auto on the card (not items-center): auto
+      // margins split the leftover space evenly above and below a short card
+      // instead of dumping it all at the bottom, but they collapse to 0 the
+      // moment content is taller than the area, so a long card still starts
+      // right under the header rather than riding up underneath it.
+      // overflow-hidden is the backstop for the no-scroll rule — nothing should
+      // ever reach it.
+      <div className="absolute inset-x-0 top-[100px] bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] flex overflow-hidden px-6 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
+        <div className="my-auto w-full max-w-md pr-16 lg:pr-0">
+          <h2 className={cn("font-display leading-tight font-bold text-white", tier.heading)}>
             {c.heading}
           </h2>
 
-          {/* Book cover — optional media; without it the text just flows, no
+          {/* Per-card artwork — optional. Without it the text just flows, no
               empty placeholder box. */}
-          {book.cover && (
-            <div className="relative my-5 h-36 overflow-hidden rounded-2xl bg-white/[0.06] sm:my-4">
+          {c.image && (
+            <div
+              className={cn(
+                "relative my-4 overflow-hidden rounded-2xl bg-white/[0.06]",
+                tier.media,
+              )}
+            >
               <Image
-                src={book.cover}
-                alt={book.title}
+                src={c.image}
+                alt=""
                 fill
                 sizes="(max-width: 640px) 90vw, 420px"
                 className="object-contain p-2"
@@ -199,15 +320,20 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             </div>
           )}
 
-          <p className={`text-[15px] leading-relaxed text-white/75 ${book.cover ? "" : "mt-5"}`}>
-            {c.body}
-          </p>
+          <p className={cn("text-white/75", tier.body, c.image ? "" : "mt-4")}>{c.body}</p>
         </div>
       </div>
     );
   };
 
-  const pair = turn ? transitionPair(axis, turn.dir) : null;
+  // Cards follow the input axis; chapters are always horizontal (and travel
+  // further), so a chapter jump can't be mistaken for the next card on desktop.
+  const pair = turn
+    ? turnKind === "chapter"
+      ? chapterPair(turn.dir)
+      : transitionPair(axis, turn.dir)
+    : null;
+  const activeGlobal = (offsets[chapterIndex] ?? 0) + index;
 
   return (
     <main
@@ -226,7 +352,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             onAnimationEnd={(e) => e.target === e.currentTarget && end()}
             className={cn("absolute inset-0", pair?.incoming)}
           >
-            {renderCard(index)}
+            {renderCard(activeGlobal)}
           </div>
 
           {turn && pair && (
@@ -241,8 +367,15 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             </div>
           )}
 
-          {/* Top bar: back · book title · save */}
-          <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-3 px-4 pt-5">
+          {/* Top bar: back · CHAPTER (opens the picker) · save. The chapter name
+              lives here because it's what changes when you pick a different one;
+              the book title moved down to the meta row, which is stable.
+              Chapter navigation is a click on this chip, not a swipe or a key —
+              a single onClick sets chapterIndex directly, so the chip, the meta
+              counter below and the progress bar (all driven by that one value)
+              move together by construction; there's no gesture-timing path for
+              them to disagree on. */}
+          <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-4 pt-5">
             <button
               type="button"
               onClick={goBack}
@@ -251,17 +384,93 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <div className="flex max-w-[60%] items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium backdrop-blur">
+
+            <button
+              type="button"
+              onClick={() => setChapterMenuOpen((open) => !open)}
+              aria-haspopup="listbox"
+              aria-expanded={chapterMenuOpen}
+              aria-label={t("chapterOf", {
+                current: chapterIndex + 1,
+                total: chapters.length,
+                title: chapter.title,
+              })}
+              className="flex min-w-0 max-w-[60%] items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium backdrop-blur transition-colors hover:bg-white/15"
+            >
               <Zap className="h-3.5 w-3.5 shrink-0 fill-white/90" />
-              <span className="truncate">{book.title}</span>
-            </div>
+              <span className="truncate">{chapter.title}</span>
+              <ChevronDown
+                className={cn(
+                  "h-3.5 w-3.5 shrink-0 text-white/60 transition-transform",
+                  chapterMenuOpen && "rotate-180",
+                )}
+              />
+            </button>
+
             <TopSave book={book} />
+
+            {chapterMenuOpen && (
+              <>
+                {/* Dismiss on outside tap. aria-hidden + tabIndex=-1: this button
+                    exists only to catch a pointer, never to be reached by
+                    keyboard or a screen reader — Escape (wired above) is that path. */}
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  onClick={() => setChapterMenuOpen(false)}
+                  className="fixed inset-0 z-40 cursor-default"
+                />
+                <div
+                  role="listbox"
+                  aria-label={t("chapters")}
+                  aria-activedescendant={chapter.id}
+                  className="absolute inset-x-4 top-full z-40 mt-2 max-h-[55vh] overflow-y-auto rounded-2xl bg-[#241736]/95 p-1.5 shadow-xl ring-1 ring-white/10 backdrop-blur"
+                >
+                  {chapters.map((c, i) => (
+                    <button
+                      key={c.id}
+                      id={c.id}
+                      type="button"
+                      role="option"
+                      aria-selected={i === chapterIndex}
+                      onClick={() => selectChapter(i)}
+                      className={cn(
+                        "flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors",
+                        i === chapterIndex ? "bg-white/15" : "hover:bg-white/10",
+                      )}
+                    >
+                      <span
+                        className={cn(
+                          "grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-bold",
+                          i === chapterIndex
+                            ? "bg-white text-[#241736]"
+                            : "bg-white/10 text-white/70",
+                        )}
+                      >
+                        {i + 1}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block truncate text-sm font-semibold text-white">
+                          {c.title}
+                        </span>
+                        <span className="block text-xs text-white/50">
+                          {t("chapterCards", { count: c.cards.length })}
+                        </span>
+                      </span>
+                      {i === chapterIndex && <Check className="h-4 w-4 shrink-0 text-white" />}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Progress + meta — fixed header block, stays put while cards swipe:
-              bars, then card count (left) and category (right) on one row. */}
+          {/* Progress + meta — fixed header block, stays put while cards swipe.
+              The bars track the OPEN CHAPTER, not the whole book: a bar per card
+              across 100+ cards is a hairline nobody can read. */}
           <div className="absolute inset-x-0 top-[68px] z-20 px-5">
-            <div className="flex gap-1">
+            <div className="flex gap-[2px]">
               {cards.map((c, i) => (
                 <span
                   key={c.id}
@@ -270,17 +479,20 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               ))}
             </div>
             <div className="mt-2 flex items-baseline justify-between gap-3">
-              <p className="text-xs font-medium text-white/55">
-                {t("cardProgress", { current: index + 1, total })}
+              <p className="shrink-0 text-xs font-medium text-white/55">
+                {t("chapterProgress", { current: chapterIndex + 1, total: chapters.length })} ·{" "}
+                {t("cardProgress", { current: index + 1, total: cardCount })}
               </p>
               <p className="truncate text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
-                {subject}
+                {book.title}
               </p>
             </div>
           </div>
 
-          {/* Next stays enabled on the last card — there it opens the streak
-              completion, so it doubles as "finish the book".
+          {/* Next stays enabled on the last card — there it rolls into the next
+              chapter, or opens the streak completion on the last one, so it
+              doubles as "finish the book". On that last card the label says which,
+              so the end of a chapter is never a surprise.
               Mobile: the bottom nav is hidden on the reader, so this sits just
               above the home-indicator safe area; sm+ the reader is a windowed
               card, so back to bottom-8. */}
@@ -288,7 +500,19 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             index={index}
             onPrev={goPrev}
             onNext={goNext}
-            labels={{ previous: t("previousCard"), next: t("nextCard"), hint: t("swipeHint") }}
+            // Card 1 of chapter 2+ still has somewhere to go back to: the last
+            // card of the chapter before it.
+            disablePrev={chapterIndex === 0 && index === 0}
+            nextHint={onLastCard ? (nextChapter ? t("nextChapter") : t("finish")) : undefined}
+            labels={{
+              previous: t("previousCard"),
+              next: onLastCard ? (nextChapter ? t("nextChapter") : t("finish")) : t("nextCard"),
+              hint: onLastCard
+                ? nextChapter
+                  ? t("nextChapterHint", { title: nextChapter.title })
+                  : t("finishHint")
+                : t("swipeHint"),
+            }}
             className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 px-8 sm:bottom-8"
           />
         </div>

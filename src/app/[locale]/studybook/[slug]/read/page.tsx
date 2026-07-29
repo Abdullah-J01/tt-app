@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import StudybookReader from "@/components/feed/StudybookReader";
 import { getStudybook } from "@/lib/api";
@@ -13,5 +14,10 @@ export default async function ReaderPage({ params }: { params: Promise<{ slug: s
   const book = await getStudybook(slug);
   if (!book) notFound();
 
-  return <StudybookReader book={book} />;
+  // Suspense: the reader reads ?chapter= via useSearchParams (see StudybookReader).
+  return (
+    <Suspense fallback={null}>
+      <StudybookReader book={book} />
+    </Suspense>
+  );
 }

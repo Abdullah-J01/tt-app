@@ -16,6 +16,7 @@
  */
 import { cache } from "react";
 import { ttApi } from "./tt-api";
+import { sampleCards } from "./chapters";
 import { getOpenLibraryCatalog, getOpenLibraryStudybook } from "./openlibrary";
 import { getLocale } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
@@ -59,9 +60,18 @@ export interface ListParams {
   limit?: number;
 }
 
+/**
+ * Books → feed cards, one card per chapter.
+ *
+ * Deliberately a *sample*, not the whole book: a studybook now carries a chapter
+ * per topic and ~25 cards per chapter, so flattening everything would put well
+ * over a hundred consecutive cards from a single book into an infinite feed and
+ * bury every other book on the page. `total` stays the book's real card count —
+ * it's what the card's "N of M" chrome means to a reader.
+ */
 function toFeedItems(books: Studybook[]): FeedItem[] {
   return books.flatMap((book) =>
-    book.cards.map((card, index) => ({ card, book, index, total: book.cards.length })),
+    sampleCards(book).map((card, index) => ({ card, book, index, total: book.cards.length })),
   );
 }
 

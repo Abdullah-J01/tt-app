@@ -9,7 +9,8 @@
  * their real shapes, adjust the DTOs + `map*` functions only — the rest of the
  * app consumes our own types from "@/types" and won't need to change.
  */
-import type { Studybook, StudyCard } from "@/types";
+import { CARDS_PER_CHAPTER, clampBody, flattenChapters } from "./chapters";
+import type { Chapter, Studybook, StudyCard } from "@/types";
 
 const BASE = process.env.TT_API_BASE_URL;
 const API_KEY = process.env.TT_API_KEY;
@@ -60,6 +61,21 @@ interface TTCardDTO {
   imageUrl?: string;
 }
 
+/**
+ * TODO(team): confirm with TT. The reader, the detail page and the preview all
+ * navigate by chapter now, so A3 needs to return cards grouped this way. Until
+ * it does, `mapStudybook` synthesizes one chapter per `CARDS_PER_CHAPTER` cards
+ * from a flat `cards` array so a chapter-less response still renders.
+ */
+interface TTChapterDTO {
+  id: string;
+  order: number;
+  title: string;
+  summary?: string;
+  coverUrl?: string;
+  cards?: TTCardDTO[];
+}
+
 interface TTStudybookDTO {
   id: string;
   slug: string;
@@ -72,15 +88,60 @@ interface TTStudybookDTO {
   synopsis: string;
   coverUrl?: string;
   priceCents?: number;
+  chapters?: TTChapterDTO[];
   cards?: TTCardDTO[];
 }
 
 // ─── Mappers: TT shape → our domain types ──────────────────────────
 function mapCard(dto: TTCardDTO): StudyCard {
-  return { id: dto.id, heading: dto.heading, body: dto.body };
+  return {
+    id: dto.id,
+    heading: dto.heading,
+    // Backstop for the "a card never scrolls" rule (src/lib/chapters.ts): we
+    // don't control how long TT's editors write, and the reader has nowhere to
+    // put the overflow.
+    body: clampBody(dto.body),
+    ...(dto.imageUrl ? { image: dto.imageUrl } : {}),
+  };
+}
+
+function sortCards(cards?: TTCardDTO[]): StudyCard[] {
+  return (cards ?? [])
+    .slice()
+    .sort((a, b) => a.order - b.order)
+    .map(mapCard);
+}
+
+/** Fallback grouping for a chapter-less response — keeps the reader navigable. */
+function chunkIntoChapters(bookId: string, cards: StudyCard[], title: string): Chapter[] {
+  const chapters: Chapter[] = [];
+  for (let i = 0; i < Math.max(cards.length, 1); i += CARDS_PER_CHAPTER) {
+    chapters.push({
+      id: `${bookId}-ch${chapters.length + 1}`,
+      index: chapters.length,
+      title,
+      summary: "",
+      cards: cards.slice(i, i + CARDS_PER_CHAPTER),
+    });
+  }
+  return chapters;
 }
 
 function mapStudybook(dto: TTStudybookDTO): Studybook {
+  const chapters: Chapter[] = dto.chapters?.length
+    ? dto.chapters
+        .slice()
+        .sort((a, b) => a.order - b.order)
+        .map((c, index) => ({
+          id: c.id,
+          index,
+          title: c.title,
+          summary: c.summary ?? "",
+          cover: c.coverUrl,
+          cards: sortCards(c.cards),
+        }))
+    : chunkIntoChapters(dto.id, sortCards(dto.cards), dto.title);
+
   return {
     id: dto.id,
     slug: dto.slug,
@@ -93,7 +154,8 @@ function mapStudybook(dto: TTStudybookDTO): Studybook {
     synopsis: dto.synopsis,
     cover: dto.coverUrl,
     priceEur: dto.priceCents != null ? dto.priceCents / 100 : undefined,
-    cards: (dto.cards ?? []).slice().sort((a, b) => a.order - b.order).map(mapCard),
+    chapters,
+    cards: flattenChapters(chapters),
   };
 }
 

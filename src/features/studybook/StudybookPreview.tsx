@@ -17,17 +17,17 @@ import {
   useSwipeNav,
   useWheelNav,
 } from "@/lib/cardSlide";
+import { chapterFromParam, chapterParam } from "@/lib/chapters";
 import { cn } from "@/lib/utils";
-import { FREE_PREVIEW_CARDS, isFreeBook } from "./freePreview";
+import { isFreeBook } from "./freePreview";
 import type { Studybook } from "@/types";
 
-/** Free cards shown before the preview stops and offers the full studybook. */
-const PREVIEW_LIMIT = FREE_PREVIEW_CARDS;
-
 /**
- * Peek at the first few cards of a studybook without opening the full reader
- * (UI brief §6.3). Driven by ?preview= in the URL so the banner button and the
- * "Cards preview" tiles can both open it (and it's deep-linkable / shareable).
+ * Walk a studybook's chapters without opening the full reader (UI brief §6.3):
+ * one chapter per slide — title, artwork, summary, card count — then a closing
+ * CTA. Driven by ?preview= in the URL so the banner button and the chapter tiles
+ * can both open it (and it's deep-linkable / shareable), with ?chapter= picking
+ * the chapter to land on.
  */
 export function StudybookPreview({ book }: { book: Studybook }) {
   const t = useTranslations("features_studybook_StudybookPreview");
@@ -38,9 +38,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const params = useSearchParams();
   const open = params.has("preview");
 
-  const previewCards = book.cards.slice(0, PREVIEW_LIMIT);
-  const remaining = book.cards.length - previewCards.length;
-  const slideCount = previewCards.length + 1; // + final CTA slide
+  const chapters = book.chapters;
+  const totalCards = book.cards.length;
+  const slideCount = chapters.length + 1; // + final CTA slide
 
   const [index, setIndex] = useState(0);
   const lockRef = useRef(false);
@@ -72,8 +72,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   const goPrev = useCallback(() => go(index - 1), [go, index]);
 
   // `open` gates both: the card only exists while the overlay is rendered, and a
-  // ref can't announce that it mounted (see useSwipeNav).
-  useSwipeNav(cardRef, goNext, goPrev, open);
+  // ref can't announce that it mounted (see useSwipeNav). One axis here — every
+  // slide is already a chapter, so there's nothing for a horizontal swipe to mean.
+  useSwipeNav(cardRef, goNext, goPrev, { enabled: open });
   useWheelNav(cardRef, goNext, goPrev, { enabled: open, isLocked: () => lockRef.current });
 
   const close = useCallback(() => {
@@ -84,15 +85,13 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     else router.replace(pathname, { scroll: false });
   }, [router, pathname]);
 
-  // Seed the starting slide from ?card= when the overlay opens. Jumping straight
-  // there shouldn't turn a page, so any in-flight one is dropped.
+  // Seed the starting slide from ?chapter= when the overlay opens. Jumping
+  // straight there shouldn't turn a page, so any in-flight one is dropped.
   useEffect(() => {
     if (!open) return;
-    const raw = Number(params.get("card"));
-    const start = Number.isFinite(raw) ? Math.min(Math.max(raw, 0), previewCards.length) : 0;
-    setIndex(start);
+    setIndex(chapterFromParam(book, params.get("chapter")));
     end();
-  }, [open, params, previewCards.length, end]);
+  }, [open, params, book, end]);
 
   // Lock page scroll + wire Escape / arrow keys while open. Lenis drives the
   // scroll and ignores `overflow: hidden`, so freeze it too (and lock <html>
@@ -123,20 +122,55 @@ export function StudybookPreview({ book }: { book: Studybook }) {
 
   if (!open) return null;
 
+  /**
+   * Open the reader, optionally at a given chapter.
+   *
+   * replace: swap the ?preview history entry for /read, so Back from the reader
+   * returns to the clean detail page instead of reopening this overlay (which
+   * reads as "back is broken"). Free books let guests into the reader (it gates
+   * after a few cards); paid books require login.
+   */
+  const startReading = (chapterIndex?: number) => {
+    const query = chapterIndex != null ? `?chapter=${chapterParam(chapterIndex)}` : "";
+    const openReader = () =>
+      router.replace(localizeHref(`/studybook/${book.slug}/read${query}`, locale));
+    if (isFreeBook(book)) openReader();
+    else requireAuth(openReader, t("loginToLearn"));
+  };
+
   /** One page's contents. Rendered twice while a page is mid-turn. */
   const renderSlide = (i: number) => {
-    const card = previewCards[i];
-    if (card) {
+    const chapter = chapters[i];
+    if (chapter) {
+      const art = chapter.cover ?? book.cover;
       return (
         <>
           <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium backdrop-blur">
-            {t("categoryPreview", { category: book.category })}
+            {t("chapterLabel", { current: i + 1, total: chapters.length })}
           </span>
-          <div>
-            <h2 className="text-3xl leading-tight font-bold text-white">{card.heading}</h2>
-            <p className="mt-4 text-lg leading-relaxed text-white/90">{card.body}</p>
+          <div className="min-h-0">
+            {art && (
+              <div className="relative mb-4 h-32 overflow-hidden rounded-2xl bg-white/10 sm:h-40">
+                <Image
+                  src={art}
+                  alt=""
+                  fill
+                  sizes="(max-width: 768px) 90vw, 420px"
+                  className="object-contain p-2"
+                />
+              </div>
+            )}
+            <h2 className="text-2xl leading-tight font-bold text-white sm:text-3xl">
+              {chapter.title}
+            </h2>
+            <p className="mt-3 leading-relaxed text-white/90">{chapter.summary}</p>
+            <p className="mt-3 text-sm text-white/60">
+              {t("chapterCards", { count: chapter.cards.length })}
+            </p>
           </div>
-          <BookAttribution book={book} />
+          <Button size="md" variant="secondary" onClick={() => startReading(i)}>
+            {t("startChapter")}
+          </Button>
         </>
       );
     }
@@ -152,27 +186,18 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           </span>
         )}
         <h2 className="mt-5 text-2xl font-bold text-white">
-          {remaining > 0 ? t("moreCardsInside", { count: remaining }) : t("previewEnd")}
+          {t("chaptersInside", { chapters: chapters.length, cards: totalCards })}
         </h2>
         <p className="mt-2 max-w-xs text-white/80">
           {book.priceEur != null
             ? t("unlockPrice", { price: book.priceEur.toFixed(2) })
             : t("keepGoing")}
         </p>
-        {/* replace: swap the ?preview history entry for /read, so Back from the
-            reader returns to the clean detail page instead of reopening this
-            overlay (which reads as "back is broken"). Free books let guests into
-            the reader (it gates after a few cards); paid books require login. */}
         <Button
           size="lg"
           variant="secondary"
           className="mt-6 w-full max-w-xs"
-          onClick={() => {
-            const openReader = () =>
-              router.replace(localizeHref(`/studybook/${book.slug}/read`, locale));
-            if (isFreeBook(book)) openReader();
-            else requireAuth(openReader, t("loginToLearn"));
-          }}
+          onClick={() => startReading()}
         >
           {t("startLearning")}
         </Button>
@@ -256,7 +281,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
               ))}
             </div>
             <p className="mt-2 text-xs font-medium text-white/55">
-              {Math.min(index + 1, previewCards.length)} / {previewCards.length}
+              {Math.min(index + 1, chapters.length)} / {chapters.length}
             </p>
           </div>
         </div>
@@ -267,7 +292,11 @@ export function StudybookPreview({ book }: { book: Studybook }) {
           onPrev={goPrev}
           onNext={goNext}
           disableNext={index >= slideCount - 1}
-          labels={{ previous: t("previousCard"), next: t("nextCard"), hint: t("swipeHint") }}
+          labels={{
+            previous: t("previousChapter"),
+            next: t("nextChapter"),
+            hint: t("swipeChapterHint"),
+          }}
           className="absolute inset-x-0 bottom-0 z-20 p-4"
         />
       </div>

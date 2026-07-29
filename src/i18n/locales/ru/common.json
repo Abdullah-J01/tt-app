@@ -106,11 +106,9 @@
     "breadcrumb": "Studybook",
     "bookCover": "book cover",
     "byAuthor": "by {author} · {year}",
-    "cardsMinutes": "{count} cards · ~{minutes} min",
     "startLearning": "Start learning",
     "preview": "Preview",
     "aboutTitle": "About this studybook",
-    "cardsPreview": "Cards preview",
     "all": "All {count}",
     "youMayAlsoLike": "You may also like",
     "more": "More",
@@ -118,7 +116,10 @@
     "free": "Free",
     "preschool": "Preschool",
     "gymnasium": "Gymnasium",
-    "grade": "Grade {grade}"
+    "grade": "Grade {grade}",
+    "chapters": "Главы",
+    "chaptersMinutes": "{chapters} глав · {cards} карточек · ~{minutes} мин",
+    "chapterCards": "{count, plural, one {# карточка} few {# карточки} other {# карточек}}"
   },
   "components_account_LogoutButton": {
     "logOut": "Log out"
@@ -250,13 +251,21 @@
   },
   "components_feed_StudybookReader": {
     "backToStudybook": "Back to studybook",
-    "cardProgress": "Card {current} of {total}",
+    "cardProgress": "Карточка {current}/{total}",
     "previousCard": "Previous card",
     "nextCard": "Next card",
     "swipeHint": "Swipe up · next card",
     "saved": "Saved",
     "save": "Save",
-    "loginToContinue": "Log in to keep reading"
+    "loginToContinue": "Log in to keep reading",
+    "chapterProgress": "Глава {current}/{total}",
+    "chapterOf": "Глава {current} из {total}: {title}",
+    "nextChapter": "Следующая глава",
+    "nextChapterHint": "Следующая глава · {title}",
+    "finishHint": "Последняя карточка · завершить",
+    "finish": "Завершить учебник",
+    "chapters": "Главы",
+    "chapterCards": "{count, plural, one {# карточка} few {# карточки} other {# карточек}}"
   },
   "components_home_AnimatedFeed": {
     "didYouKnow": "Did you know",
@@ -518,7 +527,7 @@
   "features_admin_components_CardEditor": {
     "cardsAriaLabel": "Bite cards",
     "title": "Bite cards ({count})",
-    "subtitle": "The swipeable feed cards for this studybook, in reading order.",
+    "subtitle": "Карточки этой главы в порядке чтения.",
     "addCard": "Add card",
     "emptyTitle": "No cards yet",
     "emptyBody": "Add the first bite card — a one-line insight with a few supporting lines.",
@@ -534,7 +543,10 @@
     "saved": "Saved",
     "unsavedChanges": "Unsaved changes",
     "validationError": "Every card needs a heading and body text.",
-    "genericError": "Something went wrong — try again."
+    "genericError": "Something went wrong — try again.",
+    "chapterLabel": "Глава",
+    "chapterOption": "{number}. {title} ({count})",
+    "chapterLocked": "Сохраните или перезагрузите, чтобы сменить главу"
   },
   "features_admin_components_StudybookFilters": {
     "filterBySubject": "Filter by subject",
@@ -882,16 +894,17 @@
     "previewOf": "Preview of {title}",
     "closePreview": "Close preview",
     "slideOf": "Slide {current} of {total}",
-    "categoryPreview": "{category} · Preview",
-    "moreCardsInside": "{count, plural, one {# more card inside} other {# more cards inside}}",
-    "previewEnd": "That's the preview",
     "unlockPrice": "Unlock the full studybook for €{price}.",
     "keepGoing": "Keep going in the full reader.",
     "startLearning": "Start learning",
-    "previousCard": "Previous card",
-    "nextCard": "Next card",
-    "swipeHint": "Swipe up · next card",
-    "loginToLearn": "Войдите, чтобы начать обучение"
+    "loginToLearn": "Войдите, чтобы начать обучение",
+    "chapterLabel": "Глава {current} из {total}",
+    "chapterCards": "{count, plural, one {# карточка} few {# карточки} other {# карточек}}",
+    "chaptersInside": "Внутри {chapters, plural, one {# глава} few {# главы} other {# глав}} · {cards, plural, one {# карточка} few {# карточки} other {# карточек}}",
+    "previousChapter": "Предыдущая глава",
+    "nextChapter": "Следующая глава",
+    "swipeChapterHint": "Проведите вверх · следующая глава",
+    "startChapter": "Начать эту главу"
   },
   "app_marketing_about_page": {
     "eyebrow": "About StudyBooks",
@@ -1158,15 +1171,45 @@
     },
     "synopsis": "Компактный учебник по предмету «{subject}», вдохновлённый книгой «{title}» — короткие карточки, которые можно пройти между занятиями.",
     "synopsisPlain": "Компактный учебник, вдохновлённый книгой «{title}» — короткие карточки, которые можно пройти между занятиями.",
-    "card": {
-      "bigIdeaHeading": "Главная идея книги «{title}»",
-      "bigIdeaBody": "Быстрый вход в тему «{subject}»: одна ключевая идея из «{title}», сжатая в один фрагмент, который действительно запомнится.",
-      "rememberHeading": "Одна вещь, которую стоит запомнить",
-      "rememberBody": "Большая часть темы «{subject}» держится на нескольких простых идеях. Эта карточка выделяет ту, что делает основную работу.",
-      "mattersHeading": "Почему это важно",
-      "mattersBody": "Где это встречается в реальной жизни — и почему стоит потратить две минуты на изучение."
+    "unknownAuthor": "Автор неизвестен",
+    "chapter": {
+      "title1": "Сориентироваться",
+      "title2": "Главная идея",
+      "title3": "Как это работает на практике",
+      "title4": "Где становится сложно",
+      "title5": "Собираем всё вместе",
+      "summary1": "Начните здесь: термины и общая картина предмета «{subject}», до всех подробностей.",
+      "summary2": "Одна идея делает большую часть работы в «{title}». Эта глава — та самая идея со всех сторон.",
+      "summary3": "Разобранные примеры — одна и та же идея, пока она не перестанет казаться фокусом.",
+      "summary4": "Частные случаи, на которых спотыкаются, и как заметить их заранее.",
+      "summary5": "Всё пройденное, связанное воедино и готовое к применению."
     },
-    "unknownAuthor": "Автор неизвестен"
+    "bite": {
+      "h1": "Начните с того, что уже знаете",
+      "h2": "Одна идея — одна карточка",
+      "h3": "Назовите, прежде чем решать",
+      "h4": "Приём, который стоит запомнить",
+      "h5": "Где обычно ошибаются",
+      "h6": "Разобранный пример",
+      "h7": "Почему важен порядок",
+      "h8": "Исключение, за которым стоит следить",
+      "h9": "Скажите это своими словами",
+      "h10": "Свяжите со вчерашним",
+      "h11": "Повтор за две минуты",
+      "h12": "Попробуйте на чём-то реальном",
+      "s1": "Быстрее всего войти в предмет «{subject}», привязав новую идею к тому, что уже можно представить.",
+      "s2": "Большая часть работы происходит до первой строчки решения.",
+      "s3": "Если можете пересказать без терминов — значит, поняли.",
+      "s4": "Пропустите это, и всё дальнейшее будет стоить вдвое больше усилий.",
+      "s5": "Выглядит как исключение, но подчиняется тому же правилу, что и всё здесь.",
+      "s6": "Заметьте, что осталось неизменным — это и есть правило.",
+      "s7": "Пример намеренно маленький: размер никогда не меняет метод.",
+      "s8": "После третьего раза это перестаёт казаться хитростью и становится очевидным.",
+      "s9": "Именно этот шаг пропускают, и именно он решает ответ.",
+      "s10": "Запишите до проверки — ошибиться здесь и значит запомнить.",
+      "s11": "Всё в этой главе — вариация одного и того же приёма.",
+      "s12": "Вернитесь к этой карточке, когда следующие перестанут складываться."
+    }
   },
   "components_auth_LoginRequired": {
     "title": "Войдите, чтобы продолжить",

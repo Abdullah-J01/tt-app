@@ -45,6 +45,10 @@ const nextConfig = {
     remotePatterns: [{ protocol: "https", hostname: "covers.openlibrary.org" }],
   },
 
+  // Lets dev tools (HMR websocket, etc.) load when the dev server is reached
+  // from another device on the LAN, e.g. testing on a phone via the host's IP.
+  allowedDevOrigins: ["192.168.18.20"],
+
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
@@ -53,5 +57,6 @@ const nextConfig = {
     // typedRoutes: true,
   },
 };
+
 
 export default withSerwist(nextConfig);

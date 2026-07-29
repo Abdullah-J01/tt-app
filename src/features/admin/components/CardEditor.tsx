@@ -9,8 +9,9 @@ import { Card } from "@/components/ui/Card";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { FieldError } from "@/components/ui/FieldError";
 import { Input } from "@/components/ui/Input";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import type { StudyCard } from "@/types";
+import type { Chapter, StudyCard } from "@/types";
 import { saveStudybookCards } from "../actions";
 import { cardsSchema } from "../schemas";
 
@@ -24,19 +25,27 @@ interface EditorCard {
 
 interface CardEditorProps {
   slug: string;
-  initialCards: StudyCard[];
+  chapters: Chapter[];
 }
+
+const toEditorCards = (cards: StudyCard[]): EditorCard[] =>
+  cards.map((c) => ({ key: c.id, id: c.id, heading: c.heading, body: c.body }));
 
 /**
  * Bite-card editor: add, edit, reorder (button-based, keyboard-friendly) and
  * delete cards, then save the whole ordered list in one action.
+ *
+ * Scoped to ONE chapter at a time, because that's what the save action replaces
+ * (see adminSaveCards). Switching chapters is blocked while there are unsaved
+ * edits — the draft lives in this component's state, so leaving would drop it.
  */
-export function CardEditor({ slug, initialCards }: CardEditorProps) {
+export function CardEditor({ slug, chapters }: CardEditorProps) {
   const router = useRouter();
   const t = useTranslations("features_admin_components_CardEditor");
   const counter = useRef(0);
+  const [chapterIndex, setChapterIndex] = useState(0);
   const [cards, setCards] = useState<EditorCard[]>(() =>
-    initialCards.map((c) => ({ key: c.id, id: c.id, heading: c.heading, body: c.body })),
+    toEditorCards(chapters[0]?.cards ?? []),
   );
   const [dirty, setDirty] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -69,6 +78,14 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
       return next;
     });
 
+  /** Only reachable when there's nothing unsaved, so no draft can be lost here. */
+  const selectChapter = (index: number) => {
+    setChapterIndex(index);
+    setCards(toEditorCards(chapters[index]?.cards ?? []));
+    setSaved(false);
+    setError(null);
+  };
+
   const save = () => {
     const parsed = cardsSchema.safeParse(cards.map(({ id, heading, body }) => ({ id, heading, body })));
     if (!parsed.success) {
@@ -76,7 +93,7 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
       return;
     }
     startTransition(async () => {
-      const result = await saveStudybookCards(slug, parsed.data);
+      const result = await saveStudybookCards(slug, chapterIndex, parsed.data);
       if (!result.ok) {
         setError(result.error ?? t("genericError"));
         return;
@@ -96,9 +113,28 @@ export function CardEditor({ slug, initialCards }: CardEditorProps) {
             {t("subtitle")}
           </p>
         </div>
-        <Button variant="secondary" size="sm" leadingIcon={<Plus />} onClick={addCard}>
-          {t("addCard")}
-        </Button>
+        <div className="flex flex-wrap items-end gap-3">
+          <Select
+            label={t("chapterLabel")}
+            hint={dirty ? t("chapterLocked") : undefined}
+            disabled={dirty || pending}
+            value={chapterIndex}
+            onChange={(e) => selectChapter(Number(e.target.value))}
+          >
+            {chapters.map((chapter, i) => (
+              <option key={chapter.id} value={i}>
+                {t("chapterOption", {
+                  number: i + 1,
+                  title: chapter.title,
+                  count: chapter.cards.length,
+                })}
+              </option>
+            ))}
+          </Select>
+          <Button variant="secondary" size="sm" leadingIcon={<Plus />} onClick={addCard}>
+            {t("addCard")}
+          </Button>
+        </div>
       </div>
 
       {cards.length === 0 ? (

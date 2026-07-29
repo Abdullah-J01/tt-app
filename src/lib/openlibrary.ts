@@ -12,11 +12,13 @@
  */
 import { SUBJECTS } from "@/config/subjects";
 import { MOCK_STUDYBOOKS } from "./mock-data";
+import { CHAPTERS_PER_BOOK, flattenChapters } from "./chapters";
+import { seedFrom, synthChapters, type SynthCopy } from "./synthChapters";
 import { getTranslations } from "@/i18n/server";
 import { localizeTitle } from "@/i18n/bookTitles";
 import type { Locale } from "@/i18n/config";
 import type { Translator } from "@/i18n/types";
-import type { Studybook } from "@/types";
+import type { Chapter, Studybook } from "@/types";
 
 /** Our subject slug → an Open Library subject that reliably returns books. */
 const OL_SUBJECT: Record<string, string> = {
@@ -64,31 +66,35 @@ function slugify(s: string): string {
     .slice(0, 48);
 }
 
-function hash(s: string): number {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
-  return h;
+/** Pools sizes in the `catalog` namespace — keep in step with the message files. */
+const HEADING_POOL = 12;
+const SENTENCE_POOL = 12;
+
+/** Resolve the localized copy pools once per book, with {title}/{subject} filled in. */
+function synthCopy(title: string, subject: string, t: Translator): SynthCopy {
+  const list = (n: number, key: (i: number) => string) =>
+    Array.from({ length: n }, (_, i) => t(key(i + 1), { title, subject }));
+  return {
+    chapterTitles: list(CHAPTERS_PER_BOOK, (i) => `chapter.title${i}`),
+    chapterSummaries: list(CHAPTERS_PER_BOOK, (i) => `chapter.summary${i}`),
+    headings: list(HEADING_POOL, (i) => `bite.h${i}`),
+    sentences: list(SENTENCE_POOL, (i) => `bite.s${i}`),
+  };
 }
 
-/** Generic "bites" so the reader/preview have content (no book API provides these). */
-function synthCards(id: string, title: string, subject: string, t: Translator): Studybook["cards"] {
-  return [
-    {
-      id: `${id}-c1`,
-      heading: t("card.bigIdeaHeading", { title }),
-      body: t("card.bigIdeaBody", { subject, title }),
-    },
-    {
-      id: `${id}-c2`,
-      heading: t("card.rememberHeading"),
-      body: t("card.rememberBody", { subject }),
-    },
-    {
-      id: `${id}-c3`,
-      heading: t("card.mattersHeading"),
-      body: t("card.mattersBody"),
-    },
-  ];
+/**
+ * Generic chapters + "bites" so the reader/preview have content (no book API
+ * provides these). Deterministic in `seed` — see src/lib/synthChapters.ts.
+ */
+function synthBookChapters(
+  id: string,
+  seed: number,
+  title: string,
+  subject: string,
+  t: Translator,
+  cover?: string,
+): Chapter[] {
+  return synthChapters(id, seed, synthCopy(title, subject, t), cover);
 }
 
 function mapWork(
@@ -102,8 +108,12 @@ function mapWork(
   const olId = work.key.replace("/works/", "");
   const id = `ol_${olId}`;
   const slug = `${slugify(work.title)}-${olId.toLowerCase()}`;
-  const seed = hash(olId);
+  const seed = seedFrom(olId);
   const title = localizeTitle(work.title, locale);
+  const cover = work.cover_id
+    ? `https://covers.openlibrary.org/b/id/${work.cover_id}-M.jpg`
+    : undefined;
+  const chapters = synthBookChapters(id, seed, title, subjectName, t, cover);
   return {
     id,
     slug,
@@ -114,11 +124,10 @@ function mapWork(
     grade: GRADES[seed % GRADES.length]!,
     category: t("category.studyBite"),
     synopsis: t("synopsis", { subject: subjectName, title }),
-    cover: work.cover_id
-      ? `https://covers.openlibrary.org/b/id/${work.cover_id}-M.jpg`
-      : undefined,
+    cover,
     priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-    cards: synthCards(id, title, subjectName, t),
+    chapters,
+    cards: flattenChapters(chapters),
   };
 }
 
@@ -188,7 +197,7 @@ async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<S
     if (!w.title) return undefined;
 
     const id = `ol_${olId}`;
-    const seed = hash(olId);
+    const seed = seedFrom(olId);
     const subjectSlug = matchSubject(w.subjects);
     const title = localizeTitle(w.title, locale);
 
@@ -209,6 +218,11 @@ async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<S
       }
     }
 
+    const cover = w.covers?.[0]
+      ? `https://covers.openlibrary.org/b/id/${w.covers[0]}-M.jpg`
+      : undefined;
+    const chapters = synthBookChapters(id, seed, title, t(`subject.${subjectSlug}`), t, cover);
+
     return {
       id,
       slug: `${slugify(w.title)}-${olId.toLowerCase()}`,
@@ -221,11 +235,10 @@ async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<S
       // Use the localized template (not OL's English description) so detail
       // pages are fully translated too.
       synopsis: t("synopsisPlain", { title }),
-      cover: w.covers?.[0]
-        ? `https://covers.openlibrary.org/b/id/${w.covers[0]}-M.jpg`
-        : undefined,
+      cover,
       priceEur: seed % 3 === 0 ? Number((1.9 + (seed % 5)).toFixed(2)) : undefined,
-      cards: synthCards(id, title, t(`subject.${subjectSlug}`), t),
+      chapters,
+      cards: flattenChapters(chapters),
     };
   } catch {
     return undefined;

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import StudybookReader from "@/components/feed/StudybookReader";
 import { getStudybook } from "@/lib/api";
@@ -16,7 +17,10 @@ export default async function ReaderModal({ params }: { params: Promise<{ slug: 
 
   return (
     <div className="fixed inset-0 z-50">
-      <StudybookReader book={book} />
+      {/* Suspense: the reader reads ?chapter= via useSearchParams. */}
+      <Suspense fallback={null}>
+        <StudybookReader book={book} />
+      </Suspense>
     </div>
   );
 }

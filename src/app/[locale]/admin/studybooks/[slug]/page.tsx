@@ -43,7 +43,7 @@ export default async function EditStudybookPage({ params }: EditStudybookPagePro
       </div>
 
       <StudybookForm book={book} />
-      <CardEditor slug={book.slug} initialCards={book.cards} />
+      <CardEditor slug={book.slug} chapters={book.chapters} />
     </div>
   );
 }

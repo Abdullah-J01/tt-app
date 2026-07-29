@@ -778,6 +778,50 @@ body.reader-open footer {
   }
 }
 
+/* Chapter transitions for StudybookReader. Always horizontal (a chapter is always
+   a horizontal swipe) and travelling further than a card, so a chapter jump can't
+   be mistaken for the next card on desktop, where cards also slide sideways. */
+@keyframes sb-chapter-out-left {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-140px) scale(0.96);
+  }
+}
+@keyframes sb-chapter-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(140px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes sb-chapter-out-right {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(140px) scale(0.96);
+  }
+}
+@keyframes sb-chapter-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(-140px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .anim-pop {
     animation: sb-pop 0.5s ease-out both;
@@ -848,6 +892,20 @@ body.reader-open footer {
   }
   .anim-card-in-right {
     animation: sb-card-in-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  /* Chapter changes — same contract as the card pair above, longer travel. */
+  .anim-chapter-out-left {
+    animation: sb-chapter-out-left 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-chapter-in-left {
+    animation: sb-chapter-in-left 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  .anim-chapter-out-right {
+    animation: sb-chapter-out-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .anim-chapter-in-right {
+    animation: sb-chapter-in-right 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 }
 

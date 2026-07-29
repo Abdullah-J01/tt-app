@@ -7,6 +7,7 @@ import { getTranslations } from "@/i18n/server";
 import { BookOpen, ChevronRight, PlayCircle } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import { ResponsiveFooter } from "@/components/layout/ResponsiveFooter";
+import { CardRail } from "@/components/ui/CardRail";
 import { Pill } from "@/components/ui/Pill";
 import {
   StudybookPreview,
@@ -120,7 +121,11 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
               </div>
               <div className="text-muted mt-3 flex items-center gap-1.5 text-sm">
                 <BookOpen className="h-4 w-4" />
-                {t("cardsMinutes", { count: book.cards.length, minutes })}
+                {t("chaptersMinutes", {
+                  chapters: book.chapters.length,
+                  cards: book.cards.length,
+                  minutes,
+                })}
               </div>
             </div>
 
@@ -154,34 +159,73 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
         <h2 className="text-lg font-bold">{t("aboutTitle")}</h2>
         <p className="text-ink/80 mt-3 max-w-2xl leading-relaxed">{book.synopsis}</p>
 
-        {/* Cards preview */}
+        {/* Chapters — the unit you actually start learning from. Tapping one opens
+            the reader on that chapter; "All" opens the swipeable chapter preview. */}
         <div className="mt-8 flex items-center justify-between">
-          <h2 className="text-lg font-bold">{t("cardsPreview")}</h2>
+          <h2 className="text-lg font-bold">{t("chapters")}</h2>
           <Link
             href={`/studybook/${book.slug}?preview=1`}
             scroll={false}
             className="text-violet flex items-center gap-0.5 text-sm font-semibold hover:underline"
           >
-            {t("all", { count: book.cards.length })}
+            {t("all", { count: book.chapters.length })}
             <ChevronRight className="h-4 w-4" />
           </Link>
         </div>
-        <div className="mt-4 flex snap-x snap-mandatory [scrollbar-width:none] gap-4 overflow-x-auto pb-2 [&::-webkit-scrollbar]:hidden">
-          {book.cards.slice(0, 6).map((card, i) => (
-            <Link
-              key={card.id}
-              href={`/studybook/${book.slug}?preview=1&card=${i}`}
-              scroll={false}
-              className="group w-32 shrink-0 snap-start md:w-40"
-            >
-              <div
-                className={`shadow-soft flex aspect-[4/5] flex-col justify-end rounded-2xl p-3 text-white transition-transform group-hover:-translate-y-1 ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
+        {/* Horizontal carousel: 5 chapters fit one row from ~md up (5 × w-44 +
+            gaps ≈ the max-w-5xl body), narrower viewports scroll it like any
+            other rail (see CardRail). */}
+        <CardRail itemWidth="w-40 sm:w-44" label={t("chapters")} className="mt-4">
+          {book.chapters.map((chapter, i) => {
+            const art = chapter.cover ?? book.cover;
+            return (
+              <StartLearningButton
+                key={chapter.id}
+                slug={book.slug}
+                chapter={i}
+                free={free}
+                className="group block w-full text-left"
               >
-                <p className="line-clamp-4 text-sm leading-snug font-semibold">{card.heading}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
+                {/* Media — badges overlay it directly (this box is the
+                    positioning context: top-left = chapter number, bottom-right
+                    = card count), so they read as part of the artwork rather
+                    than floating chrome around it. */}
+                <div
+                  className={`relative aspect-[3/4] w-full overflow-hidden rounded-2xl text-white ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
+                >
+                  {art ? (
+                    <Image
+                      src={art}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 160px, 176px"
+                      className="object-cover opacity-90 transition-transform group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 grid place-items-center font-display text-2xl font-bold">
+                      {i + 1}
+                    </span>
+                  )}
+                  <span className="text-ink shadow-soft absolute top-5 left-2.5 grid h-6 w-6 place-items-center rounded-full bg-white text-xs font-bold">
+                    {i + 1}
+                  </span>
+                  <Pill
+                    variant="ink"
+                    className="absolute right-2 bottom-2 px-2 py-0.5 text-[10px]"
+                  >
+                    {t("chapterCards", { count: chapter.cards.length })}
+                  </Pill>
+                </div>
+                <p className="group-hover:text-violet mt-2 line-clamp-1 text-sm font-semibold">
+                  {chapter.title}
+                </p>
+                <p className="text-muted mt-1 line-clamp-2 text-xs leading-relaxed">
+                  {chapter.summary}
+                </p>
+              </StartLearningButton>
+            );
+          })}
+        </CardRail>
 
         {/* You may also like */}
         <div className="mt-10 flex items-center justify-between">
