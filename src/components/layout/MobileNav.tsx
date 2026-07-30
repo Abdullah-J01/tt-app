@@ -30,6 +30,7 @@ import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
 import { SELECTABLE_LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { stripLocale } from "@/i18n/Link";
 import { useSoftKeyboard } from "@/lib/useSoftKeyboard";
+import { useVisualViewportBottom } from "@/lib/useVisualViewportBottom";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -62,6 +63,7 @@ export default function MobileNav() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
   const keyboardOpen = useSoftKeyboard();
+  const viewportBottom = useVisualViewportBottom();
 
   // Immersive card surfaces — the "For You" feed and the studybook reader
   // (full page + intercepted modal, both end in /read) — take over the whole
@@ -184,8 +186,19 @@ export default function MobileNav() {
         the layout viewport, which Android shrinks when the keyboard opens, so
         leaving it mounted marches the bar up over the page content. Hiding it
         gives the native behaviour — the bar sits still and the keyboard covers
-        it. See `useSoftKeyboard`. */}
-      <div className={cn("fixed inset-x-0 bottom-0 z-50", keyboardOpen && "hidden")}>
+        it. See `useSoftKeyboard`.
+
+        `bottom` is driven off the visual viewport rather than left at 0: iOS
+        Safari anchors `fixed` to the taller layout viewport and animates its
+        toolbar over it, which slides the bar up and down mid-scroll. See
+        `useVisualViewportBottom`. */}
+      <div
+        style={{ bottom: viewportBottom }}
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-50",
+          keyboardOpen && "hidden",
+        )}
+      >
         <AnimatePresence>
           {moreOpen && (
             <motion.div
