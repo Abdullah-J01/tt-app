@@ -3,6 +3,20 @@ import { forwardRef, useId, type InputHTMLAttributes, type ReactNode } from "rea
 import { Label } from "./Label";
 import { FieldError } from "./FieldError";
 
+/**
+ * Password managers, autofill helpers and AI assistants stamp their own
+ * attributes (`__gcruniqueid`, `data-lastpass-icon-root`, …) onto every field on
+ * the page between the server HTML landing and hydration running, which React
+ * reports as a hydration mismatch on an attribute we never rendered. Suppressing
+ * it here keeps the console usable; it's spread *before* `...props` so a caller
+ * that wants the warnings back can pass `suppressHydrationWarning={false}`.
+ *
+ * Scope note: this silences mismatch warnings for this `<input>` only, ours
+ * included — a genuine server/client `value`/`defaultValue` divergence on a
+ * field will no longer be reported. Keep it off wrappers and other elements.
+ */
+const hydrationSafe = { suppressHydrationWarning: true } as const;
+
 interface InputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, "size"> {
   /** Field label. Associated via `htmlFor`/`id` (auto-generated when `id` is omitted). */
   label?: string;
@@ -59,7 +73,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const autoId = useId();
 
   if (unstyled) {
-    return <input ref={ref} id={id} className={className} {...props} />;
+    return <input ref={ref} id={id} className={className} {...hydrationSafe} {...props} />;
   }
 
   const fieldId = id ?? autoId;
@@ -96,6 +110,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             "text-ink placeholder:text-muted min-w-0 flex-1 bg-transparent text-[15px] outline-none",
             className,
           )}
+          {...hydrationSafe}
           {...props}
         />
         {trailingIcon && <span className="flex shrink-0 items-center">{trailingIcon}</span>}

@@ -47,7 +47,7 @@ const nextConfig = {
 
   // Lets dev tools (HMR websocket, etc.) load when the dev server is reached
   // from another device on the LAN, e.g. testing on a phone via the host's IP.
-  allowedDevOrigins: ["192.168.18.20"],
+  allowedDevOrigins: ["192.168.18.23"],
 
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];

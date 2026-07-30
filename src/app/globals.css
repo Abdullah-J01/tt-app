@@ -938,6 +938,17 @@ html.lenis {
   overscroll-behavior: contain;
 }
 
+html {
+  /* iOS drags `position: fixed` children along with the rubber-band when the
+     document overscrolls, so at the top of the page a further pull *up* lifts the
+     bottom tab bar away from Safari's own toolbar and opens a gap under it.
+     Nothing about how the bar is positioned can prevent that — the whole
+     scrolling layer is being translated. Refusing the bounce on the root is the
+     fix; Safari 16+ honours it here. It also suppresses Safari's pull-to-refresh,
+     which is the right trade for app chrome that's meant to sit still. */
+  overscroll-behavior-y: none;
+}
+
 body {
   color: var(--color-ink);
   background: var(--color-surface);
@@ -972,12 +983,20 @@ body {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
+/* Keep the `-webkit-` prefix. Unprefixed `backdrop-filter` only landed in Safari
+   18, so commenting it out left every iPhone below that with *no blur at all* —
+   just a 60%-white pane that lets whatever sits behind it read straight through.
+   That's why the mobile tab bar photographs beige over a book cover and pink over
+   a red one: it wasn't frosting the page, it was tinted by it.
+
+   No `will-change: backdrop-filter` either. The blur here is static, and
+   will-change on it pins a permanent compositing snapshot for a full-width bar —
+   expensive on iOS and exactly the layer that goes stale while Safari animates
+   its toolbar. will-change is for properties that actually animate. */
 .glass {
   background: rgb(var(--color-white-rgb) / 0.6);
   backdrop-filter: blur(20px) saturate(160%);
-
-  /* -webkit-backdrop-filter: blur(20px) saturate(160%); */
-  will-change: backdrop-filter;
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 
 /* Dark twin of .glass for immersive dark surfaces (studybook reader) — the
@@ -986,7 +1005,7 @@ body {
 .glass-dark {
   background: rgb(var(--color-ink-rgb) / 0.45);
   backdrop-filter: blur(20px) saturate(160%);
-  will-change: backdrop-filter;
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
 }
 
 .text-gradient-violet {

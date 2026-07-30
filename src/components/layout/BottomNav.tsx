@@ -5,7 +5,6 @@ import { useTranslations } from "@/i18n/client";
 import { usePathname } from "next/navigation";
 import { Home, Compass, Bookmark, User } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useVisualViewportBottom } from "@/lib/useVisualViewportBottom";
 
 const TABS = [
   { href: "/feed", labelKey: "home", icon: Home },
@@ -18,15 +17,12 @@ const TABS = [
 export function BottomNav() {
   const path = stripLocale(usePathname());
   const t = useTranslations("components_layout_BottomNav");
-  // iOS Safari anchors `fixed` to the layout viewport and draws its toolbar over
-  // it, so `bottom: 0` alone drifts mid-scroll. See `useVisualViewportBottom`.
-  const viewportBottom = useVisualViewportBottom();
 
+  // `bottom-0` + the safe-area padding below, nothing else. Lifting this by a
+  // `visualViewport` gap is what made the bar jump mid-scroll on iOS — see the
+  // note in `MobileNav` before trying it again.
   return (
-    <nav
-      style={{ bottom: viewportBottom }}
-      className="border-hairline bg-surface/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur md:hidden"
-    >
+    <nav className="border-hairline bg-surface/95 fixed inset-x-0 bottom-0 z-40 border-t backdrop-blur md:hidden">
       <ul className="mx-auto flex max-w-7xl items-stretch justify-between px-4 pb-[env(safe-area-inset-bottom)] sm:px-6 lg:px-8">
         {TABS.map((tab) => {
           const active = path === tab.href || path.startsWith(`${tab.href}/`);

@@ -30,7 +30,6 @@ import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
 import { SELECTABLE_LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { stripLocale } from "@/i18n/Link";
 import { useSoftKeyboard } from "@/lib/useSoftKeyboard";
-import { useVisualViewportBottom } from "@/lib/useVisualViewportBottom";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -63,7 +62,6 @@ export default function MobileNav() {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const pathname = usePathname();
   const keyboardOpen = useSoftKeyboard();
-  const viewportBottom = useVisualViewportBottom();
 
   // Immersive card surfaces — the "For You" feed and the studybook reader
   // (full page + intercepted modal, both end in /read) — take over the whole
@@ -188,17 +186,16 @@ export default function MobileNav() {
         gives the native behaviour — the bar sits still and the keyboard covers
         it. See `useSoftKeyboard`.
 
-        `bottom` is driven off the visual viewport rather than left at 0: iOS
-        Safari anchors `fixed` to the taller layout viewport and animates its
-        toolbar over it, which slides the bar up and down mid-scroll. See
-        `useVisualViewportBottom`. */}
-      <div
-        style={{ bottom: viewportBottom }}
-        className={cn(
-          "fixed inset-x-0 bottom-0 z-50",
-          keyboardOpen && "hidden",
-        )}
-      >
+        Otherwise: plain `bottom-0`, and keep it that way. Offsetting this by a
+        `visualViewport`-derived gap (layout height − visual height/offsetTop) was
+        tried to "lift the bar above the iOS toolbar" and is exactly what made it
+        jump mid-scroll. iOS Safari already re-anchors `fixed` to the visible rect
+        when its toolbar collapses, so the JS gap double-counts and parks the bar
+        a toolbar's height up over the content; worse, iOS doesn't repaint fixed
+        elements per frame during momentum scroll, so a per-frame inline `bottom`
+        lands out of sync with where the compositor is drawing. The safe-area
+        padding below is the only bottom inset this needs. */}
+      <div className={cn("fixed inset-x-0 bottom-0 z-50", keyboardOpen && "hidden")}>
         <AnimatePresence>
           {moreOpen && (
             <motion.div
