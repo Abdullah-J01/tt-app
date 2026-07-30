@@ -941,7 +941,24 @@ html.lenis {
 body {
   color: var(--color-ink);
   background: var(--color-surface);
-  overflow-x: hidden;
+  /* `clip`, never `hidden`. Other engines propagate an `overflow` on <body> up
+     to the viewport; WebKit instead turns the body into its own scrolling box,
+     and `position: fixed` descendants resolve against *that* — so the mobile
+     bottom bar rode the page scroll on iPhone while sitting still in every
+     desktop browser. `clip` suppresses the same horizontal overflow without
+     creating a scroll container, so fixed children stay pinned to the viewport. */
+  overflow-x: clip;
+}
+
+/* iOS < 16 has no `overflow: clip`. Hoisting the hidden to <html> is safe there
+   — it's the propagation *source*, so no extra scrolling box is introduced. */
+@supports not (overflow: clip) {
+  html {
+    overflow-x: hidden;
+  }
+  body {
+    overflow-x: visible;
+  }
 }
 
 /* noise texture overlay */
