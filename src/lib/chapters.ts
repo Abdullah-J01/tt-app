@@ -20,11 +20,15 @@ export const CHAPTERS_PER_BOOK = 5;
 export const CARDS_PER_CHAPTER = 25;
 
 /**
- * Body length budget, in characters, per tier. The longest tier is what a card
- * can show at the smallest supported viewport (~360×640) without clipping the
- * body — heading, optional image and the body together.
+ * Body length budget, in characters, per tier. Each number is what that tier's
+ * type scale can show at the smallest supported viewport (~360×640) without
+ * clipping — heading, optional image and body together, measured against the
+ * `TIER_STYLES` sizes in StudybookReader. Raising a tier here without shrinking
+ * its type/media there is how a card starts overflowing, so the two move as a
+ * pair. Sized to *fill* the card: a body well under its tier's budget leaves the
+ * dead space above and below that the centring can only spread around.
  */
-export const CARD_BODY_BUDGET = { short: 110, medium: 210, long: 300 } as const;
+export const CARD_BODY_BUDGET = { short: 400, medium: 600, long: 780 } as const;
 
 export type BodyTier = keyof typeof CARD_BODY_BUDGET;
 

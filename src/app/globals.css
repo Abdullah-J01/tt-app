@@ -3,6 +3,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Short-viewport variant, keyed on HEIGHT (Tailwind's own breakpoints are all
+   width). The reader card fills the viewport and never scrolls, so its type
+   scale has to shrink on a short phone (iPhone SE and friends, ~667px) to fit
+   the same body text a 844px phone shows comfortably. Used by TIER_STYLES in
+   StudybookReader — see src/lib/chapters.ts for the character budgets these
+   two sizes are jointly tuned against. */
+@custom-variant short-card (@media (max-height: 740px));
+
 /* ──────────────────────────────────────────────────────────────
    Design tokens — matched to TaskuTark (see docs/UI_DESIGN_BRIEF.md §2)
    In Tailwind v4 these @theme vars generate utilities automatically,

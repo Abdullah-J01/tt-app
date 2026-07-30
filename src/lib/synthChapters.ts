@@ -47,12 +47,14 @@ export interface SynthCopy {
 const TIERS: BodyTier[] = ["short", "medium", "long", "short", "medium"];
 
 /**
- * Sentences combined for each tier. Tuned against the real copy pools to spread
- * bodies across ~50–300 characters, so a chapter visibly mixes one-line bites
- * with denser cards. `buildBody` clamps the result to the tier's budget, so a
- * longer pool can only shorten a card, never overflow one.
+ * Sentences combined for each tier. The pools average ~75 characters a sentence,
+ * so these counts overshoot each tier's budget slightly and `buildBody` clamps
+ * back down to it — that's deliberate: a card should land AT its budget rather
+ * than short of it, or the reader's centring spreads the shortfall as empty
+ * space above and below the text. Clamping means a longer pool can only shorten
+ * a card, never overflow one.
  */
-const SENTENCES_PER_TIER: Record<BodyTier, number> = { short: 1, medium: 2, long: 4 };
+const SENTENCES_PER_TIER: Record<BodyTier, number> = { short: 6, medium: 9, long: 11 };
 
 /** Every third card carries artwork, so the mix of "with image" / "text only" is visible. */
 const IMAGE_EVERY = 3;
@@ -72,10 +74,27 @@ function pick<T>(pool: T[], n: number): T {
   return pool[((n % pool.length) + pool.length) % pool.length]!;
 }
 
-/** Build one body of the given tier by joining consecutive sentences. */
+/**
+ * Build one body of the given tier by joining a consecutive RUN of sentences
+ * starting at a card-specific offset.
+ *
+ * The run is consecutive (`start + i`) rather than strided (`start + i * k`)
+ * on purpose: a stride only visits distinct sentences when it's coprime with
+ * the pool size, and a tier now asks for up to 11 of the 30 available — a
+ * stride of 5 over 30 would cycle after 6 and repeat the same sentence twice in
+ * one body. Consecutive is distinct by construction for any pool ≥ the run.
+ *
+ * Variety between cards comes from spreading the *starts*: `n * START_STRIDE`
+ * puts neighbouring cards ~21 sentences apart in a 30-sentence pool, so two
+ * cards you read back to back share a couple of lines rather than most of them.
+ */
+const START_STRIDE = 7;
+
 function buildBody(copy: SynthCopy, tier: BodyTier, n: number): string {
   const parts: string[] = [];
-  for (let i = 0; i < SENTENCES_PER_TIER[tier]; i++) parts.push(pick(copy.sentences, n + i * 5));
+  for (let i = 0; i < SENTENCES_PER_TIER[tier]; i++) {
+    parts.push(pick(copy.sentences, n * START_STRIDE + i));
+  }
   return clampBody(parts.join(" "), CARD_BODY_BUDGET[tier]);
 }
 

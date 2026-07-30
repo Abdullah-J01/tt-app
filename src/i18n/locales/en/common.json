@@ -1367,7 +1367,25 @@
       "s9": "This is the step people skip, and the one that decides the answer.",
       "s10": "Write it down before you check — being wrong here is how it sticks.",
       "s11": "Everything in this chapter is a variation on this one move.",
-      "s12": "Come back to this card when the later ones stop making sense."
+      "s12": "Come back to this card when the later ones stop making sense.",
+      "s13": "Read the question twice — half the mistakes here are answers to a different one.",
+      "s14": "The method is the same whether the numbers are small or enormous.",
+      "s15": "If a step feels arbitrary, you have not found the reason for it yet.",
+      "s16": "Draw it before you calculate; the picture usually does half the work.",
+      "s17": "Check the units at the end and most slips announce themselves.",
+      "s18": "The hard part is deciding which rule applies, not applying it.",
+      "s19": "Do the easy version first, then change one thing at a time.",
+      "s20": "A definition you can use is worth more than one you can recite.",
+      "s21": "When two things look alike, name the difference out loud.",
+      "s22": "Estimate the answer first — then you know whether the result is sane.",
+      "s23": "The order of the steps is not decoration; swap two and the answer moves.",
+      "s24": "Every worked example here hides the same three decisions.",
+      "s25": "If you get stuck, go back one card — the missing piece is usually there.",
+      "s26": "Say what you are looking for before you start looking for it.",
+      "s27": "The exam version of this looks longer, but it asks for exactly this.",
+      "s28": "Practise the move on something boring until it needs no thought.",
+      "s29": "Two wrong attempts teach more than one lucky guess.",
+      "s30": "You have finished this idea when you can explain it to someone else."
     }
   },
   "components_auth_LoginRequired": {

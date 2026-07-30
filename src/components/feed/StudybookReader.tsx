@@ -33,22 +33,32 @@ import type { Studybook, StudyCard } from "@/types";
  * has to survive the longest body, each length gets the size that fills the card:
  * a one-line bite reads large, a dense one shrinks to fit. Content is generated
  * (and TT content clamped) inside these budgets — see src/lib/chapters.ts.
+ *
+ * Three axes, because the box the text has to fit changes shape in two ways:
+ * - base = a phone in portrait (the card is the whole viewport)
+ * - `sm:` = the card becomes a FIXED 80vh/720px frame, so it has *less* room
+ *   than a tall phone even on a big monitor — the type steps DOWN here, it
+ *   doesn't step up
+ * - `short-card:` (max-height: 740px, defined in globals.css) = short viewports
+ *   — an SE-sized phone, or a laptop window with devtools open
+ * Every size here is tuned jointly with CARD_BODY_BUDGET; changing one without
+ * the other is what makes a card clip.
  */
 const TIER_STYLES: Record<BodyTier, { heading: string; body: string; media: string }> = {
   short: {
-    heading: "text-3xl sm:text-4xl",
-    body: "text-lg leading-relaxed sm:text-xl",
-    media: "h-44 sm:h-48",
+    heading: "text-3xl short-card:text-2xl",
+    body: "text-lg leading-relaxed short-card:text-[15px] sm:text-[17px]",
+    media: "h-44 short-card:h-28 sm:h-40",
   },
   medium: {
-    heading: "text-2xl sm:text-3xl",
-    body: "text-base leading-relaxed sm:text-lg",
-    media: "h-36 sm:h-40",
+    heading: "text-2xl short-card:text-xl",
+    body: "text-base leading-relaxed short-card:text-[13px] sm:text-[15px]",
+    media: "h-36 short-card:h-24 sm:h-32",
   },
   long: {
-    heading: "text-xl sm:text-2xl",
-    body: "text-[15px] leading-relaxed sm:text-base",
-    media: "h-28 sm:h-32",
+    heading: "text-xl short-card:text-lg",
+    body: "text-[15px] leading-relaxed short-card:text-[12px] sm:text-[14px]",
+    media: "h-28 short-card:h-20 sm:h-28",
   },
 };
 
@@ -349,15 +359,15 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     return (
       <>
         {/* Insets clear the header (bars + meta) above and the controls below.
-            Centering comes from my-auto on the card (not items-center): auto
-            margins split the leftover space evenly above and below a short card
-            instead of dumping it all at the bottom, but they collapse to 0 the
-            moment content is taller than the area, so a long card still starts
-            right under the header rather than riding up underneath it.
+            Content is TOP-aligned (items-start), not centred: every card then
+            starts its heading at the same y, so stepping through a chapter
+            doesn't bounce the text up and down as bodies change length. A short
+            card leaves its slack at the bottom, where the next-card peek sits,
+            rather than splitting it above and below the text.
             overflow-hidden is the backstop for the no-scroll rule — nothing
             should ever reach it. */}
-        <div className="absolute inset-x-0 top-[100px] bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] flex overflow-hidden px-5 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
-          <div className="my-auto w-full max-w-md">
+        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] flex items-start overflow-hidden px-5 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
+          <div className="w-full max-w-md">
             <h2 className={cn("font-display leading-tight font-bold text-white", tier.heading)}>
               {c.heading}
             </h2>

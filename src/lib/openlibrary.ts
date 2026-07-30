@@ -66,9 +66,12 @@ function slugify(s: string): string {
     .slice(0, 48);
 }
 
-/** Pools sizes in the `catalog` namespace — keep in step with the message files. */
+/** Pools sizes in the `catalog` namespace — keep in step with the message files.
+ *  The sentence pool has to stay comfortably larger than the biggest
+ *  SENTENCES_PER_TIER run (src/lib/synthChapters.ts), or every long card ends up
+ *  reading the same lines in a different order. */
 const HEADING_POOL = 12;
-const SENTENCE_POOL = 12;
+const SENTENCE_POOL = 30;
 
 /** Resolve the localized copy pools once per book, with {title}/{subject} filled in. */
 function synthCopy(title: string, subject: string, t: Translator): SynthCopy {
