@@ -134,7 +134,11 @@ function mapWork(
   };
 }
 
-async function fetchSubject(subjectSlug: string, t: Translator, locale: Locale): Promise<Studybook[]> {
+async function fetchSubject(
+  subjectSlug: string,
+  t: Translator,
+  locale: Locale,
+): Promise<Studybook[]> {
   const olSubject = OL_SUBJECT[subjectSlug] ?? "science";
   const subjectName = t(`subject.${subjectSlug}`);
   try {
@@ -184,7 +188,11 @@ function matchSubject(subjects?: string[]): string {
 }
 
 /** Fetch a single OL work by id (parsed from the slug) and map it to a Studybook. */
-async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<Studybook | undefined> {
+async function fetchWork(
+  olId: string,
+  t: Translator,
+  locale: Locale,
+): Promise<Studybook | undefined> {
   try {
     const res = await fetch(`https://openlibrary.org/works/${olId}.json`, {
       next: { revalidate: 60 * 60 * 24 },
@@ -253,7 +261,10 @@ async function fetchWork(olId: string, t: Translator, locale: Locale): Promise<S
  * catalog doesn't contain it this request, we fetch the exact work by the OL id
  * embedded in the slug (…-olXXXXw) so detail links never 404.
  */
-export async function getOpenLibraryStudybook(slug: string, locale: Locale): Promise<Studybook | undefined> {
+export async function getOpenLibraryStudybook(
+  slug: string,
+  locale: Locale,
+): Promise<Studybook | undefined> {
   const hit = (await getOpenLibraryCatalog(locale)).find((b) => b.slug === slug);
   if (hit) return hit;
 

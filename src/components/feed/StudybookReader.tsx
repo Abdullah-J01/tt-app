@@ -334,33 +334,14 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   if (!chapter || !active) return null;
 
   /**
-   * The card the OTHER on-screen copy is rendering while a move is in flight —
-   * the drag's revealed neighbour, or the outgoing copy of a CSS turn. Null when
-   * only one copy is up.
-   */
-  const siblingGlobal = drag?.reveal ? activeGlobal + drag.dir : turn ? turn.from : null;
-
-  /**
    * One card's contents, addressed by its GLOBAL index so the outgoing copy can
-   * render a card from the chapter we just left. Rendered twice mid-transition.
+   * render a card from the chapter we just left. Several copies are on screen at
+   * once — see STRIDE below.
    */
   const renderCard = (global: number) => {
     const c = book.cards[global];
     if (!c) return null;
     const tier = TIER_STYLES[bodyTier(c.body)];
-    // The next card, showing through at the bottom edge so "there's more below"
-    // is visible rather than instructed. It renders at the NEXT card's own tier
-    // sizes — the real heading, the real body, just clipped by the card edge —
-    // so what you start dragging is continuous with what was already showing,
-    // not a shrunken caption that swaps for something else.
-    const next = book.cards[global + 1];
-    const nextTier = next ? TIER_STYLES[bodyTier(next.body)] : null;
-    // ...but not while that card is ALREADY on screen as the other copy: you'd
-    // read the same heading twice, once here and once full-size right behind
-    // it. Whichever copy is the duplicate fades this out. Covers both
-    // directions: a forward move duplicates via the OUTGOING copy's strip, a
-    // backward one via the INCOMING copy's.
-    const nextDuplicated = siblingGlobal !== null && global + 1 === siblingGlobal;
     return (
       <>
         {/* Insets clear the header (bars + meta) above and the controls below.
@@ -399,35 +380,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             <p className={cn("text-white/75", tier.body, c.image ? "" : "mt-4")}>{c.body}</p>
           </div>
         </div>
-
-        {/* Next card, bleeding off the bottom edge. Sits inside the card copy so
-            it travels with it during a transition. Dimmed, but at full size —
-            it's the top of the real thing, cut off by the card, which is what
-            makes the drag feel like it continues this text rather than
-            replacing it. */}
-        {next && nextTier && (
-          <div
-            aria-hidden
-            style={
-              nextDuplicated
-                ? { opacity: 0, transition: `opacity ${DRAG_SETTLE_MS}ms ease-out` }
-                : undefined
-            }
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-[calc(env(safe-area-inset-bottom,0px)+4rem)] overflow-hidden px-5 sm:px-8"
-          >
-            <div className="w-full max-w-md">
-              <h2
-                className={cn(
-                  "font-display leading-tight font-bold text-white/35",
-                  nextTier.heading,
-                )}
-              >
-                {next.heading}
-              </h2>
-              <p className={cn("mt-2 text-white/20", nextTier.body)}>{next.body}</p>
-            </div>
-          </div>
-        )}
       </>
     );
   };
@@ -444,34 +396,49 @@ export default function StudybookReader({ book }: { book: Studybook }) {
       : transitionPair("y", turn.dir)
     : null;
 
-  // Finger-following transforms while a drag is live. Not settling: both copies
-  // sit exactly `delta` px along from their rest positions (the incoming one a
-  // full card away). Settling: the same inline styles pick up a transition and
-  // jump to their end positions, so the browser animates the remainder; the
+  /**
+   * Distance between one card's content-top and the next one's — the whole
+   * reader is a strip of card copies spaced by this, and a swipe scrolls the
+   * strip by exactly one stride.
+   *
+   * It is a card height MINUS the content inset and the peek band, not a full
+   * card: the next card rests with its first `--peek` of content already showing
+   * above the bottom edge, which is the swipe affordance. Because it's the real
+   * copy sitting there (not a summary of it), dragging up just carries that text
+   * to where the current card's text is now — nothing is hidden and swapped
+   * mid-gesture. Expressed in CSS so it needs no measurement: the copies are
+   * `inset-0`, so `100%` is the card height, and `--content-top`/`--peek` are
+   * set on the card surface (and re-set at `sm:`, where the inset changes).
+   */
+  const STRIDE = "(100% - var(--content-top) - var(--peek))";
+  const offsetBy = (steps: -1 | 0 | 1, px: number) =>
+    `translateY(calc(${steps} * ${STRIDE} + ${px}px))`;
+
+  // Finger-following transforms. Not settling: every copy sits `delta` px along
+  // from its resting slot. Settling: the same inline styles pick up a transition
+  // and jump to their end slots, so the browser animates the remainder; the
   // hook's timeout then commits/clears. Drag and `turn` are mutually exclusive
   // (each blocks the other via its lock), so `pair` is never set here.
   const settleEase = `transform ${DRAG_SETTLE_MS}ms cubic-bezier(0.22, 1, 0.36, 1)`;
-  const dragActiveStyle = drag
-    ? {
-        transform: drag.settling
-          ? drag.settling === "commit"
-            ? `translateY(${drag.dir === 1 ? "-100%" : "100%"})`
-            : "translateY(0px)"
-          : `translateY(${drag.delta}px)`,
-        transition: drag.settling ? settleEase : "none",
-      }
-    : undefined;
-  const dragIncomingStyle =
-    drag && drag.reveal
-      ? {
-          transform: drag.settling
-            ? drag.settling === "commit"
-              ? "translateY(0px)"
-              : `translateY(${drag.dir === 1 ? "100%" : "-100%"})`
-            : `translateY(calc(${drag.dir === 1 ? "100%" : "-100%"} + ${drag.delta}px))`,
-          transition: drag.settling ? settleEase : "none",
-        }
-      : undefined;
+  /** Where the copy resting at `slot` should sit for the current drag state. */
+  const slotStyle = (slot: -1 | 0 | 1): React.CSSProperties | undefined => {
+    if (!drag) return slot === 0 ? undefined : { transform: offsetBy(slot, 0) };
+    // A commit shifts every copy one slot toward the card being committed to.
+    const shift = drag.settling === "commit" ? -drag.dir : 0;
+    const settled = drag.settling !== null;
+    return {
+      transform: offsetBy((slot + shift) as -1 | 0 | 1, settled ? 0 : drag.delta),
+      transition: settled ? settleEase : "none",
+    };
+  };
+
+  // The card below always renders — that resting peek IS the affordance. It is
+  // withheld only when the gate would stop you reaching it, so a guest can never
+  // read past the free preview by looking at the bottom of the last free card.
+  const nextGlobal = activeGlobal + 1;
+  const showNext = nextGlobal < total && !(guestGated && nextGlobal >= FREE_PREVIEW_CARDS) && !turn;
+  // The card above only exists mid-gesture — nothing rests off the top edge.
+  const showPrev = drag?.reveal === true && drag.dir === -1;
   return (
     <main
       ref={containerRef}
@@ -480,41 +447,65 @@ export default function StudybookReader({ book }: { book: Studybook }) {
       {/* Positioning frame — NOT clipped, so the rail can sit outside on desktop
           (same pattern as the feed on desktop). */}
       <div className="relative h-[100dvh] w-full max-w-full sm:h-[80vh] sm:max-h-[720px] sm:max-w-md">
-        {/* Phone-style reader surface — clipped, rounded on larger screens */}
-        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]">
-          {/* Cards. Both copies stay transparent, so only the content travels and
-              the card's gradient sits still behind them. Kept under the header and
-              controls (z-20) so those hold their position while cards move.
-              During a drag the active copy carries the finger-following inline
-              transform instead of an animation class. */}
-          <div
-            onAnimationEnd={(e) => e.target === e.currentTarget && end()}
-            className={cn("absolute inset-0", pair?.incoming)}
-            style={dragActiveStyle}
-          >
-            {renderCard(activeGlobal)}
-          </div>
-
-          {/* The neighbor a drag is revealing, riding one card-height behind the
-              finger. Swapped for the real thing at commit time by onCommit's
-              state change, which lands exactly where this copy settled. */}
-          {drag && dragIncomingStyle && (
-            <div className="pointer-events-none absolute inset-0" style={dragIncomingStyle}>
-              {renderCard(activeGlobal + drag.dir)}
-            </div>
-          )}
-
-          {turn && pair && (
+        {/* Phone-style reader surface — clipped, rounded on larger screens.
+            `--content-top` must track the content box's own top inset and
+            `--peek` how much of the next card shows at rest; STRIDE is derived
+            from the pair, so they have to be changed together. */}
+        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none [--content-top:150px] [--peek:3.5rem] sm:rounded-[2.25rem] sm:[--content-top:96px] lg:rounded-[2.75rem]">
+          {/* Every card copy lives inside this masked layer, which does NOT move
+              — so the fade stays pinned to the card's bottom edge while content
+              slides under it. The peek dissolves into the background instead of
+              being cut off by it.
+              A mask, not a coloured scrim: the card behind is `bg-plum-gradient`,
+              so any solid "fade to purple" overlay would be the wrong purple at
+              some scroll positions. Masking makes the text itself go
+              transparent, whatever is behind it. It starts below the content
+              box's own bottom inset (4.5rem), so a full-length body stays fully
+              opaque and only the peeking next card fades. */}
+          <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,#000_calc(100%_-_4.5rem),rgba(0,0,0,0.3)_calc(100%_-_3.25rem),transparent_calc(100%_-_1.75rem))] [-webkit-mask-image:linear-gradient(to_bottom,#000_calc(100%_-_4.5rem),rgba(0,0,0,0.3)_calc(100%_-_3.25rem),transparent_calc(100%_-_1.75rem))]">
+            {/* Cards. Every copy stays transparent, so only the content travels
+                and the card's gradient sits still behind them. Kept under the
+                header (z-20/z-30) so that holds position while cards move.
+                During a drag each copy carries the finger-following inline
+                transform instead of an animation class. */}
             <div
-              // Keyed so a fresh transition remounts and restarts the animation
-              // rather than reusing the element mid-flight.
-              key={`${turn.from}:${turn.dir}`}
               onAnimationEnd={(e) => e.target === e.currentTarget && end()}
-              className={cn("pointer-events-none absolute inset-0", pair.outgoing)}
+              className={cn("absolute inset-0", pair?.incoming)}
+              style={slotStyle(0)}
             >
-              {renderCard(turn.from)}
+              {renderCard(activeGlobal)}
             </div>
-          )}
+
+            {/* The card BELOW, resting one stride down so its first `--peek` of
+                content shows past the bottom edge. It is on screen before the
+                gesture starts and the same element travels up into place, so a
+                swipe moves the text you were already reading rather than hiding
+                a summary and revealing the real thing behind it. */}
+            {showNext && (
+              <div className="pointer-events-none absolute inset-0" style={slotStyle(1)}>
+                {renderCard(nextGlobal)}
+              </div>
+            )}
+
+            {/* The card ABOVE — only while a backward drag is pulling it down. */}
+            {showPrev && (
+              <div className="pointer-events-none absolute inset-0" style={slotStyle(-1)}>
+                {renderCard(activeGlobal - 1)}
+              </div>
+            )}
+
+            {turn && pair && (
+              <div
+                // Keyed so a fresh transition remounts and restarts the
+                // animation rather than reusing the element mid-flight.
+                key={`${turn.from}:${turn.dir}`}
+                onAnimationEnd={(e) => e.target === e.currentTarget && end()}
+                className={cn("pointer-events-none absolute inset-0", pair.outgoing)}
+              >
+                {renderCard(turn.from)}
+              </div>
+            )}
+          </div>
 
           {/* Top bar: back · CHAPTER (opens the picker) · actions menu. The
               chapter name lives here because it's what changes when you pick a
@@ -547,7 +538,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
                 total: chapters.length,
                 title: chapter.title,
               })}
-              className="flex min-w-0 max-w-[60%] items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium backdrop-blur transition-colors hover:bg-white/15"
+              className="flex max-w-[60%] min-w-0 items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-sm font-medium backdrop-blur transition-colors hover:bg-white/15"
             >
               <Zap className="h-3.5 w-3.5 shrink-0 fill-white/90" />
               <span className="truncate">{chapter.title}</span>
@@ -639,7 +630,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               ))}
             </div>
             <div className="mt-2 flex items-baseline justify-end gap-3">
-             
               <p className="truncate text-[11px] font-semibold tracking-[0.18em] text-white/50 uppercase">
                 {book.title}
               </p>
