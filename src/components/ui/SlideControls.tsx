@@ -18,8 +18,10 @@ export interface SlideControlsProps {
    * `index === 0`.
    */
   disablePrev?: boolean;
-  /** Caller-owned copy, so this stays out of any one i18n namespace. */
-  labels: { previous: string; next: string; hint: string };
+  /** Caller-owned copy, so this stays out of any one i18n namespace. `hint`
+   * is the caption under the touch chevron — omit it to render nothing on
+   * touch and let the swipe carry itself. */
+  labels: { previous: string; next: string; hint?: string };
   /**
    * Disable Next on the last slide. Off by default: callers that *finish* on
    * Next (the reader's streak completion) need it live all the way through.
@@ -66,7 +68,9 @@ export function SlideControls({
         >
           <ChevronUp className="h-5 w-5" />
         </motion.span>
-        <span className="text-xs font-medium">{labels.hint}</span>
+        {labels.hint && (
+          <span className="max-w-full truncate px-4 text-xs font-medium">{labels.hint}</span>
+        )}
       </button>
 
       {/* Desktop: no swipe to lean on, so real buttons. */}

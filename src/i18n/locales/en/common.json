@@ -309,6 +309,11 @@
     "login": "Log in"
   },
   "components_feed_ActionRail": {
+    "actions": "More actions",
+    "like": "Like",
+    "liked": "Liked",
+    "save": "Save",
+    "saved": "Saved",
     "share": "Share",
     "openBook": "Open studybook",
     "loginToSave": "Log in to save and like",
@@ -351,15 +356,10 @@
     "cardProgress": "Card {current}/{total}",
     "previousCard": "Previous card",
     "nextCard": "Next card",
-    "swipeHint": "Swipe up · next card",
-    "saved": "Saved",
-    "save": "Save",
     "loginToContinue": "Log in to keep reading",
     "chapterProgress": "Chapter {current}/{total}",
     "chapterOf": "Chapter {current} of {total}: {title}",
     "nextChapter": "Next chapter",
-    "nextChapterHint": "Next chapter · {title}",
-    "finishHint": "Last card · finish",
     "finish": "Finish studybook",
     "chapters": "Chapters",
     "chapterCards": "{count, plural, one {# card} other {# cards}}"

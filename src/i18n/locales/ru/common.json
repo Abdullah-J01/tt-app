@@ -212,6 +212,11 @@
     "login": "Log in"
   },
   "components_feed_ActionRail": {
+    "actions": "Больше действий",
+    "like": "Нравится",
+    "liked": "Понравилось",
+    "save": "Сохранить",
+    "saved": "Сохранено",
     "share": "Share",
     "openBook": "Open studybook",
     "loginToSave": "Войдите, чтобы сохранять и ставить лайки",
@@ -254,15 +259,10 @@
     "cardProgress": "Карточка {current}/{total}",
     "previousCard": "Previous card",
     "nextCard": "Next card",
-    "swipeHint": "Swipe up · next card",
-    "saved": "Saved",
-    "save": "Save",
     "loginToContinue": "Log in to keep reading",
     "chapterProgress": "Глава {current}/{total}",
     "chapterOf": "Глава {current} из {total}: {title}",
     "nextChapter": "Следующая глава",
-    "nextChapterHint": "Следующая глава · {title}",
-    "finishHint": "Последняя карточка · завершить",
     "finish": "Завершить учебник",
     "chapters": "Главы",
     "chapterCards": "{count, plural, one {# карточка} few {# карточки} other {# карточек}}"

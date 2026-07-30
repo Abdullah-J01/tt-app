@@ -309,6 +309,11 @@
     "login": "Logi sisse"
   },
   "components_feed_ActionRail": {
+    "actions": "Rohkem toiminguid",
+    "like": "Meeldib",
+    "liked": "Meeldis",
+    "save": "Salvesta",
+    "saved": "Salvestatud",
     "share": "Jaga",
     "openBook": "Ava õpik",
     "loginToSave": "Salvestamiseks ja meeldimiseks logi sisse",
@@ -351,15 +356,10 @@
     "cardProgress": "Kaart {current}/{total}",
     "previousCard": "Eelmine kaart",
     "nextCard": "Järgmine kaart",
-    "swipeHint": "Pühi üles · järgmine kaart",
-    "saved": "Salvestatud",
-    "save": "Salvesta",
     "loginToContinue": "Logi sisse, et edasi lugeda",
     "chapterProgress": "Peatükk {current}/{total}",
     "chapterOf": "Peatükk {current}/{total}: {title}",
     "nextChapter": "Järgmine peatükk",
-    "nextChapterHint": "Järgmine peatükk · {title}",
-    "finishHint": "Viimane kaart · lõpeta",
     "finish": "Lõpeta õpik",
     "chapters": "Peatükid",
     "chapterCards": "{count, plural, one {# kaart} other {# kaarti}}"

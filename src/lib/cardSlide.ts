@@ -209,6 +209,171 @@ export function useSwipeNav(
   }, [ref, enabled, verticalOnly, next, prev]);
 }
 
+/** Pointer travel before a touch counts as a drag rather than a tap, in px. */
+const DRAG_START_PX = 8;
+/** How long the release animation (finish the slide, or spring back) runs. */
+export const DRAG_SETTLE_MS = 280;
+/** Flick: a release faster than this commits even before the distance threshold. */
+const FLICK_VELOCITY = 0.5; // px/ms
+
+/** A live drag gesture, for the caller to render finger-following copies from. */
+export interface CardDrag {
+  /** Pointer offset from the drag's start, px — negative when dragging up. */
+  delta: number;
+  /** Which neighbor the drag exposes: +1 next (dragging up), -1 prev. */
+  dir: 1 | -1;
+  /** Whether that neighbor may be shown — false rubber-bands instead. */
+  reveal: boolean;
+  /** Release animation in flight: finish the move, or spring back. */
+  settling: "commit" | "cancel" | null;
+}
+
+export interface DragNavOptions {
+  /** Same mount trap as `useSwipeNav`'s `enabled`. */
+  enabled?: boolean;
+  /** Caller's in-flight lock (e.g. a wheel/keyboard CSS turn) — blocks drag start. */
+  isLocked?: () => boolean;
+  /** Whether a neighbor exists in `dir` and may be revealed mid-drag. */
+  canReveal: (dir: 1 | -1) => boolean;
+  /** Commit the position change — called AFTER the settle animation, so the
+   * caller must swap state without starting its own transition. */
+  onCommit: (dir: 1 | -1) => void;
+  /** A firm pull toward a neighbor that can't be revealed (gated card, end of
+   * book) — fires alongside the spring-back so the caller can react (open the
+   * login gate, finish the book). */
+  onBlocked?: (dir: 1 | -1) => void;
+}
+
+/**
+ * Finger-following drag nav — the TikTok/Reels gesture. Where `useSwipeNav`
+ * fires a discrete step at a threshold, this reports the live drag so the
+ * caller can move the outgoing card with the pointer and reveal the incoming
+ * one behind it; on release it settles (commit past ~20% of the surface or on
+ * a flick, spring back otherwise) and only then calls `onCommit`.
+ *
+ * Same load-bearing choices as `useSwipeNav`: Pointer events (one path for
+ * touch, pen and mouse) and the element needs `touch-action: none`. Vertical
+ * only by design — horizontal stays reserved for chapter affordances.
+ *
+ * Under reduced motion the drag still follows the finger (direct manipulation,
+ * not an animation) but the release resolves instantly — no settle to wait on.
+ */
+export function useDragNav(
+  ref: RefObject<HTMLElement | null>,
+  options: DragNavOptions,
+): CardDrag | null {
+  const { enabled = true } = options;
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const opts = useLatest(options);
+  const isReduced = useLatest(reduced);
+  const [drag, setDrag] = useState<CardDrag | null>(null);
+
+  useEffect(() => {
+    const node = ref.current;
+    if (!enabled || !node) return;
+    // Re-bound so the narrowing survives into the hoisted handlers below.
+    const el: HTMLElement = node;
+    let start: { x: number; y: number; id: number } | null = null;
+    let dragging = false;
+    let settling = false;
+    let settleTimer: number | undefined;
+    let last = { y: 0, t: 0, vy: 0 };
+
+    /** Rubber-band when there's nothing to reveal: heavy damping, short leash. */
+    const damped = (dy: number) => Math.max(-72, Math.min(72, dy / 3));
+
+    const settle = (phase: "commit" | "cancel", dir: 1 | -1, dy: number, reveal: boolean) => {
+      if (isReduced.current) {
+        if (phase === "commit") opts.current.onCommit(dir);
+        setDrag(null);
+        return;
+      }
+      settling = true;
+      setDrag({ delta: reveal ? dy : damped(dy), dir, reveal, settling: phase });
+      settleTimer = window.setTimeout(() => {
+        settling = false;
+        if (phase === "commit") opts.current.onCommit(dir);
+        setDrag(null);
+      }, DRAG_SETTLE_MS);
+    };
+
+    function onDown(e: PointerEvent) {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      if (settling || opts.current.isLocked?.()) return;
+      start = { x: e.clientX, y: e.clientY, id: e.pointerId };
+      dragging = false;
+      last = { y: e.clientY, t: e.timeStamp, vy: 0 };
+    }
+
+    function onMove(e: PointerEvent) {
+      if (!start || e.pointerId !== start.id) return;
+      const dx = e.clientX - start.x;
+      const dy = e.clientY - start.y;
+      if (!dragging) {
+        // Vertical intent only — a sideways or sub-slop move stays a tap.
+        if (Math.abs(dy) < DRAG_START_PX || Math.abs(dy) < Math.abs(dx)) return;
+        dragging = true;
+        try {
+          el.setPointerCapture(e.pointerId);
+        } catch {
+          /* pointer already gone — the up/cancel handlers still fire */
+        }
+      }
+      const dt = e.timeStamp - last.t;
+      if (dt > 0) last = { y: e.clientY, t: e.timeStamp, vy: (e.clientY - last.y) / dt };
+      // Direction re-reads every move so a drag pulled back through its origin
+      // flips cleanly to revealing the other neighbor.
+      const dir: 1 | -1 = dy < 0 ? 1 : -1;
+      const reveal = opts.current.canReveal(dir);
+      setDrag({ delta: reveal ? dy : damped(dy), dir, reveal, settling: null });
+    }
+
+    function onUp(e: PointerEvent) {
+      if (!start || e.pointerId !== start.id) return;
+      const dy = e.clientY - start.y;
+      const vy = last.vy;
+      const wasDragging = dragging;
+      start = null;
+      dragging = false;
+      if (!wasDragging) return;
+
+      const dir: 1 | -1 = dy < 0 ? 1 : -1;
+      const reveal = opts.current.canReveal(dir);
+      const surface = el.clientHeight || 600;
+      const flick =
+        Math.abs(vy) > FLICK_VELOCITY && (vy < 0 ? 1 : -1) === dir && Math.abs(dy) > 24;
+      const commit = reveal && (Math.abs(dy) > Math.max(70, surface * 0.2) || flick);
+      if (!reveal && Math.abs(dy) > 70) opts.current.onBlocked?.(dir);
+      settle(commit ? "commit" : "cancel", dir, dy, reveal);
+    }
+
+    function onCancel(e: PointerEvent) {
+      if (!start || e.pointerId !== start.id) return;
+      const dy = e.clientY - start.y;
+      const wasDragging = dragging;
+      start = null;
+      dragging = false;
+      if (!wasDragging) return;
+      settle("cancel", dy < 0 ? 1 : -1, dy, opts.current.canReveal(dy < 0 ? 1 : -1));
+    }
+
+    el.addEventListener("pointerdown", onDown);
+    el.addEventListener("pointermove", onMove);
+    el.addEventListener("pointerup", onUp);
+    el.addEventListener("pointercancel", onCancel);
+    return () => {
+      el.removeEventListener("pointerdown", onDown);
+      el.removeEventListener("pointermove", onMove);
+      el.removeEventListener("pointerup", onUp);
+      el.removeEventListener("pointercancel", onCancel);
+      window.clearTimeout(settleTimer);
+      setDrag(null);
+    };
+  }, [ref, enabled, opts, isReduced]);
+
+  return drag;
+}
+
 /**
  * Wheel / trackpad nav on `ref` — the desktop counterpart to `useSwipeNav`, and
  * the reason both screens navigate identically on a laptop.
