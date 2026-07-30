@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Check, ChevronDown, Zap } from "lucide-react";
 import { CardActionsMenu } from "./CardActionsMenu";
 import { slugify } from "./feedData";
-import { SlideControls } from "@/components/ui/SlideControls";
 import {
   DRAG_SETTLE_MS,
   LOCK_MS,
@@ -15,7 +14,6 @@ import {
   transitionPair,
   useCardTurn,
   useDragNav,
-  useSlideAxis,
   useWheelNav,
 } from "@/lib/cardSlide";
 import { bodyTier, chapterFromParam } from "@/lib/chapters";
@@ -123,9 +121,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   // just over the narrow card surface (matters on desktop where the cursor
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
-  // Only the slide axis reads the viewport — SlideControls shows/hides in CSS,
-  // so it renders server-side and can't mismatch on hydration.
-  const axis = useSlideAxis();
   const { turn, begin, end } = useCardTurn();
 
   // Re-sync if the URL's ?chapter= changes under an ALREADY-MOUNTED reader — e.g.
@@ -239,14 +234,12 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     else router.push(`/studybook/${book.slug}`);
   }, [router, book.slug]);
 
-  // Desktop (lg+, same cutoff as useSlideAxis) moves cards ONLY via the
-  // SlideControls chevrons — wheel/trackpad and click-drag are both off there,
-  // so scrolling the page or grabbing the card with a mouse can't accidentally
-  // flip a card. Below `lg`, the drag gesture is the primary nav and it's
-  // vertical-only: horizontal is reserved for the chapter picker. Everything
-  // also pauses while a popover is open so a tap/scroll inside it can't read
-  // as a swipe.
-  const isDesktop = axis === "x";
+  // Drag + wheel navigate at EVERY size. They used to be off at lg+, where the
+  // SlideControls chevrons were the only way to move — with those gone, leaving
+  // them off would leave desktop with keyboard-only navigation. The gesture is
+  // vertical-only regardless: horizontal is reserved for the chapter picker.
+  // Everything pauses while a popover is open so a tap/scroll inside it can't
+  // read as a swipe.
   const anyMenuOpen = chapterMenuOpen || actionsMenuOpen;
 
   /**
@@ -258,7 +251,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
    * login popup opens instead via `onBlocked`.
    */
   const drag = useDragNav(containerRef, {
-    enabled: !isDesktop && !anyMenuOpen,
+    enabled: !anyMenuOpen,
     isLocked: () => lockRef.current,
     canReveal: (dir) => {
       const target = activeGlobal + dir;
@@ -286,7 +279,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     dragBusyRef.current = drag !== null;
   }, [drag]);
   useWheelNav(containerRef, goNext, goPrev, {
-    enabled: !isDesktop && !anyMenuOpen,
+    enabled: !anyMenuOpen,
     isLocked: () => lockRef.current || dragBusyRef.current,
   });
 
@@ -341,32 +334,44 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   if (!chapter || !active) return null;
 
   /**
+   * The card the OTHER on-screen copy is rendering while a move is in flight —
+   * the drag's revealed neighbour, or the outgoing copy of a CSS turn. Null when
+   * only one copy is up.
+   */
+  const siblingGlobal = drag?.reveal ? activeGlobal + drag.dir : turn ? turn.from : null;
+
+  /**
    * One card's contents, addressed by its GLOBAL index so the outgoing copy can
    * render a card from the chapter we just left. Rendered twice mid-transition.
    */
-  const renderCard = (global: number, peekStyle?: React.CSSProperties) => {
+  const renderCard = (global: number) => {
     const c = book.cards[global];
     if (!c) return null;
     const tier = TIER_STYLES[bodyTier(c.body)];
-    // The flat list's next card is exactly where goNext lands (next in the
-    // chapter, or the first card of the next one) — its text peeks from the
-    // bottom edge below, undefined only on the book's very last card.
-    // During a drag the peek stays put — riding at this card's bottom it reads
-    // as the incoming card's text (it IS that card's text) until the real,
-    // centered content catches up; `peekStyle` fades it during the commit
-    // settle so the two never sit doubled at rest.
-    const peek = book.cards[global + 1];
+    // The next card, showing through at the bottom edge so "there's more below"
+    // is visible rather than instructed. It renders at the NEXT card's own tier
+    // sizes — the real heading, the real body, just clipped by the card edge —
+    // so what you start dragging is continuous with what was already showing,
+    // not a shrunken caption that swaps for something else.
+    const next = book.cards[global + 1];
+    const nextTier = next ? TIER_STYLES[bodyTier(next.body)] : null;
+    // ...but not while that card is ALREADY on screen as the other copy: you'd
+    // read the same heading twice, once here and once full-size right behind
+    // it. Whichever copy is the duplicate fades this out. Covers both
+    // directions: a forward move duplicates via the OUTGOING copy's strip, a
+    // backward one via the INCOMING copy's.
+    const nextDuplicated = siblingGlobal !== null && global + 1 === siblingGlobal;
     return (
       <>
         {/* Insets clear the header (bars + meta) above and the controls below.
             Content is TOP-aligned (items-start), not centred: every card then
             starts its heading at the same y, so stepping through a chapter
             doesn't bounce the text up and down as bodies change length. A short
-            card leaves its slack at the bottom, where the next-card peek sits,
-            rather than splitting it above and below the text.
+            card leaves its slack at the bottom rather than splitting it above
+            and below the text.
             overflow-hidden is the backstop for the no-scroll rule — nothing
             should ever reach it. */}
-        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+3.25rem)] flex items-start overflow-hidden px-5 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
+        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] flex items-start overflow-hidden px-5 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
           <div className="w-full max-w-md">
             <h2 className={cn("font-display leading-tight font-bold text-white", tier.heading)}>
               {c.heading}
@@ -395,22 +400,31 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           </div>
         </div>
 
-        {/* Next-card peek — the top of the following card's text shows dimmed
-            and cut off at the bottom edge, so "there's more below" is visible
-            rather than instructed (no swipe-up caption, and deliberately not a
-            button). Touch only: desktop pages with the chevrons. Lives inside
-            the card copy so it slides out/in with the card mid-transition. */}
-        {peek && (
+        {/* Next card, bleeding off the bottom edge. Sits inside the card copy so
+            it travels with it during a transition. Dimmed, but at full size —
+            it's the top of the real thing, cut off by the card, which is what
+            makes the drag feel like it continues this text rather than
+            replacing it. */}
+        {next && nextTier && (
           <div
             aria-hidden
-            style={peekStyle}
-            className="pointer-events-none absolute inset-x-0 bottom-[env(safe-area-inset-bottom,0px)] h-11 overflow-hidden px-5 sm:px-8 lg:hidden"
+            style={
+              nextDuplicated
+                ? { opacity: 0, transition: `opacity ${DRAG_SETTLE_MS}ms ease-out` }
+                : undefined
+            }
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[calc(env(safe-area-inset-bottom,0px)+4rem)] overflow-hidden px-5 sm:px-8"
           >
             <div className="w-full max-w-md">
-              <p className="font-display truncate text-lg leading-tight font-bold text-white/30">
-                {peek.heading}
-              </p>
-              <p className="mt-1 text-sm leading-relaxed text-white/20">{peek.body}</p>
+              <h2
+                className={cn(
+                  "font-display leading-tight font-bold text-white/35",
+                  nextTier.heading,
+                )}
+              >
+                {next.heading}
+              </h2>
+              <p className={cn("mt-2 text-white/20", nextTier.body)}>{next.body}</p>
             </div>
           </div>
         )}
@@ -418,12 +432,16 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     );
   };
 
-  // Cards follow the input axis; chapters are always horizontal (and travel
-  // further), so a chapter jump can't be mistaken for the next card on desktop.
+  // Cards always travel vertically now — the drag is vertical at every size, so
+  // a keyboard/wheel turn has to move the same way or the same step animates
+  // sideways with a key and upward with a finger. (This used to read the
+  // viewport axis, because at lg+ the chevrons drove it horizontally.) Chapters
+  // stay horizontal and travel further, so a chapter jump can't be mistaken for
+  // the next card.
   const pair = turn
     ? turnKind === "chapter"
       ? chapterPair(turn.dir)
-      : transitionPair(axis, turn.dir)
+      : transitionPair("y", turn.dir)
     : null;
 
   // Finger-following transforms while a drag is live. Not settling: both copies
@@ -454,14 +472,6 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           transition: drag.settling ? settleEase : "none",
         }
       : undefined;
-  // The outgoing card's peek stays visible through the drag — it doubles as the
-  // incoming card's text until the real content arrives — then fades out over
-  // the commit settle so it isn't doubled once the real card is at rest.
-  const activePeekStyle: React.CSSProperties | undefined =
-    drag?.settling === "commit" && drag.dir === 1
-      ? { opacity: 0, transition: `opacity ${DRAG_SETTLE_MS}ms ease-out` }
-      : undefined;
-
   return (
     <main
       ref={containerRef}
@@ -482,7 +492,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             className={cn("absolute inset-0", pair?.incoming)}
             style={dragActiveStyle}
           >
-            {renderCard(activeGlobal, activePeekStyle)}
+            {renderCard(activeGlobal)}
           </div>
 
           {/* The neighbor a drag is revealing, riding one card-height behind the
@@ -635,28 +645,10 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               </p>
             </div>
           </div>
-
-          {/* Next stays enabled on the last card — there it rolls into the next
-              chapter, or opens the streak completion on the last one, so it
-              doubles as "finish the book". On that last card the label says which,
-              so the end of a chapter is never a surprise.
-              Touch renders nothing here (no `labels.hint`): the next-card peek
-              inside renderCard is the swipe affordance, and swipe/wheel/keys do
-              the navigating. Desktop keeps the real chevrons. */}
-          <SlideControls
-            index={index}
-            onPrev={goPrev}
-            onNext={goNext}
-            // Card 1 of chapter 2+ still has somewhere to go back to: the last
-            // card of the chapter before it.
-            disablePrev={chapterIndex === 0 && index === 0}
-            nextHint={onLastCard ? (nextChapter ? t("nextChapter") : t("finish")) : undefined}
-            labels={{
-              previous: t("previousCard"),
-              next: onLastCard ? (nextChapter ? t("nextChapter") : t("finish")) : t("nextCard"),
-            }}
-            className="absolute inset-x-0 bottom-[calc(env(safe-area-inset-bottom)+0.75rem)] z-20 px-8 sm:bottom-8"
-          />
+          {/* No Prev/Next chevrons: the gesture IS the affordance — a drag pulls
+              the real next card up behind the finger, so nothing has to sit at
+              the bottom describing what a swipe would do. That also frees the
+              band the controls used to reserve, which the card body now uses. */}
         </div>
       </div>
 

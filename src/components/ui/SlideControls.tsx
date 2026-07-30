@@ -54,51 +54,52 @@ export function SlideControls({
   className,
 }: SlideControlsProps) {
   return (
-    <div className={cn("w-full", className)}>
-      {/* Touch: the swipe does the work, so this is a hint — still tappable. */}
-      <button
-        type="button"
-        onClick={onNext}
-        aria-label={labels.next}
-        className="flex w-full flex-col items-center gap-1 text-white/60 lg:hidden"
-      >
-        <motion.span
-          animate={{ y: [0, -5, 0] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-        >
-          <ChevronUp className="h-5 w-5" />
-        </motion.span>
-        {labels.hint && (
-          <span className="max-w-full truncate px-4 text-xs font-medium">{labels.hint}</span>
-        )}
-      </button>
+    <></>
+    // <div className={cn("w-full", className)}>
+    //   {/* Touch: the swipe does the work, so this is a hint — still tappable. */}
+    //   <button
+    //     type="button"
+    //     onClick={onNext}
+    //     aria-label={labels.next}
+    //     className="flex w-full flex-col items-center gap-1 text-white/60 lg:hidden"
+    //   >
+    //     <motion.span
+    //       animate={{ y: [0, -5, 0] }}
+    //       transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+    //     >
+    //       <ChevronUp className="h-5 w-5" />
+    //     </motion.span>
+    //     {labels.hint && (
+    //       <span className="max-w-full truncate px-4 text-xs font-medium">{labels.hint}</span>
+    //     )}
+    //   </button>
 
-      {/* Desktop: no swipe to lean on, so real buttons. */}
-      <div className="hidden w-full items-center justify-between lg:flex">
-        <button
-          type="button"
-          onClick={onPrev}
-          disabled={disablePrev}
-          aria-label={labels.previous}
-          className={CHEVRON}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
-        <div className="flex min-w-0 items-center gap-2">
-          {nextHint && (
-            <span className="truncate text-xs font-medium text-white/60">{nextHint}</span>
-          )}
-          <button
-            type="button"
-            onClick={onNext}
-            disabled={disableNext}
-            aria-label={labels.next}
-            className={CHEVRON}
-          >
-            <ChevronRight className="h-6 w-6" />
-          </button>
-        </div>
-      </div>
-    </div>
+    //   {/* Desktop: no swipe to lean on, so real buttons. */}
+    //   <div className="hidden w-full items-center justify-between lg:flex">
+    //     <button
+    //       type="button"
+    //       onClick={onPrev}
+    //       disabled={disablePrev}
+    //       aria-label={labels.previous}
+    //       className={CHEVRON}
+    //     >
+    //       <ChevronLeft className="h-6 w-6" />
+    //     </button>
+    //     <div className="flex min-w-0 items-center gap-2">
+    //       {nextHint && (
+    //         <span className="truncate text-xs font-medium text-white/60">{nextHint}</span>
+    //       )}
+    //       <button
+    //         type="button"
+    //         onClick={onNext}
+    //         disabled={disableNext}
+    //         aria-label={labels.next}
+    //         className={CHEVRON}
+    //       >
+    //         <ChevronRight className="h-6 w-6" />
+    //       </button>
+    //     </div>
+    //   </div>
+    // </div>
   );
 }
