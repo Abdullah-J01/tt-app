@@ -345,6 +345,9 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     return (
       <>
         {/* Insets clear the header (bars + meta) above and the controls below.
+            The header ends at ~96px at every size, so the top inset has to sit
+            clear of it, not on it: 96px exactly (what `sm:` used to be) pins the
+            heading to the meta row with no breathing room.
             Content is TOP-aligned (items-start), not centred: every card then
             starts its heading at the same y, so stepping through a chapter
             doesn't bounce the text up and down as bodies change length. A short
@@ -352,7 +355,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             and below the text.
             overflow-hidden is the backstop for the no-scroll rule — nothing
             should ever reach it. */}
-        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] flex items-start overflow-hidden px-5 sm:top-24 sm:bottom-[4.5rem] sm:px-8">
+        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] flex items-start overflow-hidden px-5 sm:top-32 sm:bottom-[4.5rem] sm:px-8">
           <div className="w-full max-w-md">
             <h2 className={cn("font-display leading-tight font-bold text-white", tier.heading)}>
               {c.heading}
@@ -451,7 +454,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             `--content-top` must track the content box's own top inset and
             `--peek` how much of the next card shows at rest; STRIDE is derived
             from the pair, so they have to be changed together. */}
-        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none [--content-top:150px] [--peek:3.5rem] sm:rounded-[2.25rem] sm:[--content-top:96px] lg:rounded-[2.75rem]">
+        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none [--content-top:150px] [--peek:3.5rem] sm:rounded-[2.25rem] sm:[--content-top:128px] lg:rounded-[2.75rem]">
           {/* Every card copy lives inside this masked layer, which does NOT move
               — so the fade stays pinned to the card's bottom edge while content
               slides under it. The peek dissolves into the background instead of

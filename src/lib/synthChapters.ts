@@ -54,7 +54,7 @@ const TIERS: BodyTier[] = ["short", "medium", "long", "short", "medium"];
  * space above and below the text. Clamping means a longer pool can only shorten
  * a card, never overflow one.
  */
-const SENTENCES_PER_TIER: Record<BodyTier, number> = { short: 6, medium: 9, long: 11 };
+const SENTENCES_PER_TIER: Record<BodyTier, number> = { short: 5, medium: 7, long: 9 };
 
 /** Every third card carries artwork, so the mix of "with image" / "text only" is visible. */
 const IMAGE_EVERY = 3;

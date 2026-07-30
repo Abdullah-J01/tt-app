@@ -28,7 +28,7 @@ export const CARDS_PER_CHAPTER = 25;
  * pair. Sized to *fill* the card: a body well under its tier's budget leaves the
  * dead space above and below that the centring can only spread around.
  */
-export const CARD_BODY_BUDGET = { short: 400, medium: 600, long: 780 } as const;
+export const CARD_BODY_BUDGET = { short: 320, medium: 470, long: 610 } as const;
 
 export type BodyTier = keyof typeof CARD_BODY_BUDGET;
 
