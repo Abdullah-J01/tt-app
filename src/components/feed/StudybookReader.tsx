@@ -366,7 +366,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             {c.image && (
               <div
                 className={cn(
-                  "relative my-4 overflow-hidden rounded-2xl bg-white/[0.06]",
+                  "relative my-4 overflow-hidden rounded-2xl max-w-[300px] bg-white/[0.06]",
                   tier.media,
                 )}
               >
