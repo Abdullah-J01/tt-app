@@ -77,12 +77,13 @@ export function OnboardingFlow() {
 
   return (
     // Compact on mobile so a full step (header + options + CTA) fits one screen.
-    // The bottom padding below md clears the fixed BottomNav (+ gesture bar).
+    // The bottom padding below md clears the pinned CTA and the fixed BottomNav
+    // (+ gesture bar), so the last option can still be scrolled into view.
     <div
       className={cn(
         // lg+: centre the step as one block instead of stretching it, so a short
         // step doesn't leave a gulf between the content and a bottom-pinned CTA.
-        "mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-4 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+5.5rem)] sm:gap-6 sm:pt-10 md:pb-8 lg:justify-center lg:gap-3 lg:pt-5 lg:pb-6",
+        "mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-4 px-5 pt-4 pb-[calc(env(safe-area-inset-bottom)+9rem)] sm:gap-6 sm:pt-10 md:pb-8 lg:justify-center lg:gap-3 lg:pt-5 lg:pb-6",
         // Interests is the only long step: at max-w-md its 23 tiles are 8 rows
         // deep and push the CTA off-screen. Widen it at lg so the grid can go
         // 6-across (4 rows) and the whole step stays above the fold.
@@ -101,8 +102,8 @@ export function OnboardingFlow() {
       <div
         key={step}
         className={cn(
-          // Mobile: no flex-1 — the CTA sits right under the selections instead
-          // of being pushed to the viewport bottom (behind the bottom nav).
+          // Mobile: no flex-1 — the step keeps its natural height and simply
+          // scrolls under the pinned CTA rather than stretching to fill.
           "flex flex-col sm:flex-1 lg:flex-none",
           direction === 1 ? "anim-step-next" : "anim-step-prev",
         )}
@@ -133,11 +134,23 @@ export function OnboardingFlow() {
         )}
       </div>
 
-      {/* Capped + centred so the CTA keeps its shape on the wide interests step. */}
-      <div className="w-full self-center lg:max-w-md">
-        <Button block size="lg" disabled={!canContinue} loading={pending} onClick={handlePrimary}>
-          {isLastStep ? t("startLearning") : t("continue")}
-        </Button>
+      {/* Below md the CTA is pinned to the viewport, just above the fixed
+        MobileNav, so it's always reachable without scrolling the step. The
+        fade lets the options scroll under it instead of ending abruptly.
+        md+ has no bottom nav, so it goes back in flow — capped + centred so
+        it keeps its shape on the wide interests step. */}
+      <div
+        className={cn(
+          "fixed inset-x-0 bottom-0 z-40 px-5 pt-6 pb-[calc(env(safe-area-inset-bottom)+3.75rem)]",
+          "from-surface via-surface bg-gradient-to-t to-transparent",
+          "md:static md:z-auto md:bg-none md:p-0",
+        )}
+      >
+        <div className="mx-auto w-full max-w-md">
+          <Button block size="lg" disabled={!canContinue} loading={pending} onClick={handlePrimary}>
+            {isLastStep ? t("startLearning") : t("continue")}
+          </Button>
+        </div>
       </div>
     </div>
   );
