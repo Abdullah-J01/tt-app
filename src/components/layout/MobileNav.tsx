@@ -30,6 +30,7 @@ import { useLocaleSwitch } from "@/i18n/useLocaleSwitch";
 import { SELECTABLE_LOCALES, LOCALE_LABELS } from "@/i18n/config";
 import { stripLocale } from "@/i18n/Link";
 import { useSoftKeyboard } from "@/lib/useSoftKeyboard";
+import { setLastTab } from "@/lib/lastTab";
 import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
@@ -73,6 +74,13 @@ export default function MobileNav() {
   const tabIdle = "text-ink/60 hover:text-ink";
   // Match the section, not just the exact page — /explore/search is still Explore.
   const isActive = (href: string) => route === href || route.startsWith(`${href}/`);
+
+  // Remember wherever the user actually was — feed's own back arrow reads
+  // this to return them there instead of stepping through per-card swipe
+  // history. Immersive routes (feed itself, the reader) don't count.
+  useEffect(() => {
+    if (!immersive) setLastTab(route);
+  }, [route, immersive]);
 
   // Lock body scroll and close on Escape whenever an overlay is showing.
   useEffect(() => {

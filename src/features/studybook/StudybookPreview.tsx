@@ -105,6 +105,9 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
+    // Match the iOS safe-area status-bar band (layout.tsx) to this card's own
+    // plum gradient instead of the app-wide violet, while the preview is open.
+    document.documentElement.style.setProperty("--status-bar-bg", "var(--color-plum-1)");
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
       // Up/Down included to match the reader's keys and the vertical swipe.
@@ -116,6 +119,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       lenis?.start();
       document.body.style.overflow = prevBody;
       document.documentElement.style.overflow = prevHtml;
+      document.documentElement.style.removeProperty("--status-bar-bg");
       window.removeEventListener("keydown", onKey);
     };
   }, [open, close, goNext, goPrev]);
@@ -209,7 +213,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
   // Content sits where the old header/controls used to hold it in flow. The
   // bottom differs by breakpoint because the chevrons are taller than the hint.
   const CONTENT =
-    "absolute inset-x-0 top-[108px] bottom-[72px] flex flex-col justify-between gap-6 px-6 pb-6 lg:bottom-[76px]";
+    "absolute inset-x-0 top-[calc(108px+env(safe-area-inset-top))] bottom-[72px] flex flex-col justify-between gap-6 px-6 pb-6 lg:bottom-[76px]";
 
   return (
     <div
@@ -254,7 +258,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
         )}
 
         {/* Chrome — pinned above the pages so it never turns with them. */}
-        <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-3 p-4">
+        <div className="absolute inset-x-0 top-0 z-20 flex flex-col gap-3 px-4 pt-[calc(env(safe-area-inset-top)+1rem)] pb-4">
           <div className="flex justify-end">
             <Button
               unstyled
