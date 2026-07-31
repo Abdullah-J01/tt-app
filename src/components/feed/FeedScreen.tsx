@@ -433,12 +433,12 @@ export default function FeedScreen() {
   // Mobile: opt out of AppChrome's pt-20 spacer (-mt-20) and fill the whole
   // viewport. The bottom nav is hidden on the feed (MobileNav bails on immersive
   // routes), so the card claims that space too — only the home-indicator safe
-  // area is reserved. md+ keeps the original 85dvh stage.
+  // area is reserved. lg+ keeps the original 85dvh stage.
   return (
-    <main className="relative -mt-20 flex h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
+    <main className="relative -mt-20 flex h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden lg:mt-0 lg:h-[85dvh]">
       {/* <FeedNavbar streak={7} /> */}
       {/* Desktop-only: mobile keeps the immersive full-screen card (no header) */}
-      <div className="max-md:hidden">
+      <div className="max-lg:hidden">
         <Navbar />
       </div>
 
@@ -503,13 +503,13 @@ export default function FeedScreen() {
               {total > 0 && (
                 <>
                   <FeedTopBar
-                    className="md:hidden"
+                    className="lg:hidden"
                     onBack={goBack}
                     onOpenFilters={openFilters}
                     filterCount={applied.size}
                   />
                   <FeedTopBar
-                    className="max-md:hidden"
+                    className="max-lg:hidden"
                     onOpenFilters={openFilters}
                     filterCount={applied.size}
                   />

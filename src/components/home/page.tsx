@@ -1,7 +1,6 @@
 import Link from "@/i18n/Link";
 import { getTranslations } from "@/i18n/server";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
-import { TopNav } from "@/components/layout/TopNav";
 import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";

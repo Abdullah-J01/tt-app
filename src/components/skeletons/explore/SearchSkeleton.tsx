@@ -12,7 +12,7 @@ export function SearchSkeleton() {
     <div
       role="status"
       aria-label="Loading search"
-      className="mx-auto max-w-6xl px-4 pb-24 md:pb-12"
+      className="mx-auto max-w-6xl px-4 pb-24 lg:pb-12"
     >
       {/* search bar footprint */}
       <div className="flex h-[68px] items-center">

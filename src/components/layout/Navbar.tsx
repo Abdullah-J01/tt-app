@@ -67,7 +67,7 @@ export default function Navbar() {
 
             {/* Desktop consumer nav — hidden in the CMS (admin uses its sidebar). */}
             {!onAdmin && (
-              <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm md:flex">
+              <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm lg:flex">
                 {SITE.nav.map((item) => {
                   const active = path === item.href || path.startsWith(`${item.href}/`);
                   return (
@@ -90,7 +90,7 @@ export default function Navbar() {
               {onAdmin ? (
                 <>
                   {session?.user?.name && (
-                    <span className="text-muted text-sm whitespace-nowrap max-md:hidden">
+                    <span className="text-muted text-sm whitespace-nowrap max-lg:hidden">
                       {t("nav.signedInAs")}{" "}
                       <span className="text-ink font-medium">{session.user.name}</span>
                     </span>
@@ -107,7 +107,7 @@ export default function Navbar() {
               ) : (
                 <>
                   <SearchBar />
-                  <div className="hidden md:flex">
+                  <div className="hidden lg:flex">
                     <LanguageMenu />
                   </div>
                   {status === "authenticated" && (

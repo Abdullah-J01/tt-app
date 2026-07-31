@@ -11,7 +11,7 @@ export function AchievementsView() {
   const { unlocked, locked, unlockedCount, total } = useAchievements();
 
   return (
-    <Container className="max-w-2xl pb-24 md:pb-12">
+    <Container className="max-w-2xl pb-24 lg:pb-12">
       <div className="flex items-center gap-2 pt-4">
         <BackButton fallbackHref="/profile" label="" />
         <h1 className="text-2xl font-bold">{t("title")}</h1>

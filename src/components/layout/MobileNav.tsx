@@ -40,7 +40,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 };
 
 /**
- * Native-app-style mobile chrome for the marketing header (below md only).
+ * Native-app-style mobile chrome for the marketing header (below lg only).
  *
  * - Fixed glass bottom bar: primary nav + a three-dot "More".
  * - "More" opens a glassmorphic floating panel above the bar (macOS-style
@@ -48,7 +48,7 @@ const NAV_ICONS: Record<string, LucideIcon> = {
  * - Search opens a top-anchored glass search field over a blurred full-screen
  *   overlay. All transitions are spring-driven for a premium feel.
  *
- * Desktop is untouched — this whole tree is `md:hidden`.
+ * Desktop is untouched — this whole tree is `lg:hidden`.
  */
 export default function MobileNav() {
   const { data: session, status } = useSession();
@@ -116,7 +116,7 @@ export default function MobileNav() {
   if (immersive) return null;
 
   return (
-    <div className="md:hidden">
+    <div className="lg:hidden">
       {/* ── Search: blurred overlay + top-anchored glass field ─────────── */}
       <AnimatePresence>
         {searchOpen && (

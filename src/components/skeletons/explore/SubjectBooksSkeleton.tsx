@@ -11,7 +11,7 @@ export function SubjectBooksSkeleton() {
     <div
       role="status"
       aria-label="Loading subject"
-      className="mx-auto max-w-6xl px-4 py-6 pb-24 md:py-10 md:pb-12"
+      className="mx-auto max-w-6xl px-4 py-6 pb-24 md:py-10 lg:pb-12"
     >
       {/* back + subject title */}
       <div className="flex items-center gap-2">

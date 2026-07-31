@@ -29,7 +29,7 @@ export default async function SearchPage({
     results.subjects.length + results.studybooks.length + results.studybites.length > 0;
 
   return (
-    <div className="mx-auto max-w-6xl px-4 pb-24 md:pb-12">
+    <div className="mx-auto max-w-6xl px-4 pb-24 lg:pb-12">
       <Suspense fallback={<div className="h-[68px]" />}>
         <SearchBar />
       </Suspense>

@@ -60,7 +60,7 @@ export function ProfileView() {
     data.handle === PROFILE.handle && sessionHandle ? sessionHandle : data.handle;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 pb-24 sm:px-6 md:pb-12 lg:px-8">
+    <div className="mx-auto max-w-2xl px-4 pb-24 sm:px-6 lg:pb-12 lg:px-8">
       {/* Header */}
       <div className="flex items-center justify-between pt-6">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
