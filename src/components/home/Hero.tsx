@@ -27,8 +27,9 @@ export default function Hero() {
           >
             {t("badge")}
           </motion.p>
-
-          <AnimatedHeadline />
+          <div className="w-[340px] overflow-hidden md:w-auto">
+            <AnimatedHeadline />
+          </div>
 
           <motion.p
             initial={{ opacity: 0, y: 14 }}
