@@ -9,7 +9,7 @@
 //
 // Caching strategy (per resource type):
 //   • navigations (HTML)  → NetworkFirst  → "pages-cache"  (fallback: cached home)
-//   • RSC payloads        → NetworkFirst  → "pages-cache"  (so visited routes work offline)
+//   • RSC payloads        → NetworkFirst  → "rsc-cache"    (so visited routes work offline)
 //   • images              → CacheFirst    → "images-cache"
 //   • fonts               → CacheFirst    → "fonts-cache"
 //   • CSS                 → StaleWhileRevalidate → "css-cache"
@@ -44,9 +44,16 @@ const DAY = 24 * 60 * 60;
 /** Home-page URL candidates (start_url "/" redirects to a locale-prefixed home). */
 const HOME_CANDIDATES = ["/", "/et", "/en", "/ru"];
 
-/** Cache names bumped together when the caching logic changes (see cleanup below). */
+/**
+ * Cache names bumped together when the caching logic changes (see cleanup below).
+ * `pages` bumped to v2: RSC payloads used to share this cache with navigation HTML,
+ * keyed by the same stripped URL — a stale/slow reconnect (NetworkFirst falling
+ * back to cache) could then serve a raw RSC flight payload as the document. RSC
+ * now has its own cache; bumping the name drops the old poisoned entries.
+ */
 const CACHES = {
-  pages: "pages-cache",
+  pages: "pages-cache-v2",
+  rsc: "rsc-cache",
   images: "images-cache",
   fonts: "fonts-cache",
   css: "css-cache",
@@ -81,7 +88,7 @@ const pagesStrategy = new NetworkFirst({
 });
 
 const rscStrategy = new NetworkFirst({
-  cacheName: CACHES.pages,
+  cacheName: CACHES.rsc,
   networkTimeoutSeconds: 3,
   plugins: [
     normalizeRscKey,
