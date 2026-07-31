@@ -46,7 +46,7 @@ export default function AnimatedHeadline() {
   const words = (headlines[index] ?? "").split(" ");
 
   return (
-    <h1 className="font-display text-h1 text-ink block h-[265px] max-w-xl sm:text-[3.25rem] md:h-auto">
+    <h1 className="font-display text-h1 text-ink block h-[265px] max-w-xl sm:text-[3rem] md:h-auto">
       <AnimatePresence mode="wait">
         <motion.span
           key={index}
