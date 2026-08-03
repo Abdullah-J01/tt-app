@@ -34,7 +34,7 @@ export default async function SubjectPage({
   const subjectName = await getSubjectName();
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-6 pb-24 md:py-10 md:pb-12">
+    <div className="mx-auto max-w-6xl px-4 py-6 pb-24 md:py-10 lg:pb-12">
       <div className="flex items-center gap-2">
         <Link
           href="/explore"

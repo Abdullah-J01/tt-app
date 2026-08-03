@@ -155,7 +155,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
       </section>
 
       {/* Body */}
-      <main className="mx-auto max-w-5xl px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] md:pb-8">
+      <main className="mx-auto max-w-5xl px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] lg:pb-8">
         <h2 className="text-lg font-bold">{t("aboutTitle")}</h2>
         <p className="text-ink/80 mt-3 max-w-2xl leading-relaxed">{book.synopsis}</p>
 

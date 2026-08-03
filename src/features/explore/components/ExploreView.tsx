@@ -125,17 +125,17 @@ export function ExploreView({ books }: ExploreViewProps) {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">
+    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
       {/* Static header — the fixed navbar pill floats above the page, so a
           sticky bar here would slide under it and look cropped. Search lives in
-          the navbar on md+; mobile gets a shortcut to the full-screen search */}
-      <div className="flex items-center justify-between pt-6 md:block md:pt-0">
+          the navbar on lg+; mobile/tablet get a shortcut to the full-screen search */}
+      <div className="flex items-center justify-between pt-6 lg:block lg:pt-0">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <Link
           href="/explore/search"
           aria-label={t("search")}
-          className="border-hairline bg-lavender/50 text-muted hover:border-violet grid h-10 w-10 place-items-center rounded-full border transition-colors md:hidden"
+          className="border-hairline bg-lavender/50 text-muted hover:border-violet grid h-10 w-10 place-items-center rounded-full border transition-colors lg:hidden"
         >
           <Search className="h-4 w-4" />
         </Link>

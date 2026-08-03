@@ -15,7 +15,7 @@ import { ParallaxBlobs } from "./ParallaxBlobs";
 export function Footer() {
   const t = useTranslations("components_layout_Footer");
   return (
-    <footer className="px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 md:pb-8">
+    <footer className="px-4 pt-8 pb-[calc(6rem+env(safe-area-inset-bottom))] sm:px-6 lg:pb-8">
       <div className="bg-plum-gradient shadow-lift relative mx-auto max-w-7xl overflow-hidden rounded-3xl text-white">
         {/* Accent bar */}
         <div className="bg-lilac h-1 w-full" />

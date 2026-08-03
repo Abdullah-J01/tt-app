@@ -6,13 +6,13 @@ import { Footer } from "./Footer";
 
 /**
  * Footer visibility wrapper. On mobile the "download the app" footer only shows
- * on the home page (`/`); every other screen hides it below md. Desktop is
+ * on the home page (`/`); every other screen hides it below lg. Desktop is
  * unchanged — the footer shows wherever it's rendered.
  */
 export function ResponsiveFooter() {
   const isHome = stripLocale(usePathname()) === "/";
   return (
-    <div className={isHome ? undefined : "hidden md:block"}>
+    <div className={isHome ? undefined : "hidden lg:block"}>
       <Footer />
     </div>
   );

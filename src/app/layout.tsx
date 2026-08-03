@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           <Providers>
             <SmoothScroll>{children}</SmoothScroll>
             {/* Persistent mobile bottom nav — rendered once here so it stays on
-              every screen (below md). Pages own their top header; this owns the
+              every screen (below lg). Pages own their top header; this owns the
               bottom bar, so no page can accidentally drop it. */}
             <MobileNav />
             {/* Floating back-to-top (desktop only) — shows once scrolled down. */}

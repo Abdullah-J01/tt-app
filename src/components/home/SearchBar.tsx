@@ -33,7 +33,7 @@ export default function SearchBar() {
 
   return (
     <motion.div
-      className="border-border hidden cursor-text items-center gap-2 rounded-full border bg-white/70 px-4 py-2 md:flex"
+      className="border-border hidden cursor-text items-center gap-2 rounded-full border bg-white/70 px-4 py-2 lg:flex"
       animate={{ width: focused ? 340 : 220 }}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
       onClick={() => inputRef.current?.focus()}

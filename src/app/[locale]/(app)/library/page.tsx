@@ -154,7 +154,7 @@ function LibraryContent() {
   }, [loadingLibrary]);
 
   return (
-    <div className="mx-auto min-h-screen max-w-5xl bg-white px-4 py-6 pb-24 sm:px-6 md:py-10 md:pb-12 lg:px-8">
+    <div className="mx-auto min-h-screen max-w-5xl bg-white px-4 py-6 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
       <motion.h1
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

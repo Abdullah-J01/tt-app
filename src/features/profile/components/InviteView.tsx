@@ -37,7 +37,7 @@ export function InviteView() {
   };
 
   return (
-    <div className="mx-auto max-w-lg px-4 pb-24 md:pb-12">
+    <div className="mx-auto max-w-lg px-4 pb-24 lg:pb-12">
       <h1 className="mt-6 text-4xl leading-tight font-bold">{t("title", { name: SITE.name })}</h1>
       <p className="text-muted mt-4 text-lg">{t("subtitle")}</p>
 

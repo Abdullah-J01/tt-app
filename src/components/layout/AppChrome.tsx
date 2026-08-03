@@ -21,7 +21,7 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
       {!hideChrome && <Navbar />}
       {/* Spacer so content clears the fixed header — pages needn't add their own
           top margin. Immersive pages (feed) opt out with a negative margin. */}
-      <div className="pt-20 md:pt-24">{children}</div>
+      <div className="pt-20 lg:pt-24">{children}</div>
       {!hideChrome && <ResponsiveFooter />}
     </div>
   );

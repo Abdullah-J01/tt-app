@@ -14,12 +14,12 @@ export function ExploreSkeleton() {
     <div
       role="status"
       aria-label="Loading catalog"
-      className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 md:pb-12"
+      className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 lg:pb-12"
     >
       {/* header — static, matches ExploreView */}
-      <div className="flex items-center justify-between pt-6 md:block md:pt-0">
+      <div className="flex items-center justify-between pt-6 lg:block lg:pt-0">
         <h1 className="text-2xl font-bold">Explore</h1>
-        <Skeleton className="h-10 w-10 rounded-full md:hidden" />
+        <Skeleton className="h-10 w-10 rounded-full lg:hidden" />
       </div>
 
       {/* grade quick-chips (mobile/tablet only) */}
