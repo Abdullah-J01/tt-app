@@ -599,13 +599,7 @@ const PLANS: Plan[] = [
     yearly: 9.99,
     popular: true,
     gradient: "from-violet to-violet-dark",
-    features: [
-      "premiumFeat1",
-      "premiumFeat2",
-      "premiumFeat3",
-      "premiumFeat4",
-      "premiumFeat5",
-    ],
+    features: ["premiumFeat1", "premiumFeat2", "premiumFeat3", "premiumFeat4", "premiumFeat5"],
   },
   {
     id: "material",
@@ -995,7 +989,10 @@ export default function PremiumPlansPage() {
           Mobile: cards sticky-stack like the "new study bites" deck instead —
           each pins below the navbar (stepping down so covered tops peek) and
           the next card slides up over it while the covered one recedes (GSAP). */}
-      <div ref={cardsWrapRef} className="relative mt-8 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-3">
+      <div
+        ref={cardsWrapRef}
+        className="relative mt-8 grid grid-cols-1 gap-6 sm:mt-10 sm:grid-cols-3"
+      >
         {PLANS.map((plan, i) => (
           <div
             key={plan.id}
@@ -1298,13 +1295,6 @@ function CycleButton({
         active ? "text-white" : "text-ink hover:text-violet",
       )}
     >
-      {active && (
-        <motion.span
-          layoutId={layoutKey}
-          className="bg-violet absolute inset-0 rounded-full"
-          transition={{ type: "spring", stiffness: 350, damping: 30 }}
-        />
-      )}
       <span className="relative z-10">{children}</span>
     </Button>
   );

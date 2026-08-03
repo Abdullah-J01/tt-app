@@ -15,6 +15,7 @@ import {
   openBillingPortal,
   PLAN_DISPLAY,
   priceFor,
+  yearlyPerMonth,
   type SubStatus,
 } from "./core";
 import { BillingErrorModal } from "./BillingErrorModal";
@@ -48,10 +49,15 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
   const t = useTranslations("features_billing_BillingSection");
   const [portalLoading, setPortalLoading] = useState(false);
   const [billingError, setBillingError] = useState<BillingError | null>(null);
-  const planId = status.planId ?? "premium";
+  // status.planId/cycle come straight from Stripe subscription metadata, not
+  // values this app controls — fall back if they're ever missing/unrecognized
+  // (e.g. a subscription created without matching metadata).
+  const planId = status.planId && status.planId in PLAN_DISPLAY ? status.planId : "premium";
   const cycle = status.cycle ?? "monthly";
   const plan = PLAN_DISPLAY[planId];
-  const price = priceFor(planId, cycle);
+  // `priceFor` returns the yearly plan's *total* (billed once a year) — for
+  // this "$X/mo" line, a yearly subscriber needs the effective per-month rate.
+  const price = cycle === "yearly" ? yearlyPerMonth(planId) : priceFor(planId, cycle);
   const pastDue = isPastDueStatus(status);
 
   async function handleManage() {

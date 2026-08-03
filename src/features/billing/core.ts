@@ -98,7 +98,10 @@ export function daysLeft(timestampMs: number): number {
 export function planBadgeLabel(s: SubStatus, t: Translator): string {
   if (s.status === "loading") return "…";
   if (!("planId" in s) || !s.planId || !isActiveStatus(s)) return t("planFree");
-  const name = PLAN_DISPLAY[s.planId].name;
+  // s.planId comes straight from Stripe subscription metadata, not a value
+  // this app controls — fall back to Premium if it's ever unrecognized
+  // (e.g. a subscription created without matching metadata).
+  const name = (PLAN_DISPLAY[s.planId] ?? PLAN_DISPLAY.premium).name;
   return s.status === "trialing" ? t("planTrial", { name }) : name;
 }
 

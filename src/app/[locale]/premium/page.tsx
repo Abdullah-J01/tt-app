@@ -63,13 +63,7 @@ const PLANS: Plan[] = [
     yearly: 9.99,
     popular: true,
     gradient: "from-violet to-violet-dark",
-    featureKeys: [
-      "premiumFeat1",
-      "premiumFeat2",
-      "premiumFeat3",
-      "premiumFeat4",
-      "premiumFeat5",
-    ],
+    featureKeys: ["premiumFeat1", "premiumFeat2", "premiumFeat3", "premiumFeat4", "premiumFeat5"],
   },
   {
     id: "material",
@@ -732,13 +726,6 @@ function CycleButton({
         active ? "text-white" : "text-ink hover:text-violet",
       )}
     >
-      {active && (
-        <motion.span
-          layoutId={layoutKey}
-          className="bg-violet absolute inset-0 rounded-full"
-          transition={{ type: "spring", stiffness: 350, damping: 30 }}
-        />
-      )}
       <span className="relative z-10">{children}</span>
     </Button>
   );
