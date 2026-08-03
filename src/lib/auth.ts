@@ -74,7 +74,7 @@ export const authOptions: NextAuthOptions = {
  * from every server action that mutates data — a layout guard alone does not
  * protect directly-invoked actions.
  */
-export async function requireUser(callbackUrl = "/feed"): Promise<Session> {
+export async function requireUser(callbackUrl = "/home"): Promise<Session> {
   const session = await getServerSession(authOptions);
   if (!session?.user) redirect(`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`);
   return session;

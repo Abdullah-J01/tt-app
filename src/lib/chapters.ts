@@ -88,6 +88,22 @@ export function chapterParam(index: number): string {
 }
 
 /**
+ * Parse a `?card=` search param (1-based in the URL) into a valid card index
+ * *within* `chapter`. Same convention as `?chapter=`; together they let Home's
+ * "Continue" reopen a book exactly where the reader was left.
+ */
+export function cardFromParam(chapter: Chapter | undefined, raw: string | null): number {
+  const n = Number(raw);
+  if (!raw || !chapter || !Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(chapter.cards.length - 1, Math.trunc(n) - 1));
+}
+
+/** The `?card=` value for a 0-based index. */
+export function cardParam(index: number): string {
+  return String(index + 1);
+}
+
+/**
  * Cards a surface should take from a book when it wants a *taste* rather than the
  * whole thing — one card per chapter. The "For You" feed uses this: flattening
  * every card would put 100+ items per book into an infinite feed and drown every

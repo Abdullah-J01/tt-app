@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import Link from "@/i18n/Link";
 import Image from "next/image";
 import { LayoutGrid, List, Search, SlidersHorizontal } from "lucide-react";
@@ -32,6 +33,11 @@ import type { Studybook } from "@/types";
 type Tab = "books" | "bites";
 type View = "grid" | "list";
 
+const SORTS: readonly Sort[] = ["popular", "newest", "az"];
+function isSort(value: string | null): value is Sort {
+  return SORTS.includes(value as Sort);
+}
+
 interface ExploreViewProps {
   books: Studybook[];
 }
@@ -48,7 +54,14 @@ export function ExploreView({ books }: ExploreViewProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [tab, setTab] = useState<Tab>("books");
-  const [sort, setSort] = useState<Sort>("popular");
+  // Seeded from ?sort= (e.g. Home's "See all" on Popular links to
+  // /explore?sort=popular) — falls back to the same "popular" default when
+  // absent or invalid, so this is a strict addition, not a behavior change.
+  const searchParams = useSearchParams();
+  const [sort, setSort] = useState<Sort>(() => {
+    const param = searchParams.get("sort");
+    return isSort(param) ? param : "popular";
+  });
   const [view, setView] = useState<View>("grid");
   const [page, setPage] = useState(1);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -125,11 +138,9 @@ export function ExploreView({ books }: ExploreViewProps) {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
-      {/* Static header — the fixed navbar pill floats above the page, so a
-          sticky bar here would slide under it and look cropped. Search lives in
-          the navbar on lg+; mobile/tablet get a shortcut to the full-screen search */}
-      <div className="flex items-center justify-between pt-6 lg:block lg:pt-0">
+    <div className="mx-auto max-w-7xl overflow-x-clip px-4 py-6 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
+
+      <div className="flex items-center justify-between lg:block">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <Link
@@ -141,10 +152,7 @@ export function ExploreView({ books }: ExploreViewProps) {
         </Link>
       </div>
 
-      {/* Grade quick-chips (Target Group facet) — the sidebar covers this on lg+.
-          The row stays horizontally scrollable; the outer clip + pb/-mb pushes the
-          scrollbar below the visible area so it's hidden even in webviews that
-          ignore `::-webkit-scrollbar` styling. */}
+
       <div className="-mx-4 mt-6 overflow-hidden sm:-mx-6 lg:hidden">
         <div className="no-scrollbar -mb-4 flex gap-2 overflow-x-auto px-4 pb-4 sm:px-6">
           {GRADES.map((g) =>
@@ -245,11 +253,7 @@ export function ExploreView({ books }: ExploreViewProps) {
                 )}
               </Button>
 
-              {/* Sort + view controls only apply to Studybooks. From md they stay
-                  mounted and fade out toward the right on Studybites so the
-                  toolbar keeps its width/height (no layout shift on tab switch);
-                  below md they simply hide. `visibility` rides the transition so
-                  the controls drop out of the tab/a11y order once faded. */}
+         
               <div
                 className={cn(
                   "flex items-center gap-2 motion-safe:transition-[opacity,transform,visibility] motion-safe:duration-300 motion-safe:ease-out",

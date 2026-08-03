@@ -6,11 +6,7 @@ let lockCount = 0;
 let prevBodyOverflow = "";
 let prevHtmlOverflow = "";
 
-/**
- * Locks page scroll while `locked` is true — sets body/html overflow hidden and
- * pauses Lenis smooth-scroll (which `overflow:hidden` alone doesn't stop).
- * Reference-counted so stacked dialogs don't release the lock prematurely.
- */
+
 export function useScrollLock(locked: boolean) {
   useEffect(() => {
     if (!locked) return;

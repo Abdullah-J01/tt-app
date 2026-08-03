@@ -21,16 +21,6 @@ interface SubjectRailProps {
   className?: string;
 }
 
-/**
- * Subject picker synced to the "subject" facet. Mobile/tablet shows a compact
- * wrapped set of chips capped at VISIBLE_MOBILE, with a "More" chip that opens a
- * bottom-sheet with the full list; on xl it becomes a sticky vertical column
- * with an inline "See more" fold. Rows reuse the shared selectable surface.
- *
- * Memoized: it renders every subject and sits outside the results list, so it
- * would otherwise re-render on each tab/sort/page/view change. Callers must
- * pass a stable `onToggle` (useCallback) for this to hold.
- */
 export const SubjectRail = memo(function SubjectRail({
   selected,
   onToggle,

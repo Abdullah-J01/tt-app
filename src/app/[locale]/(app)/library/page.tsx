@@ -268,37 +268,34 @@ function LibraryContent() {
             )}
           </motion.ul>
         )}
-      </AnimatePresence>
 
-      {/* Empty state — only after loading, so saved items don't flash it. */}
-      {!loadingLibrary && !showCards && !showBooks && (
-        <motion.div
-          initial={fromSkeleton.current ? false : { opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45, ease: easeOut }}
-          className="mt-12 flex flex-col items-center text-center"
-        >
-          <motion.span
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.1, type: "spring", stiffness: 200, damping: 14 }}
-            className="bg-lavender text-violet grid h-16 w-16 place-items-center rounded-full"
+      
+        {!loadingLibrary && !showCards && !showBooks && (
+          <motion.div
+            key="empty"
+            initial={fromSkeleton.current ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: easeOut }}
+            className="mt-12 flex flex-col items-center text-center"
           >
-            <Bookmark className="h-8 w-8" />
-          </motion.span>
-          <p className="text-ink mt-4 font-semibold">
-            {tab === "cards" ? t("emptyCardsTitle") : t("emptyBooksTitle")}
-          </p>
-          <p className="text-muted mt-1 max-w-xs text-sm">
-            {loggedOut ? t("emptyLoggedOutBody") : t("emptyBody")}
-          </p>
-          <Link href={loggedOut ? "/login?callbackUrl=%2Flibrary" : "/feed"} className="mt-6">
-            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Button>{loggedOut ? t("login") : t("goToFeed")}</Button>
-            </motion.div>
-          </Link>
-        </motion.div>
-      )}
+            <span className="bg-lavender text-violet grid h-16 w-16 place-items-center rounded-full">
+              <Bookmark className="h-8 w-8" />
+            </span>
+            <p className="text-ink mt-4 font-semibold">
+              {tab === "cards" ? t("emptyCardsTitle") : t("emptyBooksTitle")}
+            </p>
+            <p className="text-muted mt-1 max-w-xs text-sm">
+              {loggedOut ? t("emptyLoggedOutBody") : t("emptyBody")}
+            </p>
+            <Link href={loggedOut ? "/login?callbackUrl=%2Flibrary" : "/feed"} className="mt-6">
+              <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+                <Button>{loggedOut ? t("login") : t("goToFeed")}</Button>
+              </motion.div>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

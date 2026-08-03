@@ -5,6 +5,7 @@ export const SITE = {
     "Bite-sized, TikTok-style learning from TaskuTark. Swipe through short cards, save what matters, build a daily habit.",
   /** Primary app navigation (mobile bottom tabs / desktop top nav). */
   nav: [
+    { href: "/home", label: "Home" },
     { href: "/feed", label: "Feed" },
     { href: "/explore", label: "Explore" },
     { href: "/library", label: "Library" },

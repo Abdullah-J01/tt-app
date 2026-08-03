@@ -26,20 +26,7 @@ function opensKeyboard(node: Element | null): boolean {
   return false;
 }
 
-/**
- * True while a text field holds focus — i.e. while the soft keyboard is up.
- *
- * Deliberately focus-based rather than viewport-measuring. Android shrinks the
- * *layout* viewport when the keyboard opens (Chrome's standalone/PWA activity
- * runs with `adjustResize`), so `visualViewport.height` and `innerHeight` shrink
- * together and the usual "visual viewport is shorter than the layout viewport"
- * probe reports nothing. Focus is the one signal that reads the same on both
- * platforms, and it needs no height thresholds to guess at.
- *
- * Used to stand fixed bottom chrome down while typing — see `MobileNav`. Without
- * it, `bottom: 0` re-anchors to the shrunken layout viewport and the bar climbs
- * up over the page content instead of staying put under the keyboard.
- */
+
 export function useSoftKeyboard(): boolean {
   const [open, setOpen] = useState(false);
 

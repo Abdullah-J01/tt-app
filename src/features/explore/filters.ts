@@ -58,12 +58,7 @@ function subjectOptions(): FilterOption[] {
   });
 }
 
-/**
- * Catalog filter facets (mirrors TaskuTark's "Filter materials").
- * Target Group, Subject and Price filter real data (book.grade / subjectSlug /
- * priceEur); the rest are wired as UI until TT exposes facets.
- * TODO(team): drive counts + options from the TT API.
- */
+
 export const FACETS: Facet[] = [
   {
     key: "target",

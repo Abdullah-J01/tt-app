@@ -17,12 +17,17 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
   // Hide header + footer on /feed and all nested routes (immersive).
   const hideChrome = stripLocale(pathname).startsWith("/feed");
   return (
-    <div className="bg-surface min-h-[100svh]">
+    /* Flex column + `flex-1` on the content slot is what keeps the footer at the
+       bottom. Without it the footer sits in normal flow directly under the
+       content, so any page whose first paint is shorter than the viewport
+       (Home, before its client-hydrated rows land) renders it floating
+       mid-screen and then jerks it down. */
+    <div className="bg-surface flex min-h-[100svh] flex-col">
       {!hideChrome && <Navbar />}
       {/* Spacer so content clears the fixed header — pages needn't add their own
           top margin. Immersive pages (feed) opt out with a negative margin
           (FeedScreen.tsx) that must match this value exactly. */}
-      <div className="pt-[calc(env(safe-area-inset-top)+5rem)] md:pt-[calc(env(safe-area-inset-top)+6rem)]">
+      <div className="flex-1 pt-[calc(env(safe-area-inset-top)+5rem)] md:pt-[calc(env(safe-area-inset-top)+6rem)]">
         {children}
       </div>
       {!hideChrome && <ResponsiveFooter />}

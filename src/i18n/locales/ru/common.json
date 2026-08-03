@@ -11,6 +11,7 @@
     "loading": "Loading…"
   },
   "nav": {
+    "home": "Home",
     "feed": "Feed",
     "explore": "Explore",
     "library": "Library",
@@ -100,6 +101,35 @@
     "fallbackTitle": "Feed — TaskuTark",
     "fallbackDescription": "Swipe through bite-sized studybook cards, one insight at a time.",
     "cardTitle": "{title} — {book} | StudyBooks"
+  },
+  "app_app_home_page": {
+    "metadataTitle": "Главная — TaskuTark",
+    "title": "Главная",
+    "greeting": "С возвращением",
+    "greetingNamed": "С возвращением, {name}",
+    "subtitle": "Продолжите с того места, где остановились, или найдите новый учебник.",
+    "statStreak": "{count, plural, one {# день подряд} few {# дня подряд} many {# дней подряд} other {# дня подряд}}",
+    "statInProgress": "В процессе: {count}",
+    "statSaved": "Сохранено: {count}",
+    "continueTitle": "Продолжить",
+    "continueDescription": "Учебники, которые вы уже начали",
+    "heroCta": "Продолжить чтение",
+    "heroProgress": "{pct}% пройдено",
+    "heroPosition": "Глава {chapter} · Карточка {card} из {total}",
+    "libraryTitle": "Моя библиотека",
+    "libraryDescription": "Сохранено на потом",
+    "libraryEmptyTitle": "Библиотека пуста",
+    "libraryEmptyDescription": "Сохраняйте понравившиеся учебники — они появятся здесь.",
+    "libraryEmptyCta": "Открыть каталог",
+    "popularTitle": "Популярное",
+    "popularDescription": "Что читают прямо сейчас",
+    "newTitle": "Новинки",
+    "newDescription": "Недавно добавлено в каталог",
+    "catalogEmptyTitle": "Пока ничего нет",
+    "catalogEmptyDescription": "Новые учебники появятся здесь сразу после публикации.",
+    "seeAll": "Смотреть все",
+    "railPrev": "Прокрутить влево",
+    "railNext": "Прокрутить вправо"
   },
   "app_studybook_slug_page": {
     "metadataTitle": "Studybook",

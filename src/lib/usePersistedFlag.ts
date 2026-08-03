@@ -2,11 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-/**
- * A boolean flag persisted to `localStorage` under `key`. Starts at `initial`
- * on the server / first render (so there's no hydration mismatch), then hydrates
- * from storage on mount. Use for per-item like/save state, e.g. `tt:like:<id>`.
- */
 export function usePersistedFlag(key: string, initial = false) {
   const [value, setValue] = useState(initial);
 

@@ -28,8 +28,7 @@ export function LoginFace({
   const t = useTranslations("components_auth_LoginFace");
   // Honors ?callbackUrl= when a guard bounced the user here (e.g. /admin).
   // Otherwise routes through /post-login, which checks the session role —
-  // admins land on the admin dashboard, everyone else on the device default
-  // (desktop: home page, mobile: feed).
+  // admins land on the admin dashboard, everyone else on Home.
   // Read via window (not useSearchParams) to keep /login statically prerendered.
   const landingUrl = () => {
     if (typeof window === "undefined") return "/post-login";
@@ -38,8 +37,7 @@ export function LoginFace({
     // the only thing standing between ?callbackUrl= and an off-origin redirect —
     // NextAuth's own callbackUrl validation isn't in play on this path.
     if (isSafeInternalPath(callbackUrl, window.location.origin)) return callbackUrl!;
-    const fallback = window.matchMedia("(min-width: 768px)").matches ? "/" : "/feed";
-    return `/post-login?to=${encodeURIComponent(fallback)}`;
+    return `/post-login?to=${encodeURIComponent("/home")}`;
   };
 
   const tv = useTranslations("auth");
