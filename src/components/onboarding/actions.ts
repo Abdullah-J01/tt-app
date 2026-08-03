@@ -18,9 +18,9 @@ export interface OnboardingPrefs {
  * holds the network call itself.
  *
  * TODO(team): persist `prefs` to TaskuTark (e.g. POST /v1/me/onboarding) once the
- * endpoint exists — see docs/TT_API_ENDPOINTS.md §B/§C. For now we just enter the feed.
+ * endpoint exists — see docs/TT_API_ENDPOINTS.md §B/§C. For now we just enter Home.
  */
 export async function finishOnboarding(prefs: OnboardingPrefs): Promise<void> {
   void prefs;
-  redirect("/feed");
+  redirect("/home");
 }

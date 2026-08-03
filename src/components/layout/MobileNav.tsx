@@ -20,6 +20,7 @@ import {
   ShieldCheck,
   User,
   X,
+  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { SITE } from "@/config/site";
@@ -35,7 +36,8 @@ import { cn } from "@/lib/utils";
 
 /** Icon per primary nav route — mirrors the app's BottomNav vocabulary. */
 const NAV_ICONS: Record<string, LucideIcon> = {
-  "/feed": Home,
+  "/home": Home,
+  "/feed": Zap,
   "/explore": Compass,
   "/library": Bookmark,
 };

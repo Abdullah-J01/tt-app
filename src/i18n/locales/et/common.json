@@ -11,6 +11,7 @@
     "loading": "Laadimine…"
   },
   "nav": {
+    "home": "Avaleht",
     "feed": "Voog",
     "explore": "Avasta",
     "library": "Raamatukogu",
@@ -197,6 +198,21 @@
     "fallbackTitle": "Voog — TaskuTark",
     "fallbackDescription": "Sirvi ampsusuuruseid õpikukaarte, üks teadmine korraga.",
     "cardTitle": "{title} — {book} | StudyBooks"
+  },
+  "app_app_home_page": {
+    "metadataTitle": "Avaleht — TaskuTark",
+    "title": "Avaleht",
+    "continueTitle": "Jätka",
+    "continueEmptyTitle": "Midagi pole pooleli",
+    "continueEmptyDescription": "Alusta õpikuga ja jätka täpselt sealt, kus pooleli jäid.",
+    "continueEmptyCta": "Avasta õpikuid",
+    "libraryTitle": "Sinu raamatukogu",
+    "seeAll": "Vaata kõiki",
+    "libraryEmptyTitle": "Sinu raamatukogu on tühi",
+    "libraryEmptyDescription": "Salvesta meeldivad õpikud ja need ilmuvad siia.",
+    "libraryEmptyCta": "Avasta õpikuid",
+    "popularTitle": "Populaarne",
+    "newTitle": "Uued lisandused"
   },
   "app_studybook_slug_page": {
     "metadataTitle": "Õpik",

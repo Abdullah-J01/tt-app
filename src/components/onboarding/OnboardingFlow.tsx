@@ -95,7 +95,7 @@ export function OnboardingFlow() {
         total={TOTAL_STEPS}
         onBack={goBack}
         onForward={canGoForward ? () => goTo(step + 1, 1) : undefined}
-        onSkip={() => leaveFlow("/feed")}
+        onSkip={() => leaveFlow("/home")}
       />
 
       {/* `key={step}` remounts the wrapper each change so the entrance animation replays. */}

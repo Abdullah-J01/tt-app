@@ -7,13 +7,6 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 // useLayoutEffect-on-server warning.
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
-/**
- * A string-union choice persisted to `localStorage` under `key` — the
- * `usePersistedFlag` pattern for tabs/filters. Starts at `initial` on the
- * server / first render (so there's no hydration mismatch), then hydrates
- * from storage before the first client paint; stored values not in `allowed`
- * are ignored, so stale keys can never select a tab that no longer exists.
- */
 export function usePersistedChoice<T extends string>(
   key: string,
   initial: T,

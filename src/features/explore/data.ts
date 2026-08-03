@@ -1,10 +1,4 @@
-/**
- * Explore/catalog data helpers. Thin wrappers over the core data layer
- * (src/lib/api.ts) that shape studybooks for the Explore surfaces.
- *
- * Rule: ask for what the surface renders. A row that shows 6 covers requests 6
- * — it does not pull the catalogue and `.slice(0, 6)` the remainder away.
- */
+
 import {
   listStudybooks,
   listAllStudybooks,
@@ -50,30 +44,11 @@ export async function getStudybites(limit = 6): Promise<Studybite[]> {
   return toStudybites(items).slice(0, limit);
 }
 
-/**
- * The full catalogue for the Explore landing.
- *
- * Returns books only — `studybites` are derived on the client from these same
- * books (see ./studybites), so returning both would serialize a second, fully
- * duplicated copy of every book for no added information.
- *
- * TODO(team): this is the one surface that still needs every row, because the
- * filter panel's facets and counts are computed client-side. Once TT exposes
- * facet counts + multi-facet queries, page this and filter server-side.
- */
+
 export async function getCatalog(): Promise<{ books: Studybook[] }> {
   return { books: await listAllStudybooks() };
 }
 
-/**
- * Catalog search grouped into subjects, studybooks and studybites (UI brief §6.4).
- * The matching runs in TT (or over the mock catalogue in mock mode) — see
- * `searchStudybooks` / `searchStudybookCards`; this only groups the hits.
- *
- * Books and bites are two independent queries because they match different text:
- * a bite can hit on its card heading while its book's title/synopsis does not.
- * They run in parallel — neither depends on the other.
- */
 export async function searchCatalog(query: string): Promise<SearchResults> {
   const q = query.trim().toLowerCase();
   if (!q) return { subjects: [], studybooks: [], studybites: [] };

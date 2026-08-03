@@ -11,6 +11,7 @@
     "loading": "Loading…"
   },
   "nav": {
+    "home": "Home",
     "feed": "Feed",
     "explore": "Explore",
     "library": "Library",
@@ -197,6 +198,21 @@
     "fallbackTitle": "Feed — TaskuTark",
     "fallbackDescription": "Swipe through bite-sized studybook cards, one insight at a time.",
     "cardTitle": "{title} — {book} | StudyBooks"
+  },
+  "app_app_home_page": {
+    "metadataTitle": "Home — TaskuTark",
+    "title": "Home",
+    "continueTitle": "Continue",
+    "continueEmptyTitle": "Nothing in progress",
+    "continueEmptyDescription": "Start a studybook and pick up right where you left off.",
+    "continueEmptyCta": "Explore studybooks",
+    "libraryTitle": "Your Library",
+    "seeAll": "See all",
+    "libraryEmptyTitle": "Your library is empty",
+    "libraryEmptyDescription": "Save studybooks you like and they'll show up here.",
+    "libraryEmptyCta": "Explore studybooks",
+    "popularTitle": "Popular",
+    "newTitle": "New listings"
   },
   "app_studybook_slug_page": {
     "metadataTitle": "Studybook",

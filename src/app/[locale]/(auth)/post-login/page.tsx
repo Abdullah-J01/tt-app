@@ -24,5 +24,5 @@ export default async function PostLoginPage({
   // check is insufficient (see safeRedirect): "/\evil.com" would pass it.
   const host = (await headers()).get("host") ?? "localhost";
   const proto = process.env.NODE_ENV === "production" ? "https" : "http";
-  redirect(safeInternalPath(to, `${proto}://${host}`, "/feed"));
+  redirect(safeInternalPath(to, `${proto}://${host}`, "/home"));
 }

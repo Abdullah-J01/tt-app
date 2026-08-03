@@ -16,9 +16,10 @@ import {
   useDragNav,
   useWheelNav,
 } from "@/lib/cardSlide";
-import { bodyTier, chapterFromParam } from "@/lib/chapters";
+import { bodyTier, cardFromParam, chapterFromParam } from "@/lib/chapters";
 import { cn } from "@/lib/utils";
 import type { LibraryEntry } from "@/features/library/useLibrary";
+import { useReadingProgress } from "@/features/reading-progress/useReadingProgress";
 import { StreakCompletion } from "@/features/streak";
 import { FREE_PREVIEW_CARDS, isFreeBook } from "@/features/studybook/freePreview";
 import { useAppSelector } from "@/store/hooks";
@@ -97,11 +98,16 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   const chapters = book.chapters;
   const total = book.cards.length;
   const chapterParam = params.get("chapter");
-  // Deep link support: /read?chapter=2 opens that chapter (1-based in the URL).
+  const cardParamRaw = params.get("card");
+  // Deep link support: /read?chapter=2 opens that chapter, and &card=6 the card
+  // within it (both 1-based in the URL) — that pair is what Home's "Continue"
+  // links to so a book reopens exactly where it was left.
   // Seeded once as initial state, then kept in sync below — swiping itself must
   // NOT push history entries, or Back stops meaning "leave the reader".
   const [chapterIndex, setChapterIndex] = useState(() => chapterFromParam(book, chapterParam));
-  const [index, setIndex] = useState(0);
+  const [index, setIndex] = useState(() =>
+    cardFromParam(book.chapters[chapterFromParam(book, chapterParam)], cardParamRaw),
+  );
   const [done, setDone] = useState(false);
   /** Chapter picker — replaces horizontal swipe/Left-Right as the way to jump
    * chapters: a single click sets state directly, so the chip, the meta counter
@@ -122,22 +128,25 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   // usually sits on the backdrop or the action rail).
   const containerRef = useRef<HTMLElement>(null);
   const { turn, begin, end } = useCardTurn();
+  const { setProgress } = useReadingProgress();
 
   // Re-sync if the URL's ?chapter= changes under an ALREADY-MOUNTED reader — e.g.
   // tapping a different chapter tile on the detail page reuses this component
   // (same route, only the query differs) rather than remounting it, so the
   // useState initializer above never runs again. Keyed on the raw param so an
   // in-flight swipe (which never touches the URL) can't be fought by this.
-  const lastUrlChapterRef = useRef(chapterParam);
+  const lastUrlPositionRef = useRef(`${chapterParam}:${cardParamRaw}`);
   useEffect(() => {
-    if (chapterParam === lastUrlChapterRef.current) return;
-    lastUrlChapterRef.current = chapterParam;
-    setChapterIndex(chapterFromParam(book, chapterParam));
-    setIndex(0);
+    const urlPosition = `${chapterParam}:${cardParamRaw}`;
+    if (urlPosition === lastUrlPositionRef.current) return;
+    lastUrlPositionRef.current = urlPosition;
+    const nextChapter = chapterFromParam(book, chapterParam);
+    setChapterIndex(nextChapter);
+    setIndex(cardFromParam(book.chapters[nextChapter], cardParamRaw));
     setChapterMenuOpen(false);
     setActionsMenuOpen(false);
     end();
-  }, [chapterParam, book, end]);
+  }, [chapterParam, cardParamRaw, book, end]);
 
   /** Global index of each chapter's first card, so a position flattens to one number. */
   const offsets = useMemo(() => {
@@ -158,6 +167,12 @@ export default function StudybookReader({ book }: { book: Studybook }) {
   /** The position as one number over the flat list — what the transition copies
    * and the drag gesture are both addressed by. */
   const activeGlobal = (offsets[chapterIndex] ?? 0) + index;
+
+  // Persist "how far into this book" as the reader moves — the seam Home's
+  // Continue section reads back (src/features/reading-progress).
+  useEffect(() => {
+    setProgress(book, chapterIndex, index, activeGlobal);
+  }, [book, chapterIndex, index, activeGlobal, setProgress]);
 
   // Free-book guests may read the first FREE_PREVIEW_CARDS cards, then hit the
   // login gate. Paid books never reach the reader as a guest (gated at the

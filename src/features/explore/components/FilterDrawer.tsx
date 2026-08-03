@@ -19,11 +19,7 @@ interface FilterDrawerProps {
   children: ReactNode;
 }
 
-/**
- * "Filter materials" drawer shell: bottom sheet on mobile, right side panel on
- * desktop, with a sticky "Show N results" footer. Locks the page scroll behind
- * it while open. Shared by Explore and the subject page.
- */
+
 export function FilterDrawer({ open, onClose, resultCount, onApply, children }: FilterDrawerProps) {
   const t = useTranslations("features_explore_components_FilterDrawer");
   useEffect(() => {
