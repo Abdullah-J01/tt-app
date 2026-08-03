@@ -448,9 +448,15 @@ export default function FeedScreen() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev, filtersOpen]);
 
-  
+  /**
+   * The negative top margin cancels AppChrome's header spacer at every width
+   * where this screen renders no header of its own, and must mirror that padding
+   * *per breakpoint* — a value that only matches the mobile one leaves the card
+   * floating down by the difference at md. At lg+ the spacer is kept: that's
+   * where the Navbar below appears, and it needs the room.
+   */
   return (
-    <main className="relative -mt-[calc(env(safe-area-inset-top)+5rem)] flex h-[100dvh] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
+    <main className="relative -mt-[calc(env(safe-area-inset-top)+5rem)] flex h-[100dvh] flex-col overflow-hidden md:-mt-[calc(env(safe-area-inset-top)+6rem)] md:h-[85dvh] lg:mt-0">
       {/* <FeedNavbar streak={7} /> */}
       {/* Desktop-only: mobile keeps the immersive full-screen card (no header) */}
       <div className="max-lg:hidden">

@@ -138,9 +138,9 @@ export function ExploreView({ books }: ExploreViewProps) {
   }, []);
 
   return (
-    <div className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
+    <div className="mx-auto max-w-7xl overflow-x-clip px-4 py-6 pb-24 sm:px-6 md:py-10 lg:pb-12 lg:px-8">
 
-      <div className="flex items-center justify-between pt-6 lg:block lg:pt-0">
+      <div className="flex items-center justify-between lg:block">
         <h1 className="text-2xl font-bold">{t("title")}</h1>
 
         <Link
