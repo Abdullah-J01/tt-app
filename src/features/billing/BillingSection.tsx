@@ -48,7 +48,7 @@ function MembershipCard({ status }: { status: Extract<SubStatus, { planId: unkno
   const t = useTranslations("features_billing_BillingSection");
   const [portalLoading, setPortalLoading] = useState(false);
   const [billingError, setBillingError] = useState<BillingError | null>(null);
-  const planId = status.planId ?? "scholar";
+  const planId = status.planId ?? "premium";
   const cycle = status.cycle ?? "monthly";
   const plan = PLAN_DISPLAY[planId];
   const price = priceFor(planId, cycle);
@@ -157,8 +157,7 @@ function renewalLine(status: Extract<SubStatus, { planId: unknown }>, t: Transla
 
 function UpsellCard({ onGoPremium }: { onGoPremium: () => void }) {
   const t = useTranslations("features_billing_BillingSection");
-  const scholar = PLAN_DISPLAY.scholar;
-  const genius = PLAN_DISPLAY.genius;
+  const premium = PLAN_DISPLAY.premium;
 
   return (
     <div className="mt-4">
@@ -184,11 +183,8 @@ function UpsellCard({ onGoPremium }: { onGoPremium: () => void }) {
         className="border-hairline bg-surface hover:bg-lavender/40 mt-2 flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm transition-colors"
       >
         <span className="text-ink flex-1">
-          <span className="font-semibold">{scholar.name}</span>{" "}
-          {t("perMonth", { price: formatPrice(scholar.monthly) })}
-          <span className="text-muted"> · </span>
-          <span className="font-semibold">{genius.name}</span>{" "}
-          {t("perMonth", { price: formatPrice(genius.monthly) })}
+          <span className="font-semibold">{premium.name}</span>{" "}
+          {t("perMonth", { price: formatPrice(premium.monthly) })}
         </span>
         <span className="text-violet font-semibold">{t("seeAllPlans")}</span>
         <ChevronRight className="text-muted h-4 w-4" />

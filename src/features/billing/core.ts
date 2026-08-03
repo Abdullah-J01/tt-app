@@ -7,7 +7,7 @@
 
 import type { Translator } from "@/i18n/types";
 
-export type PlanId = "free" | "scholar" | "genius";
+export type PlanId = "free" | "premium";
 export type Cycle = "monthly" | "yearly";
 
 export interface PlanDisplay {
@@ -16,27 +16,32 @@ export interface PlanDisplay {
   tagline: string;
   /** USD per month, billed monthly. */
   monthly: number;
-  /** USD per month, billed yearly. */
+  /** USD total, billed once per year (NOT a per-month rate). */
   yearly: number;
   popular?: boolean;
 }
 
+/** How many cards a free/signed-out user gets before the paywall. */
+export const FREE_CARD_LIMIT = 10;
+
+/** One-time price (USD) to unlock a single study material. Not a subscription. */
+export const MATERIAL_UNLOCK_PRICE = 2.99;
+
 export const PLAN_DISPLAY: Record<PlanId, PlanDisplay> = {
-  free: { id: "free", name: "Free", tagline: "Dip a toe in", monthly: 0, yearly: 0 },
-  scholar: {
-    id: "scholar",
-    name: "Scholar",
-    tagline: "For steady study habits",
-    monthly: 6,
-    yearly: 4.5,
-    popular: true,
+  free: {
+    id: "free",
+    name: "Free",
+    tagline: "Dip a toe in",
+    monthly: 0,
+    yearly: 0,
   },
-  genius: {
-    id: "genius",
-    name: "Genius",
-    tagline: "For the exam-week grind",
-    monthly: 12,
-    yearly: 9,
+  premium: {
+    id: "premium",
+    name: "Premium",
+    tagline: "Unlock everything",
+    monthly: 4.99,
+    yearly: 9.99,
+    popular: true,
   },
 };
 
@@ -63,12 +68,20 @@ export function isPastDueStatus(s: SubStatus): boolean {
   return s.status === "past_due" || s.status === "unpaid";
 }
 
+/** The sticker price for a plan/cycle combo — a per-month rate when
+ * `monthly`, the total charged once a year when `yearly`. */
 export function priceFor(planId: PlanId, cycle: Cycle): number {
   const plan = PLAN_DISPLAY[planId];
   return cycle === "yearly" ? plan.yearly : plan.monthly;
 }
 
-/** "$6" for whole dollars, "$4.50" otherwise. */
+/** The yearly plan's total, expressed as an effective per-month rate, for
+ * "$0.83/mo, billed yearly"-style copy. */
+export function yearlyPerMonth(planId: PlanId): number {
+  return PLAN_DISPLAY[planId].yearly / 12;
+}
+
+/** "$6" for whole dollars, "$4.99" / "$9.99" otherwise. */
 export function formatPrice(amount: number): string {
   return `$${amount.toFixed(amount % 1 === 0 ? 0 : 2)}`;
 }
@@ -78,7 +91,7 @@ export function daysLeft(timestampMs: number): number {
 }
 
 /**
- * Short plan label for the profile badge, e.g. "Scholar · Trial". `t` is a
+ * Short plan label for the profile badge, e.g. "Premium · Trial". `t` is a
  * translator bound to `features_profile_components_ProfileView` (keys `planFree`
  * and `planTrial`); plan names stay as brand terms.
  */
@@ -146,6 +159,14 @@ async function requestRedirectUrl(url: string, body?: unknown): Promise<string> 
 /** POST /api/stripe/checkout, then redirect to Stripe Checkout. */
 export async function startCheckout(planId: PlanId, cycle: Cycle): Promise<void> {
   const url = await requestRedirectUrl("/api/stripe/checkout", { planId, cycle });
+  window.location.href = url;
+}
+
+/** POST /api/stripe/checkout for the one-time per-material unlock ($2.99),
+ * then redirect to Stripe Checkout. `materialId` is passed through as
+ * Checkout session metadata for whichever material is being unlocked. */
+export async function startMaterialCheckout(materialId?: string): Promise<void> {
+  const url = await requestRedirectUrl("/api/stripe/checkout", { planId: "material", materialId });
   window.location.href = url;
 }
 

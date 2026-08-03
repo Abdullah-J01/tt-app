@@ -545,12 +545,13 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
-import { isPaidPlan, type Cycle as BillingCycle, type PaidPlanId } from "@/lib/plans";
+import { isPaidPlan } from "@/lib/plans";
 import {
   BillingError,
   BillingErrorModal,
   openBillingPortal,
   startCheckout,
+  startMaterialCheckout,
 } from "@/features/billing";
 
 if (typeof window !== "undefined") {
@@ -561,7 +562,7 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 
 type Cycle = "monthly" | "yearly";
 
-type PlanId = "free" | "scholar" | "genius";
+type PlanId = "free" | "premium" | "material";
 
 interface Plan {
   id: PlanId;
@@ -569,7 +570,10 @@ interface Plan {
   tagline: string;
   icon: React.ReactNode;
   monthly: number;
-  yearly: number; // per month, billed yearly
+  /** Recurring plans: total billed once per year. One-time plans: the flat price. */
+  yearly: number;
+  /** A single one-time purchase (per-material unlock), not a subscription. */
+  oneTime?: boolean;
   popular?: boolean;
   gradient: string;
   features: string[];
@@ -584,28 +588,35 @@ const PLANS: Plan[] = [
     monthly: 0,
     yearly: 0,
     gradient: "from-[#8A8A9E] to-[#B7B7C6]",
-    features: ["freeFeat1", "freeFeat2", "freeFeat3", "freeFeat4"],
+    features: ["freeFeat1", "freeFeat2", "freeFeat3"],
   },
   {
-    id: "scholar",
-    name: "scholarName",
-    tagline: "scholarTagline",
+    id: "premium",
+    name: "premiumName",
+    tagline: "premiumTagline",
     icon: <Zap className="h-5 w-5" />,
-    monthly: 6,
-    yearly: 4.5,
+    monthly: 4.99,
+    yearly: 9.99,
     popular: true,
     gradient: "from-violet to-violet-dark",
-    features: ["scholarFeat1", "scholarFeat2", "scholarFeat3", "scholarFeat4", "scholarFeat5"],
+    features: [
+      "premiumFeat1",
+      "premiumFeat2",
+      "premiumFeat3",
+      "premiumFeat4",
+      "premiumFeat5",
+    ],
   },
   {
-    id: "genius",
-    name: "geniusName",
-    tagline: "geniusTagline",
+    id: "material",
+    name: "materialName",
+    tagline: "materialTagline",
     icon: <Crown className="h-5 w-5" />,
-    monthly: 12,
-    yearly: 9,
+    monthly: 2.99,
+    yearly: 2.99,
+    oneTime: true,
     gradient: "from-[#5A3ED0] to-[#B0793B]",
-    features: ["geniusFeat1", "geniusFeat2", "geniusFeat3", "geniusFeat4", "geniusFeat5"],
+    features: ["materialFeat1", "materialFeat2", "materialFeat3"],
   },
 ];
 
@@ -648,7 +659,7 @@ function daysLeft(timestampMs: number) {
   return Math.max(0, Math.ceil((timestampMs - Date.now()) / (1000 * 60 * 60 * 24)));
 }
 
-// Index of the "Scholar" (recommended) column within the 4-col grid (Feature, Free, Scholar, Genius)
+// Index of the "Premium" (recommended) column within the 4-col grid (Feature, Free, Premium, Material)
 const HIGHLIGHT_COL_INDEX = 2;
 
 export default function PremiumPlansPage() {
@@ -685,14 +696,13 @@ export default function PremiumPlansPage() {
   const blobBRef = useRef<HTMLDivElement>(null);
 
   const savingsLabel = useMemo(() => {
-    const p = PLANS.find((p) => p.id === "genius")!;
-    const pct = Math.round((1 - p.yearly / p.monthly) * 100);
+    const p = PLANS.find((p) => p.id === "premium")!;
+    const pct = Math.round((1 - p.yearly / (p.monthly * 12)) * 100);
     return t("savePercent", { pct });
   }, [t]);
 
   async function handleChoosePlan(planId: PlanId) {
     if (planId === "free" || checkingOutPlan) return;
-    if (!isPaidPlan(planId)) return;
 
     // Not signed in → prompt to log in before hitting Stripe at all.
     if (subStatus.status === "signed_out") {
@@ -704,7 +714,11 @@ export default function PremiumPlansPage() {
 
     setCheckingOutPlan(planId);
     try {
-      await startCheckout(planId, cycle); // redirects to Stripe Checkout on success
+      if (planId === "material") {
+        await startMaterialCheckout(); // redirects to Stripe Checkout on success
+      } else if (isPaidPlan(planId)) {
+        await startCheckout(planId, cycle); // redirects to Stripe Checkout on success
+      }
     } catch (err) {
       setCheckingOutPlan(null);
       reportBillingError(err, () => handleChoosePlan(planId));
@@ -955,7 +969,7 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      {/* Pricing cards — start stacked behind Scholar, spread apart on scroll.
+      {/* Pricing cards — start stacked behind Premium, spread apart on scroll.
           Mobile: cards sticky-stack like the "new study bites" deck instead —
           each pins below the navbar (stepping down so covered tops peek) and
           the next card slides up over it while the covered one recedes (GSAP). */}
@@ -1096,7 +1110,9 @@ function PricingCard({
   isCurrentPlan: boolean;
 }) {
   const t = useTranslations("components_home_Plans");
-  const price = cycle === "monthly" ? plan.monthly : plan.yearly;
+  // The one-time material unlock ignores the monthly/yearly toggle — it's a
+  // single flat price either way.
+  const price = plan.oneTime ? plan.monthly : cycle === "monthly" ? plan.monthly : plan.yearly;
   const name = t(plan.name);
 
   const buttonLabel = isCurrentPlan
@@ -1105,7 +1121,9 @@ function PricingCard({
       ? t("choose", { name })
       : loading
         ? t("redirecting")
-        : t("startTrialPlan", { name });
+        : plan.oneTime
+          ? t("unlockMaterial")
+          : t("startTrialPlan", { name });
 
   return (
     <motion.div
@@ -1178,14 +1196,25 @@ function PricingCard({
         </AnimatePresence>
         {price > 0 && (
           <span className={cn("mb-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-            {cycle === "yearly" ? t("perMonthYearly") : t("perMonthMonthly")}
+            {plan.oneTime
+              ? t("perMaterial")
+              : cycle === "yearly"
+                ? t("perYearBilled")
+                : t("perMonthMonthly")}
           </span>
         )}
       </div>
 
-      {plan.id !== "free" && (
+      {plan.id === "premium" && (
         <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-          {t("cardRenewLine", { price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}` })}
+          {t("cardRenewLine", {
+            price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}${cycle === "yearly" ? "/yr" : "/mo"}`,
+          })}
+        </p>
+      )}
+      {plan.oneTime && (
+        <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
+          {t("materialNote")}
         </p>
       )}
 
