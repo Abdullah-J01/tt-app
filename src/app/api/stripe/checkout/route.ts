@@ -32,7 +32,7 @@ import { getServerSession } from "next-auth";
 // "@/app/api/auth/[...nextauth]/route" or "@/lib/auth".
 import { authOptions } from "@/lib/auth";
 import { stripe, stripeErrorMessage } from "@/lib/stripe";
-import { PRICE_IDS, isPaidPlan, type Cycle } from "@/lib/plans";
+import { MATERIAL_PRICE_ID, PRICE_IDS, isMaterialPlan, isPaidPlan, type Cycle } from "@/lib/plans";
 
 export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -40,19 +40,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Please sign in first." }, { status: 401 });
   }
 
-  const body = (await req.json()) as { planId?: string; cycle?: Cycle };
-  const { planId, cycle } = body;
+  const body = (await req.json()) as { planId?: string; cycle?: Cycle; materialId?: string };
+  const { planId, cycle, materialId } = body;
 
-  if (!planId || !isPaidPlan(planId) || (cycle !== "monthly" && cycle !== "yearly")) {
-    return NextResponse.json({ error: "Invalid plan or billing cycle" }, { status: 400 });
-  }
-
-  const priceId = PRICE_IDS[planId][cycle];
-  if (!priceId) {
-    return NextResponse.json(
-      { error: "This plan isn't available right now. Please try again later." },
-      { status: 500 },
-    );
+  if (!planId || (!isPaidPlan(planId) && !isMaterialPlan(planId))) {
+    return NextResponse.json({ error: "Invalid plan" }, { status: 400 });
   }
 
   try {
@@ -67,11 +59,46 @@ export async function POST(req: NextRequest) {
         name: session.user.name ?? undefined,
       }));
 
+    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL!;
+
+    // One-time per-material unlock ($2.99) — a single Checkout payment, no
+    // subscription or trial involved.
+    if (isMaterialPlan(planId)) {
+      if (!MATERIAL_PRICE_ID) {
+        return NextResponse.json(
+          { error: "This isn't available right now. Please try again later." },
+          { status: 500 },
+        );
+      }
+
+      const checkoutSession = await stripe.checkout.sessions.create({
+        mode: "payment",
+        customer: customer.id,
+        line_items: [{ price: MATERIAL_PRICE_ID, quantity: 1 }],
+        metadata: { planId, materialId: materialId ?? "" },
+        success_url: `${origin}/premium?checkout=success`,
+        cancel_url: `${origin}/premium?checkout=cancelled`,
+        allow_promotion_codes: true,
+      });
+
+      return NextResponse.json({ url: checkoutSession.url });
+    }
+
+    if (cycle !== "monthly" && cycle !== "yearly") {
+      return NextResponse.json({ error: "Invalid billing cycle" }, { status: 400 });
+    }
+
+    const priceId = PRICE_IDS[planId][cycle];
+    if (!priceId) {
+      return NextResponse.json(
+        { error: "This plan isn't available right now. Please try again later." },
+        { status: 500 },
+      );
+    }
+
     // Prevent a second free trial: once hasUsedTrial is set (by the webhook
     // below), later checkouts for this customer skip trial_period_days.
     const hadTrialBefore = customer.metadata?.hasUsedTrial === "true";
-
-    const origin = req.headers.get("origin") ?? process.env.NEXT_PUBLIC_APP_URL!;
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: "subscription",

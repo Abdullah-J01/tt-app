@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, Crown, Loader2, Sparkles, X, Zap } from "lucide-react";
 import gsap from "gsap";
@@ -10,12 +10,13 @@ import { useTranslations } from "@/i18n/client";
 import type { Translator } from "@/i18n/types";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
-import { isPaidPlan, type Cycle as BillingCycle, type PaidPlanId } from "@/lib/plans";
+import { isPaidPlan } from "@/lib/plans";
 import {
   BillingError,
   BillingErrorModal,
   openBillingPortal,
   startCheckout,
+  startMaterialCheckout,
 } from "@/features/billing";
 
 if (typeof window !== "undefined") {
@@ -26,7 +27,7 @@ const easeOut = [0.22, 1, 0.36, 1] as const;
 
 type Cycle = "monthly" | "yearly";
 
-type PlanId = "free" | "scholar" | "genius";
+type PlanId = "free" | "premium" | "material";
 
 interface Plan {
   id: PlanId;
@@ -34,7 +35,10 @@ interface Plan {
   key: string;
   icon: React.ReactNode;
   monthly: number;
-  yearly: number; // per month, billed yearly
+  /** Recurring plans: total billed once per year. One-time plans: the flat price. */
+  yearly: number;
+  /** A single one-time purchase (per-material unlock), not a subscription. */
+  oneTime?: boolean;
   popular?: boolean;
   gradient: string;
   /** i18n feature keys under `components_home_Plans`. */
@@ -49,26 +53,27 @@ const PLANS: Plan[] = [
     monthly: 0,
     yearly: 0,
     gradient: "from-[#8A8A9E] to-[#B7B7C6]",
-    featureKeys: ["freeFeat1", "freeFeat2", "freeFeat3", "freeFeat4"],
+    featureKeys: ["freeFeat1", "freeFeat2", "freeFeat3"],
   },
   {
-    id: "scholar",
-    key: "scholar",
+    id: "premium",
+    key: "premium",
     icon: <Zap className="h-5 w-5" />,
-    monthly: 6,
-    yearly: 4.5,
+    monthly: 4.99,
+    yearly: 9.99,
     popular: true,
     gradient: "from-violet to-violet-dark",
-    featureKeys: ["scholarFeat1", "scholarFeat2", "scholarFeat3", "scholarFeat4", "scholarFeat5"],
+    featureKeys: ["premiumFeat1", "premiumFeat2", "premiumFeat3", "premiumFeat4", "premiumFeat5"],
   },
   {
-    id: "genius",
-    key: "genius",
+    id: "material",
+    key: "material",
     icon: <Crown className="h-5 w-5" />,
-    monthly: 12,
-    yearly: 9,
+    monthly: 2.99,
+    yearly: 2.99,
+    oneTime: true,
     gradient: "from-[#5A3ED0] to-[#B0793B]",
-    featureKeys: ["geniusFeat1", "geniusFeat2", "geniusFeat3", "geniusFeat4", "geniusFeat5"],
+    featureKeys: ["materialFeat1", "materialFeat2", "materialFeat3"],
   },
 ];
 
@@ -88,21 +93,43 @@ type SubStatus =
 
 function useSubscriptionStatus() {
   const [state, setState] = useState<SubStatus>({ status: "loading" });
+  const cancelledRef = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const refetch = useCallback(() => {
     fetch("/api/stripe/status")
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled) setState(data);
+        if (!cancelledRef.current) setState(data);
       })
       .catch(() => {
-        if (!cancelled) setState({ status: "none" });
+        if (!cancelledRef.current) setState({ status: "none" });
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    cancelledRef.current = false;
+    refetch();
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, [refetch]);
+
+  // Refetch when returning from the Stripe Checkout/portal redirect — covers
+  // bfcache restores and stale client-side navigations where this component
+  // was already mounted before the purchase completed.
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState === "visible") refetch();
+    }
+    window.addEventListener("focus", refetch);
+    window.addEventListener("pageshow", refetch);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", refetch);
+      window.removeEventListener("pageshow", refetch);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [refetch]);
 
   return state;
 }
@@ -111,7 +138,7 @@ function daysLeft(timestampMs: number) {
   return Math.max(0, Math.ceil((timestampMs - Date.now()) / (1000 * 60 * 60 * 24)));
 }
 
-// Index of the "Scholar" (recommended) column within the 4-col grid (Feature, Free, Scholar, Genius)
+// Index of the "Premium" (recommended) column within the 4-col grid (Feature, Free, Premium, Material)
 const HIGHLIGHT_COL_INDEX = 2;
 
 export default function PremiumPlansPage() {
@@ -144,14 +171,13 @@ export default function PremiumPlansPage() {
   const blobBRef = useRef<HTMLDivElement>(null);
 
   const savingsLabel = useMemo(() => {
-    const p = PLANS.find((p) => p.id === "genius")!;
-    const pct = Math.round((1 - p.yearly / p.monthly) * 100);
+    const p = PLANS.find((p) => p.id === "premium")!;
+    const pct = Math.round((1 - p.yearly / (p.monthly * 12)) * 100);
     return t("savePercent", { pct });
   }, [t]);
 
   async function handleChoosePlan(planId: PlanId) {
     if (planId === "free" || checkingOutPlan) return;
-    if (!isPaidPlan(planId)) return;
 
     // Not signed in → prompt to log in before hitting Stripe at all.
     if (subStatus.status === "signed_out") {
@@ -163,7 +189,11 @@ export default function PremiumPlansPage() {
 
     setCheckingOutPlan(planId);
     try {
-      await startCheckout(planId, cycle); // redirects to Stripe Checkout on success
+      if (planId === "material") {
+        await startMaterialCheckout(); // redirects to Stripe Checkout on success
+      } else if (isPaidPlan(planId)) {
+        await startCheckout(planId, cycle); // redirects to Stripe Checkout on success
+      }
     } catch (err) {
       setCheckingOutPlan(null);
       reportBillingError(err, () => handleChoosePlan(planId));
@@ -408,7 +438,7 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      {/* Pricing cards — start stacked behind Scholar, spread apart on scroll */}
+      {/* Pricing cards — start stacked behind Premium, spread apart on scroll */}
       <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {PLANS.map((plan) => (
           <div
@@ -539,7 +569,9 @@ function PricingCard({
   disabled: boolean;
   isCurrentPaidPlan: boolean;
 }) {
-  const price = cycle === "monthly" ? plan.monthly : plan.yearly;
+  // The one-time material unlock ignores the monthly/yearly toggle — it's a
+  // single flat price either way.
+  const price = plan.oneTime ? plan.monthly : cycle === "monthly" ? plan.monthly : plan.yearly;
   const planName = t(`${plan.key}Name`);
 
   const buttonLabel = isCurrentPaidPlan
@@ -548,7 +580,9 @@ function PricingCard({
       ? t("currentPlan")
       : loading
         ? t("redirecting")
-        : t("startTrialPlan", { name: planName });
+        : plan.oneTime
+          ? t("unlockMaterial")
+          : t("startTrialPlan", { name: planName });
 
   return (
     <motion.div
@@ -615,14 +649,25 @@ function PricingCard({
         </AnimatePresence>
         {price > 0 && (
           <span className={cn("mb-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-            {cycle === "yearly" ? t("perMonthYearly") : t("perMonthMonthly")}
+            {plan.oneTime
+              ? t("perMaterial")
+              : cycle === "yearly"
+                ? t("perYearBilled")
+                : t("perMonthMonthly")}
           </span>
         )}
       </div>
 
-      {plan.id !== "free" && (
+      {plan.id === "premium" && (
         <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
-          {t("cardRenewLine", { price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}` })}
+          {t("cardRenewLine", {
+            price: `$${price.toFixed(price % 1 === 0 ? 0 : 2)}${cycle === "yearly" ? "/yr" : "/mo"}`,
+          })}
+        </p>
+      )}
+      {plan.oneTime && (
+        <p className={cn("relative mt-1 text-xs", plan.popular ? "text-white/50" : "text-muted")}>
+          {t("materialNote")}
         </p>
       )}
 
@@ -681,13 +726,6 @@ function CycleButton({
         active ? "text-white" : "text-ink hover:text-violet",
       )}
     >
-      {active && (
-        <motion.span
-          layoutId={layoutKey}
-          className="bg-violet absolute inset-0 rounded-full"
-          transition={{ type: "spring", stiffness: 350, damping: 30 }}
-        />
-      )}
       <span className="relative z-10">{children}</span>
     </Button>
   );

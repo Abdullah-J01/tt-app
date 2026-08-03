@@ -16,9 +16,9 @@ import {
 
 const FEATURES = ["featEverything", "featSaves", "featOffline", "featAudio"];
 
-// The paywall upsells the recommended "Scholar" plan; the /premium page is the
-// full comparison for anyone who wants Genius.
-const PLAN = PLAN_DISPLAY.scholar;
+// The paywall upsells the single Premium plan; the /premium page also offers
+// the one-time per-material unlock for anyone who just wants one studybook.
+const PLAN = PLAN_DISPLAY.premium;
 
 /** Premium paywall bottom sheet → real Stripe Checkout (UI: Paywall). */
 export function Paywall({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -42,7 +42,7 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
 
   if (!open) return null;
 
-  const savings = Math.round((1 - PLAN.yearly / PLAN.monthly) * 100);
+  const savings = Math.round((1 - PLAN.yearly / (PLAN.monthly * 12)) * 100);
 
   async function handleCheckout() {
     setLoading(true);
@@ -98,6 +98,7 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
             title={t("annual")}
             note={t("trialNote")}
             price={formatPrice(PLAN.yearly)}
+            unit={t("perYear")}
             badge={savings > 0 ? t("savePercent", { percent: savings }) : undefined}
           />
           <PlanRow
@@ -106,6 +107,7 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
             title={t("monthly")}
             note={t("trialNote")}
             price={formatPrice(PLAN.monthly)}
+            unit={t("perMonth")}
           />
         </div>
 
@@ -113,7 +115,9 @@ export function Paywall({ open, onClose }: { open: boolean; onClose: () => void 
           {t("startTrial")}
         </Button>
         <p className="text-muted mt-3 text-center text-xs">
-          {t("renewLine", { price: formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly) })}
+          {t("renewLine", {
+            price: `${formatPrice(cycle === "yearly" ? PLAN.yearly : PLAN.monthly)}${cycle === "yearly" ? "/yr" : "/mo"}`,
+          })}
         </p>
       </div>
 
@@ -132,6 +136,7 @@ function PlanRow({
   title,
   note,
   price,
+  unit,
   badge,
 }: {
   selected: boolean;
@@ -139,9 +144,9 @@ function PlanRow({
   title: string;
   note: string;
   price: string;
+  unit: string;
   badge?: string;
 }) {
-  const t = useTranslations("features_profile_components_Paywall");
   return (
     <Button
       unstyled
@@ -173,7 +178,7 @@ function PlanRow({
       </span>
       <span className="shrink-0 text-right">
         <span className="block font-bold">{price}</span>
-        <span className="text-muted block text-xs">{t("perMonth")}</span>
+        <span className="text-muted block text-xs">{unit}</span>
       </span>
     </Button>
   );
