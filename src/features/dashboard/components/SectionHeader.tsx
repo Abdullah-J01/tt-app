@@ -41,8 +41,10 @@ export function SectionHeader({
               <span className="text-faint text-sm font-semibold tabular-nums">{count}</span>
             )}
           </h2>
+          {/* Wraps rather than truncates: Estonian and Russian run noticeably
+              longer than English and would otherwise ellipsis mid-word. */}
           {description && (
-            <p className="text-muted mt-0.5 truncate text-xs sm:text-sm">{description}</p>
+            <p className="text-muted mt-0.5 line-clamp-2 text-xs sm:text-sm">{description}</p>
           )}
         </div>
       </div>

@@ -27,9 +27,14 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
   const loading = !progressHydrated || !libraryHydrated;
 
   /**
-   * Priority order Continue → Your Library → Popular → New: once a book has
-   * shown up in an earlier row, it's dropped from every later one, so the
-   * same title never repeats on one screen.
+   * The catalog rows (Popular, New) are deduped against the personal ones, so a
+   * book you've already saved or opened never shows up again further down.
+   *
+   * Continue and Your Library are deliberately NOT deduped against each other:
+   * saving a book and reading it are independent actions, and opening a saved
+   * book in the reader puts it in `progress` — filtering it out of the library
+   * rail made saved books disappear while the header still counted them (1
+   * saved, "1", empty rail).
    */
   const { continueItems, libraryItems, popularItems, newItems } = useMemo(() => {
     const shown = new Set<string>();
@@ -39,10 +44,8 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
       .sort((a, b) => b.updatedAt - a.updatedAt);
     continueItems.forEach((c) => shown.add(c.slug));
 
-    const libraryItems = savedBooks
-      .filter((b) => !shown.has(b.bookSlug))
-      .slice(0, LIBRARY_PREVIEW_SIZE);
-    libraryItems.forEach((b) => shown.add(b.bookSlug));
+    const libraryItems = savedBooks.slice(0, LIBRARY_PREVIEW_SIZE);
+    savedBooks.forEach((b) => shown.add(b.bookSlug));
 
     const popularItems = popular.filter((b) => !shown.has(b.slug));
     popularItems.forEach((b) => shown.add(b.slug));
@@ -58,24 +61,14 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
     return { continueItems, libraryItems, popularItems, newItems };
   }, [progress, savedBooks, popular, freshlyAdded]);
 
-  const exploreCta = (variant: "primary" | "secondary") => (
-    <Link href="/explore">
-      <Button size="sm" variant={variant} leadingIcon={<Compass className="h-4 w-4" />}>
-        {t("continueEmptyCta")}
-      </Button>
-    </Link>
-  );
-
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 pb-24 sm:px-6 md:py-10 lg:px-8 lg:pb-12">
       <HomeHeader inProgress={continueItems.length} saved={savedBooks.length} loading={loading} />
 
       <div className="mt-8 flex flex-col gap-10 sm:gap-12">
-        <ContinueSection
-          items={continueItems}
-          loading={loading}
-          emptyAction={exploreCta("primary")}
-        />
+        {/* Self-hiding: no reading history, no Continue row — Your Library
+            leads the page instead. */}
+        <ContinueSection items={continueItems} loading={loading} />
 
         <BookRail
           title={t("libraryTitle")}
@@ -100,7 +93,13 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
           emptyIcon={<Bookmark />}
           emptyTitle={t("libraryEmptyTitle")}
           emptyDescription={t("libraryEmptyDescription")}
-          emptyAction={exploreCta("secondary")}
+          emptyAction={
+            <Link href="/explore">
+              <Button size="sm" leadingIcon={<Compass className="h-4 w-4" />}>
+                {t("libraryEmptyCta")}
+              </Button>
+            </Link>
+          }
         />
 
         <BookRail

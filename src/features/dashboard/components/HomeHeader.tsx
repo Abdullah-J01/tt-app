@@ -48,7 +48,11 @@ export function HomeHeader({ inProgress, saved, loading }: HomeHeaderProps) {
   const user = useAppSelector((s) => s.auth.user);
   const { streak } = useStreak();
 
-  const firstName = user?.name?.trim().split(/\s+/)[0];
+  // Accounts created with an email as their display name are common here, and
+  // "Welcome back, someone@example.com" wraps to two lines and reads as a bug.
+  const rawName = user?.name?.trim() ?? "";
+  const candidate = (rawName.includes("@") ? rawName.split("@")[0] : rawName.split(/\s+/)[0]) ?? "";
+  const firstName = candidate.length > 24 ? "" : candidate;
 
   return (
     <header>
