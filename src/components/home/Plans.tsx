@@ -534,7 +534,7 @@
 
 "use client";
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslations } from "@/i18n/client";
 import type { Translator } from "@/i18n/types";
@@ -636,21 +636,43 @@ type SubStatus =
 
 function useSubscriptionStatus() {
   const [state, setState] = useState<SubStatus>({ status: "loading" });
+  const cancelledRef = useRef(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const refetch = useCallback(() => {
     fetch("/api/stripe/status")
       .then((r) => r.json())
       .then((data) => {
-        if (!cancelled) setState(data);
+        if (!cancelledRef.current) setState(data);
       })
       .catch(() => {
-        if (!cancelled) setState({ status: "none" });
+        if (!cancelledRef.current) setState({ status: "none" });
       });
-    return () => {
-      cancelled = true;
-    };
   }, []);
+
+  useEffect(() => {
+    cancelledRef.current = false;
+    refetch();
+    return () => {
+      cancelledRef.current = true;
+    };
+  }, [refetch]);
+
+  // Refetch when returning from the Stripe Checkout/portal redirect — covers
+  // bfcache restores and stale client-side navigations where this component
+  // was already mounted before the purchase completed.
+  useEffect(() => {
+    function onVisible() {
+      if (document.visibilityState === "visible") refetch();
+    }
+    window.addEventListener("focus", refetch);
+    window.addEventListener("pageshow", refetch);
+    document.addEventListener("visibilitychange", onVisible);
+    return () => {
+      window.removeEventListener("focus", refetch);
+      window.removeEventListener("pageshow", refetch);
+      document.removeEventListener("visibilitychange", onVisible);
+    };
+  }, [refetch]);
 
   return state;
 }
