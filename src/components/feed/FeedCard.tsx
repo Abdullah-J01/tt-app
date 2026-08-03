@@ -92,29 +92,37 @@ function FeedCard({
           overlay on every breakpoint — a per-card copy would swipe with the
           card track. The mt offset below still reserves room for it. */}
 
-      {/* subject · grade — top offset clears the fixed FeedTopBar overlay above */}
-      <div className="z-10 mt-19 flex items-center justify-start sm:mt-20">
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={active ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.35, delay: 0.08 }}
-          className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-md"
-        >
-          <Zap size={12} className="fill-white/90" />
-          {subjectName(card.subject, card.subject)} · {tCat(`target.${card.grade}`)}
-        </motion.div>
-      </div>
-
-      {/* main content — fixed gap below the subject·grade tag, constant across cards */}
-      <div className="z-10 mt-10">
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={active ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.35, delay: 0.1 }}
-          className="mb-3 text-[11px] font-semibold tracking-[0.15em] text-white/55 uppercase"
-        >
-          {t("didYouKnow")}
-        </motion.p>
+      {/* Top offset is DERIVED from the top bar's own offset via
+          `--feed-content-top` (defined on the feed stage in FeedScreen.tsx), not
+          hand-tuned here — that's what keeps the heading clear of the back
+          button/streak row. The notch is added by the SAME bare
+          `pt-[env(safe-area-inset-top,0px)]` FeedTopBar uses, so both shift by
+          the identical amount and the gap is the same in the PWA and in a
+          browser tab. Do not fold the `env()` back into the margin: inside a
+          `calc()` it was discarded in an iOS Safari tab, which collapsed this
+          margin to 0 and put the heading behind the top bar. */}
+      <div className="z-10 mt-[var(--feed-content-top,6.5rem)] pt-[env(safe-area-inset-top,0px)]">
+        {/* subject · grade + "did you know" eyebrow share one row instead of
+            stacking as two separate bands above the title. */}
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={active ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.35, delay: 0.08 }}
+            className="flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1.5 text-xs font-medium text-white/90 backdrop-blur-md"
+          >
+            <Zap size={12} className="fill-white/90" />
+            {subjectName(card.subject, card.subject)} · {tCat(`target.${card.grade}`)}
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: -10 }}
+            animate={active ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.35, delay: 0.1 }}
+            className="shrink-0 text-[11px] font-semibold tracking-[0.15em] text-white/55 uppercase"
+          >
+            {t("didYouKnow")}
+          </motion.p>
+        </div>
         <motion.h2
           initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
           animate={active ? { opacity: 1, y: 0, filter: "blur(0px)" } : {}}
@@ -138,7 +146,7 @@ function FeedCard({
         initial={{ opacity: 0, y: 14 }}
         animate={active ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.35, delay: 0.25 }}
-        className="z-10 mt-auto mb-6 flex items-center gap-3 sm:mb-8"
+        className="z-10 mt-auto mb-[calc(1.5rem+env(safe-area-inset-bottom))] flex items-center gap-3 sm:mb-[calc(2rem+env(safe-area-inset-bottom))]"
       >
         <div className="relative flex h-14 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-white/15 shadow-md">
           {card.cover ? (

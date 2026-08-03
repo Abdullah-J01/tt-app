@@ -24,7 +24,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     <div className="bg-lavender-soft min-h-[100svh]">
       <Navbar />
       {/* pt clears the fixed shared header (same spacer idea as the app shell). */}
-      <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 pt-24 pb-6 max-md:flex-col sm:px-6 md:pt-28 lg:px-8">
+      <div className="mx-auto flex w-full max-w-6xl gap-8 px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-6 max-md:flex-col sm:px-6 md:pt-[calc(env(safe-area-inset-top)+7rem)] lg:px-8">
         <AdminSidebar />
         <main className="min-w-0 flex-1 pb-16">{children}</main>
       </div>

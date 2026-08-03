@@ -20,8 +20,11 @@ export function AppChrome({ children }: { children: React.ReactNode }) {
     <div className="bg-surface min-h-[100svh]">
       {!hideChrome && <Navbar />}
       {/* Spacer so content clears the fixed header — pages needn't add their own
-          top margin. Immersive pages (feed) opt out with a negative margin. */}
-      <div className="pt-20 lg:pt-24">{children}</div>
+          top margin. Immersive pages (feed) opt out with a negative margin
+          (FeedScreen.tsx) that must match this value exactly. */}
+      <div className="pt-[calc(env(safe-area-inset-top)+5rem)] md:pt-[calc(env(safe-area-inset-top)+6rem)]">
+        {children}
+      </div>
       {!hideChrome && <ResponsiveFooter />}
     </div>
   );

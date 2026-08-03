@@ -73,7 +73,7 @@ export default async function StudybookPage({ params }: { params: Promise<{ slug
       {/* Banner */}
       <section className="bg-lavender">
         {/* pt clears the fixed shared header (same spacer idea as the app shell). */}
-        <div className="mx-auto max-w-5xl px-4 pt-24 pb-6 md:pt-28 md:pb-10">
+        <div className="mx-auto max-w-5xl px-4 pt-[calc(env(safe-area-inset-top)+6rem)] pb-6 md:pt-[calc(env(safe-area-inset-top)+7rem)] md:pb-10">
           <nav className="text-muted flex items-center gap-1 text-xs">
             <Link href="/explore" className="hover:text-violet">
               {t("breadcrumb")}

@@ -46,7 +46,9 @@ export default function Navbar() {
       >
         <div
           className={`mx-auto max-w-7xl px-4 transition-all duration-500 sm:px-6 lg:px-8 ${
-            scrolled ? "pt-3" : "pt-6"
+            scrolled
+              ? "pt-[calc(env(safe-area-inset-top)+0.75rem)]"
+              : "pt-[calc(env(safe-area-inset-top)+1.5rem)]"
           }`}
         >
           <nav

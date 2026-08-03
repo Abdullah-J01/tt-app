@@ -319,10 +319,14 @@ export default function StudybookReader({ book }: { book: Studybook }) {
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
     document.body.classList.add("reader-open");
+    // Match the iOS safe-area status-bar band (layout.tsx) to this card's own
+    // plum gradient instead of the app-wide violet, while the reader is open.
+    document.documentElement.style.setProperty("--status-bar-bg", "var(--color-plum-start)");
     return () => {
       document.body.style.overflow = prevOverflow;
       document.documentElement.style.overflow = prevHtmlOverflow;
       document.body.classList.remove("reader-open");
+      document.documentElement.style.removeProperty("--status-bar-bg");
       if (lenis) {
         lenis.start();
       } else {
@@ -355,7 +359,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             and below the text.
             overflow-hidden is the backstop for the no-scroll rule — nothing
             should ever reach it. */}
-        <div className="absolute inset-x-0 top-[150px] bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] flex items-start overflow-hidden px-5 sm:top-32 sm:bottom-[4.5rem] sm:px-8">
+        <div className="absolute inset-x-0 top-[calc(150px+env(safe-area-inset-top))] bottom-[calc(env(safe-area-inset-bottom)+4.5rem)] flex items-start overflow-hidden px-5 sm:top-[calc(128px+env(safe-area-inset-top))] sm:bottom-[4.5rem] sm:px-8">
           <div className="w-full max-w-md">
             <h2 className={cn("font-display leading-tight font-bold text-white", tier.heading)}>
               {c.heading}
@@ -454,7 +458,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
             `--content-top` must track the content box's own top inset and
             `--peek` how much of the next card shows at rest; STRIDE is derived
             from the pair, so they have to be changed together. */}
-        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none [--content-top:150px] [--peek:3.5rem] sm:rounded-[2.25rem] sm:[--content-top:128px] lg:rounded-[2.75rem]">
+        <div className="bg-plum-gradient lg:shadow-glow relative h-full w-full touch-none overflow-hidden text-white select-none [--content-top:calc(150px+env(safe-area-inset-top))] [--peek:3.5rem] sm:rounded-[2.25rem] sm:[--content-top:calc(128px+env(safe-area-inset-top))] lg:rounded-[2.75rem]">
           {/* Every card copy lives inside this masked layer, which does NOT move
               — so the fade stays pinned to the card's bottom edge while content
               slides under it. The peek dissolves into the background instead of
@@ -518,7 +522,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
               the meta counter below and the progress bar (all driven by that
               one value) move together by construction; there's no
               gesture-timing path for them to disagree on. */}
-          <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-4 pt-5">
+          <div className="absolute inset-x-0 top-0 z-30 flex items-center justify-between gap-2 px-4 pt-[calc(env(safe-area-inset-top)+1.25rem)]">
             <button
               type="button"
               onClick={goBack}
@@ -623,7 +627,7 @@ export default function StudybookReader({ book }: { book: Studybook }) {
           {/* Progress + meta — fixed header block, stays put while cards swipe.
               The bars track the OPEN CHAPTER, not the whole book: a bar per card
               across 100+ cards is a hairline nobody can read. */}
-          <div className="absolute inset-x-0 top-[68px] z-20 px-5">
+          <div className="absolute inset-x-0 top-[calc(68px+env(safe-area-inset-top))] z-20 px-5">
             <div className="flex gap-[2px]">
               {cards.map((c, i) => (
                 <span

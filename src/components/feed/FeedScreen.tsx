@@ -20,6 +20,7 @@ import { FilterPanel } from "@/features/explore/components/FilterPanel";
 import type { FeedItem } from "@/lib/api";
 import { feedPath, withSlugs, type FeedCardData } from "./feedData";
 import { stripLocale, localizeHref } from "@/i18n/Link";
+import { getLastTab } from "@/lib/lastTab";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "@/i18n/config";
 
 const TRANSITION = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
@@ -111,6 +112,16 @@ export default function FeedScreen() {
   const total = cards.length;
   /** Live count for the drawer — what the feed will show if the draft commits. */
   const draftCount = useMemo(() => filteredCards(items, draft).length, [items, draft]);
+
+  // Match the iOS safe-area status-bar band (layout.tsx) to the feed cards' own
+  // plum gradient (FeedCard.tsx) instead of the app-wide violet, same idea as
+  // StudybookReader/StudybookPreview.
+  useEffect(() => {
+    document.documentElement.style.setProperty("--status-bar-bg", "var(--color-plum-start)");
+    return () => {
+      document.documentElement.style.removeProperty("--status-bar-bg");
+    };
+  }, []);
 
   // Load the feed from /api/feed (data stays server-side — the upstream fetch
   // cache applies there), then restore the active card from /feed/[slug]
@@ -295,7 +306,14 @@ export default function FeedScreen() {
     goPrevRef.current = goPrev;
   }, [goNext, goPrev]);
 
-  const goBack = useCallback(() => router.push("/explore"), [router]);
+  // Return to wherever the user actually was before opening the feed
+  // (MobileNav records it — see lastTab.ts), not router.back(): swiping
+  // through cards pushes one history entry per card, so back() just stepped
+  // back through those instead of leaving the feed. Falls back to /explore
+  // for a direct deep link into /feed, where there's no prior tab to return to.
+  const goBack = useCallback(() => {
+    router.push(getLastTab() ?? "/explore");
+  }, [router]);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -430,20 +448,16 @@ export default function FeedScreen() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev, filtersOpen]);
 
-  // Mobile: opt out of AppChrome's pt-20 spacer (-mt-20) and fill the whole
-  // viewport. The bottom nav is hidden on the feed (MobileNav bails on immersive
-  // routes), so the card claims that space too — only the home-indicator safe
-  // area is reserved. lg+ keeps the original 85dvh stage.
+  
   return (
-    <main className="relative -mt-20 flex h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden lg:mt-0 lg:h-[85dvh]">
+    <main className="relative -mt-[calc(env(safe-area-inset-top)+5rem)] flex h-[100dvh] flex-col overflow-hidden md:mt-0 md:h-[85dvh]">
       {/* <FeedNavbar streak={7} /> */}
       {/* Desktop-only: mobile keeps the immersive full-screen card (no header) */}
       <div className="max-lg:hidden">
         <Navbar />
       </div>
 
-      {/* data-lenis-prevent: the page-level Lenis smooth scroll would otherwise
-          also react to wheel events here and drag the page while cards change. */}
+      
       <div
         ref={containerRef}
         data-lenis-prevent
@@ -472,9 +486,10 @@ export default function FeedScreen() {
 
         <div className="relative flex h-full w-full items-center justify-center sm:pb-6 lg:pb-8">
           <div className="relative h-full w-full max-w-full sm:h-[92%] lg:h-[94%] lg:max-w-[400px] xl:max-w-[420px]">
+        
             <div
               ref={trackWrapRef}
-              className="lg:shadow-glow relative h-full w-full overflow-hidden rounded-none shadow-none sm:rounded-[2.25rem] lg:rounded-[2.75rem]"
+              className="lg:shadow-glow relative h-full w-full overflow-hidden rounded-none shadow-none [--feed-bar-top:2rem] [--feed-content-top:calc(var(--feed-bar-top)+4.5rem)] sm:rounded-[2.25rem] sm:[--feed-bar-top:2.25rem] lg:rounded-[2.75rem]"
             >
               {loading && <FeedCardSkeleton />}
               <motion.div

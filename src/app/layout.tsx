@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   description: SITE.description,
   manifest: "/manifest.webmanifest",
   applicationName: SITE.name,
-  appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "black-translucent" },
   icons: {
     icon: [
       { url: "/favicon.png", type: "image/png", sizes: "32x32" },
@@ -64,6 +64,14 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
   return (
     <html lang={locale} className={`${poppins.variable} ${inter.variable}`}>
       <body className="font-body antialiased">
+        <div
+          className="pointer-events-none fixed inset-x-0 top-0 z-[100]"
+          style={{
+            height: "calc(env(safe-area-inset-top) + 1px)",
+            backgroundColor: "var(--status-bar-bg, var(--color-violet))",
+          }}
+          aria-hidden="true"
+        />
         <TranslationsProvider locale={locale as Locale} messages={messages}>
           <Providers>
             <SmoothScroll>{children}</SmoothScroll>

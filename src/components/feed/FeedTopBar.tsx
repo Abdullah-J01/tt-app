@@ -40,7 +40,7 @@ export default function FeedTopBar({
   return (
     <div
       className={cn(
-        "pointer-events-none absolute inset-x-4 top-8 z-30 flex items-center justify-between sm:inset-x-6 sm:top-9",
+        "pointer-events-none absolute inset-x-4 top-[var(--feed-bar-top,2rem)] z-30 flex items-center justify-between pt-[env(safe-area-inset-top,0px)] sm:inset-x-6",
         className,
       )}
     >
@@ -73,7 +73,7 @@ export default function FeedTopBar({
         initial={{ opacity: 0, y: -10 }}
         animate={active ? { opacity: 1, y: 0 } : {}}
         transition={{ duration: 0.35, delay: 0.08 }}
-        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 font-medium text-white"
+        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-white"
       >
         {t("forYou")}
       </motion.div>
