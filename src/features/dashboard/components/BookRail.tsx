@@ -1,66 +1,86 @@
+"use client";
+
 import type { ReactNode } from "react";
-import Link from "@/i18n/Link";
-import { EmptyState } from "@/components/ui/EmptyState";
+import { useTranslations } from "@/i18n/client";
+import { Carousel } from "./Carousel";
+import { RailEmpty, RailSkeleton, TILE_WIDTH } from "./RailStates";
+import { SectionHeader } from "./SectionHeader";
 
 interface BookRailProps<T> {
   title: string;
+  description?: string;
+  icon?: ReactNode;
+  iconVariant?: "grey" | "violet" | "green" | "amber";
   seeAllHref?: string;
   seeAllLabel?: string;
   items: T[];
   itemKey: (item: T) => string;
   renderItem: (item: T) => ReactNode;
+  /** Overrides the header count, which defaults to `items.length`. */
+  count?: number;
+  /** Renders placeholder tiles instead of the empty state while data loads. */
+  loading?: boolean;
   /** Omit to render nothing (rather than an empty state) when `items` is empty. */
   emptyTitle?: string;
   emptyDescription?: string;
+  emptyIcon?: ReactNode;
   emptyAction?: ReactNode;
 }
 
 /**
- * One Home row: title (+ optional "See all"), horizontal snap-scroll on
- * mobile / grid at `lg:`, or an EmptyState when there's nothing to show.
- * Shared by Continue, Your Library, Popular and New so the mobile-first
- * scroll behavior only lives in one place.
+ * One Home row: SectionHeader over a carousel of tiles. Every item stays
+ * reachable by scrolling, so a row with 20 books is as usable as one with 3.
  */
 export function BookRail<T>({
   title,
+  description,
+  icon,
+  iconVariant,
   seeAllHref,
   seeAllLabel,
   items,
   itemKey,
   renderItem,
+  count,
+  loading,
   emptyTitle,
   emptyDescription,
+  emptyIcon,
   emptyAction,
 }: BookRailProps<T>) {
-  if (items.length === 0 && !emptyTitle) return null;
+  const t = useTranslations("app_app_home_page");
+  const isEmpty = items.length === 0;
+  if (!loading && isEmpty && !emptyTitle) return null;
 
   return (
     <section>
-      <div className="flex items-center justify-between gap-2">
-        <h2 className="text-ink text-lg font-bold">{title}</h2>
-        {seeAllHref && items.length > 0 && (
-          <Link href={seeAllHref} className="text-violet shrink-0 text-sm font-semibold">
-            {seeAllLabel}
-          </Link>
-        )}
-      </div>
+      <SectionHeader
+        title={title}
+        description={description}
+        icon={icon}
+        iconVariant={iconVariant}
+        count={loading ? undefined : (count ?? items.length)}
+        seeAllHref={!isEmpty && !loading ? seeAllHref : undefined}
+        seeAllLabel={seeAllLabel}
+      />
 
-      {items.length === 0 ? (
-        <EmptyState title={emptyTitle ?? title} description={emptyDescription} action={emptyAction} className="mt-1" />
+      {loading ? (
+        <RailSkeleton />
+      ) : isEmpty ? (
+        <RailEmpty
+          icon={emptyIcon}
+          title={emptyTitle ?? title}
+          description={emptyDescription}
+          action={emptyAction}
+        />
       ) : (
-        // Column math is Explore's (grid-cols-2 → sm:grid-cols-3, gap-4), so a
-        // card here is the same size as the same card on Explore: 2-up on
-        // phones, 3-up on tablets. From lg it becomes a real 4-up grid.
-        <div className="mt-3 flex snap-x snap-mandatory gap-4 overflow-x-auto pb-1 lg:grid lg:grid-cols-4 lg:overflow-visible">
+        <Carousel prevLabel={t("railPrev")} nextLabel={t("railNext")} className="mt-4">
           {items.map((item) => (
-            <div
-              key={itemKey(item)}
-              className="w-[calc((100%-1rem)/2)] shrink-0 snap-start sm:w-[calc((100%-2rem)/3)] lg:w-full"
-            >
+            <div key={itemKey(item)} className={`${TILE_WIDTH} snap-start`}>
               {renderItem(item)}
             </div>
           ))}
-        </div>
+        </Carousel>
       )}
     </section>
   );
