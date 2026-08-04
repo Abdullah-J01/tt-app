@@ -631,6 +631,16 @@ body.reader-open footer {
     transform: translateY(0);
   }
 }
+/* Pure cross-fade — for swapping a skeleton for its real content in place,
+   where a translate would read as the layout moving rather than resolving. */
+@keyframes sb-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 @keyframes sb-float {
   0%,
   100% {
@@ -836,6 +846,9 @@ body.reader-open footer {
   }
   .anim-fade-up {
     animation: sb-fade-up 0.5s ease-out both;
+  }
+  .anim-fade-in {
+    animation: sb-fade-in 0.35s ease-out both;
   }
   /* Pop in on entrance, then gently float forever. */
   .anim-pop-float {

@@ -6,12 +6,15 @@ import { useTranslations } from "@/i18n/client";
 import Link from "@/i18n/Link";
 import { Button } from "@/components/ui/Button";
 import { CoverCard } from "@/features/explore/components/CoverCard";
+import { useAppSelector } from "@/store/hooks";
 import { useLibrary } from "@/features/library/useLibrary";
 import { useReadingProgress } from "@/features/reading-progress/useReadingProgress";
+import { useStreak } from "@/features/streak";
 import { BookRail } from "./BookRail";
 import { BookPreviewTile } from "./BookPreviewTile";
 import { ContinueSection, type ContinueItem } from "./ContinueSection";
 import { HomeHeader } from "./HomeHeader";
+import { HomeSkeleton } from "./HomeSkeleton";
 import type { HomeData } from "../data";
 
 const LIBRARY_PREVIEW_SIZE = 6;
@@ -20,11 +23,23 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
   const t = useTranslations("app_app_home_page");
   const { progress, hydrated: progressHydrated } = useReadingProgress();
   const { books: savedBooks, hydrated: libraryHydrated } = useLibrary();
+  const { streak, hydrated: streakHydrated } = useStreak();
+  const authStatus = useAppSelector((s) => s.auth.status);
+  const user = useAppSelector((s) => s.auth.user);
 
-  // Continue and Your Library come from localStorage-backed stores, so they are
-  // empty on the server render. Without this gate a returning user sees "your
-  // library is empty" for a beat before their books pop in.
-  const loading = !progressHydrated || !libraryHydrated;
+  /**
+   * One gate for the whole page, and every source is in it.
+   *
+   * Continue, Your Library and the stats all come from client-only stores, and
+   * they don't finish together — the session resolves, then the per-user
+   * buckets keyed off its email, then the streak. Letting each row reveal on
+   * its own flag is what made the page rearrange itself while you watched:
+   * Continue would render, decide it had nothing, unmount, and Your Library
+   * would jump up into its place. Nothing renders its real shape until all of
+   * it is known, and then it renders at once.
+   */
+  const loading =
+    authStatus === "loading" || !progressHydrated || !libraryHydrated || !streakHydrated;
 
   /**
    * The catalog rows (Popular, New) are deduped against the personal ones, so a
@@ -63,75 +78,87 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-6 pb-24 sm:px-6 md:py-10 lg:px-8 lg:pb-12">
-      <HomeHeader inProgress={continueItems.length} saved={savedBooks.length} loading={loading} />
+      <HomeHeader
+        name={user?.name}
+        streak={streak}
+        inProgress={continueItems.length}
+        saved={savedBooks.length}
+        loading={loading}
+      />
 
-      <div className="mt-8 flex flex-col gap-10 sm:gap-12">
-        {/* Self-hiding: no reading history, no Continue row — Your Library
-            leads the page instead. */}
-        <ContinueSection items={continueItems} loading={loading} />
+      {loading ? (
+        <div className="mt-8">
+          <HomeSkeleton />
+        </div>
+      ) : (
+        <div className="anim-fade-in mt-8 flex flex-col gap-10 sm:gap-12">
+          {/* Self-hiding: no reading history, no Continue row — Your Library
+              leads the page instead. Safe to do now that the rows only ever
+              render once the answer is known. */}
+          <ContinueSection items={continueItems} />
 
-        <BookRail
-          title={t("libraryTitle")}
-          description={t("libraryDescription")}
-          icon={<Bookmark />}
-          iconVariant="green"
-          seeAllHref="/library"
-          seeAllLabel={t("seeAll")}
-          loading={loading}
-          count={savedBooks.length}
-          items={libraryItems}
-          itemKey={(b) => b.bookSlug}
-          renderItem={(b) => (
-            <BookPreviewTile
-              slug={b.bookSlug}
-              title={b.bookTitle}
-              author={b.bookAuthor}
-              subjectSlug={b.subject}
-              cover={b.cover}
-            />
-          )}
-          emptyIcon={<Bookmark />}
-          emptyTitle={t("libraryEmptyTitle")}
-          emptyDescription={t("libraryEmptyDescription")}
-          emptyAction={
-            <Link href="/explore">
-              <Button size="sm" leadingIcon={<Compass className="h-4 w-4" />}>
-                {t("libraryEmptyCta")}
-              </Button>
-            </Link>
-          }
-        />
+          <BookRail
+            title={t("libraryTitle")}
+            description={t("libraryDescription")}
+            icon={<Bookmark />}
+            iconVariant="green"
+            seeAllHref="/library"
+            seeAllLabel={t("seeAll")}
+            count={savedBooks.length}
+            items={libraryItems}
+            itemKey={(b) => b.bookSlug}
+            renderItem={(b) => (
+              <BookPreviewTile
+                slug={b.bookSlug}
+                title={b.bookTitle}
+                author={b.bookAuthor}
+                subjectSlug={b.subject}
+                cover={b.cover}
+              />
+            )}
+            emptyIcon={<Bookmark />}
+            emptyTitle={t("libraryEmptyTitle")}
+            emptyDescription={t("libraryEmptyDescription")}
+            emptyAction={
+              <Link href="/explore">
+                <Button size="sm" leadingIcon={<Compass className="h-4 w-4" />}>
+                  {t("libraryEmptyCta")}
+                </Button>
+              </Link>
+            }
+          />
 
-        <BookRail
-          title={t("popularTitle")}
-          description={t("popularDescription")}
-          icon={<TrendingUp />}
-          iconVariant="amber"
-          seeAllHref="/explore?sort=popular"
-          seeAllLabel={t("seeAll")}
-          items={popularItems}
-          itemKey={(b) => b.slug}
-          renderItem={(b) => <CoverCard book={b} />}
-          emptyIcon={<TrendingUp />}
-          emptyTitle={t("catalogEmptyTitle")}
-          emptyDescription={t("catalogEmptyDescription")}
-        />
+          <BookRail
+            title={t("popularTitle")}
+            description={t("popularDescription")}
+            icon={<TrendingUp />}
+            iconVariant="amber"
+            seeAllHref="/explore?sort=popular"
+            seeAllLabel={t("seeAll")}
+            items={popularItems}
+            itemKey={(b) => b.slug}
+            renderItem={(b) => <CoverCard book={b} />}
+            emptyIcon={<TrendingUp />}
+            emptyTitle={t("catalogEmptyTitle")}
+            emptyDescription={t("catalogEmptyDescription")}
+          />
 
-        <BookRail
-          title={t("newTitle")}
-          description={t("newDescription")}
-          icon={<Sparkles />}
-          iconVariant="grey"
-          seeAllHref="/explore"
-          seeAllLabel={t("seeAll")}
-          items={newItems}
-          itemKey={(b) => b.slug}
-          renderItem={(b) => <CoverCard book={b} />}
-          emptyIcon={<Sparkles />}
-          emptyTitle={t("catalogEmptyTitle")}
-          emptyDescription={t("catalogEmptyDescription")}
-        />
-      </div>
+          <BookRail
+            title={t("newTitle")}
+            description={t("newDescription")}
+            icon={<Sparkles />}
+            iconVariant="grey"
+            seeAllHref="/explore"
+            seeAllLabel={t("seeAll")}
+            items={newItems}
+            itemKey={(b) => b.slug}
+            renderItem={(b) => <CoverCard book={b} />}
+            emptyIcon={<Sparkles />}
+            emptyTitle={t("catalogEmptyTitle")}
+            emptyDescription={t("catalogEmptyDescription")}
+          />
+        </div>
+      )}
     </div>
   );
 }

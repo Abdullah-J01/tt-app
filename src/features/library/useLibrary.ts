@@ -101,7 +101,7 @@ const bookKey = (e: BookEntry) => e.bookSlug;
  */
 export function useLibrary() {
   const t = useTranslations("components_ui_Toaster");
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const key = storageKey(session?.user?.email);
 
   const [state, setState] = useState<LibraryState>(EMPTY);
@@ -116,6 +116,15 @@ export function useLibrary() {
   }, [state]);
 
   useEffect(() => {
+    /**
+     * Wait for the session before reporting `hydrated` — `key` is derived from
+     * the email, so reading now would hydrate the *anonymous* (empty) bucket
+     * and announce it as loaded. Consumers would paint "your library is empty",
+     * then repaint with the real books once the session lands. See the same
+     * guard in `useReadingProgress`.
+     */
+    if (status === "loading") return;
+
     setState(readLibrary(key));
     setHydrated(true);
     const sync = () => setState(readLibrary(key));
@@ -125,7 +134,7 @@ export function useLibrary() {
       window.removeEventListener("storage", sync);
       window.removeEventListener(EVENT, sync);
     };
-  }, [key]);
+  }, [key, status]);
 
   /**
    * Apply a mutation from a click handler: persist first, then update local

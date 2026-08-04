@@ -7,7 +7,7 @@ import { cardParam, chapterParam } from "@/lib/chapters";
 import type { ProgressEntry } from "@/features/reading-progress/repository";
 import { BookPreviewTile } from "./BookPreviewTile";
 import { Carousel } from "./Carousel";
-import { ContinueHero, ContinueHeroSkeleton } from "./ContinueHero";
+import { ContinueHero } from "./ContinueHero";
 import { TILE_WIDTH } from "./RailStates";
 import { SectionHeader } from "./SectionHeader";
 
@@ -15,8 +15,6 @@ export type ContinueItem = ProgressEntry & { slug: string };
 
 interface ContinueSectionProps {
   items: ContinueItem[];
-  /** Data still on its way (localStorage hydration today, the API later). */
-  loading?: boolean;
 }
 
 /**
@@ -39,19 +37,16 @@ function readerHref(item: ContinueItem): string {
  * other book in progress. Picking a tile loads it into the hero instead of
  * navigating — you compare where you left off across books, then commit once.
  *
- * Renders nothing once we know there's nothing to continue. "Nothing in
- * progress" is not news to someone who has never opened a book — it just pushes
- * the rows that *do* have content (Your Library, Popular) off their first screen.
+ * Renders nothing when there's nothing to continue. "Nothing in progress" is
+ * not news to someone who has never opened a book — it just pushes the rows
+ * that *do* have content (Your Library, Popular) off their first screen.
  *
- * While `loading` it renders the hero placeholder instead, and it does so in the
- * server HTML too. Reading position is client-only, so SSR can't know whether
- * this section belongs on the page — but rendering *nothing* is the worse guess:
- * a returning user's hero then pops in after hydration and shoves the whole page
- * (and the footer, which was sitting halfway up the screen) down. Holding the
- * hero's height is right for everyone who has a book open, and the one case it
- * gets wrong — a brand-new account — resolves in the first client commit.
+ * Self-hiding is only safe because HomeView never mounts this until reading
+ * position has resolved (`HomeSkeleton` holds the page until then). Mount it
+ * against a maybe-empty list and the section appears, then disappears, taking
+ * every row below it up with it.
  */
-export function ContinueSection({ items, loading }: ContinueSectionProps) {
+export function ContinueSection({ items }: ContinueSectionProps) {
   const t = useTranslations("app_app_home_page");
   const [picked, setPicked] = useState<string | null>(null);
 
@@ -60,7 +55,7 @@ export function ContinueSection({ items, loading }: ContinueSectionProps) {
   // of pointing at something that no longer exists.
   const selected = items.find((i) => i.slug === picked) ?? items[0];
 
-  if (!loading && !selected) return null;
+  if (!selected) return null;
 
   return (
     <section>
@@ -68,52 +63,40 @@ export function ContinueSection({ items, loading }: ContinueSectionProps) {
         title={t("continueTitle")}
         description={t("continueDescription")}
         icon={<PlayCircle />}
-        count={loading ? undefined : items.length}
+        count={items.length}
       />
 
-      {/* Hero only, no rail placeholder: the carousel is itself conditional
-          (`items.length > 1`), and most people have exactly one book open — so
-          reserving a row of tiles would over-reserve for the common case and
-          make the page shrink at hydration instead of grow. */}
-      {loading || !selected ? (
-        <div className="mt-4">
-          <ContinueHeroSkeleton />
-        </div>
-      ) : (
-        <>
-          <div className="mt-4">
-            <ContinueHero
-              title={selected.bookTitle}
-              author={selected.bookAuthor}
-              subjectSlug={selected.subject}
-              cover={selected.cover}
-              progressPct={pctRead(selected)}
-              chapter={selected.chapterIndex + 1}
-              card={(selected.globalIndex ?? 0) + 1}
-              totalCards={selected.totalCards ?? 0}
-              href={readerHref(selected)}
-            />
-          </div>
+      <div className="mt-4">
+        <ContinueHero
+          title={selected.bookTitle}
+          author={selected.bookAuthor}
+          subjectSlug={selected.subject}
+          cover={selected.cover}
+          progressPct={pctRead(selected)}
+          chapter={selected.chapterIndex + 1}
+          card={(selected.globalIndex ?? 0) + 1}
+          totalCards={selected.totalCards ?? 0}
+          href={readerHref(selected)}
+        />
+      </div>
 
-          {items.length > 1 && (
-            <Carousel prevLabel={t("railPrev")} nextLabel={t("railNext")} className="mt-4">
-              {items.map((item) => (
-                <div key={item.slug} className={`${TILE_WIDTH} snap-start`}>
-                  <BookPreviewTile
-                    slug={item.slug}
-                    title={item.bookTitle}
-                    author={item.bookAuthor}
-                    subjectSlug={item.subject}
-                    cover={item.cover}
-                    progressPct={pctRead(item)}
-                    selected={item.slug === selected.slug}
-                    onSelect={() => setPicked(item.slug)}
-                  />
-                </div>
-              ))}
-            </Carousel>
-          )}
-        </>
+      {items.length > 1 && (
+        <Carousel prevLabel={t("railPrev")} nextLabel={t("railNext")} className="mt-4">
+          {items.map((item) => (
+            <div key={item.slug} className={`${TILE_WIDTH} snap-start`}>
+              <BookPreviewTile
+                slug={item.slug}
+                title={item.bookTitle}
+                author={item.bookAuthor}
+                subjectSlug={item.subject}
+                cover={item.cover}
+                progressPct={pctRead(item)}
+                selected={item.slug === selected.slug}
+                onSelect={() => setPicked(item.slug)}
+              />
+            </div>
+          ))}
+        </Carousel>
       )}
     </section>
   );

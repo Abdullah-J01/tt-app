@@ -9,7 +9,10 @@ import type { Studybook } from "@/types";
 export type { ProgressEntry, ProgressMap };
 
 /** What setProgress needs from the book to snapshot into a ProgressEntry. */
-type ProgressBook = Pick<Studybook, "slug" | "title" | "author" | "subjectSlug" | "grade" | "cover"> & {
+type ProgressBook = Pick<
+  Studybook,
+  "slug" | "title" | "author" | "subjectSlug" | "grade" | "cover"
+> & {
   cards: unknown[];
 };
 
@@ -73,6 +76,16 @@ export function useReadingProgress() {
   }, [progress]);
 
   useEffect(() => {
+    /**
+     * Wait for the session before reporting `hydrated`. `key` is derived from
+     * the email, which is undefined while the session resolves — reading now
+     * would hydrate the *anonymous* (empty) bucket, announce "loaded, nothing
+     * here", and only swap in the real progress once the session lands. Every
+     * consumer would render the empty layout first and then re-render the full
+     * one: exactly the flash the `hydrated` gate exists to prevent.
+     */
+    if (status === "loading") return;
+
     if (IS_DEV_MODE) {
       setProgressState(readProgress(key));
       setHydrated(true);
@@ -94,7 +107,7 @@ export function useReadingProgress() {
       })
       .catch(() => setHydrated(true));
     return () => controller.abort();
-  }, [key]);
+  }, [key, status]);
 
   const setProgress = useCallback(
     (book: ProgressBook, chapterIndex: number, cardIndex: number, globalIndex: number) => {

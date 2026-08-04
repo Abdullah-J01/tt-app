@@ -90,9 +90,14 @@ function maxStreak(active: Set<string>): number {
 
 export function useStreak() {
   const [state, setState] = useState<StreakState>({ activeDays: [], freezes: 0 });
+  // Storage is client-only, so `streak` is 0 until the first effect runs.
+  // Callers that show the number gate on this rather than painting a 0 they
+  // will immediately have to correct.
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
     setState(read());
+    setHydrated(true);
     const sync = () => setState(read());
     window.addEventListener("storage", sync);
     window.addEventListener(EVENT, sync);
@@ -126,6 +131,7 @@ export function useStreak() {
 
   return {
     streak,
+    hydrated,
     maxStreak: max,
     freezes: state.freezes,
     activeDays,
