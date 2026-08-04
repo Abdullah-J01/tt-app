@@ -222,6 +222,23 @@ export default function MobileNav() {
               {/* macOS-style grabber */}
               <div className="bg-ink/15 mx-auto mt-1 mb-1.5 h-1 w-10 rounded-full" />
 
+              {/* Profile moved here from the bar so the bar stays 5 items max. */}
+              {status === "authenticated" && (
+                <Link
+                  href="/profile"
+                  role="menuitem"
+                  aria-current={isActive("/profile") ? "page" : undefined}
+                  onClick={() => setMoreOpen(false)}
+                  className="text-ink hover:bg-ink/5 active:bg-ink/10 flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-[15px] font-medium transition-colors"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/60">
+                    <User size={18} className="text-ink/70" aria-hidden />
+                  </span>
+                  <span className="flex-1 text-left">{t("nav.profile")}</span>
+                  <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
+                </Link>
+              )}
+
               <Button
                 unstyled
                 type="button"
@@ -366,22 +383,8 @@ export default function MobileNav() {
               );
             })}
 
-            {status === "authenticated" && (
-              <li>
-                <Link
-                  href="/profile"
-                  aria-current={isActive("/profile") ? "page" : undefined}
-                  className={cn(
-                    "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                    isActive("/profile") ? "text-ink" : tabIdle,
-                  )}
-                >
-                  <User className="h-[22px] w-[22px]" aria-hidden />
-                  {t("nav.profile")}
-                </Link>
-              </li>
-            )}
-
+            {/* Profile lives in the More panel (below), not the bar — a fifth
+              tab crowds the bar on narrow phones. */}
             <li>
               <Button
                 unstyled
@@ -393,7 +396,9 @@ export default function MobileNav() {
                 aria-controls="mobile-more-panel"
                 className={cn(
                   "flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                  moreOpen ? "text-violet" : tabIdle,
+                  // Profile lives inside this panel, so its route lights the
+                  // dots up as the "active tab".
+                  moreOpen ? "text-violet" : isActive("/profile") ? "text-ink" : tabIdle,
                 )}
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />
