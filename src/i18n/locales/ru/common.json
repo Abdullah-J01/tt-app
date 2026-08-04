@@ -405,6 +405,8 @@
     "materialNote": "One-time payment — no subscription",
     "currentPlan": "Current plan",
     "choose": "Choose {name}",
+    "unavailable": "Unavailable",
+    "upgradeTo": "Upgrade to {name}",
     "cardRenewLine": "30-day free trial, then {price} — cancel anytime",
     "redirecting": "Redirecting…",
     "startTrialPlan": "Start free trial — {name}",

@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, Crown, Loader2, Sparkles, X, Zap } from "lucide-react";
+import { Check, Crown, Loader2, Sparkles, Zap } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { cn } from "@/lib/utils";
@@ -14,9 +14,15 @@ import { isPaidPlan } from "@/lib/plans";
 import {
   BillingError,
   BillingErrorModal,
+  daysLeft,
   openBillingPortal,
+  planCardAction,
   startCheckout,
   startMaterialCheckout,
+  useSubscription,
+  type PlanCardAction,
+  type PlanCardTarget,
+  type SubStatus,
 } from "@/features/billing";
 
 if (typeof window !== "undefined") {
@@ -31,17 +37,15 @@ type PlanId = "free" | "premium" | "material";
 
 interface Plan {
   id: PlanId;
-  /** i18n key suffix under `components_home_Plans` (e.g. "free" → freeName/freeTagline/freeFeatN). */
+
   key: string;
   icon: React.ReactNode;
   monthly: number;
-  /** Recurring plans: total billed once per year. One-time plans: the flat price. */
+
   yearly: number;
-  /** A single one-time purchase (per-material unlock), not a subscription. */
   oneTime?: boolean;
   popular?: boolean;
   gradient: string;
-  /** i18n feature keys under `components_home_Plans`. */
   featureKeys: string[];
 }
 
@@ -77,68 +81,12 @@ const PLANS: Plan[] = [
   },
 ];
 
-// --- Trial / subscription status -------------------------------------------------
-
-type SubStatus =
-  | { status: "loading" }
-  | { status: "signed_out" | "none" }
-  | {
-      status: "trialing" | "active" | "past_due" | "canceled" | "unpaid" | string;
-      trialEnd: number | null;
-      currentPeriodEnd: number;
-      planId: PlanId | null;
-      cycle: Cycle | null;
-      cancelAtPeriodEnd: boolean;
-    };
-
-function useSubscriptionStatus() {
-  const [state, setState] = useState<SubStatus>({ status: "loading" });
-  const cancelledRef = useRef(false);
-
-  const refetch = useCallback(() => {
-    fetch("/api/stripe/status")
-      .then((r) => r.json())
-      .then((data) => {
-        if (!cancelledRef.current) setState(data);
-      })
-      .catch(() => {
-        if (!cancelledRef.current) setState({ status: "none" });
-      });
-  }, []);
-
-  useEffect(() => {
-    cancelledRef.current = false;
-    refetch();
-    return () => {
-      cancelledRef.current = true;
-    };
-  }, [refetch]);
-
-  // Refetch when returning from the Stripe Checkout/portal redirect — covers
-  // bfcache restores and stale client-side navigations where this component
-  // was already mounted before the purchase completed.
-  useEffect(() => {
-    function onVisible() {
-      if (document.visibilityState === "visible") refetch();
-    }
-    window.addEventListener("focus", refetch);
-    window.addEventListener("pageshow", refetch);
-    document.addEventListener("visibilitychange", onVisible);
-    return () => {
-      window.removeEventListener("focus", refetch);
-      window.removeEventListener("pageshow", refetch);
-      document.removeEventListener("visibilitychange", onVisible);
-    };
-  }, [refetch]);
-
-  return state;
+function planCardTarget(planId: PlanId, cycle: Cycle): PlanCardTarget {
+  if (planId === "free") return "free";
+  if (planId === "material") return "material";
+  return cycle === "yearly" ? "premium-yearly" : "premium-monthly";
 }
 
-function daysLeft(timestampMs: number) {
-  return Math.max(0, Math.ceil((timestampMs - Date.now()) / (1000 * 60 * 60 * 24)));
-}
-
-// Index of the "Premium" (recommended) column within the 4-col grid (Feature, Free, Premium, Material)
 const HIGHLIGHT_COL_INDEX = 2;
 
 export default function PremiumPlansPage() {
@@ -148,9 +96,16 @@ export default function PremiumPlansPage() {
   const [checkingOutPlan, setCheckingOutPlan] = useState<PlanId | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [billingError, setBillingError] = useState<BillingError | null>(null);
-  // The action to re-run when the user taps "Try again" in the error modal.
   const [retry, setRetry] = useState<(() => void) | null>(null);
-  const subStatus = useSubscriptionStatus();
+  const subStatus = useSubscription();
+  const syncedCycleRef = useRef(false);
+  useEffect(() => {
+    if (syncedCycleRef.current) return;
+    if ("cycle" in subStatus && subStatus.cycle) {
+      syncedCycleRef.current = true;
+      setCycle(subStatus.cycle);
+    }
+  }, [subStatus]);
 
   function reportBillingError(err: unknown, retryFn: () => void) {
     const billingErr =
@@ -377,7 +332,6 @@ export default function PremiumPlansPage() {
         />
       </div>
 
-      {/* Header + billing toggle (hero) */}
       <div ref={heroRef}>
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -392,7 +346,6 @@ export default function PremiumPlansPage() {
           <p className="text-muted mx-auto mt-3 max-w-md text-sm md:text-base">{t("subtitle")}</p>
         </motion.div>
 
-        {/* Trial / subscription status banner */}
         <TrialBanner
           status={subStatus}
           onManage={handleManageBilling}
@@ -438,7 +391,6 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      {/* Pricing cards — start stacked behind Premium, spread apart on scroll */}
       <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {PLANS.map((plan) => (
           <div
@@ -453,11 +405,7 @@ export default function PremiumPlansPage() {
               onChoose={() => handleChoosePlan(plan.id)}
               loading={checkingOutPlan === plan.id}
               disabled={checkingOutPlan !== null}
-              isCurrentPaidPlan={
-                "planId" in subStatus &&
-                subStatus.planId === plan.id &&
-                (subStatus.status === "trialing" || subStatus.status === "active")
-              }
+              action={planCardAction(planCardTarget(plan.id, cycle), subStatus)}
             />
           </div>
         ))}
@@ -483,7 +431,7 @@ function TrialBanner({
   portalLoading: boolean;
   t: Translator;
 }) {
-  if (status.status === "loading" || status.status === "signed_out" || status.status === "none") {
+  if (!("planId" in status)) {
     return null;
   }
 
@@ -515,7 +463,7 @@ function TrialBanner({
         className="relative mx-auto mt-5 flex w-fit items-center gap-3 rounded-full bg-[#2F8F4E]/10 px-4 py-2 text-sm font-medium text-[#2F8F4E]"
       >
         <span>
-          {status.cancelAtPeriodEnd
+          {status.cancelAtPeriodEnd && status.currentPeriodEnd
             ? t("subscriptionActiveEnds", { date: new Date(status.currentPeriodEnd) })
             : t("subscribed")}
         </span>
@@ -559,7 +507,7 @@ function PricingCard({
   onChoose,
   loading,
   disabled,
-  isCurrentPaidPlan,
+  action,
 }: {
   plan: Plan;
   cycle: Cycle;
@@ -567,22 +515,26 @@ function PricingCard({
   onChoose: () => void;
   loading: boolean;
   disabled: boolean;
-  isCurrentPaidPlan: boolean;
+  action: PlanCardAction;
 }) {
-  // The one-time material unlock ignores the monthly/yearly toggle — it's a
-  // single flat price either way.
   const price = plan.oneTime ? plan.monthly : cycle === "monthly" ? plan.monthly : plan.yearly;
   const planName = t(`${plan.key}Name`);
+  const isCurrentPlan = action === "current";
 
-  const buttonLabel = isCurrentPaidPlan
-    ? t("currentPlan")
-    : plan.id === "free"
+  const buttonLabel =
+    action === "current"
       ? t("currentPlan")
-      : loading
-        ? t("redirecting")
-        : plan.oneTime
-          ? t("unlockMaterial")
-          : t("startTrialPlan", { name: planName });
+      : action === "disabled"
+        ? t("unavailable")
+        : loading
+          ? t("redirecting")
+          : action === "upgrade"
+            ? t("upgradeTo", { name: planName })
+            : plan.id === "free"
+              ? t("choose", { name: planName })
+              : plan.oneTime
+                ? t("unlockMaterial")
+                : t("startTrialPlan", { name: planName });
 
   return (
     <motion.div
@@ -692,7 +644,7 @@ function PricingCard({
       <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.97 }} className="relative mt-6">
         <Button
           onClick={onChoose}
-          disabled={plan.id === "free" || isCurrentPaidPlan || disabled}
+          disabled={plan.id === "free" || isCurrentPlan || action === "disabled" || disabled}
           className={cn(
             "w-full",
             plan.popular ? "text-violet bg-white hover:bg-white/90" : undefined,
@@ -723,7 +675,7 @@ function CycleButton({
       onClick={onClick}
       className={cn(
         "relative rounded-full px-4 py-2 text-sm font-medium transition-colors",
-        active ? "text-white" : "text-ink hover:text-violet",
+        active ? "bg-violet text-white" : "text-ink hover:text-violet",
       )}
     >
       <span className="relative z-10">{children}</span>
