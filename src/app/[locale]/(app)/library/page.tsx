@@ -14,6 +14,7 @@ import { BookTileSkeleton, CardTileSkeleton, LibraryGridSkeleton } from "@/compo
 import { feedPath } from "@/components/feed/feedData";
 import { useLazyList } from "@/lib/useLazyList";
 import { usePersistedChoice } from "@/lib/usePersistedChoice";
+import { deviceStorageKey } from "@/lib/storage";
 import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
 import { useLocalizeEntry, useSubjectLabel } from "@/features/library/useLocalizedEntry";
 import { AuthGate } from "@/components/auth/AuthGate";
@@ -64,10 +65,13 @@ export default function LibraryPage() {
 
 function LibraryContent() {
   const t = useTranslations("app_app_library_page");
-  // Active tab + cards filter survive hard reloads (non-sensitive UI state).
-  const [tab, setTab] = usePersistedChoice<Tab>("tt:library-tab", "cards", TABS);
+  // Active tab + cards filter survive hard reloads. Device-scoped on purpose
+  // (`@/lib/storage`): pure view state, no user content — and keeping it
+  // session-independent is what lets it apply before first paint, with no
+  // wrong-tab flash while the session resolves.
+  const [tab, setTab] = usePersistedChoice<Tab>(deviceStorageKey("libraryTab"), "cards", TABS);
   const [filter, setFilter] = usePersistedChoice<CardsFilter>(
-    "tt:library-filter",
+    deviceStorageKey("libraryFilter"),
     "saved",
     CARDS_FILTERS,
   );

@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
 import { IS_DEV_MODE } from "@/lib/env";
+import { useUserStorage } from "@/lib/storage";
 import type { ProgressEntry, ProgressMap } from "./repository";
 import type { Studybook } from "@/types";
 
@@ -19,10 +19,6 @@ type ProgressBook = Pick<
 const EVENT = "tt:progress";
 const EMPTY: ProgressMap = {};
 const SAVE_DEBOUNCE_MS = 1000;
-
-function storageKey(email: string | null | undefined): string {
-  return `tt:progress:${(email ?? "anonymous").toLowerCase()}`;
-}
 
 function readProgress(key: string): ProgressMap {
   if (!IS_DEV_MODE) return EMPTY;
@@ -45,23 +41,10 @@ function writeProgress(key: string, state: ProgressMap): void {
   window.dispatchEvent(new Event(EVENT));
 }
 
-/**
- * Reading position per studybook, keyed per signed-in user — same dev/prod
- * split as useLibrary. Dev: localStorage, synced across tabs. Prod: hydrates
- * from GET /api/progress, `setProgress` debounces a PUT (the route reports
- * itself unconfigured until a real store lands — see repository.ts).
- */
+
 export function useReadingProgress() {
-  const { data: session, status } = useSession();
-  const key = storageKey(session?.user?.email);
-  /**
-   * Writes wait for a resolved, signed-in session. Without this the reader's
-   * first render (session still "loading") persists position 0 under the
-   * `anonymous` key and never revisits it — leaving a permanent, always-zero
-   * entry that looks like progress tracking is broken. Continue is a logged-in
-   * surface anyway, so anonymous progress has nothing to render it.
-   */
-  const canPersist = status === "authenticated";
+
+  const { key, ready, canPersist } = useUserStorage("progress");
 
   const [progress, setProgressState] = useState<ProgressMap>(EMPTY);
   const [hydrated, setHydrated] = useState(false);
@@ -76,15 +59,8 @@ export function useReadingProgress() {
   }, [progress]);
 
   useEffect(() => {
-    /**
-     * Wait for the session before reporting `hydrated`. `key` is derived from
-     * the email, which is undefined while the session resolves — reading now
-     * would hydrate the *anonymous* (empty) bucket, announce "loaded, nothing
-     * here", and only swap in the real progress once the session lands. Every
-     * consumer would render the empty layout first and then re-render the full
-     * one: exactly the flash the `hydrated` gate exists to prevent.
-     */
-    if (status === "loading") return;
+ 
+    if (!ready) return;
 
     if (IS_DEV_MODE) {
       setProgressState(readProgress(key));
@@ -107,7 +83,7 @@ export function useReadingProgress() {
       })
       .catch(() => setHydrated(true));
     return () => controller.abort();
-  }, [key, status]);
+  }, [key, ready]);
 
   const setProgress = useCallback(
     (book: ProgressBook, chapterIndex: number, cardIndex: number, globalIndex: number) => {

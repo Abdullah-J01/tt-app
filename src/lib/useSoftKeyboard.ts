@@ -33,9 +33,7 @@ export function useSoftKeyboard(): boolean {
   useEffect(() => {
     const sync = () => setOpen(opensKeyboard(document.activeElement));
 
-    // focusout fires *before* the next focusin, so reading activeElement
-    // synchronously reports `body` mid-hop and flashes the chrome back in
-    // between two fields. Re-read on the next frame instead.
+
     const onFocusOut = () => requestAnimationFrame(sync);
 
     document.addEventListener("focusin", sync);

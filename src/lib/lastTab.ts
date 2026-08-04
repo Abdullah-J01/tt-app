@@ -1,13 +1,8 @@
-const KEY = "tt:lastTab";
+import { deviceStorageKey } from "./storage";
 
-/**
- * Bottom-nav tab the user was on right before opening the immersive feed
- * (`FeedScreen`'s back arrow reads this instead of `router.back()` — swiping
- * through feed cards pushes one history entry per card, so a plain back()
- * just steps back through those instead of leaving the feed). `sessionStorage`
- * because this is only meaningful for the current visit, not a lasting
- * preference.
- */
+const KEY = deviceStorageKey("lastTab");
+
+
 export function setLastTab(path: string) {
   try {
     window.sessionStorage.setItem(KEY, path);

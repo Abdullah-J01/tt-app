@@ -2,6 +2,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 
+/**
+ * `key` must come from `@/lib/storage` — `deviceStorageKey()` for view state,
+ * `userStorageKey()` for anything belonging to an account. Never a literal.
+ */
 export function usePersistedFlag(key: string, initial = false) {
   const [value, setValue] = useState(initial);
 
