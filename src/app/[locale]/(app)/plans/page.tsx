@@ -10,6 +10,7 @@ import { useTranslations } from "@/i18n/client";
 import type { Translator } from "@/i18n/types";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { Skeleton } from "@/components/ui/Skeleton";
 import { isPaidPlan } from "@/lib/plans";
 import {
   BillingError,
@@ -98,6 +99,7 @@ export default function PremiumPlansPage() {
   const [billingError, setBillingError] = useState<BillingError | null>(null);
   const [retry, setRetry] = useState<(() => void) | null>(null);
   const subStatus = useSubscription();
+  const isLoading = subStatus.status === "loading";
   const syncedCycleRef = useRef(false);
   useEffect(() => {
     if (syncedCycleRef.current) return;
@@ -302,7 +304,7 @@ export default function PremiumPlansPage() {
       resizeObserver.disconnect();
       ctx.revert();
     };
-  }, []);
+  }, [isLoading]);
 
   return (
     <div
@@ -391,25 +393,29 @@ export default function PremiumPlansPage() {
         </motion.div>
       </div>
 
-      <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
-        {PLANS.map((plan) => (
-          <div
-            key={plan.id}
-            data-plan-slide
-            className={cn("relative grid", plan.popular ? "z-[2]" : "z-[1]")}
-          >
-            <PricingCard
-              plan={plan}
-              cycle={cycle}
-              t={t}
-              onChoose={() => handleChoosePlan(plan.id)}
-              loading={checkingOutPlan === plan.id}
-              disabled={checkingOutPlan !== null}
-              action={planCardAction(planCardTarget(plan.id, cycle), subStatus)}
-            />
-          </div>
-        ))}
-      </div>
+      {isLoading ? (
+        <PlansCardsSkeleton />
+      ) : (
+        <div ref={cardsWrapRef} className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          {PLANS.map((plan) => (
+            <div
+              key={plan.id}
+              data-plan-slide
+              className={cn("relative grid", plan.popular ? "z-[2]" : "z-[1]")}
+            >
+              <PricingCard
+                plan={plan}
+                cycle={cycle}
+                t={t}
+                onChoose={() => handleChoosePlan(plan.id)}
+                loading={checkingOutPlan === plan.id}
+                disabled={checkingOutPlan !== null}
+                action={planCardAction(planCardTarget(plan.id, cycle), subStatus)}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       <BillingErrorModal
         error={billingError}
@@ -498,6 +504,37 @@ function TrialBanner({
   }
 
   return null;
+}
+
+function PlansCardsSkeleton() {
+  return (
+    <div
+      role="status"
+      aria-label="Loading plans"
+      className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3"
+    >
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className={cn(
+            "flex flex-col overflow-hidden rounded-3xl p-6 ring-1",
+            i === 1 ? "shadow-violet/20 bg-white shadow-xl ring-black/5" : "bg-white shadow-md ring-black/5",
+          )}
+        >
+          <Skeleton className="h-10 w-10 rounded-xl" />
+          <Skeleton className="mt-4 h-5 w-24" />
+          <Skeleton className="mt-2 h-4 w-32" />
+          <Skeleton className="mt-6 h-8 w-20" />
+          <div className="mt-6 flex-1 space-y-3">
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-full" />
+            <Skeleton className="h-4 w-3/4" />
+          </div>
+          <Skeleton className="mt-6 h-10 w-full rounded-xl" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 function PricingCard({
