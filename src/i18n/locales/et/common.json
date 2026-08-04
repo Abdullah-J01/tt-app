@@ -10,6 +10,10 @@
     "close": "Sulge",
     "loading": "Laadimine…"
   },
+  "meta": {
+    "tagline": "Õpi midagi uut sama kiiresti, kui jõuad kerida.",
+    "description": "Ampsusuurune, TikToki-stiilis õppimine TaskuTarkilt. Keri läbi lühikeste kaartide, salvesta oluline ja kujunda igapäevane harjumus."
+  },
   "nav": {
     "home": "Avaleht",
     "feed": "Voog",

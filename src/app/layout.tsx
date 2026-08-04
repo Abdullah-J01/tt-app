@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import { TranslationsProvider } from "@/i18n/client";
-import { getLocale, getMessages } from "@/i18n/server";
+import { getLocale, getTranslations } from "@/i18n/server";
 import type { Locale } from "@/i18n/config";
 import "./globals.css";
 import SmoothScroll from "@/components/home/SmoothScroll";
@@ -35,9 +35,8 @@ const inter = localFont({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: { default: `${SITE.name} — ${SITE.tagline}`, template: `%s · ${SITE.name}` },
-  description: SITE.description,
+/** Locale-independent metadata (icons, manifest, app name — the brand mark). */
+const staticMetadata: Metadata = {
   manifest: "/manifest.webmanifest",
   applicationName: SITE.name,
   appleWebApp: { capable: true, title: SITE.name, statusBarStyle: "black-translucent" },
@@ -51,6 +50,20 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * Locale-aware document metadata. `SITE.tagline`/`SITE.description` are English
+ * constants, so hard-coding them here made the tab title and meta description
+ * English on every page regardless of the active locale (Estonian by default).
+ */
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("meta");
+  return {
+    ...staticMetadata,
+    title: { default: `${SITE.name} — ${t("tagline")}`, template: `%s · ${SITE.name}` },
+    description: t("description"),
+  };
+}
+
 export const viewport: Viewport = {
   themeColor: "#6c4ce3",
   width: "device-width",
@@ -60,7 +73,6 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const locale = await getLocale();
-  const messages = await getMessages(locale);
   return (
     <html lang={locale} className={`${poppins.variable} ${inter.variable}`}>
       <body className="font-body antialiased">
@@ -72,7 +84,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           }}
           aria-hidden="true"
         />
-        <TranslationsProvider locale={locale as Locale} messages={messages}>
+        <TranslationsProvider locale={locale as Locale}>
           <Providers>
             <SmoothScroll>{children}</SmoothScroll>
             {/* Persistent mobile bottom nav — rendered once here so it stays on
