@@ -3,17 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { SubStatus } from "./core";
 
-/**
- * Fetches the signed-in user's subscription from GET /api/stripe/status.
- * Starts in a "loading" state; resolves to "signed_out" / "none" / an active
- * subscription. Falls back to "none" on network error so the UI still renders
- * the upsell rather than spinning forever.
- *
- * Also refetches when the tab is returned to (covers the Stripe Checkout
- * redirect back to the app, including bfcache restores where React never
- * remounts) so "current plan" reflects a purchase made in another tab/step
- * without requiring a hard reload.
- */
 export function useSubscription(): SubStatus & { refetch: () => void } {
   const [state, setState] = useState<SubStatus>({ status: "loading" });
   const cancelledRef = useRef(false);
@@ -25,7 +14,7 @@ export function useSubscription(): SubStatus & { refetch: () => void } {
         if (!cancelledRef.current) setState(data);
       })
       .catch(() => {
-        if (!cancelledRef.current) setState({ status: "none" });
+        if (!cancelledRef.current) setState({ status: "none", materialPurchasedAt: null });
       });
   }, []);
 

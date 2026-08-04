@@ -12,8 +12,12 @@ export async function GET() {
   const customers = await stripe.customers.list({ email: session.user.email, limit: 1 });
   const customer = customers.data[0];
   if (!customer) {
-    return NextResponse.json({ status: "none" });
+    return NextResponse.json({ status: "none", materialPurchasedAt: null });
   }
+
+
+  const materialPurchasedAtRaw = customer.metadata?.materialPurchasedAt;
+  const materialPurchasedAt = materialPurchasedAtRaw ? Number(materialPurchasedAtRaw) : null;
 
   const subs = await stripe.subscriptions.list({
     customer: customer.id,
@@ -23,12 +27,10 @@ export async function GET() {
   });
   const sub = subs.data[0];
   if (!sub) {
-    return NextResponse.json({ status: "none" });
+    return NextResponse.json({ status: "none", materialPurchasedAt });
   }
 
-  // As of the 2025 "Basil" API, current_period_end lives on each subscription
-  // item, not the subscription. These plans have a single item, so read the
-  // first item's period end.
+
   const currentPeriodEnd = sub.items.data[0]?.current_period_end ?? null;
 
   return NextResponse.json({
@@ -38,5 +40,6 @@ export async function GET() {
     planId: sub.metadata?.planId ?? null,
     cycle: sub.metadata?.cycle ?? null,
     cancelAtPeriodEnd: sub.cancel_at_period_end,
+    materialPurchasedAt,
   });
 }

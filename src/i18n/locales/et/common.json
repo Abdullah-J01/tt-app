@@ -480,6 +480,8 @@
     "materialNote": "Ühekordne makse — ei mingit tellimust",
     "currentPlan": "Praegune plaan",
     "choose": "Vali {name}",
+    "unavailable": "Pole saadaval",
+    "upgradeTo": "Uuenda plaanile {name}",
     "cardRenewLine": "30-päevane tasuta prooviperiood, seejärel {price} — tühista igal ajal",
     "redirecting": "Suuname…",
     "startTrialPlan": "Alusta tasuta prooviperioodi — {name}",
