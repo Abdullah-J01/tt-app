@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { claimAnonymousBucket, useUserStorage } from "@/lib/storage";
+import type { Cycle, PlanId } from "@/features/billing";
 
 /** Persisted onboarding progress. Non-sensitive selections only — never credentials. */
 export interface OnboardingData {
@@ -14,6 +15,9 @@ export interface OnboardingData {
   interests: string[];
   dailyGoal: number;
   reminders: boolean;
+  /** Plan step selection — pre-selects Premium so the CTA reads as an upgrade by default. */
+  plan: PlanId;
+  cycle: Cycle;
 }
 
 const DEFAULTS: OnboardingData = {
@@ -23,6 +27,8 @@ const DEFAULTS: OnboardingData = {
   interests: [],
   dailyGoal: 5,
   reminders: true,
+  plan: "premium",
+  cycle: "yearly",
 };
 
 /**

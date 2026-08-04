@@ -518,6 +518,7 @@
   },
   "components_onboarding_OnboardingFlow": {
     "startLearning": "Start learning",
+    "startTrial": "Start free trial",
     "continue": "Continue"
   },
   "components_onboarding_OnboardingHeader": {
@@ -545,6 +546,23 @@
     "groupLabel": "Interests",
     "remaining": "<b>{count}</b> more to choose",
     "selected": "<b>{count}</b> selected"
+  },
+  "components_onboarding_StepPlan": {
+    "title": "Choose your plan",
+    "subtitle": "Get the most out of studying. Cancel anytime.",
+    "groupLabel": "Plan",
+    "monthly": "Monthly",
+    "yearly": "Yearly",
+    "savePercent": "Save {pct}%",
+    "perMonthMonthly": "/month",
+    "perYearBilled": "/year",
+    "freeName": "Free",
+    "freeTagline": "Keep exploring, no card needed",
+    "premiumName": "Premium",
+    "premiumTagline": "Unlock everything",
+    "feat1": "Unlimited flashcards",
+    "feat2": "Every subject unlocked",
+    "feat3": "Offline studybooks"
   },
   "components_ui_ConfirmDialog": {
     "confirm": "Confirm",

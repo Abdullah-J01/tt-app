@@ -376,7 +376,7 @@ export default function PremiumPlansPage() {
             </CycleButton>
           </div>
           <AnimatePresence>
-            {cycle === "yearly" && (
+            {/* {cycle === "yearly" && (
               <motion.span
                 initial={{ opacity: 0, scale: 0.7, x: -6 }}
                 animate={{ opacity: 1, scale: 1, x: 0 }}
@@ -386,7 +386,7 @@ export default function PremiumPlansPage() {
               >
                 {savingsLabel}
               </motion.span>
-            )}
+            )} */}
           </AnimatePresence>
         </motion.div>
       </div>

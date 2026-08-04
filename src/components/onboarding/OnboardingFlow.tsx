@@ -6,28 +6,32 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { DAILY_GOALS, GRADES, SUBJECTS } from "@/config/subjects";
+import { BillingError, BillingErrorModal, startCheckout } from "@/features/billing";
 import { OnboardingHeader } from "./OnboardingHeader";
 import { StepGrade } from "./StepGrade";
 import { StepInterests } from "./StepInterests";
 import { StepDailyGoal } from "./StepDailyGoal";
+import { StepPlan } from "./StepPlan";
 import { finishOnboarding } from "./actions";
 import { useOnboardingState } from "./useOnboardingState";
 
-const TOTAL_STEPS = 3;
+const TOTAL_STEPS = 4;
 const MIN_INTERESTS = 3;
 const GRADE_OPTIONS = GRADES.filter((g) => g.slug !== "all");
 
 /**
- * 3-step onboarding wizard (UI brief §6.1). Owns all step state + validation;
- * steps are presentational. Selections + progress persist across reloads via
- * `useOnboardingState`; final persistence to TT happens in `finishOnboarding`.
+ * 4-step onboarding wizard (UI brief §6.1 + plan step). Owns all step state +
+ * validation; steps are presentational. Selections + progress persist across
+ * reloads via `useOnboardingState`; final persistence to TT happens in
+ * `finishOnboarding`.
  */
 export function OnboardingFlow() {
   const t = useTranslations("components_onboarding_OnboardingFlow");
   const router = useRouter();
   const [pending, startTransition] = useTransition();
+  const [billingError, setBillingError] = useState<BillingError | null>(null);
   const { data, update, hydrated, clear } = useOnboardingState();
-  const { step, maxStep, grade, dailyGoal, reminders } = data;
+  const { step, maxStep, grade, dailyGoal, reminders, plan, cycle } = data;
   const interests = new Set(data.interests);
 
   // Transient animation direction — not persisted (1 = forward, -1 = back).
@@ -67,10 +71,30 @@ export function OnboardingFlow() {
       return;
     }
     startTransition(async () => {
-      clear();
       await finishOnboarding({ grade, interests: data.interests, dailyGoal, reminders });
+      if (plan === "premium") {
+        try {
+          await startCheckout(plan, cycle); // redirects to Stripe Checkout on success
+        } catch (err) {
+          const billingErr =
+            err instanceof BillingError
+              ? err
+              : new BillingError("Something went wrong. Please try again.", 0);
+          console.error(billingErr);
+          setBillingError(billingErr);
+        }
+        return;
+      }
+      clear();
+      router.push("/home");
     });
   };
+
+  const primaryLabel = !isLastStep
+    ? t("continue")
+    : plan === "premium"
+      ? t("startTrial")
+      : t("startLearning");
 
   // Wait for localStorage before painting so a reload restores the right step.
   if (!hydrated) return <div className="bg-surface min-h-[100svh]" />;
@@ -132,6 +156,14 @@ export function OnboardingFlow() {
             onToggleReminders={(v) => update({ reminders: v })}
           />
         )}
+        {step === 3 && (
+          <StepPlan
+            plan={plan}
+            cycle={cycle}
+            onSelectPlan={(p) => update({ plan: p })}
+            onSelectCycle={(c) => update({ cycle: c })}
+          />
+        )}
       </div>
 
       {/* Below md the CTA is pinned to the viewport, just above the fixed
@@ -148,10 +180,16 @@ export function OnboardingFlow() {
       >
         <div className="mx-auto w-full max-w-md">
           <Button block size="lg" disabled={!canContinue} loading={pending} onClick={handlePrimary}>
-            {isLastStep ? t("startLearning") : t("continue")}
+            {primaryLabel}
           </Button>
         </div>
       </div>
+
+      <BillingErrorModal
+        error={billingError}
+        onClose={() => setBillingError(null)}
+        onRetry={plan === "premium" ? handlePrimary : undefined}
+      />
     </div>
   );
 }

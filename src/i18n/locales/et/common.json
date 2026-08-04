@@ -593,6 +593,7 @@
   },
   "components_onboarding_OnboardingFlow": {
     "startLearning": "Alusta õppimist",
+    "startTrial": "Alusta tasuta prooviperioodi",
     "continue": "Jätka"
   },
   "components_onboarding_OnboardingHeader": {
@@ -625,6 +626,23 @@
     "groupLabel": "Huvid",
     "remaining": "veel <b>{count}</b> valida",
     "selected": "<b>{count}</b> valitud"
+  },
+  "components_onboarding_StepPlan": {
+    "title": "Vali oma plaan",
+    "subtitle": "Saa õppimisest maksimum. Tühista igal ajal.",
+    "groupLabel": "Plaan",
+    "monthly": "Kuus",
+    "yearly": "Aastas",
+    "savePercent": "Säästa {pct}%",
+    "perMonthMonthly": "/kuus",
+    "perYearBilled": "/aastas",
+    "freeName": "Tasuta",
+    "freeTagline": "Jätka uurimist, kaarti ei vaja",
+    "premiumName": "Premium",
+    "premiumTagline": "Ava kõik",
+    "feat1": "Piiramatud sõnakaardid",
+    "feat2": "Kõik õppeained avatud",
+    "feat3": "Õpikud võrguühenduseta"
   },
   "components_ui_ConfirmDialog": {
     "confirm": "Kinnita",
