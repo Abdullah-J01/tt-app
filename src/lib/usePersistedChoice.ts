@@ -7,6 +7,7 @@ import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 // useLayoutEffect-on-server warning.
 const useIsomorphicLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
+
 export function usePersistedChoice<T extends string>(
   key: string,
   initial: T,

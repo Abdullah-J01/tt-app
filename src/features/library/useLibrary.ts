@@ -1,16 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useSession } from "next-auth/react";
 import { IS_DEV_MODE } from "@/lib/env";
+import { useUserStorage } from "@/lib/storage";
 import { useTranslations } from "@/i18n/client";
 import { toastLiked, toastSaved } from "@/components/ui/Toaster";
 
-/**
- * One liked/saved feed card. Carries enough metadata to render a Library row
- * and deep-link back without refetching — card ids from the mock catalog can
- * drift between sessions, but stored entries still render from this snapshot.
- */
+
 export interface LibraryEntry {
   cardId: string;
   /** `/feed/[slug]` deep-link back to the card. */
@@ -23,11 +19,7 @@ export interface LibraryEntry {
   bookAuthor: string;
   subject: string;
   grade: string;
-  /**
-   * Studybook cover art for this card — the SAME `cover` field used by
-   * BookEntry and `Studybook`, so every Library tab renders one consistent
-   * image. Falls back to a subject-colored gradient when absent.
-   */
+
   cover?: string;
   savedAt: number;
 }
@@ -51,14 +43,6 @@ export interface LibraryState {
 
 const EVENT = "tt:library";
 const EMPTY: LibraryState = { liked: [], saved: [], books: [] };
-
-/**
- * Per-user storage key. Data intentionally survives sign-out — it reappears
- * when the same email logs back in (dev/demo behaviour).
- */
-function storageKey(email: string | null | undefined): string {
-  return `tt:library:${(email ?? "anonymous").toLowerCase()}`;
-}
 
 /**
  * Persistence seam — the single swap point for the real backend.
@@ -101,8 +85,16 @@ const bookKey = (e: BookEntry) => e.bookSlug;
  */
 export function useLibrary() {
   const t = useTranslations("components_ui_Toaster");
-  const { data: session, status } = useSession();
-  const key = storageKey(session?.user?.email);
+  /**
+   * Per-user bucket (`@/lib/storage`). Data intentionally survives sign-out —
+   * it reappears when the same email logs back in (dev/demo behaviour) — but a
+   * *different* account signing in on this browser never sees it.
+   *
+   * Unlike reading progress, a signed-out visitor may still like/save: those go
+   * to the `anonymous` bucket and stay there. `ready` (not `canPersist`) is the
+   * gate, so we only ever write once we know which bucket is the right one.
+   */
+  const { key, ready } = useUserStorage("library");
 
   const [state, setState] = useState<LibraryState>(EMPTY);
   const [hydrated, setHydrated] = useState(false);
@@ -123,7 +115,7 @@ export function useLibrary() {
      * then repaint with the real books once the session lands. See the same
      * guard in `useReadingProgress`.
      */
-    if (status === "loading") return;
+    if (!ready) return;
 
     setState(readLibrary(key));
     setHydrated(true);
@@ -134,22 +126,26 @@ export function useLibrary() {
       window.removeEventListener("storage", sync);
       window.removeEventListener(EVENT, sync);
     };
-  }, [key, status]);
+  }, [key, ready]);
 
   /**
    * Apply a mutation from a click handler: persist first, then update local
    * state (every other useLibrary instance syncs via the dispatched event).
    * Dev mode re-reads storage as the base so concurrent instances never
    * clobber each other; prod keeps in-memory state (writes are a TODO seam).
+   *
+   * No-ops until the session resolves: a like fired in that window would land
+   * in the anonymous bucket and be invisible the moment `key` settles.
    */
   const apply = useCallback(
     (fn: (prev: LibraryState) => LibraryState) => {
+      if (!ready) return;
       const prev = IS_DEV_MODE ? readLibrary(key) : stateRef.current;
       const next = fn(prev);
       writeLibrary(key, next);
       setState(next);
     },
-    [key],
+    [key, ready],
   );
 
   const toggleLiked = useCallback(

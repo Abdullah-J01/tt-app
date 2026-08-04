@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useUserStorage } from "@/lib/storage";
 
 export interface Milestone {
   days: number;
@@ -24,8 +25,9 @@ export const STREAK_MILESTONES = STREAK_MILESTONE_DETAILS.map((m) => m.days);
 
 export const MAX_FREEZES = 5;
 
-const KEY = "sb.streak";
-const EVENT = "sb:streak";
+const EVENT = "tt:streak";
+const EMPTY: StreakState = { activeDays: [], freezes: 0 };
+const DEFAULT_FREEZES = 4;
 
 export function toKey(d: Date): string {
   const y = d.getFullYear();
@@ -40,20 +42,30 @@ function addDays(d: Date, n: number): Date {
   return next;
 }
 
-function read(): StreakState {
+
+function read(key: string): StreakState {
   try {
-    const raw = localStorage.getItem(KEY);
+    const raw = localStorage.getItem(key);
     if (raw) {
       const parsed = JSON.parse(raw) as Partial<StreakState>;
       return {
         activeDays: Array.isArray(parsed.activeDays) ? parsed.activeDays : [],
-        freezes: typeof parsed.freezes === "number" ? parsed.freezes : 4,
+        freezes: typeof parsed.freezes === "number" ? parsed.freezes : DEFAULT_FREEZES,
       };
     }
   } catch {
     /* ignore */
   }
-  return { activeDays: [], freezes: 4 };
+  return { activeDays: [], freezes: DEFAULT_FREEZES };
+}
+
+function write(key: string, state: StreakState): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(state));
+  } catch {
+    /* ignore quota / disabled storage */
+  }
+  window.dispatchEvent(new Event(EVENT));
 }
 
 function currentStreak(active: Set<string>): number {
@@ -89,42 +101,43 @@ function maxStreak(active: Set<string>): number {
 }
 
 export function useStreak() {
-  const [state, setState] = useState<StreakState>({ activeDays: [], freezes: 0 });
+  const { key, ready } = useUserStorage("streak");
+  const [state, setState] = useState<StreakState>(EMPTY);
   // Storage is client-only, so `streak` is 0 until the first effect runs.
   // Callers that show the number gate on this rather than painting a 0 they
   // will immediately have to correct.
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
-    setState(read());
+    // Same gate as useLibrary / useReadingProgress: `key` isn't final until the
+    // session resolves, and hydrating the anonymous bucket first would announce
+    // a 0-day streak as loaded and then correct it.
+    if (!ready) return;
+
+    setState(read(key));
     setHydrated(true);
-    const sync = () => setState(read());
+    const sync = () => setState(read(key));
     window.addEventListener("storage", sync);
     window.addEventListener(EVENT, sync);
     return () => {
       window.removeEventListener("storage", sync);
       window.removeEventListener(EVENT, sync);
     };
-  }, []);
+  }, [key, ready]);
 
   const activeDays = useMemo(() => new Set(state.activeDays), [state.activeDays]);
   const streak = useMemo(() => currentStreak(activeDays), [activeDays]);
   const max = useMemo(() => maxStreak(activeDays), [activeDays]);
 
   const markToday = useCallback(() => {
-    setState((prev) => {
-      const key = toKey(new Date());
-      if (prev.activeDays.includes(key)) return prev;
-      const next = { ...prev, activeDays: [...prev.activeDays, key] };
-      try {
-        localStorage.setItem(KEY, JSON.stringify(next));
-      } catch {
-        /* ignore */
-      }
-      window.dispatchEvent(new Event(EVENT));
-      return next;
-    });
-  }, []);
+    if (!ready) return;
+    const today = toKey(new Date());
+    const prev = read(key);
+    if (prev.activeDays.includes(today)) return;
+    const next = { ...prev, activeDays: [...prev.activeDays, today] };
+    write(key, next);
+    setState(next);
+  }, [key, ready]);
 
   const nextMilestone = STREAK_MILESTONES.find((m) => m > streak) ?? null;
   const daysToNext = nextMilestone ? nextMilestone - streak : 0;

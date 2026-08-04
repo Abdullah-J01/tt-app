@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "@/i18n/client";
+import { deviceStorageKey } from "@/lib/storage";
 
 /**
  * Custom PWA install prompt.
@@ -18,7 +19,8 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
-const DISMISS_KEY = "pwa-install-dismissed";
+/** Device-level, not per-user: dismissing the prompt is about this browser. */
+const DISMISS_KEY = deviceStorageKey("installDismissed");
 
 function isStandalone() {
   if (typeof window === "undefined") return false;
