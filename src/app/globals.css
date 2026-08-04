@@ -1007,7 +1007,7 @@ body {
    expensive on iOS and exactly the layer that goes stale while Safari animates
    its toolbar. will-change is for properties that actually animate. */
 .glass {
-  background: rgb(var(--color-white-rgb) / 0.6);
+  background: rgb(var(--color-white-rgb) / 0.85);
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
 }

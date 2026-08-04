@@ -107,7 +107,7 @@ export function OnboardingFlow() {
       className={cn(
         // lg+: centre the step as one block instead of stretching it, so a short
         // step doesn't leave a gulf between the content and a bottom-pinned CTA.
-        "mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-4 px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+5.5rem)] sm:gap-6 sm:pt-10 md:pb-8 lg:justify-center lg:gap-3 lg:pt-5 lg:pb-6",
+        "mx-auto flex min-h-[100svh] w-full max-w-md flex-col gap-4 px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+6.5rem)] sm:gap-6 sm:pt-10 md:pb-8 lg:justify-center lg:gap-3 lg:pt-5 lg:pb-6",
         // Interests is the only long step: at max-w-md its 23 tiles are 8 rows
         // deep and push the CTA off-screen. Widen it at lg so the grid can go
         // 6-across (4 rows) and the whole step stays above the fold.
@@ -166,19 +166,17 @@ export function OnboardingFlow() {
         )}
       </div>
 
-      {/* Below md the CTA is pinned to the viewport, just above the fixed
-        MobileNav, so it's always reachable without scrolling the step. The
-        fade lets the options scroll under it instead of ending abruptly.
-        md+ has no bottom nav, so it goes back in flow — capped + centred so
-        it keeps its shape on the wide interests step. */}
+ 
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-40 px-5 pt-6 pb-[calc(env(safe-area-inset-bottom)+3.75rem)]",
+          // 4.75rem = MobileNav height (~3.75rem) + 1rem clearance, so the
+          // button always floats visibly above the bar instead of touching it.
+          "fixed inset-x-0 bottom-0 z-40 px-5 pt-6 pb-[calc(env(safe-area-inset-bottom)+4.75rem)]",
           "from-surface via-surface bg-gradient-to-t to-transparent",
           "md:static md:z-auto md:bg-none md:p-0",
         )}
       >
-        <div className="mx-auto w-full max-w-md">
+        <div className="mx-auto w-full max-w-md mt-2">
           <Button block size="lg" disabled={!canContinue} loading={pending} onClick={handlePrimary}>
             {primaryLabel}
           </Button>

@@ -27,7 +27,8 @@ export function StepDailyGoal({
   const t = useTranslations("components_onboarding_StepDailyGoal");
   const { activeDays } = useStreak();
   return (
-    <div className="flex flex-col gap-3 sm:gap-5">
+    
+    <div className="flex flex-col gap-2.5 sm:gap-5">
       <div>
         <h1 className="font-display text-ink text-xl font-bold sm:text-2xl">{t("title")}</h1>
         <p className="text-muted mt-1 text-sm sm:mt-1.5 sm:text-base">{t("subtitle")}</p>
@@ -41,11 +42,12 @@ export function StepDailyGoal({
             unit={t("unit")}
             selected={selected === g}
             onSelect={() => onSelect(g)}
+            className="py-3.5 sm:py-5"
           />
         ))}
       </div>
 
-      <Card className="flex items-center gap-3.5 p-4">
+      <Card className="flex items-center gap-3.5 p-3 sm:p-4">
         <IconBadge icon={<Bell />} variant="amber" />
         <div className="flex-1">
           <p className="font-display text-ink text-[15px] font-semibold">{t("reminderTitle")}</p>
@@ -54,8 +56,8 @@ export function StepDailyGoal({
         <Toggle checked={reminders} onChange={onToggleReminders} label={t("reminderTitle")} />
       </Card>
 
-      <Card className="p-4">
-        <StreakCalendar activeDays={activeDays} />
+      <Card className="p-3 sm:p-4">
+        <StreakCalendar activeDays={activeDays} compact />
       </Card>
     </div>
   );
