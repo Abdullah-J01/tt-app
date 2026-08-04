@@ -10,6 +10,7 @@ import MobileNav from "@/components/layout/MobileNav";
 import { ScrollToTop } from "@/components/layout/ScrollToTop";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { InstallPrompt } from "@/components/pwa/InstallPrompt";
+import { DevSwCleanup } from "@/components/pwa/DevSwCleanup";
 import { Providers } from "./providers";
 import { SITE } from "@/config/site";
 // Self-hosted fonts (from @fontsource, vendored in src/fonts) — no build-time
@@ -52,7 +53,12 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6c4ce3",
+  // White by default — the tabbed screens (Home, Explore, Library, Profile) and
+  // the marketing page are all on `--color-surface`, so anything else reads as a
+  // stripe above the header. The immersive plum screens (feed, studybook
+  // reader/preview) override both this and the band below via
+  // `useStatusBarColor()` (src/lib/statusBar.ts).
+  themeColor: "#ffffff",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -68,7 +74,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           className="pointer-events-none fixed inset-x-0 top-0 z-[100]"
           style={{
             height: "calc(env(safe-area-inset-top) + 1px)",
-            backgroundColor: "var(--status-bar-bg, var(--color-violet))",
+            backgroundColor: "var(--status-bar-bg, var(--color-surface))",
           }}
           aria-hidden="true"
         />
@@ -85,6 +91,10 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
             <AuthModal />
             {/* Custom PWA install prompt (Android/Chromium + iOS hint). */}
             <InstallPrompt />
+            {/* Dev only: evict a leftover production service worker, whose
+                stale-while-revalidate JS cache otherwise serves last build's
+                chunks to devices testing against `next dev`. */}
+            {process.env.NODE_ENV === "development" && <DevSwCleanup />}
             <Toaster />
           </Providers>
         </TranslationsProvider>

@@ -21,6 +21,7 @@ import type { FeedItem } from "@/lib/api";
 import { feedPath, withSlugs, type FeedCardData } from "./feedData";
 import { stripLocale, localizeHref } from "@/i18n/Link";
 import { getLastTab } from "@/lib/lastTab";
+import { useStatusBarColor } from "@/lib/statusBar";
 import { DEFAULT_LOCALE, isLocale, type Locale } from "@/i18n/config";
 
 const TRANSITION = { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const };
@@ -113,15 +114,10 @@ export default function FeedScreen() {
   /** Live count for the drawer — what the feed will show if the draft commits. */
   const draftCount = useMemo(() => filteredCards(items, draft).length, [items, draft]);
 
-  // Match the iOS safe-area status-bar band (layout.tsx) to the feed cards' own
-  // plum gradient (FeedCard.tsx) instead of the app-wide violet, same idea as
-  // StudybookReader/StudybookPreview.
-  useEffect(() => {
-    document.documentElement.style.setProperty("--status-bar-bg", "var(--color-plum-start)");
-    return () => {
-      document.documentElement.style.removeProperty("--status-bar-bg");
-    };
-  }, []);
+  // The feed is one of the two immersive plum surfaces, so it tints the status
+  // bar to the cards' own gradient (FeedCard.tsx); everywhere else stays on the
+  // app-wide white default. Same idea as StudybookReader/StudybookPreview.
+  useStatusBarColor("var(--color-plum-start)");
 
   // Load the feed from /api/feed (data stays server-side — the upstream fetch
   // cache applies there), then restore the active card from /feed/[slug]

@@ -18,17 +18,12 @@ import {
   useWheelNav,
 } from "@/lib/cardSlide";
 import { chapterFromParam, chapterParam } from "@/lib/chapters";
+import { useStatusBarColor } from "@/lib/statusBar";
 import { cn } from "@/lib/utils";
 import { isFreeBook } from "./freePreview";
 import type { Studybook } from "@/types";
 
-/**
- * Walk a studybook's chapters without opening the full reader (UI brief §6.3):
- * one chapter per slide — title, artwork, summary, card count — then a closing
- * CTA. Driven by ?preview= in the URL so the banner button and the chapter tiles
- * can both open it (and it's deep-linkable / shareable), with ?chapter= picking
- * the chapter to land on.
- */
+
 export function StudybookPreview({ book }: { book: Studybook }) {
   const t = useTranslations("features_studybook_StudybookPreview");
   const router = useRouter();
@@ -93,10 +88,12 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     end();
   }, [open, params, book, end]);
 
-  // Lock page scroll + wire Escape / arrow keys while open. Lenis drives the
-  // scroll and ignores `overflow: hidden`, so freeze it too (and lock <html>
-  // overflow for the reduced-motion case where Lenis isn't running) — otherwise
-  // the page keeps scrolling behind the open preview.
+  // An open studybook is immersive, so it tints the status bar to this card's
+  // own plum gradient while the preview is up; the tabbed screens keep the
+  // app-wide white default.
+  useStatusBarColor("var(--color-plum-1)", open);
+
+
   useEffect(() => {
     if (!open) return;
     const lenis = window.__lenis;
@@ -105,9 +102,6 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     const prevHtml = document.documentElement.style.overflow;
     document.body.style.overflow = "hidden";
     document.documentElement.style.overflow = "hidden";
-    // Match the iOS safe-area status-bar band (layout.tsx) to this card's own
-    // plum gradient instead of the app-wide violet, while the preview is open.
-    document.documentElement.style.setProperty("--status-bar-bg", "var(--color-plum-1)");
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") close();
       // Up/Down included to match the reader's keys and the vertical swipe.
@@ -119,21 +113,13 @@ export function StudybookPreview({ book }: { book: Studybook }) {
       lenis?.start();
       document.body.style.overflow = prevBody;
       document.documentElement.style.overflow = prevHtml;
-      document.documentElement.style.removeProperty("--status-bar-bg");
       window.removeEventListener("keydown", onKey);
     };
   }, [open, close, goNext, goPrev]);
 
   if (!open) return null;
 
-  /**
-   * Open the reader, optionally at a given chapter.
-   *
-   * replace: swap the ?preview history entry for /read, so Back from the reader
-   * returns to the clean detail page instead of reopening this overlay (which
-   * reads as "back is broken"). Free books let guests into the reader (it gates
-   * after a few cards); paid books require login.
-   */
+
   const startReading = (chapterIndex?: number) => {
     const query = chapterIndex != null ? `?chapter=${chapterParam(chapterIndex)}` : "";
     const openReader = () =>
@@ -217,9 +203,7 @@ export function StudybookPreview({ book }: { book: Studybook }) {
 
   return (
     <div
-      // z-[60]: above the fixed MobileNav (z-50, later in the DOM), which
-      // otherwise sits on top of this dialog and swallows taps on the
-      // Prev/Next controls at the bottom of the sheet.
+
       className="fade-in fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-0 backdrop-blur-sm md:p-6"
       role="dialog"
       aria-modal="true"
@@ -228,16 +212,11 @@ export function StudybookPreview({ book }: { book: Studybook }) {
     >
       <div
         ref={cardRef}
-        // touch-none, like the reader: without it the browser claims a vertical
-        // drag as a pan/overscroll and cancels the gesture, so the swipe never
-        // lands. Safe here because the slide content is absolutely positioned
-        // and never needs to scroll.
+
         className="pop-in bg-plum md:rounded-card md:shadow-soft relative h-[100svh] w-full max-w-md touch-none overflow-hidden text-white select-none md:h-[80vh] md:max-h-[720px]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Cards. Both copies stay transparent, so only the content travels and
-            the card's gradient sits still behind them. Kept below the chrome
-            (z-20) so the progress bar and buttons hold their position. */}
+      
         <div
           onAnimationEnd={(e) => e.target === e.currentTarget && end()}
           className={cn("absolute inset-0", pair?.incoming)}
