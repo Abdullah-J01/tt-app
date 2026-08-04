@@ -10,6 +10,10 @@
     "close": "Close",
     "loading": "Loading…"
   },
+  "meta": {
+    "tagline": "Learn something new in the time it takes to scroll.",
+    "description": "Bite-sized, TikTok-style learning from TaskuTark. Swipe through short cards, save what matters, build a daily habit."
+  },
   "nav": {
     "home": "Home",
     "feed": "Feed",

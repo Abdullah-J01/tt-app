@@ -3,7 +3,7 @@
 import i18next, { type i18n as I18nInstance } from "i18next";
 import { initReactI18next, I18nextProvider, useTranslation } from "react-i18next";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import {
   DEFAULT_LOCALE,
   LOCALE_COOKIE,
@@ -61,8 +61,13 @@ function readLocaleCookie(): Locale | null {
  * older locale prefix (e.g. you were on /et/…, switched to /en/…, then hit Back),
  * the stale URL would otherwise win and silently revert the language. So when the
  * URL locale disagrees with the chosen one, we rewrite the URL to match the choice
- * instead of following it. Full-page loads are unaffected: middleware syncs the
- * cookie from the URL there, so shared /et or /en links still open as authored.
+ * instead of following it.
+ *
+ * That cookie-wins rule is deliberately skipped on the FIRST mount. A full page
+ * load was already server-rendered in the URL's locale, so letting a disagreeing
+ * cookie rewrite it there would paint one language and then swap to another —
+ * the "loads in English, then switches to Estonian" flash. On a cold load the URL
+ * (which middleware derived from the cookie in the first place) is authoritative.
  */
 function LocaleSync() {
   const { i18n } = useTranslation(NAMESPACE);
@@ -70,10 +75,14 @@ function LocaleSync() {
   const router = useRouter();
   const seg = pathname.split("/")[1];
   const urlLocale: Locale = isLocale(seg) ? seg : DEFAULT_LOCALE;
+  const mounted = useRef(false);
 
   useEffect(() => {
+    const firstRun = !mounted.current;
+    mounted.current = true;
+
     const chosen = readLocaleCookie() ?? urlLocale;
-    if (chosen !== urlLocale) {
+    if (!firstRun && chosen !== urlLocale) {
       router.replace(localizeHref(stripLocale(pathname), chosen));
       return;
     }
@@ -92,10 +101,11 @@ export function TranslationsProvider({
   children,
 }: {
   locale: Locale;
-  /** Kept for API symmetry with the server layout; resources are bundled. */
-  messages?: Messages;
   children: ReactNode;
 }) {
+  // NOTE: deliberately no `messages` prop — every catalogue is bundled below.
+  // Passing one from a server component serialises the whole catalogue into the
+  // RSC payload of every page (~35 KB) for nothing.
   const instance = useMemo(() => createI18n(locale), []); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (

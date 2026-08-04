@@ -10,6 +10,8 @@ import { SITE } from "@/config/site";
 /** Desktop top navigation — mirrors TaskuTark (logo, search, links, login). */
 export function TopNav() {
   const t = useTranslations("components_layout_TopNav");
+  // Nav labels live at the catalogue root (shared with Navbar/MobileNav).
+  const tRoot = useTranslations();
   return (
     <header className="border-hairline bg-surface/90 sticky top-0 z-40 border-b backdrop-blur">
       <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4">
@@ -31,7 +33,7 @@ export function TopNav() {
               href={item.href}
               className="text-ink hover:text-violet text-sm font-medium transition-colors"
             >
-              {item.label}
+              {tRoot(`nav.${item.href.slice(1)}`)}
             </Link>
           ))}
         </nav>

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "TaskuTark — Bite-sized learning",
+  "name": "TaskuTark — väikeste tükkidena õppimine",
   "short_name": "TaskuTark",
-  "description": "Bite-sized, TikTok-style learning from TaskuTark. Swipe through short cards, save what matters, build a daily habit.",
+  "description": "Ampsusuurune, TikToki-stiilis õppimine TaskuTarkilt. Keri läbi lühikeste kaartide, salvesta oluline ja kujunda igapäevane harjumus.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
@@ -10,7 +10,7 @@
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "categories": ["education", "books", "lifestyle"],
-  "lang": "en",
+  "lang": "et",
   "dir": "ltr",
   "icons": [
     { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
@@ -19,8 +19,8 @@
     { "src": "/icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
-    { "name": "Feed", "url": "/feed", "description": "Jump into your learning feed" },
-    { "name": "Explore", "url": "/explore", "description": "Discover new studybooks" },
-    { "name": "Library", "url": "/library", "description": "Your saved cards" }
+    { "name": "Voog", "url": "/feed", "description": "Hüppa oma õppevoogu" },
+    { "name": "Avasta", "url": "/explore", "description": "Avasta uusi õpikuid" },
+    { "name": "Raamatukogu", "url": "/library", "description": "Sinu salvestatud kaardid" }
   ]
 }
