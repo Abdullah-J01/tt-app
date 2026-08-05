@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { BITE_COUNT } from "@/config/studyBites";
 
@@ -9,10 +12,11 @@ import { BITE_COUNT } from "@/config/studyBites";
  * books the page hands the deck, or that guarantee breaks.
  */
 export function StackingStudyBitesSkeleton({ count = BITE_COUNT }: { count?: number }) {
+  const t = useTranslations("common");
   return (
     <div
       role="status"
-      aria-label="Loading"
+      aria-label={t("loading")}
       className="mx-auto max-w-2xl pb-[8vh] motion-reduce:pb-0 sm:pb-[18vh]"
     >
       {Array.from({ length: count }, (_, i) => (

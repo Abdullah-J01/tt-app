@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="et">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>You're offline · TaskuTark</title>
+    <title>Sa oled võrguühenduseta · TaskuTark</title>
     <meta name="theme-color" content="#6c4ce3" />
     <link rel="icon" href="/favicon.png" />
     <style>
@@ -77,11 +77,11 @@
           <path d="M12 20h.01" />
         </svg>
       </div>
-      <h1>No Internet Connection</h1>
-      <p>You're currently offline. Please reconnect and try again.</p>
+      <h1>Internetiühendus puudub</h1>
+      <p>Sa oled hetkel võrguühenduseta. Taasta ühendus ja proovi uuesti.</p>
       <div class="actions">
-        <button class="retry" id="retry" type="button">Retry</button>
-        <button class="close" id="close" type="button">Close</button>
+        <button class="retry" id="retry" type="button">Proovi uuesti</button>
+        <button class="close" id="close" type="button">Sulge</button>
       </div>
       <div class="status" id="status" role="status" aria-live="polite"></div>
     </div>
@@ -96,7 +96,7 @@
       var reconnecting = false;
 
       function goToApp() {
-        statusEl.textContent = "Reconnecting…";
+        statusEl.textContent = "Ühendan uuesti…";
         // replace() so the offline page doesn't linger in history.
         location.replace(APP_URL);
       }
@@ -105,8 +105,8 @@
         reconnecting = on;
         retryBtn.disabled = on;
         retryBtn.innerHTML = on
-          ? '<span class="spinner"></span>Reconnecting…'
-          : "Retry";
+          ? '<span class="spinner"></span>Ühendan uuesti…'
+          : "Proovi uuesti";
         statusEl.textContent = message || "";
       }
 
@@ -129,7 +129,7 @@
           if (ok) {
             goToApp();
           } else {
-            setReconnecting(false, "Still offline. Check your connection.");
+            setReconnecting(false, "Ikka võrguühenduseta. Kontrolli oma ühendust.");
           }
         });
       }

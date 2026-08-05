@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { CoverCardSkeleton } from "./CardSkeletons";
 
@@ -7,10 +10,11 @@ import { CoverCardSkeleton } from "./CardSkeletons";
  * SubjectBooks' cover grid.
  */
 export function SubjectBooksSkeleton() {
+  const t = useTranslations("common");
   return (
     <div
       role="status"
-      aria-label="Loading subject"
+      aria-label={t("loading")}
       className="mx-auto max-w-6xl px-4 py-6 pb-24 md:py-10 lg:pb-12"
     >
       {/* back + subject title */}

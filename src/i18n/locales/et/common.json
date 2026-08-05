@@ -51,6 +51,20 @@
     "goPremiumSub": "Ava kõik õpiraamatud ja võrguühenduseta režiim.",
     "seeAllPlans": "Vaata kõiki pakette"
   },
+  "features_billing_BillingErrorModal": {
+    "authTitle": "Jätkamiseks logi sisse",
+    "authDescription": "Tellimuse alustamiseks pead olema sisse logitud.",
+    "errorTitle": "Midagi läks valesti",
+    "signIn": "Logi sisse",
+    "notNow": "Mitte praegu",
+    "tryAgain": "Proovi uuesti"
+  },
+  "components_network_OfflineModal": {
+    "title": "Internetiühendus puudub",
+    "description": "Sa oled hetkel võrguühenduseta. Taasta ühendus ja proovi uuesti.",
+    "retry": "Proovi uuesti",
+    "reconnecting": "Ühendan uuesti…"
+  },
   "features_achievements_data": {
     "pioneer_title": "Teerajaja",
     "pioneer_desc": "Oled piisavalt lugenud, et avada oma trendid.",

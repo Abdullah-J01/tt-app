@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { AlertTriangle, LogIn, X } from "lucide-react";
 import Link from "@/i18n/Link";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "@/i18n/client";
 import { useAuthModal } from "@/components/auth/useAuthModal";
 import type { BillingError } from "./core";
 
@@ -28,6 +29,8 @@ export function BillingErrorModal({
   /** Optional — shown as a "Try again" button for non-auth errors. */
   onRetry?: () => void;
 }) {
+  const t = useTranslations("features_billing_BillingErrorModal");
+  const tCommon = useTranslations("common");
   const isAuth = error?.isAuthError ?? false;
   const openAuth = useAuthModal((s) => s.openAuth);
 
@@ -57,7 +60,7 @@ export function BillingErrorModal({
               unstyled
               type="button"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={tCommon("close")}
               className="hover:bg-lavender text-muted absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full transition-colors"
             >
               <X className="h-5 w-5" />
@@ -74,12 +77,10 @@ export function BillingErrorModal({
             </span>
 
             <h2 id="billing-error-title" className="text-ink mt-4 text-center text-xl font-bold">
-              {isAuth ? "Sign in to continue" : "Something went wrong"}
+              {isAuth ? t("authTitle") : t("errorTitle")}
             </h2>
             {isAuth && (
-              <p className="text-muted mt-2 text-center text-sm">
-                "You need to be signed in before you can start a subscription."
-              </p>
+              <p className="text-muted mt-2 text-center text-sm">{t("authDescription")}</p>
             )}
 
             <div className="mt-6 flex flex-col gap-2">
@@ -90,11 +91,11 @@ export function BillingErrorModal({
 
                     className="bg-violet hover:bg-violet-dark flex h-11 w-full items-center justify-center gap-2 rounded-xl font-semibold text-white transition-colors"
                   >
-                    Sign in
+                    {t("signIn")}
                   </Button>
 
                   <Button variant="secondary" block onClick={onClose}>
-                    Not now
+                    {t("notNow")}
                   </Button>
                 </>
               ) : (
@@ -107,11 +108,11 @@ export function BillingErrorModal({
                         onRetry();
                       }}
                     >
-                      Try again
+                      {t("tryAgain")}
                     </Button>
                   )}
                   <Button variant="secondary" block onClick={onClose}>
-                    Close
+                    {tCommon("close")}
                   </Button>
                 </>
               )}

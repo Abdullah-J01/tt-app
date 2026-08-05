@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { ContinueHeroSkeleton } from "./ContinueHero";
 import { RailSkeleton } from "./RailStates";
@@ -31,8 +34,9 @@ function SectionHeaderSkeleton() {
  * wrong costs one settle at reveal rather than a visible re-label.
  */
 export function HomeSkeleton() {
+  const t = useTranslations("common");
   return (
-    <div className="flex flex-col gap-10 sm:gap-12" role="status" aria-label="Loading">
+    <div className="flex flex-col gap-10 sm:gap-12" role="status" aria-label={t("loading")}>
       <section>
         <SectionHeaderSkeleton />
         <div className="mt-4">

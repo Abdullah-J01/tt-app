@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { CoverCardSkeleton } from "./CardSkeletons";
 import { FilterPanelSkeleton } from "./FilterPanelSkeleton";
@@ -6,19 +9,25 @@ import { FilterPanelSkeleton } from "./FilterPanelSkeleton";
  * Full-page placeholder for the Explore landing while getCatalog() streams:
  * mirrors ExploreView's default state (Studybooks tab, grid view, no subject
  * rail) — mobile header + grade chips, the lg sidebar filter panel, tab bar
- * with count pills, toolbar, and the cover grid. The static "Explore" title
- * renders for real; interactive controls and data-driven counts are bars.
+ * with count pills, toolbar, and the cover grid. The static title renders for
+ * real; interactive controls and data-driven counts are bars.
+ *
+ * The title is read from ExploreView's own namespace so the placeholder and the
+ * real heading can never drift — and so this screen isn't the one spot that
+ * paints English before the catalogue arrives in the active locale.
  */
 export function ExploreSkeleton() {
+  const t = useTranslations("features_explore_components_ExploreView");
+  const tCommon = useTranslations("common");
   return (
     <div
       role="status"
-      aria-label="Loading catalog"
+      aria-label={tCommon("loading")}
       className="mx-auto max-w-7xl overflow-x-clip px-4 pb-24 md:py-10 lg:pb-12"
     >
       {/* header — static, matches ExploreView */}
       <div className="flex items-center justify-between pt-6 lg:block lg:pt-0">
-        <h1 className="text-2xl font-bold">Explore</h1>
+        <h1 className="text-2xl font-bold">{t("title")}</h1>
         <Skeleton className="h-10 w-10 rounded-full lg:hidden" />
       </div>
 
