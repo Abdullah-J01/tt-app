@@ -41,15 +41,15 @@ export default function SearchBar({ className }: { className?: string }) {
       // Self-sized (not stretched) — it sits in the right-side cluster next to
       // the language selector, so it grows on focus but doesn't try to fill
       // the header.
- animate={{
-  width: focused
-    ? window.innerWidth < 1100 && window.innerWidth > 1000
-      ? 450
-      : 500
-    : window.innerWidth >= 1200
-      ? 400
-      : 280,
-}}
+      animate={{
+        width: focused
+          ? window.innerWidth < 1100 && window.innerWidth > 1000
+            ? 450
+            : 500
+          : window.innerWidth >= 1200
+            ? 400
+            : 280,
+      }}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
       onClick={() => inputRef.current?.focus()}
     >
