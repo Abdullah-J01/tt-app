@@ -1,30 +1,31 @@
 "use client";
 
 import { useMemo } from "react";
-// Bookmark/Compass + Link/Button/BookPreviewTile stay commented with the
-// hidden Your Library rail below.
-import { Sparkles, TrendingUp } from "lucide-react"; // Bookmark, Compass
+import { Sparkles, TrendingUp } from "lucide-react";
 import { useTranslations } from "@/i18n/client";
-// import Link from "@/i18n/Link";
-// import { Button } from "@/components/ui/Button";
 import { CoverCard } from "@/features/explore/components/CoverCard";
 import { useAppSelector } from "@/store/hooks";
 import { useLibrary } from "@/features/library/useLibrary";
 import { useReadingProgress } from "@/features/reading-progress/useReadingProgress";
 import { useStreak } from "@/features/streak";
 import { BookRail } from "./BookRail";
-// import { BookPreviewTile } from "./BookPreviewTile";
+import { LibraryRail } from "./LibraryRail";
 import { ContinueSection, type ContinueItem } from "./ContinueSection";
 import { HomeHeader } from "./HomeHeader";
 import { HomeSkeleton } from "./HomeSkeleton";
 import type { HomeData } from "../data";
 
-const LIBRARY_PREVIEW_SIZE = 6;
-
 export function HomeView({ popular, freshlyAdded }: HomeData) {
   const t = useTranslations("app_app_home_page");
   const { progress, hydrated: progressHydrated } = useReadingProgress();
-  const { books: savedBooks, hydrated: libraryHydrated } = useLibrary();
+  const {
+    liked,
+    saved,
+    books: savedBooks,
+    hydrated: libraryHydrated,
+    toggleSaved,
+    toggleLiked,
+  } = useLibrary();
   const { streak, hydrated: streakHydrated } = useStreak();
   const authStatus = useAppSelector((s) => s.auth.status);
   const user = useAppSelector((s) => s.auth.user);
@@ -53,7 +54,6 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
    * rail made saved books disappear while the header still counted them (1
    * saved, "1", empty rail).
    */
-  // `libraryItems` left un-destructured while the Your Library rail is hidden.
   const { continueItems, popularItems, newItems } = useMemo(() => {
     const shown = new Set<string>();
 
@@ -62,7 +62,6 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
       .sort((a, b) => b.updatedAt - a.updatedAt);
     continueItems.forEach((c) => shown.add(c.slug));
 
-    const libraryItems = savedBooks.slice(0, LIBRARY_PREVIEW_SIZE);
     savedBooks.forEach((b) => shown.add(b.bookSlug));
 
     const popularItems = popular.filter((b) => !shown.has(b.slug));
@@ -76,7 +75,7 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
       ? deduped
       : freshlyAdded.filter((b) => !popular.some((p) => p.slug === b.slug));
 
-    return { continueItems, libraryItems, popularItems, newItems };
+    return { continueItems, popularItems, newItems };
   }, [progress, savedBooks, popular, freshlyAdded]);
 
   return (
@@ -100,38 +99,16 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
               render once the answer is known. */}
           <ContinueSection items={continueItems} />
 
-          {/* UI-cleanup test: Your Library section hidden along with the
-              /library tab. */}
-          {/* <BookRail
-            title={t("libraryTitle")}
-            description={t("libraryDescription")}
-            icon={<Bookmark />}
-            iconVariant="green"
-            seeAllHref="/library"
-            seeAllLabel={t("seeAll")}
-            count={savedBooks.length}
-            items={libraryItems}
-            itemKey={(b) => b.bookSlug}
-            renderItem={(b) => (
-              <BookPreviewTile
-                slug={b.bookSlug}
-                title={b.bookTitle}
-                author={b.bookAuthor}
-                subjectSlug={b.subject}
-                cover={b.cover}
-              />
-            )}
-            emptyIcon={<Bookmark />}
-            emptyTitle={t("libraryEmptyTitle")}
-            emptyDescription={t("libraryEmptyDescription")}
-            emptyAction={
-              <Link href="/explore">
-                <Button size="sm" leadingIcon={<Compass className="h-4 w-4" />}>
-                  {t("libraryEmptyCta")}
-                </Button>
-              </Link>
-            }
-          /> */}
+          {/* Nav/header entry points to /library are hidden (UI-cleanup test),
+              but the section itself stays on Home — a 3-way toggle (saved
+              cards / saved books / liked) over one same-size tile rail. */}
+          <LibraryRail
+            savedCards={saved}
+            savedBooks={savedBooks}
+            likedCards={liked}
+            onToggleSaved={toggleSaved}
+            onToggleLiked={toggleLiked}
+          />
 
           <BookRail
             title={t("popularTitle")}

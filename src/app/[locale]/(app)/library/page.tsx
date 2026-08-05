@@ -4,45 +4,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "@/i18n/client";
 import { useSession } from "next-auth/react";
 import Link from "@/i18n/Link";
-import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bookmark, BookOpen, Heart, X } from "lucide-react";
+import { Bookmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { Pill } from "@/components/ui/Pill";
 import { BookTileSkeleton, CardTileSkeleton, LibraryGridSkeleton } from "@/components/skeletons";
-import { feedPath } from "@/components/feed/feedData";
 import { useLazyList } from "@/lib/useLazyList";
 import { usePersistedChoice } from "@/lib/usePersistedChoice";
 import { deviceStorageKey } from "@/lib/storage";
-import { useLibrary, type LibraryEntry } from "@/features/library/useLibrary";
-import { useLocalizeEntry, useSubjectLabel } from "@/features/library/useLocalizedEntry";
+import { useLibrary } from "@/features/library/useLibrary";
+import { FeedCardTile } from "@/features/library/components/FeedCardTile";
+import { BookTile, type LibraryBook } from "@/features/library/components/BookTile";
 import { AuthGate } from "@/components/auth/AuthGate";
 
 const TABS = ["cards", "studybooks"] as const;
 const CARDS_FILTERS = ["saved", "liked"] as const;
 type Tab = (typeof TABS)[number];
 type CardsFilter = (typeof CARDS_FILTERS)[number];
-/** What a Studybooks-tab tile needs — satisfied by both BookEntry and LibraryEntry. */
-type LibraryBook = Pick<LibraryEntry, "bookSlug" | "bookTitle" | "bookAuthor" | "subject"> & {
-  /** Optional — falls back to a subject-colored cover when absent. */
-  coverImage?: string;
-};
 
 const easeOut = [0.22, 1, 0.36, 1] as const;
-
-/** On-brand gradient per subject, so cards/covers without a real image still look designed. */
-const SUBJECT_GRADIENTS: Record<string, string> = {
-  Physics: "from-plum-start to-plum-end",
-  Biology: "from-green-mid to-green-bright",
-  History: "from-violet-dark to-violet-light",
-  Psychology: "from-amber-brown to-amber",
-};
-const DEFAULT_GRADIENT = "from-violet to-violet-dark";
-
-function subjectGradient(subject: string) {
-  return SUBJECT_GRADIENTS[subject] ?? DEFAULT_GRADIENT;
-}
 
 const gridVariants = {
   hidden: {},
@@ -288,146 +268,6 @@ function LibraryContent() {
         )}
       </AnimatePresence>
     </div>
-  );
-}
-
-/**
- * A saved/liked entry rendered as a miniature replica of the actual feed card —
- * gradient background, glass badge, headline — so Library feels continuous with the feed.
- */
-function FeedCardTile({
-  entry,
-  liked,
-  onRemove,
-}: {
-  entry: LibraryEntry;
-  liked: boolean;
-  onRemove: () => void;
-}) {
-  const t = useTranslations("app_app_library_page");
-  const localize = useLocalizeEntry();
-  const loc = localize(entry);
-  return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.2, ease: easeOut }}
-      className={cn(
-        "group relative aspect-[3/4] overflow-hidden rounded-2xl bg-gradient-to-br shadow-md ring-1 ring-black/5",
-        subjectGradient(entry.subject),
-      )}
-    >
-      {/* real card artwork when present, with a dark scrim so text stays legible */}
-      {entry.cover && (
-        <>
-          <Image
-            src={entry.cover}
-            alt=""
-            fill
-            sizes="(min-width: 640px) 33vw, 50vw"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-black/20" />
-        </>
-      )}
-
-      {/* ambient glow blob for depth, matches feed card treatment */}
-      <div className="pointer-events-none absolute -top-8 -right-6 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
-
-      <Link href={feedPath(entry.cardSlug)} className="relative flex h-full flex-col p-3.5">
-        <div className="flex items-start justify-between gap-2">
-          <span className="rounded-full bg-white/15 px-2 py-1 text-[10px] font-medium text-white backdrop-blur">
-            {loc.subject}
-          </span>
-          {liked && (
-            <Button
-              unstyled
-              type="button"
-              onClick={onRemove}
-              aria-label={t("removeAria", { heading: entry.heading })}
-              className="absolute top-4 right-2 flex h-8 w-8 items-center justify-center"
-            >
-              <Heart className="h-3.5 w-3.5 shrink-0 fill-white/80 text-white/80" />{" "}
-            </Button>
-          )}
-        </div>
-
-        <p className="mt-2.5 line-clamp-4 flex-1 text-sm leading-snug font-semibold text-white">
-          {loc.heading}
-        </p>
-
-        <div className="mt-2 border-t border-white/15 pt-2">
-          <p className="truncate text-[11px] font-medium text-white/70">{entry.bookTitle}</p>
-          <p className="truncate text-[10px] text-white/45">{entry.bookAuthor}</p>
-        </div>
-      </Link>
-
-      {!liked && (
-        <Button
-          unstyled
-          type="button"
-          onClick={onRemove}
-          aria-label={t("removeAria", { heading: entry.heading })}
-          className="absolute top-4 right-2 flex h-8 w-8 items-center justify-center"
-        >
-          <Bookmark className="h-4 w-4 fill-white text-white md:h-6 md:w-6" fill="currentColor" />
-        </Button>
-      )}
-    </motion.div>
-  );
-}
-
-/**
- * A studybook rendered as an actual book cover: flat spine on the left,
- * a couple of stacked "pages" behind it for depth, subtle 3D tilt on hover.
- */
-function BookTile({ book }: { book: LibraryBook }) {
-  const subjectLabel = useSubjectLabel();
-  return (
-    <Link href={`/studybook/${book.bookSlug}`} className="group block [perspective:900px]">
-      <motion.div
-        whileHover={{ rotateY: -8, y: -4 }}
-        whileTap={{ scale: 0.97 }}
-        transition={{ duration: 0.25, ease: easeOut }}
-        style={{ transformStyle: "preserve-3d" }}
-        // aspect-[3/4] matches FeedCardTile, so a book tile and a card tile
-        // occupy the same footprint across the two tabs.
-        className="relative aspect-[3/4]"
-      >
-        {/* stacked pages behind the cover, for physical depth */}
-        <div className="bg-ink/10 absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-l-[3px] rounded-r-lg" />
-        <div className="bg-ink/15 absolute inset-0 translate-x-[3px] translate-y-[3px] rounded-l-[3px] rounded-r-lg" />
-
-        {/* cover */}
-        <div
-          className={cn(
-            "relative h-full w-full overflow-hidden rounded-l-[3px] rounded-r-lg bg-gradient-to-br shadow-lg ring-1 ring-black/10",
-            subjectGradient(book.subject),
-          )}
-        >
-          {book.coverImage ? (
-            <Image src={book.coverImage} alt="" fill sizes="200px" className="object-cover" />
-          ) : (
-            <BookOpen className="absolute -right-4 -bottom-4 h-28 w-28 text-white/10" aria-hidden />
-          )}
-
-          {/* spine */}
-          <div className="absolute inset-y-0 left-0 w-[10px] bg-gradient-to-r from-black/35 to-transparent" />
-          <div className="absolute inset-y-1.5 left-[3px] w-px bg-white/10" />
-
-          <div className="absolute top-3 right-2.5 left-4">
-            <Pill className="bg-white/20 text-white">{subjectLabel(book.subject)}</Pill>
-          </div>
-
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent px-4 pt-8 pb-3 pl-5">
-            <p className="line-clamp-2 text-sm leading-snug font-semibold text-white">
-              {book.bookTitle}
-            </p>
-            <p className="mt-0.5 truncate text-xs text-white/65">{book.bookAuthor}</p>
-          </div>
-        </div>
-      </motion.div>
-    </Link>
   );
 }
 

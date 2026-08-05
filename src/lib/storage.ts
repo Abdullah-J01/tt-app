@@ -12,7 +12,12 @@ const ANONYMOUS = "anonymous";
 export type UserScope = "progress" | "library" | "streak" | "profile" | "onboarding";
 
 /** Storage holding device-level view state, deliberately shared across users. */
-export type DeviceScope = "lastTab" | "libraryTab" | "libraryFilter" | "installDismissed";
+export type DeviceScope =
+  | "lastTab"
+  | "libraryTab"
+  | "libraryFilter"
+  | "installDismissed"
+  | "homeLibraryFilter";
 
 /** Signed-out users get their own bucket rather than sharing anyone's. */
 export function storageOwner(email: string | null | undefined): string {

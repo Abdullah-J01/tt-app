@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/Input";
 import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/lib/useMediaQuery";
 
 export default function SearchBar({ className }: { className?: string }) {
   const [focused, setFocused] = useState(false);
@@ -14,6 +15,10 @@ export default function SearchBar({ className }: { className?: string }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const t = useTranslations("components_home_SearchBar");
+  // Breakpoint-driven target width — `useMediaQuery` (not raw
+  // `window.innerWidth`) so this renders safely on the server.
+  const narrowFocusWidth = useMediaQuery("(min-width: 1001px) and (max-width: 1099px)");
+  const wideIdleWidth = useMediaQuery("(min-width: 1200px)");
 
   const submit = (q: string) => {
     router.push(`/explore/search?q=${encodeURIComponent(q)}`);
@@ -42,13 +47,7 @@ export default function SearchBar({ className }: { className?: string }) {
       // the language selector, so it grows on focus but doesn't try to fill
       // the header.
       animate={{
-        width: focused
-          ? window.innerWidth < 1100 && window.innerWidth > 1000
-            ? 450
-            : 500
-          : window.innerWidth >= 1200
-            ? 400
-            : 280,
+        width: focused ? (narrowFocusWidth ? 450 : 500) : wideIdleWidth ? 400 : 280,
       }}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
       onClick={() => inputRef.current?.focus()}
