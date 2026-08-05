@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { cn } from "@/lib/utils";
 import { Skeleton } from "@/components/ui/Skeleton";
 
@@ -9,9 +12,10 @@ import { Skeleton } from "@/components/ui/Skeleton";
  * without layout shift.
  */
 export function LibraryGridSkeleton({ tab = "cards" }: { tab?: "cards" | "studybooks" }) {
+  const t = useTranslations("common");
   const books = tab === "studybooks";
   return (
-    <div role="status" aria-label="Loading library">
+    <div role="status" aria-label={t("loading")}>
       {/* saved/liked filter chips */}
       {!books && (
         <div className="mt-4 flex gap-2">

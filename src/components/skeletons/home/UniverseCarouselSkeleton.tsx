@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { trackHeight, trackMargin } from "@/components/home/universeTrack";
 
@@ -9,8 +12,9 @@ import { trackHeight, trackMargin } from "@/components/home/universeTrack";
  * neighbours. Reduced-motion mirrors the flat card rail fallback instead.
  */
 export function UniverseCarouselSkeleton() {
+  const t = useTranslations("common");
   return (
-    <div role="status" aria-label="Loading">
+    <div role="status" aria-label={t("loading")}>
       {/* pinned spiral variant */}
       {/* `--stage` mirrors the deck's measured stage height per breakpoint so the
           placeholder pulls in by the same amount the real track will. Set via class,

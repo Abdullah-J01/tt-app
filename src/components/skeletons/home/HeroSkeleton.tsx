@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
@@ -7,10 +10,11 @@ import { Skeleton } from "@/components/ui/Skeleton";
  * animations (framer-motion staggers + GSAP scroll parallax) play untouched.
  */
 export function HeroSkeleton() {
+  const t = useTranslations("common");
   return (
     <section
       role="status"
-      aria-label="Loading"
+      aria-label={t("loading")}
       className="relative mx-auto max-w-7xl overflow-hidden px-5 pt-36 pb-20 sm:px-8 sm:pt-44"
     >
       <div className="grid items-center gap-16 lg:grid-cols-2">

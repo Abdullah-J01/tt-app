@@ -3,6 +3,7 @@
 import { useEffect, useId, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Portal } from "@/lib/Portal";
+import { useTranslations } from "@/i18n/client";
 import { useScrollLock } from "@/lib/useScrollLock";
 
 interface OfflineModalProps {
@@ -19,6 +20,8 @@ interface OfflineModalProps {
  * connection returns — the parent unmounts it via `open`.
  */
 export function OfflineModal({ open, isReconnecting, onRetry, onClose }: OfflineModalProps) {
+  const t = useTranslations("components_network_OfflineModal");
+  const tCommon = useTranslations("common");
   const titleId = useId();
   const descId = useId();
   const retryRef = useRef<HTMLButtonElement>(null);
@@ -50,7 +53,7 @@ export function OfflineModal({ open, isReconnecting, onRetry, onClose }: Offline
             {/* Dimmed + blurred backdrop */}
             <motion.button
               type="button"
-              aria-label="Close"
+              aria-label={tCommon("close")}
               tabIndex={-1}
               onClick={onClose}
               initial={{ opacity: 0 }}
@@ -97,10 +100,10 @@ export function OfflineModal({ open, isReconnecting, onRetry, onClose }: Offline
               </motion.div>
 
               <h2 id={titleId} className="font-display text-ink text-xl font-semibold">
-                No Internet Connection
+                {t("title")}
               </h2>
               <p id={descId} className="text-muted mt-2 text-sm leading-relaxed">
-                You&rsquo;re currently offline. Reconnect and try again.
+                {t("description")}
               </p>
 
               <div className="mt-6 flex flex-col gap-2.5">
@@ -117,14 +120,14 @@ export function OfflineModal({ open, isReconnecting, onRetry, onClose }: Offline
                       aria-hidden="true"
                     />
                   )}
-                  {isReconnecting ? "Reconnecting…" : "Retry"}
+                  {isReconnecting ? t("reconnecting") : t("retry")}
                 </button>
                 <button
                   type="button"
                   onClick={onClose}
                   className="text-muted hover:text-ink inline-flex h-11 items-center justify-center rounded-full px-6 text-sm font-medium transition-colors"
                 >
-                  Close
+                  {tCommon("close")}
                 </button>
               </div>
             </motion.div>

@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { CoverCardSkeleton, StudybiteCardSkeleton } from "./CardSkeletons";
 
@@ -8,10 +11,11 @@ import { CoverCardSkeleton, StudybiteCardSkeleton } from "./CardSkeletons";
  * row, and a studybite row.
  */
 export function SearchSkeleton() {
+  const t = useTranslations("common");
   return (
     <div
       role="status"
-      aria-label="Loading search"
+      aria-label={t("loading")}
       className="mx-auto max-w-6xl px-4 pb-24 lg:pb-12"
     >
       {/* search bar footprint */}

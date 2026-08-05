@@ -507,10 +507,11 @@ function TrialBanner({
 }
 
 function PlansCardsSkeleton() {
+  const t = useTranslations("common");
   return (
     <div
       role="status"
-      aria-label="Loading plans"
+      aria-label={t("loading")}
       className="relative mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3"
     >
       {[0, 1, 2].map((i) => (
