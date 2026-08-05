@@ -1,16 +1,18 @@
-import Link from "@/i18n/Link";
+// import Link from "@/i18n/Link";
 import { getTranslations } from "@/i18n/server";
 import { BookOpen, Layers, Smartphone } from "lucide-react";
-import { Button } from "@/components/ui/Button";
+// import { Button } from "@/components/ui/Button";
 import { SectionHeader } from "@/components/ui";
 import { listStudybooks } from "@/lib/api";
 import { SITE } from "@/config/site";
-import StackingStudyBitesLoader from "@/components/home/StackingStudyBitesLoader";
+// UI-cleanup test: study bites + feature cards sections are hidden below —
+// keep their imports commented alongside them.
+// import StackingStudyBitesLoader from "@/components/home/StackingStudyBitesLoader";
 import UniverseCarouselLoader from "@/components/home/UniverseCarouselLoader";
 import { ExploreSection } from "@/components/home/ExploreSection";
 import { SubjectGrid } from "@/components/home/SubjectGrid";
 import HeroLoader from "@/components/home/HeroLoader";
-import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
+// import FeatureCardsLoader from "@/components/home/FeatureCardsLoader";
 import PremiumPlansPage from "@/components/home/Plans";
 import { BITE_COUNT } from "@/config/studyBites";
 import { toDeckBook } from "@/components/home/deckBook";
@@ -40,13 +42,14 @@ export default async function LandingPage() {
   // carousel shows 5 (its reduced-motion fallback renders a rail of whatever
   // it's given, so hand it exactly that many).
   const { items: books } = await listStudybooks({ limit: 12 });
-  const biteBooks = books.slice(0, BITE_COUNT).map(toDeckBook);
+  // const biteBooks = books.slice(0, BITE_COUNT).map(toDeckBook);
   const carouselBooks = books.slice(BITE_COUNT, BITE_COUNT + 5).map(toDeckBook);
 
   return (
     <main className="relative min-h-screen bg-white">
       <HeroLoader />
-      <FeatureCardsLoader />
+      {/* UI-cleanup test: feature cards section hidden. */}
+      {/* <FeatureCardsLoader /> */}
 
       {/* Mobile: overlap the reveal's blank top over FeatureCards' blank bottom —
           both are pinned full-screen stages with centred content, so the seam
@@ -55,7 +58,8 @@ export default async function LandingPage() {
         <ExploreSection />
       </div>
 
-      <section className="mx-auto max-w-6xl px-4 pb-16">
+      {/* UI-cleanup test: study bites section hidden. */}
+      {/* <section className="mx-auto max-w-6xl px-4 pb-16">
         <SectionHeader
           title={t("bitesTitle")}
           subtitle={t("bitesSubtitle")}
@@ -68,19 +72,21 @@ export default async function LandingPage() {
           }
         />
         <StackingStudyBitesLoader books={biteBooks} />
-      </section>
+      </section> */}
 
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <SectionHeader
           title={t("digitizedTitle")}
           subtitle={t("digitizedSubtitle")}
-          action={
-            <Link href="/library">
-              <Button variant="secondary" size="sm">
-                {t("allEbooks")}
-              </Button>
-            </Link>
-          }
+          // UI-cleanup test: /library is hidden, so its "All ebooks" entry
+          // point is commented out with it.
+          // action={
+          //   <Link href="/library">
+          //     <Button variant="secondary" size="sm">
+          //       {t("allEbooks")}
+          //     </Button>
+          //   </Link>
+          // }
         />
         <UniverseCarouselLoader books={carouselBooks} />
       </section>

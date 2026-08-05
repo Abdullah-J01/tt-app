@@ -32,7 +32,8 @@ export async function AdminTopbar({ userName }: AdminTopbarProps) {
             </span>
           )}
           <Link
-            href="/feed"
+            // UI-cleanup test: feed hidden — "View app" lands on Home.
+            href="/home" // was "/feed"
             className="text-violet hover:bg-lavender flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors"
           >
             {t("viewApp")}

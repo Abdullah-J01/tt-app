@@ -45,9 +45,11 @@ const NAV_ICONS: Record<string, LucideIcon> = {
 /**
  * Native-app-style mobile chrome for the marketing header (below lg only).
  *
- * - Fixed glass bottom bar: primary nav + a three-dot "More".
+ * - Fixed glass bottom bar: primary nav (Home / Explore) + Search + Profile +
+ *   a three-dot "More".
  * - "More" opens a glassmorphic floating panel above the bar (macOS-style
- *   curved, detached card) that holds Search / Language / Log in.
+ *   curved, detached card) that holds Language / Log in (Search and Profile
+ *   rows are parked in comments there while they live in the bar).
  * - Search opens a top-anchored glass search field over a blurred full-screen
  *   overlay. All transitions are spring-driven for a premium feel.
  *
@@ -222,8 +224,10 @@ export default function MobileNav() {
               {/* macOS-style grabber */}
               <div className="bg-ink/15 mx-auto mt-1 mb-1.5 h-1 w-10 rounded-full" />
 
-              {/* Profile moved here from the bar so the bar stays 5 items max. */}
-              {status === "authenticated" && (
+              {/* UI-cleanup test: Profile + Search live in the bar now (feed +
+                library tabs are hidden, so there's room) — their panel rows are
+                parked here, not deleted. */}
+              {/* {status === "authenticated" && (
                 <Link
                   href="/profile"
                   role="menuitem"
@@ -251,7 +255,7 @@ export default function MobileNav() {
                 </span>
                 <span className="flex-1 text-left">{t("common.search")}</span>
                 <ChevronRight size={18} className="text-faint shrink-0" aria-hidden />
-              </Button>
+              </Button> */}
 
               {/* Language: the globe row opens an inline EN/ET chooser. */}
               <Button
@@ -383,8 +387,38 @@ export default function MobileNav() {
               );
             })}
 
-            {/* Profile lives in the More panel (below), not the bar — a fifth
-              tab crowds the bar on narrow phones. */}
+            {/* UI-cleanup test: Search + Profile promoted from the More panel
+              into the bar — Home / Explore / Search / Profile / More. */}
+            <li>
+              <Button
+                unstyled
+                type="button"
+                onClick={openSearch}
+                aria-label={t("common.search")}
+                className={cn(
+                  "flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
+                  searchOpen ? "text-ink" : tabIdle,
+                )}
+              >
+                <Search className="h-[22px] w-[22px]" aria-hidden />
+                {t("common.search")}
+              </Button>
+            </li>
+
+            <li>
+              <Link
+                href="/profile"
+                aria-current={isActive("/profile") ? "page" : undefined}
+                className={cn(
+                  "flex flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
+                  isActive("/profile") ? "text-ink" : tabIdle,
+                )}
+              >
+                <User className="h-[22px] w-[22px]" aria-hidden />
+                {t("nav.profile")}
+              </Link>
+            </li>
+
             <li>
               <Button
                 unstyled
@@ -396,9 +430,8 @@ export default function MobileNav() {
                 aria-controls="mobile-more-panel"
                 className={cn(
                   "flex w-full flex-col items-center gap-1 py-2.5 text-[11px] font-medium transition-transform active:scale-95",
-                  // Profile lives inside this panel, so its route lights the
-                  // dots up as the "active tab".
-                  moreOpen ? "text-violet" : isActive("/profile") ? "text-ink" : tabIdle,
+                  // Profile has its own tab now, so More only lights while open.
+                  moreOpen ? "text-violet" : tabIdle,
                 )}
               >
                 <MoreHorizontal className="h-[22px] w-[22px]" aria-hidden />

@@ -58,36 +58,43 @@ export default function Navbar() {
                 : "border border-transparent bg-transparent"
             }`}
           >
-            <div className="flex items-center gap-2.5">
-              <Logo className="h-6" href={onAdmin ? "/admin" : "/"} />
-              {onAdmin && (
-                <Pill variant="solid" className="max-sm:hidden">
-                  CMS
-                </Pill>
+            {/* Left cluster: logo + desktop nav links share one group so the
+                tabs sit right beside the wordmark instead of floating in the
+                header's middle. */}
+            <div className="flex shrink-0 items-center gap-6 lg:gap-8">
+              <div className="flex items-center gap-2.5">
+                <Logo className="h-6" href={onAdmin ? "/admin" : "/"} />
+                {onAdmin && (
+                  <Pill variant="solid" className="max-sm:hidden">
+                    CMS
+                  </Pill>
+                )}
+              </div>
+
+              {/* Desktop consumer nav — hidden in the CMS (admin uses its sidebar). */}
+              {!onAdmin && (
+                <ul className="font-body text-ink/80 hidden items-center gap-6 text-sm lg:flex">
+                  {SITE.nav.map((item) => {
+                    const active = path === item.href || path.startsWith(`${item.href}/`);
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`underline-anim ${
+                            active ? "text-ink font-medium" : "hover:text-ink"
+                          }`}
+                        >
+                          {t(`nav.${item.href.slice(1)}` as "nav.feed")}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               )}
             </div>
 
-            {/* Desktop consumer nav — hidden in the CMS (admin uses its sidebar). */}
-            {!onAdmin && (
-              <ul className="font-body text-ink/80 hidden items-center gap-8 text-sm lg:flex">
-                {SITE.nav.map((item) => {
-                  const active = path === item.href || path.startsWith(`${item.href}/`);
-                  return (
-                    <li key={item.href}>
-                      <Link
-                        href={item.href}
-                        className={`underline-anim ${
-                          active ? "text-ink font-medium" : "hover:text-ink"
-                        }`}
-                      >
-                        {t(`nav.${item.href.slice(1)}` as "nav.feed")}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-
+            {/* Right cluster: search + language selector grouped together,
+                then session actions. */}
             <div className="flex items-center gap-3 sm:gap-4">
               {onAdmin ? (
                 <>
@@ -98,7 +105,8 @@ export default function Navbar() {
                     </span>
                   )}
                   <Link
-                    href="/feed"
+                    // UI-cleanup test: feed hidden — "View app" lands on Home.
+                    href="/home" // was "/feed"
                     className="text-violet hover:bg-lavender flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-sm font-semibold whitespace-nowrap transition-colors"
                   >
                     {t("nav.viewApp")}

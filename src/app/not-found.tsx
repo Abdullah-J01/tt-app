@@ -43,7 +43,8 @@ export default async function NotFound() {
 
         <div className="mt-10 space-y-3">
           <Link
-            href="/feed"
+            // UI-cleanup test: feed hidden — send the primary CTA home instead.
+            href="/home" // was "/feed"
             className="flex h-14 w-full items-center justify-center rounded-2xl bg-violet text-base font-semibold text-white transition-transform hover:-translate-y-0.5 active:scale-[0.98]"
           >
             {t("backToFeed")}

@@ -3,13 +3,15 @@
 import Link, { stripLocale } from "@/i18n/Link";
 import { useTranslations } from "@/i18n/client";
 import { usePathname } from "next/navigation";
-import { Home, Compass, Bookmark, User } from "lucide-react";
+// Home + Bookmark stay imported-but-commented with their hidden tabs above.
+import { Compass, User } from "lucide-react"; // Home, Bookmark
 import { cn } from "@/lib/utils";
 
+// UI-cleanup test: feed + library tabs hidden (kept in sync with SITE.nav).
 const TABS = [
-  { href: "/feed", labelKey: "home", icon: Home },
+  // { href: "/feed", labelKey: "home", icon: Home },
   { href: "/explore", labelKey: "explore", icon: Compass },
-  { href: "/library", labelKey: "library", icon: Bookmark },
+  // { href: "/library", labelKey: "library", icon: Bookmark },
   { href: "/profile", labelKey: "profile", icon: User },
 ] as const;
 

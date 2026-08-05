@@ -6,8 +6,9 @@ import { useTranslations } from "@/i18n/client";
 import { motion } from "framer-motion";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { cn } from "@/lib/utils";
 
-export default function SearchBar() {
+export default function SearchBar({ className }: { className?: string }) {
   const [focused, setFocused] = useState(false);
   const [value, setValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -33,8 +34,22 @@ export default function SearchBar() {
 
   return (
     <motion.div
-      className="border-border hidden cursor-text items-center gap-2 rounded-full border bg-white/70 px-4 py-2 lg:flex"
-      animate={{ width: focused ? 340 : 220 }}
+      className={cn(
+        "border-border hidden cursor-text items-center gap-2 rounded-full border bg-white/70 px-4 py-2 lg:flex",
+        className,
+      )}
+      // Self-sized (not stretched) — it sits in the right-side cluster next to
+      // the language selector, so it grows on focus but doesn't try to fill
+      // the header.
+ animate={{
+  width: focused
+    ? window.innerWidth < 1100 && window.innerWidth > 1000
+      ? 450
+      : 500
+    : window.innerWidth >= 1200
+      ? 400
+      : 280,
+}}
       transition={{ type: "spring", stiffness: 260, damping: 26 }}
       onClick={() => inputRef.current?.focus()}
     >

@@ -49,11 +49,12 @@ export default function Hero() {
             <Link href="/onboarding">
               <Button size="lg">{t("getStarted")}</Button>
             </Link>
-            <Link href="/feed">
+            {/* UI-cleanup test: feed entry point hidden. */}
+            {/* <Link href="/feed">
               <Button size="lg" variant="secondary">
                 {t("seeFeed")}
               </Button>
-            </Link>
+            </Link> */}
           </motion.div>
 
           <motion.div

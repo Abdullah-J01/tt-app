@@ -277,7 +277,9 @@ function LibraryContent() {
             <p className="text-muted mt-1 max-w-xs text-sm">
               {loggedOut ? t("emptyLoggedOutBody") : t("emptyBody")}
             </p>
-            <Link href={loggedOut ? "/login?callbackUrl=%2Flibrary" : "/feed"} className="mt-6">
+            {/* UI-cleanup test: feed hidden — the empty-state CTA goes to
+                Explore. Was "/feed". */}
+            <Link href={loggedOut ? "/login?callbackUrl=%2Flibrary" : "/explore"} className="mt-6">
               <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
                 <Button>{loggedOut ? t("login") : t("goToFeed")}</Button>
               </motion.div>

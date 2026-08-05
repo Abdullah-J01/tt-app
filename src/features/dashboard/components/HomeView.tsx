@@ -1,17 +1,19 @@
 "use client";
 
 import { useMemo } from "react";
-import { Bookmark, Compass, Sparkles, TrendingUp } from "lucide-react";
+// Bookmark/Compass + Link/Button/BookPreviewTile stay commented with the
+// hidden Your Library rail below.
+import { Sparkles, TrendingUp } from "lucide-react"; // Bookmark, Compass
 import { useTranslations } from "@/i18n/client";
-import Link from "@/i18n/Link";
-import { Button } from "@/components/ui/Button";
+// import Link from "@/i18n/Link";
+// import { Button } from "@/components/ui/Button";
 import { CoverCard } from "@/features/explore/components/CoverCard";
 import { useAppSelector } from "@/store/hooks";
 import { useLibrary } from "@/features/library/useLibrary";
 import { useReadingProgress } from "@/features/reading-progress/useReadingProgress";
 import { useStreak } from "@/features/streak";
 import { BookRail } from "./BookRail";
-import { BookPreviewTile } from "./BookPreviewTile";
+// import { BookPreviewTile } from "./BookPreviewTile";
 import { ContinueSection, type ContinueItem } from "./ContinueSection";
 import { HomeHeader } from "./HomeHeader";
 import { HomeSkeleton } from "./HomeSkeleton";
@@ -51,7 +53,8 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
    * rail made saved books disappear while the header still counted them (1
    * saved, "1", empty rail).
    */
-  const { continueItems, libraryItems, popularItems, newItems } = useMemo(() => {
+  // `libraryItems` left un-destructured while the Your Library rail is hidden.
+  const { continueItems, popularItems, newItems } = useMemo(() => {
     const shown = new Set<string>();
 
     const continueItems: ContinueItem[] = Object.entries(progress)
@@ -97,7 +100,9 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
               render once the answer is known. */}
           <ContinueSection items={continueItems} />
 
-          <BookRail
+          {/* UI-cleanup test: Your Library section hidden along with the
+              /library tab. */}
+          {/* <BookRail
             title={t("libraryTitle")}
             description={t("libraryDescription")}
             icon={<Bookmark />}
@@ -126,7 +131,7 @@ export function HomeView({ popular, freshlyAdded }: HomeData) {
                 </Button>
               </Link>
             }
-          />
+          /> */}
 
           <BookRail
             title={t("popularTitle")}

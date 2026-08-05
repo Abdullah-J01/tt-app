@@ -69,7 +69,8 @@ export function StreakPanel({ open, onClose }: StreakPanelProps) {
                 {t("startBody")}
               </p>
               <Link
-                href="/feed"
+                // UI-cleanup test: feed hidden — continue reading from Home.
+                href="/home" // was "/feed"
                 onClick={onClose}
                 className="bg-violet hover:bg-violet-dark mt-4 rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-transform active:scale-[0.98]"
               >
