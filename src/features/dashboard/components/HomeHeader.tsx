@@ -153,16 +153,19 @@ export function HomeHeader({ name, streak, inProgress, saved, loading }: HomeHea
 
   return (
     <header>
-      {/* Fixed line box either way: the placeholder is exactly the h1's line
-          height, so the subtitle and everything under it never move. */}
       {loading ? (
-        <Skeleton className="h-8 w-56 rounded-full sm:h-9 sm:w-72" />
+        <>
+          <Skeleton className="h-8 w-56 rounded-full sm:h-9 sm:w-72" />
+          <Skeleton className="mt-1 h-5 w-72 max-w-full rounded-full sm:h-6 sm:w-96" />
+        </>
       ) : (
-        <h1 className="anim-fade-in text-ink font-display text-2xl font-bold tracking-tight sm:text-3xl">
-          {firstName ? t("greetingNamed", { name: firstName }) : t("greeting")}
-        </h1>
+        <>
+          <h1 className="anim-fade-in text-ink font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            {firstName ? t("greetingNamed", { name: firstName }) : t("greeting")}
+          </h1>
+          <p className="anim-fade-in text-muted mt-1 text-sm sm:text-base">{t("subtitle")}</p>
+        </>
       )}
-      <p className="text-muted mt-1 text-sm sm:text-base">{t("subtitle")}</p>
 
       <div className="mt-4 flex flex-wrap items-center gap-y-2">
         {stats.map((stat) => (

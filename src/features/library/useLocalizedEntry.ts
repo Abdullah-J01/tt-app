@@ -2,13 +2,17 @@
 
 import { useTranslations } from "@/i18n/client";
 import { useSubjectName } from "@/i18n/useSubjectName";
+import { seedFrom } from "@/lib/synthChapters";
 
-/** cardId suffix (…-c1/-c2/-c3) → the synthesized card's template keys. */
-const CARD_KINDS: Record<string, { heading: string; body: string }> = {
-  c1: { heading: "card.bigIdeaHeading", body: "card.bigIdeaBody" },
-  c2: { heading: "card.rememberHeading", body: "card.rememberBody" },
-  c3: { heading: "card.mattersHeading", body: "card.mattersBody" },
-};
+/**
+ * Ids from the synthesized Open Library catalog: `ol_<workId>-ch<n>-c<i>`
+ * (src/lib/synthChapters.ts). Anything else — TT-authored cards, the offline
+ * mock catalog — keeps its stored snapshot text.
+ */
+const SYNTH_CARD_ID = /^ol_(.+)-ch(\d+)-c(\d+)$/;
+
+/** Keep in step with HEADING_POOL in src/lib/openlibrary.ts (`catalog.bite.h*`). */
+const HEADING_POOL = 12;
 
 interface LocalizableEntry {
   cardId: string;
@@ -21,9 +25,11 @@ interface LocalizableEntry {
 /**
  * Re-derives a saved entry's display text in the active locale. Saved cards are
  * snapshotted with whatever language was active when saved; this re-translates
- * the subject (from its slug) and the synthesized heading/body (from the card
- * kind + book title) so the Library follows the current language. Real book
- * titles/authors stay as-is. Falls back to the stored text for unknown cards.
+ * the subject (from its slug) and, for synthesized catalog cards, the heading —
+ * by replaying the generator's deterministic pick (`seed + chapter*11 + card*3`
+ * into the `bite.h*` pool, exactly as synthChapters does) so the Library
+ * follows the current language. Real/TT-authored cards and unknown ids fall
+ * back to the stored snapshot text, never to a raw message key.
  */
 export function useLocalizeEntry() {
   const t = useTranslations("catalog");
@@ -31,15 +37,19 @@ export function useLocalizeEntry() {
 
   return (entry: LocalizableEntry) => {
     const subject = subjectName(entry.subject, entry.subject);
-    const suffix = entry.cardId.split("-").pop() ?? "";
-    const kind = CARD_KINDS[suffix];
-    if (kind) {
-      return {
+
+    const match = SYNTH_CARD_ID.exec(entry.cardId);
+    if (match) {
+      const [, workId, ch, c] = match;
+      // Mirrors synthChapters: 0-based chapter/card indices, same mix formula.
+      const n = seedFrom(workId!) + (Number(ch) - 1) * 11 + (Number(c) - 1) * 3;
+      const heading = t(`bite.h${(((n % HEADING_POOL) + HEADING_POOL) % HEADING_POOL) + 1}`, {
+        title: entry.bookTitle,
         subject,
-        heading: t(kind.heading, { title: entry.bookTitle }),
-        body: t(kind.body, { subject, title: entry.bookTitle }),
-      };
+      });
+      return { subject, heading, body: entry.body };
     }
+
     return { subject, heading: entry.heading, body: entry.body };
   };
 }

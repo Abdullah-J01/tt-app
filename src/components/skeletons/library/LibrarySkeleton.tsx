@@ -23,7 +23,7 @@ export function LibraryGridSkeleton({ tab = "cards" }: { tab?: "cards" | "studyb
         className={cn(
           "mt-6 grid grid-cols-2",
           books
-            ? "gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4"
+            ? "gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5"
             : "gap-4 sm:grid-cols-3 sm:gap-5",
         )}
       >
@@ -33,7 +33,6 @@ export function LibraryGridSkeleton({ tab = "cards" }: { tab?: "cards" | "studyb
             <BookTileSkeleton />
             <BookTileSkeleton />
             <BookTileSkeleton className="hidden sm:block" />
-            <BookTileSkeleton className="hidden lg:block" />
           </>
         ) : (
           <>
@@ -54,5 +53,5 @@ export function CardTileSkeleton({ className }: { className?: string }) {
 
 /** Grey stand-in for a BookTile cover. */
 export function BookTileSkeleton({ className }: { className?: string }) {
-  return <Skeleton className={cn("aspect-[2/3] rounded-l-[3px] rounded-r-lg", className)} />;
+  return <Skeleton className={cn("aspect-[3/4] rounded-l-[3px] rounded-r-lg", className)} />;
 }

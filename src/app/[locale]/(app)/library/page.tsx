@@ -105,35 +105,18 @@ function LibraryContent() {
     return base.map((e) => (e.cover ? e : { ...e, cover: catalogCovers[e.bookSlug] }));
   }, [filter, saved, liked, catalogCovers]);
 
-  /**
-   * Directly saved studybooks first, then unique books behind saved/liked cards.
-   * Both BookEntry and LibraryEntry expose the image as `cover`; we normalize it
-   * to `coverImage` for the tile. Dedup by bookSlug, but if a later duplicate
-   * carries a cover the first one lacked, keep it — so the image is never lost
-   * when the same book appears across sections.
-   */
-  const books = useMemo(() => {
-    const seen = new Map<string, LibraryBook>();
-    for (const b of [...savedBooks, ...saved, ...liked]) {
-      const existing = seen.get(b.bookSlug);
-      if (!existing) {
-        seen.set(b.bookSlug, {
-          bookSlug: b.bookSlug,
-          bookTitle: b.bookTitle,
-          bookAuthor: b.bookAuthor,
-          subject: b.subject,
-          coverImage: b.cover,
-        });
-      } else if (!existing.coverImage && b.cover) {
-        existing.coverImage = b.cover;
-      }
-    }
-    // Same catalog backfill as the cards tab, for pre-`cover` snapshots.
-    for (const b of seen.values()) {
-      if (!b.coverImage) b.coverImage = catalogCovers[b.bookSlug];
-    }
-    return [...seen.values()];
-  }, [savedBooks, saved, liked, catalogCovers]);
+  const books = useMemo<LibraryBook[]>(
+    () =>
+      savedBooks.map((b) => ({
+        bookSlug: b.bookSlug,
+        bookTitle: b.bookTitle,
+        bookAuthor: b.bookAuthor,
+        subject: b.subject,
+        // Catalog backfill (as in the cards tab) for pre-`cover` snapshots.
+        coverImage: b.cover ?? catalogCovers[b.bookSlug],
+      })),
+    [savedBooks, catalogCovers],
+  );
 
   const loggedOut = status === "unauthenticated";
   const showCards = tab === "cards" && !loggedOut && entries.length > 0;
@@ -253,7 +236,9 @@ function LibraryContent() {
             animate="show"
             exit={{ opacity: 0 }}
             variants={gridVariants}
-            className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:grid-cols-4"
+            // Same columns as the cards grid so both tabs' tiles match in
+            // size; the roomier row gap leaves air for the page-stack depth.
+            className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-5"
           >
             {lazyBooks.items.map((book) => (
               <motion.li key={book.bookSlug} variants={tileVariants}>
@@ -403,7 +388,9 @@ function BookTile({ book }: { book: LibraryBook }) {
         whileTap={{ scale: 0.97 }}
         transition={{ duration: 0.25, ease: easeOut }}
         style={{ transformStyle: "preserve-3d" }}
-        className="relative aspect-[2/3]"
+        // aspect-[3/4] matches FeedCardTile, so a book tile and a card tile
+        // occupy the same footprint across the two tabs.
+        className="relative aspect-[3/4]"
       >
         {/* stacked pages behind the cover, for physical depth */}
         <div className="bg-ink/10 absolute inset-0 translate-x-1.5 translate-y-1.5 rounded-l-[3px] rounded-r-lg" />
