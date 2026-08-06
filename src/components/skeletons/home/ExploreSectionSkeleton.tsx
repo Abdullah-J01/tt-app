@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "@/i18n/client";
 import { Skeleton } from "@/components/ui/Skeleton";
 
 /**
@@ -7,10 +10,11 @@ import { Skeleton } from "@/components/ui/Skeleton";
  * initial centre state: glow circle + two-line heading + kicker.
  */
 export function ExploreSectionSkeleton() {
+  const t = useTranslations("common");
   return (
     <section
       role="status"
-      aria-label="Loading"
+      aria-label={t("loading")}
       className="relative h-[160vh] motion-reduce:h-auto sm:h-[220vh]"
     >
       <div className="sticky top-0 flex h-screen w-full items-center justify-center overflow-hidden bg-white motion-reduce:relative motion-reduce:min-h-screen motion-reduce:py-16">

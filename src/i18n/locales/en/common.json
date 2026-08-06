@@ -51,6 +51,20 @@
     "goPremiumSub": "Unlock every studybook & offline.",
     "seeAllPlans": "See all plans"
   },
+  "features_billing_BillingErrorModal": {
+    "authTitle": "Sign in to continue",
+    "authDescription": "You need to be signed in before you can start a subscription.",
+    "errorTitle": "Something went wrong",
+    "signIn": "Sign in",
+    "notNow": "Not now",
+    "tryAgain": "Try again"
+  },
+  "components_network_OfflineModal": {
+    "title": "No Internet Connection",
+    "description": "You’re currently offline. Reconnect and try again.",
+    "retry": "Retry",
+    "reconnecting": "Reconnecting…"
+  },
   "features_achievements_data": {
     "pioneer_title": "Pioneer",
     "pioneer_desc": "You've been reading enough to unlock your trends.",

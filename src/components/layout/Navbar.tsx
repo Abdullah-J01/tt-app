@@ -161,7 +161,7 @@ export default function Navbar() {
                     // Opens the auth dialog over the current page instead of navigating.
                     <Button
                       onClick={() => openAuth("login")}
-                      className="shadow-soft hover:shadow-glow rounded-full px-5 py-2 text-sm font-medium text-white transition-all duration-300"
+                      className="border-violet text-violet hover:bg-violet rounded-xl border-2 bg-transparent px-5 py-2 text-sm font-semibold transition-all duration-300 hover:text-white hover:shadow-lg"
                     >
                       {t("nav.login")}
                     </Button>
