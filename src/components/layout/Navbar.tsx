@@ -18,8 +18,15 @@ import { SITE } from "@/config/site";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 
+
+const NAVBAR_ANIMATED_KEY = "tt-navbar-animated";
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [suppressScrollTransition, setSuppressScrollTransition] = useState(false);
+  const [skipEntrance] = useState(
+    () => typeof window !== "undefined" && sessionStorage.getItem(NAVBAR_ANIMATED_KEY) === "1",
+  );
   const { data: session, status } = useSession();
   const pathname = usePathname();
   const path = stripLocale(pathname);
@@ -33,34 +40,55 @@ export default function Navbar() {
     const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    
+    const onVisibility = () => {
+      if (document.visibilityState !== "visible") return;
+      setSuppressScrollTransition(true);
+      onScroll();
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => setSuppressScrollTransition(false));
+      });
+    };
+    document.addEventListener("visibilitychange", onVisibility);
+
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem(NAVBAR_ANIMATED_KEY, "1");
   }, []);
 
   return (
     <>
       <motion.header
-        initial={{ y: -40, opacity: 0 }}
+        initial={skipEntrance ? false : { y: -40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         className="fixed inset-x-0 top-0 z-50"
       >
         <div
-          className={`mx-auto max-w-7xl px-4 transition-all duration-500 sm:px-6 lg:px-8 ${
+          className={`mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 ${
+            suppressScrollTransition ? "" : "transition-all duration-500"
+          } ${
             scrolled
               ? "pt-[calc(env(safe-area-inset-top)+0.75rem)]"
               : "pt-[calc(env(safe-area-inset-top)+1.5rem)]"
           }`}
         >
           <nav
-            className={`flex items-center justify-between rounded-full transition-all duration-500 ${
+            className={`flex items-center justify-between rounded-full ${
+              suppressScrollTransition ? "" : "transition-all duration-500"
+            } ${
               scrolled
                 ? "glass shadow-soft border-border border px-4 py-2 sm:px-6"
                 : "border border-transparent bg-transparent"
             }`}
           >
-            {/* Left cluster: logo + desktop nav links share one group so the
-                tabs sit right beside the wordmark instead of floating in the
-                header's middle. */}
+         
             <div className="flex shrink-0 items-center gap-6 lg:gap-8">
               <div className="flex items-center gap-2.5">
                 <Logo className="h-6" href={onAdmin ? "/admin" : "/"} />
