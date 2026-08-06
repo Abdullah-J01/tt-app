@@ -84,14 +84,23 @@ export function LibraryRail({
         seeAllLabel={t("seeAll")}
       />
 
-      <div className="mt-4 flex gap-2">
-        <Chip selected={filter === "savedCards"} onClick={() => setFilter("savedCards")}>
+ 
+      <div className="no-scrollbar -mx-4 mt-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:px-0">
+        <Chip
+          selected={filter === "savedCards"}
+          onClick={() => setFilter("savedCards")}
+          className="shrink-0"
+        >
           {t("libraryToggleSavedCards")}
         </Chip>
-        <Chip selected={filter === "savedBooks"} onClick={() => setFilter("savedBooks")}>
+        <Chip
+          selected={filter === "savedBooks"}
+          onClick={() => setFilter("savedBooks")}
+          className="shrink-0"
+        >
           {t("libraryToggleSavedBooks")}
         </Chip>
-        <Chip selected={filter === "liked"} onClick={() => setFilter("liked")}>
+        <Chip selected={filter === "liked"} onClick={() => setFilter("liked")} className="shrink-0">
           {t("libraryToggleLiked")}
         </Chip>
       </div>

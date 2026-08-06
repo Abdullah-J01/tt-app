@@ -19,7 +19,7 @@ export function Chip({ children, selected = false, className, onClick }: ChipPro
       type="button"
       onClick={onClick}
       className={cn(
-        "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium transition-colors",
+        "inline-flex items-center rounded-full px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors",
         selected
           ? "bg-violet text-white"
           : "bg-lavender text-ink hover:bg-violet/10 border border-transparent",

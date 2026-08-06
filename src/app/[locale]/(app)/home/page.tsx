@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
+import { getServerSession } from "next-auth";
+import { redirect } from "next/navigation";
+import { authOptions } from "@/lib/auth";
 import { getTranslations } from "@/i18n/server";
-import { AuthGate } from "@/components/auth/AuthGate";
 import { HomeView } from "@/features/dashboard/components/HomeView";
 import { getHomeData } from "@/features/dashboard/data";
 
@@ -9,12 +11,10 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("metadataTitle") };
 }
 
-/** Logged-in landing page: Continue, Your Library, Popular, New. Guests get an in-page sign-in panel. */
+
 export default async function HomePage() {
+  const session = await getServerSession(authOptions);
+  if (!session?.user) redirect("/");
   const { popular, freshlyAdded } = await getHomeData();
-  return (
-    <AuthGate>
-      <HomeView popular={popular} freshlyAdded={freshlyAdded} />
-    </AuthGate>
-  );
+  return <HomeView popular={popular} freshlyAdded={freshlyAdded} />;
 }
